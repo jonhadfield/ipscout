@@ -36,7 +36,7 @@ func genRunners(config *Config) (map[string]TableClient, error) {
 		criminalIPConfig := criminalip.Config{
 			Default: config.Default,
 			Host:    config.Host,
-			APIKey:  config.Shodan.APIKey,
+			APIKey:  config.CriminalIP.APIKey,
 		}
 		criminalIPClient, err := criminalip.NewTableClient(criminalIPConfig)
 		if err != nil {

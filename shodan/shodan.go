@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	APIURL     = "https://api.shodan.io"
-	HostIPPath = "/shodan/host"
+	APIURL         = "https://api.shodan.io"
+	HostIPPath     = "/shodan/host"
+	MaxColumnWidth = 80
 )
 
 func Load(client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResult, err error) {
@@ -39,8 +40,8 @@ func Load(client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResu
 	return res, nil
 }
 
-func loadShodanAPIResponse(ctx context.Context, client *retryablehttp.Client, apiKey string) (res *ShodanHostSearchResult, err error) {
-	urlPath, err := url.JoinPath(APIURL, HostIPPath, "8.8.8.8")
+func loadShodanAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *ShodanHostSearchResult, err error) {
+	urlPath, err := url.JoinPath(APIURL, HostIPPath, host.String())
 	if err != nil {
 		return nil, err
 	}
@@ -62,8 +63,6 @@ func loadShodanAPIResponse(ctx context.Context, client *retryablehttp.Client, ap
 		panic(err)
 	}
 
-	fmt.Printf("request url: %s\n", req.URL.String())
-	fmt.Println(req.URL.String())
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
@@ -144,10 +143,12 @@ func fetchData(client Config) (*ShodanHostSearchResult, error) {
 		return result, nil
 	}
 
-	result, err = loadShodanAPIResponse(context.Background(), client.Default.HttpClient, client.APIKey)
+	result, err = loadShodanAPIResponse(context.Background(), client.Host, client.Default.HttpClient, client.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
 	}
+
+	fmt.Println(result.IPStr, result.Org)
 
 	return result, nil
 }
@@ -159,23 +160,33 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
-	row0 := table.Row{"Updated", result.LastUpdate}
-	row1 := table.Row{"Name", strings.Join(result.Hostnames, ", ")}
-	row2 := table.Row{"City", result.City}
-	row3 := table.Row{"Country", result.CountryName}
-	row4 := table.Row{"AS", result.Asn}
-	row5 := table.Row{"Ports"}
-	row6 := table.Row{"", "53/tcp"}
-	row7 := table.Row{"", "53/udp"}
-	row8 := table.Row{"", "443/tcp"}
-	row9 := table.Row{"", "|----- HTTP title: Google Public DNS"}
-	row10 := table.Row{"", "|----- Cert issuer: C=US, CN=GTS CA 1C3, O=Google Trust Services LLC"}
-	tw.AppendRows([]table.Row{row0, row1, row2, row3, row4, row5, row6, row7, row8, row9, row10})
+
+	var rows []table.Row
+
+	rows = append(rows, table.Row{"Updated", result.LastUpdate})
+	rows = append(rows, table.Row{"Name", strings.Join(result.Hostnames, ", ")})
+	rows = append(rows, table.Row{"City", result.City})
+	rows = append(rows, table.Row{"Country", result.CountryName})
+	rows = append(rows, table.Row{"AS", result.Asn})
+	rows = append(rows, table.Row{"Ports"})
+	// TODO: add ports
+	rows = append(rows, table.Row{"", "53/tcp"})
+	rows = append(rows, table.Row{"", "53/udp"})
+	rows = append(rows, table.Row{"", "443/tcp"})
+	rows = append(rows, table.Row{"", "|----- HTTP title: Google Public DNS"})
+	rows = append(rows, table.Row{"", "|----- Cert issuer: C=US, CN=GTS CA 1C3, O=Google Trust Services LLC"})
+	tw.AppendRows(rows)
+	tw.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth},
+	})
 	result.Data[0].Data = strings.ReplaceAll(result.Data[0].Domains[0], "\n", " ")
 	tw.SetAutoIndex(false)
-	tw.SetStyle(table.StyleColoredDark)
+	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true
 	tw.SetTitle("SHODAN | Host: %s", c.Client.Host.String())
+	if c.UseTestData {
+		tw.SetTitle("SHODAN | Host: %s", result.Data[0].IPStr)
+	}
 
 	return &tw, nil
 }
@@ -184,6 +195,7 @@ func NewTableClient(config Config) (*TableCreatorClient, error) {
 	tc := &TableCreatorClient{
 		Client: config,
 	}
+
 	tc.Default = config.Default
 
 	return tc, nil

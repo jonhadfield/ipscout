@@ -1,0 +1,606 @@
+{
+  "ip": "9.9.9.9",
+  "issues": {
+    "is_vpn": false,
+    "is_cloud": false,
+    "is_tor": false,
+    "is_proxy": false,
+    "is_hosting": false,
+    "is_mobile": false,
+    "is_darkweb": false,
+    "is_scanner": false,
+    "is_snort": false
+  },
+  "score": {
+    "inbound": "Safe",
+    "outbound": "Safe"
+  },
+  "user_search_count": 22,
+  "domain": {
+    "count": 72,
+    "data": [
+      {
+        "domain": "wesvpn.com",
+        "ip_type": "Unknown",
+        "registrar": "NameCheap, Inc.",
+        "create_date": "2024-02-05 00:00:00",
+        "confirmed_time": "2024-02-07 16:27:06",
+        "email": "abuse@namecheap.com"
+      },
+      {
+        "domain": "worthington.bank",
+        "ip_type": "Unknown",
+        "registrar": "MarkMonitor, Inc.",
+        "create_date": "2023-10-18 00:00:00",
+        "confirmed_time": "2023-10-26 17:05:52",
+        "email": "ccopsbilling@markmonitor.com"
+      },
+      {
+        "domain": "khk.lol",
+        "ip_type": "Unknown",
+        "registrar": "Dynadot LLC",
+        "create_date": "2023-09-30 00:00:00",
+        "confirmed_time": "2023-10-02 16:59:04",
+        "email": "abuse@dynadot.com"
+      },
+      {
+        "domain": "ipamaas.com",
+        "ip_type": "Unknown",
+        "registrar": "DREAMHOST",
+        "create_date": "2023-09-26 00:00:00",
+        "confirmed_time": "2023-09-28 15:13:05",
+        "email": ""
+      },
+      {
+        "domain": "sneakpeek.ovh",
+        "ip_type": "Unknown",
+        "registrar": "OVH",
+        "create_date": "2023-09-07 00:00:00",
+        "confirmed_time": "2023-09-10 15:45:01",
+        "email": ""
+      },
+      {
+        "domain": "cdn4ts.xyz",
+        "ip_type": "Unknown",
+        "registrar": "Namecheap",
+        "create_date": "2023-08-10 00:00:00",
+        "confirmed_time": "2023-08-12 15:30:59",
+        "email": "abuse@namecheap.com"
+      },
+      {
+        "domain": "vvisa.xyz",
+        "ip_type": "Unknown",
+        "registrar": "Dynadot LLC",
+        "create_date": "2023-07-23 00:00:00",
+        "confirmed_time": "2023-07-24 16:37:18",
+        "email": "abuse@dynadot.com"
+      },
+      {
+        "domain": "chenxiangpeng.top",
+        "ip_type": "Unknown",
+        "registrar": "Alibaba Cloud Computing Ltd. d/b/a HiChina (www.net.cn)",
+        "create_date": "2023-02-12 00:00:00",
+        "confirmed_time": "2023-02-16 07:56:23",
+        "email": ""
+      },
+      {
+        "domain": "garliclab.xyz",
+        "ip_type": "Unknown",
+        "registrar": "Porkbun, LLC",
+        "create_date": "2023-02-07 00:00:00",
+        "confirmed_time": "2023-02-10 16:19:59",
+        "email": "abuse@porkbun.com"
+      },
+      {
+        "domain": "get-your-team.info",
+        "ip_type": "Unknown",
+        "registrar": "NameSilo, LLC",
+        "create_date": "2023-02-01 00:00:00",
+        "confirmed_time": "2023-02-04 17:25:55",
+        "email": ""
+      },
+      {
+        "domain": "tk112233.top",
+        "ip_type": "Unknown",
+        "registrar": "NameSilo,LLC",
+        "create_date": "2023-01-19 00:00:00",
+        "confirmed_time": "2023-01-22 20:27:10",
+        "email": ""
+      },
+      {
+        "domain": "gawel.ovh",
+        "ip_type": "Unknown",
+        "registrar": "OVH",
+        "create_date": "2023-01-13 00:00:00",
+        "confirmed_time": "2023-01-16 19:33:26",
+        "email": ""
+      },
+      {
+        "domain": "winfanqie.com",
+        "ip_type": "top_rank",
+        "registrar": "",
+        "create_date": "",
+        "confirmed_time": "2022-12-31 23:49:06",
+        "email": ""
+      },
+      {
+        "domain": "xn--cnq01i.tech",
+        "ip_type": "Unknown",
+        "registrar": "Alibaba Cloud Computing Ltd. d/b/a HiChina (www.net.cn)",
+        "create_date": "2022-11-27 00:00:00",
+        "confirmed_time": "2022-11-29 16:26:45",
+        "email": "domainabuse@service.aliyun.com"
+      },
+      {
+        "domain": "pegasbank.com",
+        "ip_type": "Unknown",
+        "registrar": "MarkMonitor, Inc.",
+        "create_date": "2022-10-31 00:00:00",
+        "confirmed_time": "2022-11-02 17:32:01",
+        "email": ""
+      },
+      {
+        "domain": "ngdns.top",
+        "ip_type": "Unknown",
+        "registrar": "Alibaba Cloud Computing Ltd. d/b/a HiChina (www.net.cn)",
+        "create_date": "2022-10-19 00:00:00",
+        "confirmed_time": "2022-10-21 15:06:00",
+        "email": ""
+      },
+      {
+        "domain": "shoresecuritysolutions.com",
+        "ip_type": "Unknown",
+        "registrar": "Dynu Systems, Inc.",
+        "create_date": "2022-08-19 00:00:00",
+        "confirmed_time": "2022-08-25 03:15:49",
+        "email": ""
+      },
+      {
+        "domain": "super-plast.it",
+        "ip_type": "top_rank",
+        "registrar": "",
+        "create_date": "",
+        "confirmed_time": "2022-07-23 00:28:30",
+        "email": ""
+      },
+      {
+        "domain": "yourapi.xyz",
+        "ip_type": "Unknown",
+        "registrar": "Dynadot LLC",
+        "create_date": "2022-06-20 00:00:00",
+        "confirmed_time": "2022-06-24 01:58:33",
+        "email": "abuse@dynadot.com"
+      },
+      {
+        "domain": "tbw6699.com",
+        "ip_type": "Unknown",
+        "registrar": "DYNADOT, LLC",
+        "create_date": "2022-04-30 00:00:00",
+        "confirmed_time": "2022-05-05 04:43:30",
+        "email": "abuse@dynadot.com"
+      }
+    ]
+  },
+  "whois": {
+    "count": 1,
+    "data": [
+      {
+        "as_name": "QUAD9-AS-1",
+        "as_no": 19281,
+        "city": "Berkeley",
+        "region": "California",
+        "org_name": "Quad9",
+        "postal_code": "94709",
+        "latitude": 37.8767,
+        "longitude": -122.2676,
+        "org_country_code": "us",
+        "confirmed_time": "2024-03-24 00:00:00"
+      }
+    ]
+  },
+  "hostname": {
+    "count": 1,
+    "data": [
+      {
+        "domain_name_rep": "quad9.net",
+        "domain_name_full": "dns9.quad9.net",
+        "confirmed_time": "2024-03-06 06:00:33"
+      }
+    ]
+  },
+  "ids": {
+    "count": 0,
+    "data": []
+  },
+  "vpn": {
+    "count": 0,
+    "data": []
+  },
+  "webcam": {
+    "count": 0,
+    "data": []
+  },
+  "honeypot": {
+    "count": 0,
+    "data": []
+  },
+  "ip_category": {
+    "count": 3,
+    "data": [
+      {
+        "detect_source": "C-TAS(kisa-alliance)",
+        "type": "attack (High)",
+        "detect_info": {},
+        "confirmed_time": "2023-10-12 21:39:26"
+      },
+      {
+        "detect_source": "",
+        "type": "MISP",
+        "detect_info": {},
+        "confirmed_time": "2022-12-19 12:03:18"
+      },
+      {
+        "detect_source": "",
+        "type": "MISP",
+        "detect_info": {
+          "domain": "test1.bw.com"
+        },
+        "confirmed_time": "2021-03-16 23:15:40"
+      }
+    ]
+  },
+  "port": {
+    "count": 46,
+    "data": [
+      {
+        "app_name": "PowerDNS dnsdist",
+        "banner": "HTTP/1.1\nStatus: 404 File Not Found\nDate: Thu, 21 Mar 2024 15:35:42 GMT\nContent Length: 9\nContent Type: text/plain; charset=utf-8\nServer: h2o/dnsdist\n\nnot found\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "app_version": "Unknown",
+        "open_port_no": 443,
+        "port_status": "open",
+        "protocol": "HTTPS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": "149.112.112.14,149.112.112.15,9.9.9.9,149.112.112.9,149.112.112.11,149.112.112.13,149.112.112.112,*.quad9.net,quad9.net,9.9.9.12,9.9.9.14,9.9.9.10,149.112.112.12,9.9.9.11,9.9.9.13,9.9.9.15,149.112.112.10",
+        "sdn_common_name": "*.quad9.net",
+        "jarm_hash": "40d40d40d00040d00042d42d0000005a3e96c1dfa4bdb24b8b3c04cae18cc3",
+        "ssl_info_raw": "\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "technologies": [],
+        "is_vulnerability": false,
+        "confirmed_time": "2024-03-22 09:32:02"
+      },
+      {
+        "app_name": "Q9-P",
+        "banner": "xef@\tQ9-P-7.6\n\n  Resolver ID: res711.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Recursion: enabled",
+        "app_version": "7.6",
+        "open_port_no": 53,
+        "port_status": "open",
+        "protocol": "DNS",
+        "socket": "udp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": false,
+        "confirmed_time": "2024-03-22 08:26:55"
+      },
+      {
+        "app_name": "Q9-P",
+        "banner": "\n  Resolver ID: res220.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Recursion: enabled",
+        "app_version": "7.6",
+        "open_port_no": 53,
+        "port_status": "open",
+        "protocol": "DNS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": false,
+        "confirmed_time": "2024-03-19 13:54:24"
+      },
+      {
+        "app_name": "httpd",
+        "banner": "HTTP/1.0\nStatus: 400 Bad Request\nClient sent an HTTP request to an HTTPS server.",
+        "app_version": "Unknown",
+        "open_port_no": 5053,
+        "port_status": "open",
+        "protocol": "",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": false,
+        "confirmed_time": "2024-03-14 07:32:08"
+      },
+      {
+        "app_name": "PowerDNS dnsdist",
+        "banner": "HTTP/1.1\nStatus: 404 File Not Found\nDate: Tue, 27 Feb 2024 12:43:14 GMT\nContent Length: 9\nContent Type: text/plain; charset=utf-8\nServer: h2o/dnsdist\n\nnot found\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "app_version": "Unknown",
+        "open_port_no": 443,
+        "port_status": "open",
+        "protocol": "HTTPS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": "149.112.112.14,149.112.112.15,9.9.9.9,149.112.112.9,149.112.112.11,149.112.112.13,149.112.112.112,*.quad9.net,quad9.net,9.9.9.12,9.9.9.14,9.9.9.10,149.112.112.12,9.9.9.11,9.9.9.13,9.9.9.15,149.112.112.10",
+        "sdn_common_name": "*.quad9.net",
+        "jarm_hash": "40d40d40d00040d00042d42d0000005a3e96c1dfa4bdb24b8b3c04cae18cc3",
+        "ssl_info_raw": "\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2024-02-29 07:26:06"
+      },
+      {
+        "app_name": "Q9-P",
+        "banner": "xef8I\tQ9-P-7.6\n\n  Resolver ID: res120.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Recursion: enabled",
+        "app_version": "7.6",
+        "open_port_no": 53,
+        "port_status": "open",
+        "protocol": "DNS",
+        "socket": "udp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2024-02-26 21:48:08"
+      },
+      {
+        "app_name": "httpd",
+        "banner": "HTTP/1.0\nStatus: 400 Bad Request\nClient sent an HTTP request to an HTTPS server.",
+        "app_version": "Unknown",
+        "open_port_no": 5053,
+        "port_status": "open",
+        "protocol": "",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2024-02-16 22:37:09"
+      },
+      {
+        "app_name": "Q9-P",
+        "banner": "\n  Resolver ID: res121.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Recursion: enabled",
+        "app_version": "7.6",
+        "open_port_no": 53,
+        "port_status": "open",
+        "protocol": "DNS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2024-02-16 12:23:29"
+      },
+      {
+        "app_name": "Q9-P",
+        "banner": "\n  Resolver ID: res221.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Resolver name: res711.ams.rrdns.pch.net\n  Recursion: enabled",
+        "app_version": "7.6",
+        "open_port_no": 53,
+        "port_status": "open",
+        "protocol": "DNS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2024-01-31 07:27:55"
+      },
+      {
+        "app_name": "PowerDNS dnsdist",
+        "banner": "HTTP/1.1\nStatus: 404 File Not Found\nDate: Sun, 28 Jan 2024 23:25:19 GMT\nContent Length: 9\nContent Type: text/plain; charset=utf-8\nServer: h2o/dnsdist\n\nnot found\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "app_version": "Unknown",
+        "open_port_no": 443,
+        "port_status": "open",
+        "protocol": "HTTPS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": "149.112.112.14,149.112.112.15,9.9.9.9,149.112.112.9,149.112.112.11,149.112.112.13,149.112.112.112,*.quad9.net,quad9.net,9.9.9.12,9.9.9.14,9.9.9.10,149.112.112.12,9.9.9.11,9.9.9.13,9.9.9.15,149.112.112.10",
+        "sdn_common_name": "*.quad9.net",
+        "jarm_hash": "40d40d40d00040d00042d42d0000005a3e96c1dfa4bdb24b8b3c04cae18cc3",
+        "ssl_info_raw": "\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2024-01-29 01:03:11"
+      },
+      {
+        "app_name": "Q9-P",
+        "banner": "xef!\tQ9-P-7.6\n\n  Resolver ID: res221.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Recursion: enabled",
+        "app_version": "7.6",
+        "open_port_no": 53,
+        "port_status": "open",
+        "protocol": "DNS",
+        "socket": "udp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2024-01-25 12:59:33"
+      },
+      {
+        "app_name": "httpd",
+        "banner": "HTTP/1.0\nStatus: 400 Bad Request\nClient sent an HTTP request to an HTTPS server.",
+        "app_version": "Unknown",
+        "open_port_no": 5053,
+        "port_status": "open",
+        "protocol": "",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2024-01-21 08:58:10"
+      },
+      {
+        "app_name": "Q9-P",
+        "banner": "\n  Resolver ID: res310.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Resolver name: res721.ams.rrdns.pch.net\n  Recursion: enabled",
+        "app_version": "7.6",
+        "open_port_no": 53,
+        "port_status": "open",
+        "protocol": "DNS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2023-12-31 04:54:30"
+      },
+      {
+        "app_name": "PowerDNS dnsdist",
+        "banner": "HTTP/1.1\nStatus: 404 File Not Found\nDate: Sat, 30 Dec 2023 06:31:57 GMT\nContent Length: 9\nContent Type: text/plain; charset=utf-8\nServer: h2o/dnsdist\n\nnot found\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "app_version": "Unknown",
+        "open_port_no": 443,
+        "port_status": "open",
+        "protocol": "HTTPS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": "149.112.112.14,149.112.112.15,9.9.9.9,149.112.112.9,149.112.112.11,149.112.112.13,149.112.112.112,*.quad9.net,quad9.net,9.9.9.12,9.9.9.14,9.9.9.10,149.112.112.12,9.9.9.11,9.9.9.13,9.9.9.15,149.112.112.10",
+        "sdn_common_name": "*.quad9.net",
+        "jarm_hash": "40d40d40d00040d00042d42d0000005a3e96c1dfa4bdb24b8b3c04cae18cc3",
+        "ssl_info_raw": "\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2023-12-31 03:15:04"
+      },
+      {
+        "app_name": "httpd",
+        "banner": "HTTP/1.0\nStatus: 400 Bad Request\nClient sent an HTTP request to an HTTPS server.",
+        "app_version": "Unknown",
+        "open_port_no": 5053,
+        "port_status": "open",
+        "protocol": "",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2023-12-13 18:57:44"
+      },
+      {
+        "app_name": "PowerDNS dnsdist",
+        "banner": "HTTP/1.1\nStatus: 404 File Not Found\nDate: Tue, 28 Nov 2023 23:17:08 GMT\nContent Length: 9\nContent Type: text/plain; charset=utf-8\nServer: h2o/dnsdist\n\nnot found\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "app_version": "Unknown",
+        "open_port_no": 443,
+        "port_status": "open",
+        "protocol": "HTTPS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": "149.112.112.14,149.112.112.15,9.9.9.9,149.112.112.9,149.112.112.11,149.112.112.13,149.112.112.112,*.quad9.net,quad9.net,9.9.9.12,9.9.9.14,9.9.9.10,149.112.112.12,9.9.9.11,9.9.9.13,9.9.9.15,149.112.112.10",
+        "sdn_common_name": "*.quad9.net",
+        "jarm_hash": "40d40d40d00040d00042d42d0000005a3e96c1dfa4bdb24b8b3c04cae18cc3",
+        "ssl_info_raw": "\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2023-11-29 03:14:08"
+      },
+      {
+        "app_name": "Q9-P",
+        "banner": "\n  Resolver ID: res110.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Recursion: enabled",
+        "app_version": "7.6",
+        "open_port_no": 53,
+        "port_status": "open",
+        "protocol": "DNS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2023-11-26 21:30:07"
+      },
+      {
+        "app_name": "httpd",
+        "banner": "HTTP/1.0\nStatus: 400 Bad Request\nClient sent an HTTP request to an HTTPS server.",
+        "app_version": "Unknown",
+        "open_port_no": 5053,
+        "port_status": "open",
+        "protocol": "",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2023-11-21 06:28:15"
+      },
+      {
+        "app_name": "PowerDNS dnsdist",
+        "banner": "HTTP/1.1\nStatus: 404 File Not Found\nDate: Mon, 30 Oct 2023 06:44:11 GMT\nContent Length: 9\nContent Type: text/plain; charset=utf-8\nServer: h2o/dnsdist\n\nnot found\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "app_version": "Unknown",
+        "open_port_no": 443,
+        "port_status": "open",
+        "protocol": "HTTPS",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": "149.112.112.14,149.112.112.15,9.9.9.9,149.112.112.9,149.112.112.11,149.112.112.13,149.112.112.112,*.quad9.net,quad9.net,9.9.9.12,9.9.9.14,9.9.9.10,149.112.112.12,9.9.9.11,9.9.9.13,9.9.9.15,149.112.112.10",
+        "sdn_common_name": "*.quad9.net",
+        "jarm_hash": "40d40d40d00040d00042d42d0000005a3e96c1dfa4bdb24b8b3c04cae18cc3",
+        "ssl_info_raw": "\n\nTLS Certificate\nVersion: 3\nSerial Number: 17337767665402821956911373044371295383\nSignature Algorithm: \n\tName: ECDSAWitHSHA384\n\tOid: 1.2.840.10045.4.3.3\nIssuer: \n\tCommon Name: DigiCert TLS Hybrid ECC SHA384 2020 CA1\n\tCountry: US\n\tOrganization: DigiCert Inc\nIssuer Dn: C=US, O=DigiCert Inc, CN=DigiCert TLS Hybrid ECC SHA384 2020 CA1\nValidity: \n\tStart: 2023-07-31T00:00:00Z\n\tEnd: 2024-08-06T23:59:59Z\n\tLength: 32227199\nSubject: \n\tCommon Name: *.quad9.net\n\tCountry: US\n\tLocality: Berkeley\n\tProvince: California\n\tOrganization: Quad9\nSubject Dn: C=US, ST=California, L=Berkeley, O=Quad9, CN=*.quad9.net\nSubject Key Info: \n\tKey Algorithm: \n\t\tName: ECDSA\n\tEcdsa Public Key: \n\t\tB: WsY12Ko6k+ez671VdpiGvGUdBrDMU7D2O848PifSYEs=\n\t\tCurve: P-256\n\t\tGx: axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY=\n\t\tGy: T+NC4v4af5uO5+tKfA+eFivOM1drMV7Oy7ZAaDe/UfU=\n\t\tLength: 256\n\t\tN: /////wAAAAD//////////7zm+q2nF56E87nKwvxjJVE=\n\t\tP: /////wAAAAEAAAAAAAAAAAAAAAD///////////////8=\n\t\tPub: BH2L1x0DhQ0YJbM0HCmhJ9SsASVIiqDx6gK52FEsCGqsclbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\t\tX: fYvXHQOFDRglszQcKaEn1KwBJUiKoPHqArnYUSwIaqw=\n\t\tY: clbs+j2moJ9JCVWOrP65cxdcAvt4zCSRlG9DI4kOHWY=\n\tFingerprint Sha256: fd296cbe20646f4e58ffc5e2285f7e099b200adaea3d09396e1e3ba34477fc28\nExtensions: \n\tKey Usage: \n\t\tDigital Signature: True\n\t\tValue: 1\n\tBasic Constraints: \n\tSubject Alt Name: \n\t\tDns Names: *.quad9.net, quad9.net\n\t\tIp Addresses: 9.9.9.9, 9.9.9.10, 9.9.9.11, 9.9.9.12, 9.9.9.13, 9.9.9.14, 9.9.9.15, 149.112.112.9, 149.112.112.10, 149.112.112.11, 149.112.112.12, 149.112.112.13, 149.112.112.14, 149.112.112.15, 149.112.112.112, 2620:fe::9, 2620:fe::10, 2620:fe::11, 2620:fe::12, 2620:fe::13, 2620:fe::14, 2620:fe::15, 2620:fe::fe, 2620:fe::fe:9, 2620:fe::fe:10, 2620:fe::fe:11, 2620:fe::fe:12, 2620:fe::fe:13, 2620:fe::fe:14, 2620:fe::fe:15\n\tCrl Distribution Points: http://crl3.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl, http://crl4.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crl\n\tAuthority Key Id: 0abc0829178ca5396d7a0ece33c72eb3edfbc37a\n\tSubject Key Id: 7fa912a5d7c68b4802c73d2a456e401e4060f497\n\tExtended Key Usage: \n\t\tClient Auth: True\n\t\tServer Auth: True\n\tCertificate Policies: [{'id': '2.23.140.1.2.2', 'cps': ['http://www.digicert.com/CPS']}]\n\tAuthority Info Access: \n\t\tOcsp Urls: http://ocsp.digicert.com\n\t\tIssuer Urls: http://cacerts.digicert.com/DigiCertTLSHybridECCSHA3842020CA1-1.crt\n\tSigned Certificate Timestamps: [{'version': 0, 'log_id': '7s3QZNXbGs7FXLedtM0TojKHRny87N7DUUhZRnEftZs=', 'timestamp': 1690835926, 'signature': 'BAMARzBFAiEAgFrZoE0Z2bKo8We43Yg6tBBH8QQeJDI+6GmT7/lEYoUCIFCcQV5Yh8N4nP9uPtDYpRY/1nxHFdZDUQEVIV0usZ9P'}, {'version': 0, 'log_id': 'SLDja9qmRzQP5WoC+p0w6xxSActW3SyB2bu/qznYhHM=', 'timestamp': 1690835926, 'signature': 'BAMASDBGAiEApUGxpLDzRBpEbDvd9FjnaWAwYRVlQ+OJ8PZLPbsmsCQCIQD8qRPUjxQw5DoKzsPivvoLs+POpc3Y2gH1c3cjurMPNA=='}, {'version': 0, 'log_id': '2ra/az+1tiKfm8K7XGvocJFxbLtRhIU0vaQ9MEjX+6s=', 'timestamp': 1690835926, 'signature': 'BAMARjBEAiBMmvofeflmsV3JoyFVid5GiJaPHkH9fDWkS93eP9fgEQIgfkTwCbSFNKnF47riYP4MJow7haBO+pFwRW5WAEC1AQQ='}]\nSignature: \n\tSignature Algorithm: \n\t\tName: ECDSAWitHSHA384\n\t\tOid: 1.2.840.10045.4.3.3\n\tValue: MGUCMDjrEa5jaoOtQkE1R/+iOltWSm/uXnyWaYGS1YQoq6Wsu5corjcgtUJBeo30wIfpxgIxAKEUjaguKWP9RlCd8oBI0jpFCpRZ6V0sWCMSc/cieN89OX2hf7i/pq6QFfRl4tnKbQ==\n\tValid: True\nFingerprint Md5: eb243d399443e997b07c8eef88b27084\n",
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2023-10-30 09:59:10"
+      },
+      {
+        "app_name": "httpd",
+        "banner": "HTTP/1.0\nStatus: 400 Bad Request\nClient sent an HTTP request to an HTTPS server.",
+        "app_version": "Unknown",
+        "open_port_no": 5053,
+        "port_status": "open",
+        "protocol": "",
+        "socket": "tcp",
+        "tags": [],
+        "dns_names": null,
+        "sdn_common_name": null,
+        "jarm_hash": null,
+        "ssl_info_raw": null,
+        "technologies": [],
+        "is_vulnerability": null,
+        "confirmed_time": "2023-10-28 14:55:50"
+      }
+    ]
+  },
+  "vulnerability": {
+    "count": 0,
+    "data": []
+  },
+  "mobile": {
+    "count": 0,
+    "data": []
+  },
+  "status": 200
+}

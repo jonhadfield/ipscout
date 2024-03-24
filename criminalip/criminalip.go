@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/noodle/config"
@@ -12,12 +13,15 @@ import (
 	"net/netip"
 	"net/url"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 )
 
 const (
-	APIURL     = "https://api.criminalip.io"
-	HostIPPath = "/v1/asset/ip/report"
+	APIURL            = "https://api.criminalip.io"
+	HostIPPath        = "/v1/asset/ip/report"
+	IndentPipeHyphens = " |-----"
 )
 
 type Config struct {
@@ -27,10 +31,10 @@ type Config struct {
 	APIKey string
 }
 
-func Load(client *retryablehttp.Client, apiKey string) (res CriminalIPHostSearchResult, err error) {
+func Load(host netip.Addr, client *retryablehttp.Client, apiKey string) (res CriminalIPHostSearchResult, err error) {
 	ctx := context.Background()
 
-	apiResponse, err := loadCriminalIPAPIResponse(ctx, client, apiKey)
+	apiResponse, err := loadCriminalIPAPIResponse(ctx, host, client, apiKey)
 	if err != nil {
 		return CriminalIPHostSearchResult{}, err
 	}
@@ -53,10 +57,10 @@ func Load(client *retryablehttp.Client, apiKey string) (res CriminalIPHostSearch
 	return res, nil
 }
 
-func loadCriminalIPAPIResponse(ctx context.Context, client *retryablehttp.Client, apiKey string) (res CriminalIPHostSearchResult, err error) {
-	urlPath, err := url.JoinPath(APIURL, HostIPPath, "8.8.8.8")
+func loadCriminalIPAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *CriminalIPHostSearchResult, err error) {
+	urlPath, err := url.JoinPath(APIURL, HostIPPath)
 	if err != nil {
-		return CriminalIPHostSearchResult{}, err
+		return nil, err
 	}
 
 	sURL, err := url.Parse(urlPath)
@@ -68,13 +72,19 @@ func loadCriminalIPAPIResponse(ctx context.Context, client *retryablehttp.Client
 	defer cancel()
 
 	q := sURL.Query()
-	q.Add("key", apiKey)
+	q.Add("ip", host.String())
 	sURL.RawQuery = q.Encode()
 
 	req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodGet, sURL.String(), nil)
 	if err != nil {
 		panic(err)
 	}
+
+	req.Header.Add("x-api-key", apiKey)
+
+	fmt.Println(req.URL.String())
+	fmt.Println(req.URL.RawQuery)
+	fmt.Println(req.Header.Get("x-api-key"))
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -89,9 +99,8 @@ func loadCriminalIPAPIResponse(ctx context.Context, client *retryablehttp.Client
 
 	// do something with the response
 	defer resp.Body.Close()
-
 	if err = json.Unmarshal(rBody, &res); err != nil {
-		return CriminalIPHostSearchResult{}, err
+		return nil, err
 	}
 
 	return res, nil
@@ -112,36 +121,137 @@ func NewTableClient(config Config) (*TableCreatorClient, error) {
 	return tc, nil
 }
 
-func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
-	result, err := loadCriminalIPFile("criminalip/testdata/criminalip_1_1_1_1_report.json")
+func fetchData(client Config) (*CriminalIPHostSearchResult, error) {
+	var result *CriminalIPHostSearchResult
+
+	var err error
+
+	if client.UseTestData {
+		result, err = loadCriminalIPFile("criminalip/testdata/criminalip_9_9_9_9_report.json")
+		if err != nil {
+			return nil, err
+		}
+
+		return result, nil
+	}
+
+	result, err = loadCriminalIPAPIResponse(context.Background(), client.Host, client.Default.HttpClient, client.APIKey)
 	if err != nil {
-		return nil, fmt.Errorf("error loading criminalip file: %w", err)
+		return nil, fmt.Errorf("error loading shodan api response: %w", err)
+	}
+
+	return result, nil
+}
+
+const (
+	MaxColumnWidth = 80
+)
+
+func tidyBanner(banner string) string {
+	// remove empty lines using regex match
+	var lines []string
+	r := regexp.MustCompile(`^(\s*$|$)`)
+	for x, line := range strings.Split(banner, "\n") {
+		if r.MatchString(line) {
+			continue
+		}
+
+		if x > 0 {
+			line = strings.TrimSpace(line)
+			line = fmt.Sprintf("%s %s", strings.Repeat(" ", len(IndentPipeHyphens)+1), line)
+		}
+
+		lines = append(lines, line)
+	}
+
+	return strings.Join(lines, "\n")
+}
+
+func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
+	result, err := fetchData(c.Client)
+	if err != nil {
+		return nil, fmt.Errorf("error loading criminalip api response: %w", err)
 	}
 
 	tw := table.NewWriter()
-	row1 := table.Row{"Name", result.Domain.Data[0].Domain}
-	row2 := table.Row{"City", result.Whois.Data[0].City}
-	row3 := table.Row{"Country", result.Whois.Data[0].OrgCountryCode}
-	row4 := table.Row{"AS", result.Whois.Data[0].AsNo}
-	row5 := table.Row{"Ports"}
-	row6 := table.Row{"", "53/tcp"}
-	row7 := table.Row{"", "53/udp"}
-	row8 := table.Row{"", "443/tcp"}
-	row9 := table.Row{"", "|----- HTTP title: Google Public DNS"}
-	row10 := table.Row{"", "|----- Cert issuer: C=US, CN=GTS CA 1C3, O=Google Trust Services LLC"}
-	tw.AppendRows([]table.Row{row1, row2, row3, row4, row5, row6, row7, row8, row9, row10})
-	// result.Data[0].Data = strings.ReplaceAll(result.Data[0].Domains[0], "\n", " ")
-	tw.SetAutoIndex(false)
-	tw.SetStyle(table.StyleColoredMagentaWhiteOnBlack)
-	tw.SetTitle("CRIMINAL IP | Host: %s", c.Client.Host.String())
+	// tw.SetStyle(myInnerStyle)
+	var rows []table.Row
 
+	if result.Hostname.Count > 0 {
+		rows = append(rows, table.Row{"Name", result.Hostname.Data[0].DomainNameFull})
+		rows = append(rows, table.Row{"City", result.Whois.Data[0].City})
+		rows = append(rows, table.Row{"Country", result.Whois.Data[0].OrgCountryCode})
+		rows = append(rows, table.Row{"AS", result.Whois.Data[0].AsNo})
+	} else {
+		rows = append(rows, table.Row{"Name", "N/A"})
+		rows = append(rows, table.Row{"City", "N/A"})
+		rows = append(rows, table.Row{"Country", "N/A"})
+		rows = append(rows, table.Row{"AS", "N/A"})
+	}
+
+	rows = append(rows, table.Row{"Score Inbound", result.Score.Inbound})
+	rows = append(rows, table.Row{"Score Outbound", result.Score.Outbound})
+
+	rows = append(rows, table.Row{"Ports"})
+
+	for x, port := range result.Port.Data {
+		// always inclue port and socket
+		rows = append(rows, table.Row{"", color.CyanString("%d/%s", port.OpenPortNo, port.Socket)})
+		rows = append(rows, table.Row{"", fmt.Sprintf("%s  Protocol: %s", IndentPipeHyphens, port.Protocol)})
+		rows = append(rows, table.Row{"", fmt.Sprintf("%s  Confirmed Time: %s", IndentPipeHyphens, port.ConfirmedTime)})
+
+		// vary output based on protocol
+		switch strings.ToLower(port.Protocol) {
+		case "https":
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s  SDN Common Name: %s", IndentPipeHyphens, port.SdnCommonName)})
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s  DNS Names: %s", IndentPipeHyphens, port.DNSNames)})
+		case "dns":
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s  App Name (Version): %s (%s)", IndentPipeHyphens, port.AppName, port.AppVersion)})
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s  Banner: %s", IndentPipeHyphens, tidyBanner(port.Banner))})
+		default:
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s  App Name (Version): %s (%s)", IndentPipeHyphens, port.AppName, port.AppVersion)})
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s  Banner: %s", IndentPipeHyphens, tidyBanner(port.Banner))})
+		}
+
+		// always include if detected as vulnerability
+		rows = append(rows, table.Row{"", fmt.Sprintf("%s  Is Vulnerability: %t", IndentPipeHyphens, port.IsVulnerability)})
+		if x+1 < len(result.Port.Data) {
+			// add a blank row between ports
+			rows = append(rows, table.Row{"", ""})
+		}
+		// {
+		//        "app_name": "Q9-P",
+		//        "banner": "xef@\tQ9-P-7.6\n\n  Resolver ID: res711.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Recursion: enabled",
+		//        "app_version": "7.6",
+		//        "open_port_no": 53,
+		//        "port_status": "open",
+		//        "protocol": "DNS",
+		//        "socket": "udp",
+		//        "tags": [],
+		//        "dns_names": null,
+		//        "sdn_common_name": null,
+		//        "jarm_hash": null,
+		//        "ssl_info_raw": null,
+		//        "technologies": [],
+		//        "is_vulnerability": false,
+		//        "confirmed_time": "2024-03-22 08:26:55"
+		//      },
+
+	}
+	tw.AppendRows(rows)
+	tw.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth},
+	})
+	tw.SetAutoIndex(false)
+	tw.SetTitle("CRIMINAL | Host: %s", result.IP)
+	// }
 	return &tw, nil
 }
 
-func loadCriminalIPFile(path string) (res CriminalIPHostSearchResult, err error) {
+func loadCriminalIPFile(path string) (res *CriminalIPHostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
-		return CriminalIPHostSearchResult{}, err
+		return nil, err
 	}
 
 	defer jf.Close()
@@ -156,17 +266,11 @@ func loadCriminalIPFile(path string) (res CriminalIPHostSearchResult, err error)
 	return res, nil
 }
 
-func Run() (result CriminalIPHostSearchResult, err error) {
-	result, err = loadCriminalIPFile("criminalip/testdata/criminalip_1_1_1_1_report.json")
+func Run() (*CriminalIPHostSearchResult, error) {
+	result, err := loadCriminalIPFile("criminalip/testdata/criminalip_9_9_9_9_report.json")
 	if err != nil {
-		return CriminalIPHostSearchResult{}, err
+		return nil, fmt.Errorf("error loading criminalip file: %w", err)
 	}
-
-	// httpClient := getHTTPClient()
-	// res, err = Load(httpClient, os.Getenv("SHODAN_API_KEY"))
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 	return result, nil
 }
@@ -601,3 +705,10 @@ type CriminalIPHostSearchResult struct {
 // 	Asn   string `json:"asn"`
 // 	IPStr string `json:"ip_str"`
 // }
+
+func NilOrOriginal[T comparable](value *T, replacement string) interface{} {
+	if value == nil {
+		return replacement
+	}
+	return *value
+}

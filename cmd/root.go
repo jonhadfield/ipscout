@@ -37,7 +37,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		pConfig.Host = host
-		pConfig.UseTestData = viper.GetBool("USE_TEST_DATA")
+		pConfig.UseTestData = viper.GetBool("NOODLE_USE_TEST_DATA")
 		pConfig.HttpClient = getHTTPClient()
 
 		processor, err := process.New(&pConfig)
@@ -81,7 +81,7 @@ func init() {
 	viper.SetDefault("author", "Jon Hadfield <jon@lessknown.co.uk>")
 	viper.SetDefault("license", "apache")
 
-	viper.SetEnvPrefix("noodle")
+	// viper.SetEnvPrefix("noodle")
 }
 
 func initConfig() {
