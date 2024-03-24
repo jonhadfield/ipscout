@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/jonhadfield/noodle/criminalip"
 	"github.com/jonhadfield/noodle/process"
 	"github.com/jonhadfield/noodle/shodan"
 	"github.com/mitchellh/go-homedir"
@@ -9,6 +10,11 @@ import (
 	"github.com/spf13/viper"
 	"net/netip"
 	"os"
+	"path"
+)
+
+const (
+	defaultConfigPath = ".config/noodle/config.yml"
 )
 
 var rootCmd = &cobra.Command{
@@ -17,7 +23,6 @@ var rootCmd = &cobra.Command{
 	Long:  `noodle is a CLI application that does stuff.`,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		var err error
 
 		var host netip.Addr
@@ -27,14 +32,16 @@ var rootCmd = &cobra.Command{
 		}
 
 		pConfig := process.Config{
-			UseTestData: viper.GetBool("USE_TEST_DATA"),
-			Host:        host,
-			Shodan:      shodan.Config{APIKey: viper.GetString("shodan_api_key")},
+			Shodan:     shodan.Config{APIKey: viper.GetString("shodan_api_key")},
+			CriminalIP: criminalip.Config{APIKey: viper.GetString("criminal_ip_api_key")},
 		}
+
+		pConfig.Host = host
+		pConfig.UseTestData = viper.GetBool("USE_TEST_DATA")
 
 		processor, err := process.New(&pConfig)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("lll", err)
 			os.Exit(1)
 		}
 
@@ -46,7 +53,7 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Println("ssssss", err)
 		os.Exit(1)
 	}
 }
@@ -55,10 +62,22 @@ var cfgFile string
 
 var useTestData bool
 
+func getDefaultConfigPath() string {
+	home, err := homedir.Dir()
+	if err != nil {
+		fmt.Println("ERR1", err)
+		os.Exit(1)
+	}
+
+	return path.Join(home, defaultConfigPath)
+
+}
+
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.noodle.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", getDefaultConfigPath(),
+		"config file (default is $HOME/.config/noodle/config.yml)")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
 	rootCmd.PersistentFlags().Bool("viper", true, "Use Viper for configuration")
 	viper.SetDefault("author", "Jon Hadfield <jon@lessknown.co.uk>")
@@ -73,21 +92,16 @@ func initConfig() {
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("ERR", err)
 			os.Exit(1)
 		}
 
 		// Search config in home directory with name ".cobra" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".noodle")
+		// viper.SetConfigName(".noodle")
 	}
 
-	// TODO: read in config
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Can't read config:", err)
-	}
-
+	_ = viper.ReadInConfig()
 }

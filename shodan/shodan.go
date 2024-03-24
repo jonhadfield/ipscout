@@ -8,6 +8,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"io"
 	"net/http"
+	"net/netip"
 	"net/url"
 	"os"
 	"strings"
@@ -15,30 +16,11 @@ import (
 )
 
 const (
-	ShodanAPIURL     = "https://api.shodan.io"
-	ShodanHostIPPath = "/shodan/host"
+	APIURL     = "https://api.shodan.io"
+	HostIPPath = "/shodan/host"
 )
 
-func getHTTPClient() *retryablehttp.Client {
-	hc := retryablehttp.NewClient()
-	hc.RetryWaitMin = 1
-	hc.RetryWaitMax = 1
-	hc.RetryMax = 1
-	hc.Logger = nil
-
-	return hc
-}
-
 func Load(client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResult, err error) {
-	// ctx := context.Background()
-
-	fmt.Println("apiKey", apiKey)
-	// apiResponse, err := loadShodanAPIResponse(ctx, client, apiKey)
-	// if err != nil {
-	// 	return ShodanHostSearchResult{}, err
-	// }
-	// fmt.Println("apiResponse.IP", apiResponse.IP)
-
 	jf, err := os.Open("testdata/shodan_google_dns_resp.json")
 	if err != nil {
 		return ShodanHostSearchResult{}, err
@@ -57,7 +39,7 @@ func Load(client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResu
 }
 
 func loadShodanAPIResponse(ctx context.Context, client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResult, err error) {
-	urlPath, err := url.JoinPath(ShodanAPIURL, ShodanHostIPPath, "8.8.8.8")
+	urlPath, err := url.JoinPath(APIURL, HostIPPath, "8.8.8.8")
 	if err != nil {
 		return ShodanHostSearchResult{}, err
 	}
@@ -103,6 +85,10 @@ func loadShodanAPIResponse(ctx context.Context, client *retryablehttp.Client, ap
 
 func loadShodanFile(path string) (res *ShodanHostSearchResult, err error) {
 	jf, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("error opening shodan file: %w", err)
+
+	}
 
 	defer jf.Close()
 
@@ -129,6 +115,7 @@ type Client struct {
 
 type Config struct {
 	_      struct{}
+	Host   netip.Addr
 	APIKey string
 }
 
@@ -141,9 +128,9 @@ type TableCreatorClient struct {
 }
 
 func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
-	result, err := loadShodanFile("testdata/shodan_google_dns_resp.json")
+	result, err := loadShodanFile("shodan/testdata/shodan_google_dns_resp.json")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading shodan file: %w", err)
 	}
 
 	tw := table.NewWriter()
@@ -161,7 +148,8 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	result.Data[0].Data = strings.ReplaceAll(result.Data[0].Domains[0], "\n", " ")
 	tw.SetAutoIndex(false)
 	tw.SetStyle(table.StyleColoredDark)
-	tw.SetTitle("SHODAN - Host: x.x.x.x")
+	// tw.Style().Options.DrawBorder = true
+	tw.SetTitle("SHODAN | Host: %s", c.Client.Host.String())
 
 	return &tw, nil
 }
@@ -175,34 +163,13 @@ func NewTableClient(config Config) (*TableCreatorClient, error) {
 }
 
 func (c *Client) GetData() (result *ShodanHostSearchResult, err error) {
-	result, err = loadShodanFile("testdata/shodan_google_dns_resp.json")
+	result, err = loadShodanFile("shodan/testdata/shodan_google_dns_resp.json")
 	if err != nil {
 		return nil, err
 	}
 
-	// httpClient := getHTTPClient()
-	// res, err = Load(httpClient, os.Getenv("SHODAN_API_KEY"))
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	return result, nil
 }
-
-// func (c *Client) CreateTable() (*table.Writer, error) {
-// 	result, err := loadShodanFile("testdata/shodan_google_dns_resp.json")
-// 	if err != nil {
-// 		return nil, err
-// 	}
-//
-// 	// httpClient := getHTTPClient()
-// 	// res, err = Load(httpClient, os.Getenv("SHODAN_API_KEY"))
-// 	// if err != nil {
-// 	// 	panic(err)
-// 	// }
-//
-// 	return result, nil
-// }
 
 type ShodanHostSearchResultData struct {
 	Hash int `json:"hash"`
@@ -347,73 +314,6 @@ type ShodanHostSearchResult struct {
 	Domains     []string `json:"domains"`
 	Org         string   `json:"org"`
 	Data        []ShodanHostSearchResultData
-	//
-	// 	// ////
-	// 	Shodan0 struct {
-	// 		ID      string `json:"id"`
-	// 		Region  string `json:"region"`
-	// 		Options struct {
-	// 		} `json:"options"`
-	// 		Module  string `json:"module"`
-	// 		Crawler string `json:"crawler"`
-	// 	} `json:"_shodan,omitempty"`
-	//
-	// 	Ssl struct {
-	// 		ChainSha256   []string `json:"chain_sha256"`
-	// 		Jarm          string   `json:"jarm"`
-	// 		Chain         []string `json:"chain"`
-	// 		Dhparams      any      `json:"dhparams"`
-	// 		Versions      []string `json:"versions"`
-	// 		AcceptableCas []any    `json:"acceptable_cas"`
-	// 		Tlsext        []struct {
-	// 			ID   int    `json:"id"`
-	// 			Name string `json:"name"`
-	// 		} `json:"tlsext"`
-	// 		Ja3S string `json:"ja3s"`
-	// 		Cert struct {
-	// 			SigAlg     string `json:"sig_alg"`
-	// 			Issued     string `json:"issued"`
-	// 			Expires    string `json:"expires"`
-	// 			Expired    bool   `json:"expired"`
-	// 			Version    int    `json:"version"`
-	// 			Extensions []struct {
-	// 				Critical bool   `json:"critical,omitempty"`
-	// 				Data     string `json:"data"`
-	// 				Name     string `json:"name"`
-	// 			} `json:"extensions"`
-	// 			Fingerprint struct {
-	// 				Sha256 string `json:"sha256"`
-	// 				Sha1   string `json:"sha1"`
-	// 			} `json:"fingerprint"`
-	// 			Serial  int64 `json:"serial"`
-	// 			Subject struct {
-	// 				Cn string `json:"CN"`
-	// 			} `json:"subject"`
-	// 			Pubkey struct {
-	// 				Type string `json:"type"`
-	// 				Bits int    `json:"bits"`
-	// 			} `json:"pubkey"`
-	// 			Issuer struct {
-	// 				C  string `json:"C"`
-	// 				Cn string `json:"CN"`
-	// 				O  string `json:"O"`
-	// 			} `json:"issuer"`
-	// 		} `json:"cert"`
-	// 		Cipher struct {
-	// 			Version string `json:"version"`
-	// 			Bits    int    `json:"bits"`
-	// 			Name    string `json:"name"`
-	// 		} `json:"cipher"`
-	// 		Trust struct {
-	// 			Revoked bool `json:"revoked"`
-	// 			Browser any  `json:"browser"`
-	// 		} `json:"trust"`
-	// 		HandshakeStates []string `json:"handshake_states"`
-	// 		Alpn            []any    `json:"alpn"`
-	// 		Ocsp            struct {
-	// 		} `json:"ocsp"`
-	// 	} `json:"ssl,omitempty"`
-	// } `json:"data"`
-	Asn   string `json:"asn"`
-	IPStr string `json:"ip_str"`
+	Asn         string `json:"asn"`
+	IPStr       string `json:"ip_str"`
 }

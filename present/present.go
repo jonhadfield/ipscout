@@ -14,54 +14,10 @@ type Resulter interface {
 }
 
 func Tables(tws []*table.Writer) error {
-	// var tos []*table.Writer
-	// for _, tw := range tws {
-	// 	tos = append(tos, tw.CreateTable())
-	// }
-	//
-	// hc := retryablehttp.NewClient()
-	//
-	// res, err := shodan.Load(hc, "")
-	// if err != nil {
-	// 	fmt.Println("ERROR", err)
-	// 	return
-	// }
-
-	// presentData(CombinedData{Shodan: res}, nil)
 	outputTables(tws)
 
 	return nil
 }
-
-// func Tables(tws []Resulter) {
-// 	var tos []*table.Writer
-// 	for _, tw := range tws {
-// 		tos = append(tos, tw.CreateTable())
-// 	}
-//
-// 	hc := retryablehttp.NewClient()
-//
-// 	res, err := shodan.Load(hc, "")
-// 	if err != nil {
-// 		fmt.Println("ERROR", err)
-// 		return
-// 	}
-//
-// 	// fmt.Println(res.IPStr)
-// 	// fmt.Println(res.Asn)
-// 	// fmt.Println(res.LastUpdate)
-// 	// fmt.Println(res.CountryCode)
-// 	// fmt.Println(res.CountryName)
-// 	// fmt.Println(res.RegionCode)
-// 	// fmt.Println(res.City)
-// 	// fmt.Println(res.Isp)
-// 	// fmt.Println(res.Ports)
-// 	// fmt.Println(res.Hostnames)
-// 	// fmt.Println(res.Domains)
-// 	// fmt.Println(res.Tags)
-//
-// 	presentData(CombinedData{Shodan: res}, nil)
-// }
 
 var (
 	colTitleIndex     = "col1"
@@ -80,6 +36,22 @@ type CombinedData struct {
 	CriminalIP criminalip.CriminalIPHostSearchResult
 }
 
+var myStyle = table.Style{
+	Name: "StyleColoredDark",
+	Box:  table.StyleBoxDefault,
+	Color: table.ColorOptions{
+		Footer:       text.Colors{text.FgCyan, text.BgHiBlack},
+		Header:       text.Colors{text.FgHiCyan, text.BgHiBlack},
+		IndexColumn:  text.Colors{text.FgHiCyan, text.BgHiBlack},
+		Row:          text.Colors{text.FgHiWhite, text.BgBlack},
+		RowAlternate: text.Colors{text.FgWhite, text.BgBlack},
+	},
+	Format: table.FormatOptionsDefault,
+	HTML:   table.DefaultHTMLOptions,
+	// Options: table.OptionsNoBordersAndSeparators,
+	Options: table.OptionsNoBordersAndSeparators,
+	Title:   table.TitleOptionsDark}
+
 func outputTables(tws []*table.Writer) {
 	twOuter := table.NewWriter()
 	// style := table.StyleColoredDark
@@ -88,7 +60,7 @@ func outputTables(tws []*table.Writer) {
 	// tw.SetStyle(style)
 	// tw.Style().Title.Align = text.AlignCenter
 	// tw.CreateTable()
-	twOuter.SetStyle(table.StyleColoredBlueWhiteOnBlack)
+	twOuter.SetStyle(myStyle)
 	twOuter.Style().Title.Align = text.AlignCenter
 	twOuter.SetTitle("NOODLE v0.1.0")
 	// // twOuter.Style().Options.SeparateRows = true
@@ -98,58 +70,6 @@ func outputTables(tws []*table.Writer) {
 	}
 	// twOuter.AppendRow([]interface{}{tw.Render()})
 	// twOuter.AppendRow([]interface{}{tw.Render()})
-	fmt.Println(twOuter.Render())
-}
-
-func presentData(input CombinedData, providers []string) {
-	// generate tables concurrently
-
-	// for each table, set requisite styles and pass for rendering
-
-	tw := table.NewWriter()
-	// tw.AppendHeader(rowHeader)
-	row1 = table.Row{"Name", strings.Join(input.Shodan.Hostnames, ", ")}
-	row2 = table.Row{"City", input.Shodan.City}
-	row3 = table.Row{"Country", input.Shodan.CountryName}
-	row4 := table.Row{"AS", input.Shodan.Asn}
-	row5 := table.Row{"Ports"}
-	row6 := table.Row{"", "53/tcp"}
-	row7 := table.Row{"", "53/udp"}
-	row8 := table.Row{"", "443/tcp"}
-	row9 := table.Row{"", "|----- HTTP title: Google Public DNS"}
-	row10 := table.Row{"", "|----- Cert issuer: C=US, CN=GTS CA 1C3, O=Google Trust Services LLC"}
-	tw.AppendRows([]table.Row{row1, row2, row3, row4, row5, row6, row7, row8, row9, row10})
-	input.Shodan.Data[0].Data = strings.ReplaceAll(input.Shodan.Data[0].Domains[0], "\n", " ")
-	// tw.AppendFooter(rowFooter)
-	// tw.SetIndexColumn(1)
-	tw.SetAutoIndex(false)
-	tw.SetStyle(table.StyleColoredMagentaWhiteOnBlack)
-	fmt.Println(tw.Render())
-	fmt.Println(tw.Render())
-
-	// stylePairs := [][]table.Style{
-	// 	{table.StyleColoredBright, table.StyleColoredDark},
-	// 	{table.StyleColoredBlackOnBlueWhite, table.StyleColoredBlueWhiteOnBlack},
-	// 	{table.StyleColoredBlackOnCyanWhite, table.StyleColoredCyanWhiteOnBlack},
-	// 	{table.StyleColoredBlackOnGreenWhite, table.StyleColoredGreenWhiteOnBlack},
-	// 	{table.StyleColoredBlackOnMagentaWhite, table.StyleColoredMagentaWhiteOnBlack},
-	// 	{table.StyleColoredBlackOnRedWhite, table.StyleColoredRedWhiteOnBlack},
-	// 	{table.StyleColoredBlackOnYellowWhite, table.StyleColoredYellowWhiteOnBlack},
-	// }
-
-	twOuter := table.NewWriter()
-	// style := table.StyleColoredDark
-	// style := table.StyleLight
-	// tw.SetCaption(style.Name)
-	// tw.SetStyle(style)
-	// tw.Style().Title.Align = text.AlignCenter
-	// tw.CreateTable()
-	twOuter.SetStyle(table.StyleLight)
-	twOuter.Style().Title.Align = text.AlignCenter
-	twOuter.SetTitle("NOODLE v0.1.0")
-	// // twOuter.Style().Options.SeparateRows = true
-	twOuter.AppendRow([]interface{}{tw.Render()})
-	twOuter.AppendRow([]interface{}{tw.Render()})
 	fmt.Println(twOuter.Render())
 }
 
