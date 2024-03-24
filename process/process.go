@@ -17,10 +17,11 @@ type TableClient interface {
 func genRunners(config *Config) (map[string]TableClient, error) {
 	runners := make(map[string]TableClient)
 
-	if config.Shodan.APIKey != "" {
+	if config.Shodan.APIKey != "" || config.UseTestData {
 		shodanConfig := shodan.Config{
-			Host:   config.Host,
-			APIKey: config.Shodan.APIKey,
+			Default: config.Default,
+			Host:    config.Host,
+			APIKey:  config.Shodan.APIKey,
 		}
 
 		shodanClient, err := shodan.NewTableClient(shodanConfig)
@@ -31,10 +32,11 @@ func genRunners(config *Config) (map[string]TableClient, error) {
 		runners["shodan"] = shodanClient
 	}
 
-	if config.CriminalIP.APIKey != "" {
+	if config.CriminalIP.APIKey != "" || config.UseTestData {
 		criminalIPConfig := criminalip.Config{
-			Host:   config.Host,
-			APIKey: config.Shodan.APIKey,
+			Default: config.Default,
+			Host:    config.Host,
+			APIKey:  config.Shodan.APIKey,
 		}
 		criminalIPClient, err := criminalip.NewTableClient(criminalIPConfig)
 		if err != nil {
@@ -62,18 +64,18 @@ type Processor struct {
 func (p *Processor) Run() {
 	runners, err := genRunners(p.Config)
 	if err != nil {
-		fmt.Println("dddssss", err)
+		fmt.Printf("error generating runners: %v", err)
 		os.Exit(1)
 	}
 
 	tables, err := generateTables(runners)
 	if err != nil {
-		fmt.Println("ddsdsdsd", err)
+		fmt.Printf("error generating tables: %v", err)
 		os.Exit(1)
 	}
 	// present data
 	if err = present.Tables(tables); err != nil {
-		fmt.Println("ttttt", err)
+		fmt.Printf("error presenting tables: %v", err)
 		os.Exit(1)
 	}
 }
@@ -84,7 +86,6 @@ func generateTables(runners map[string]TableClient) ([]*table.Writer, error) {
 	for _, runner := range runners {
 		tbl, err := runner.CreateTable()
 		if err != nil {
-			fmt.Println("dddddddldkdkdkdkdkd", err)
 			return nil, err
 		}
 
@@ -99,6 +100,8 @@ func New(config *Config) (Processor, error) {
 	p := Processor{
 		Config: config,
 	}
+
+	p.Config.Default = config.Default
 
 	return p, nil
 }

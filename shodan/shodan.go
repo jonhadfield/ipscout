@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jonhadfield/noodle/config"
 	"io"
 	"net/http"
 	"net/netip"
@@ -38,10 +39,10 @@ func Load(client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResu
 	return res, nil
 }
 
-func loadShodanAPIResponse(ctx context.Context, client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResult, err error) {
+func loadShodanAPIResponse(ctx context.Context, client *retryablehttp.Client, apiKey string) (res *ShodanHostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath, "8.8.8.8")
 	if err != nil {
-		return ShodanHostSearchResult{}, err
+		return nil, err
 	}
 
 	sURL, err := url.Parse(urlPath)
@@ -62,7 +63,7 @@ func loadShodanAPIResponse(ctx context.Context, client *retryablehttp.Client, ap
 	}
 
 	fmt.Printf("request url: %s\n", req.URL.String())
-	fmt.Println(req)
+	fmt.Println(req.URL.String())
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
@@ -77,7 +78,7 @@ func loadShodanAPIResponse(ctx context.Context, client *retryablehttp.Client, ap
 	defer resp.Body.Close()
 
 	if err = json.Unmarshal(rBody, &res); err != nil {
-		return ShodanHostSearchResult{}, err
+		return nil, fmt.Errorf("error unmarshalling shodan response: %w", err)
 	}
 
 	return res, nil
@@ -114,7 +115,8 @@ type Client struct {
 }
 
 type Config struct {
-	_      struct{}
+	_ struct{}
+	config.Default
 	Host   netip.Addr
 	APIKey string
 }
@@ -124,16 +126,40 @@ type Clienter interface {
 }
 
 type TableCreatorClient struct {
+	config.Default
 	Client Config
 }
 
-func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
-	result, err := loadShodanFile("shodan/testdata/shodan_google_dns_resp.json")
+func fetchData(client Config) (*ShodanHostSearchResult, error) {
+	var result *ShodanHostSearchResult
+
+	var err error
+
+	if client.UseTestData {
+		result, err = loadShodanFile("shodan/testdata/shodan_google_dns_resp.json")
+		if err != nil {
+			return nil, err
+		}
+
+		return result, nil
+	}
+
+	result, err = loadShodanAPIResponse(context.Background(), client.Default.HttpClient, client.APIKey)
 	if err != nil {
-		return nil, fmt.Errorf("error loading shodan file: %w", err)
+		return nil, fmt.Errorf("error loading shodan api response: %w", err)
+	}
+
+	return result, nil
+}
+
+func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
+	result, err := fetchData(c.Client)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching data: %w", err)
 	}
 
 	tw := table.NewWriter()
+	row0 := table.Row{"Updated", result.LastUpdate}
 	row1 := table.Row{"Name", strings.Join(result.Hostnames, ", ")}
 	row2 := table.Row{"City", result.City}
 	row3 := table.Row{"Country", result.CountryName}
@@ -144,7 +170,7 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	row8 := table.Row{"", "443/tcp"}
 	row9 := table.Row{"", "|----- HTTP title: Google Public DNS"}
 	row10 := table.Row{"", "|----- Cert issuer: C=US, CN=GTS CA 1C3, O=Google Trust Services LLC"}
-	tw.AppendRows([]table.Row{row1, row2, row3, row4, row5, row6, row7, row8, row9, row10})
+	tw.AppendRows([]table.Row{row0, row1, row2, row3, row4, row5, row6, row7, row8, row9, row10})
 	result.Data[0].Data = strings.ReplaceAll(result.Data[0].Domains[0], "\n", " ")
 	tw.SetAutoIndex(false)
 	tw.SetStyle(table.StyleColoredDark)
@@ -158,6 +184,7 @@ func NewTableClient(config Config) (*TableCreatorClient, error) {
 	tc := &TableCreatorClient{
 		Client: config,
 	}
+	tc.Default = config.Default
 
 	return tc, nil
 }

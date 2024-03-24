@@ -38,10 +38,10 @@ var rootCmd = &cobra.Command{
 
 		pConfig.Host = host
 		pConfig.UseTestData = viper.GetBool("USE_TEST_DATA")
+		pConfig.HttpClient = getHTTPClient()
 
 		processor, err := process.New(&pConfig)
 		if err != nil {
-			fmt.Println("lll", err)
 			os.Exit(1)
 		}
 
@@ -53,7 +53,6 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println("ssssss", err)
 		os.Exit(1)
 	}
 }
@@ -65,7 +64,6 @@ var useTestData bool
 func getDefaultConfigPath() string {
 	home, err := homedir.Dir()
 	if err != nil {
-		fmt.Println("ERR1", err)
 		os.Exit(1)
 	}
 
@@ -94,7 +92,6 @@ func initConfig() {
 	} else {
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println("ERR", err)
 			os.Exit(1)
 		}
 

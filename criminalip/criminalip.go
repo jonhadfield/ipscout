@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jonhadfield/noodle/config"
 	"io"
 	"net/http"
 	"net/netip"
@@ -20,7 +21,8 @@ const (
 )
 
 type Config struct {
-	_      struct{}
+	_ struct{}
+	config.Default
 	Host   netip.Addr
 	APIKey string
 }
@@ -74,14 +76,10 @@ func loadCriminalIPAPIResponse(ctx context.Context, client *retryablehttp.Client
 		panic(err)
 	}
 
-	fmt.Printf("request url: %s\n", req.URL.String())
-	fmt.Println(req)
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Printf("response status code: %d\n", resp.StatusCode)
 
 	// read response body
 	rBody, err := io.ReadAll(resp.Body)
@@ -100,6 +98,7 @@ func loadCriminalIPAPIResponse(ctx context.Context, client *retryablehttp.Client
 }
 
 type TableCreatorClient struct {
+	config.Default
 	Client Config
 }
 
@@ -107,6 +106,8 @@ func NewTableClient(config Config) (*TableCreatorClient, error) {
 	tc := &TableCreatorClient{
 		Client: config,
 	}
+
+	tc.Default = config.Default
 
 	return tc, nil
 }
