@@ -143,7 +143,7 @@ func fetchData(client Config) (*HostSearchResult, error) {
 	var err error
 
 	if client.UseTestData {
-		result, err = loadResultsFile("shodan/testdata/shodan_google_dns_resp.json")
+		result, err = loadResultsFile("providers/shodan/testdata/shodan_google_dns_resp.json")
 		if err != nil {
 			return nil, err
 		}

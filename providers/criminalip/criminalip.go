@@ -269,7 +269,7 @@ func loadCriminalIPFile(path string) (res *HostSearchResult, err error) {
 }
 
 func Run() (*HostSearchResult, error) {
-	result, err := loadCriminalIPFile("criminalip/testdata/criminalip_9_9_9_9_report.json")
+	result, err := loadCriminalIPFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
 	if err != nil {
 		return nil, fmt.Errorf("error loading criminalip file: %w", err)
 	}
