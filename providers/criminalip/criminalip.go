@@ -125,7 +125,7 @@ func fetchData(client Config) (*HostSearchResult, error) {
 	var err error
 
 	if client.UseTestData {
-		result, err = loadCriminalIPFile("criminalip/testdata/criminalip_9_9_9_9_report.json")
+		result, err = loadCriminalIPFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
 		if err != nil {
 			return nil, err
 		}
