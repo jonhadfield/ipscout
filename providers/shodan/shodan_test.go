@@ -16,7 +16,7 @@ func TestShodanHostDNSQuery(t *testing.T) {
 
 	decoder := json.NewDecoder(jf)
 
-	var sr ShodanHostSearchResult
+	var sr HostSearchResult
 	err = decoder.Decode(&sr)
 	require.NoError(t, err)
 

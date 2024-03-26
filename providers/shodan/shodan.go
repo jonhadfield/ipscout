@@ -20,17 +20,17 @@ import (
 )
 
 const (
-	APIURL               = "https://api.shodan.io"
-	HostIPPath           = "/shodan/host"
-	MaxColumnWidth       = 120
-	IndentPipeHyphens    = " |-----"
-	ShodanNoDataResponse = "No information available for that IP."
+	APIURL            = "https://api.shodan.io"
+	HostIPPath        = "/shodan/host"
+	MaxColumnWidth    = 120
+	IndentPipeHyphens = " |-----"
+	NoDataResponse    = "No information available for that IP."
 )
 
-func Load(client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResult, err error) {
+func Load(client *retryablehttp.Client, apiKey string) (res HostSearchResult, err error) {
 	jf, err := os.Open("testdata/shodan_google_dns_resp.json")
 	if err != nil {
-		return ShodanHostSearchResult{}, err
+		return HostSearchResult{}, err
 	}
 
 	defer jf.Close()
@@ -45,7 +45,7 @@ func Load(client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResu
 	return res, nil
 }
 
-func loadShodanAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *ShodanHostSearchResult, err error) {
+func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *HostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath, host.String())
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func loadShodanAPIResponse(ctx context.Context, host netip.Addr, client *retryab
 	return res, nil
 }
 
-func loadShodanFile(path string) (res *ShodanHostSearchResult, err error) {
+func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening shodan file: %w", err)
@@ -110,7 +110,7 @@ func loadShodanFile(path string) (res *ShodanHostSearchResult, err error) {
 	return res, nil
 }
 
-func (ssr *ShodanHostSearchResult) CreateTable() *table.Writer {
+func (ssr *HostSearchResult) CreateTable() *table.Writer {
 	tw := table.NewWriter()
 
 	return &tw
@@ -137,13 +137,13 @@ type TableCreatorClient struct {
 	Client Config
 }
 
-func fetchData(client Config) (*ShodanHostSearchResult, error) {
-	var result *ShodanHostSearchResult
+func fetchData(client Config) (*HostSearchResult, error) {
+	var result *HostSearchResult
 
 	var err error
 
 	if client.UseTestData {
-		result, err = loadShodanFile("shodan/testdata/shodan_google_dns_resp.json")
+		result, err = loadResultsFile("shodan/testdata/shodan_google_dns_resp.json")
 		if err != nil {
 			return nil, err
 		}
@@ -151,13 +151,13 @@ func fetchData(client Config) (*ShodanHostSearchResult, error) {
 		return result, nil
 	}
 
-	result, err = loadShodanAPIResponse(context.Background(), client.Host, client.Default.HttpClient, client.APIKey)
+	result, err = loadAPIResponse(context.Background(), client.Host, client.Default.HttpClient, client.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
 	}
 
 	switch result.Error {
-	case ShodanNoDataResponse:
+	case NoDataResponse:
 		return nil, providers.ErrNoDataFound
 	case "":
 		break
@@ -246,8 +246,8 @@ func NewTableClient(config Config) (*TableCreatorClient, error) {
 	return tc, nil
 }
 
-func (c *Client) GetData() (result *ShodanHostSearchResult, err error) {
-	result, err = loadShodanFile("shodan/testdata/shodan_google_dns_resp.json")
+func (c *Client) GetData() (result *HostSearchResult, err error) {
+	result, err = loadResultsFile("shodan/testdata/shodan_google_dns_resp.json")
 	if err != nil {
 		return nil, err
 	}
@@ -255,7 +255,7 @@ func (c *Client) GetData() (result *ShodanHostSearchResult, err error) {
 	return result, nil
 }
 
-type ShodanHostSearchResultData struct {
+type HostSearchResultData struct {
 	Hash int `json:"hash"`
 	Opts struct {
 	} `json:"opts,omitempty"`
@@ -380,7 +380,7 @@ type ShodanHostSearchResultData struct {
 	} `json:"ssl,omitempty"`
 }
 
-type ShodanHostSearchResult struct {
+type HostSearchResult struct {
 	City        string   `json:"city"`
 	RegionCode  string   `json:"region_code"`
 	Os          any      `json:"os"`
@@ -397,7 +397,7 @@ type ShodanHostSearchResult struct {
 	CountryName string   `json:"country_name"`
 	Domains     []string `json:"domains"`
 	Org         string   `json:"org"`
-	Data        []ShodanHostSearchResultData
+	Data        []HostSearchResultData
 	Asn         string `json:"asn"`
 	IPStr       string `json:"ip_str"`
 	Error       string `json:"error"`

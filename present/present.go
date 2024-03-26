@@ -19,8 +19,8 @@ func Tables(tws []*table.Writer) error {
 }
 
 type CombinedData struct {
-	Shodan     shodan.ShodanHostSearchResult
-	CriminalIP criminalip.CriminalIPHostSearchResult
+	Shodan     shodan.HostSearchResult
+	CriminalIP criminalip.HostSearchResult
 }
 
 func outputTables(tws []*table.Writer) {

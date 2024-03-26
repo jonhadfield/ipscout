@@ -32,17 +32,17 @@ type Config struct {
 	APIKey string
 }
 
-// func Load(host netip.Addr, client *retryablehttp.Client, apiKey string) (res CriminalIPHostSearchResult, err error) {
+// func Load(host netip.Addr, client *retryablehttp.Client, apiKey string) (res HostSearchResult, err error) {
 // 	ctx := context.Background()
 //
 // 	apiResponse, err := loadCriminalIPAPIResponse(ctx, host, client, apiKey)
 // 	if err != nil {
-// 		return CriminalIPHostSearchResult{}, err
+// 		return HostSearchResult{}, err
 // 	}
 //
 // 	jf, err := os.Open("testdata/shodan_google_dns_resp.json")
 // 	if err != nil {
-// 		return CriminalIPHostSearchResult{}, err
+// 		return HostSearchResult{}, err
 // 	}
 //
 // 	defer jf.Close()
@@ -57,7 +57,7 @@ type Config struct {
 // 	return res, nil
 // }
 
-func loadCriminalIPAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *CriminalIPHostSearchResult, err error) {
+func loadCriminalIPAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *HostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath)
 	if err != nil {
 		return nil, err
@@ -119,8 +119,8 @@ func NewTableClient(config Config) (*TableCreatorClient, error) {
 	return tc, nil
 }
 
-func fetchData(client Config) (*CriminalIPHostSearchResult, error) {
-	var result *CriminalIPHostSearchResult
+func fetchData(client Config) (*HostSearchResult, error) {
+	var result *HostSearchResult
 
 	var err error
 
@@ -250,7 +250,7 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadCriminalIPFile(path string) (res *CriminalIPHostSearchResult, err error) {
+func loadCriminalIPFile(path string) (res *HostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -268,7 +268,7 @@ func loadCriminalIPFile(path string) (res *CriminalIPHostSearchResult, err error
 	return res, nil
 }
 
-func Run() (*CriminalIPHostSearchResult, error) {
+func Run() (*HostSearchResult, error) {
 	result, err := loadCriminalIPFile("criminalip/testdata/criminalip_9_9_9_9_report.json")
 	if err != nil {
 		return nil, fmt.Errorf("error loading criminalip file: %w", err)
@@ -277,7 +277,7 @@ func Run() (*CriminalIPHostSearchResult, error) {
 	return result, nil
 }
 
-type CriminalIPHostSearchResultData struct {
+type HostSearchResultData struct {
 	Hash int `json:"hash"`
 	Opts struct {
 	} `json:"opts,omitempty"`
@@ -402,7 +402,7 @@ type CriminalIPHostSearchResultData struct {
 	} `json:"ssl,omitempty"`
 }
 
-type CriminalIPHostSearchResult struct {
+type HostSearchResult struct {
 	IP     string `json:"ip"`
 	Issues struct {
 		IsVpn          bool `json:"is_vpn"`
@@ -619,7 +619,7 @@ type CriminalIPHostSearchResult struct {
 	Status int `json:"status"`
 }
 
-// type CriminalIPHostSearchResult struct {
+// type HostSearchResult struct {
 // 	City        string   `json:"city"`
 // 	RegionCode  string   `json:"region_code"`
 // 	Os          any      `json:"os"`
@@ -636,7 +636,7 @@ type CriminalIPHostSearchResult struct {
 // 	CountryName string   `json:"country_name"`
 // 	Domains     []string `json:"domains"`
 // 	Org         string   `json:"org"`
-// 	Data        []CriminalIPHostSearchResultData
+// 	Data        []HostSearchResultData
 // 	//
 // 	// 	// ////
 // 	// 	CriminalIP0 struct {
