@@ -32,32 +32,7 @@ type Config struct {
 	APIKey string
 }
 
-// func Load(host netip.Addr, client *retryablehttp.Client, apiKey string) (res HostSearchResult, err error) {
-// 	ctx := context.Background()
-//
-// 	apiResponse, err := loadCriminalIPAPIResponse(ctx, host, client, apiKey)
-// 	if err != nil {
-// 		return HostSearchResult{}, err
-// 	}
-//
-// 	jf, err := os.Open("testdata/shodan_google_dns_resp.json")
-// 	if err != nil {
-// 		return HostSearchResult{}, err
-// 	}
-//
-// 	defer jf.Close()
-//
-// 	decoder := json.NewDecoder(jf)
-//
-// 	err = decoder.Decode(&res)
-// 	if err != nil {
-// 		return res, err
-// 	}
-//
-// 	return res, nil
-// }
-
-func loadCriminalIPAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *HostSearchResult, err error) {
+func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *HostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath)
 	if err != nil {
 		return nil, err
@@ -125,7 +100,7 @@ func fetchData(client Config) (*HostSearchResult, error) {
 	var err error
 
 	if client.UseTestData {
-		result, err = loadCriminalIPFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
+		result, err = loadResultsFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
 		if err != nil {
 			return nil, err
 		}
@@ -133,7 +108,7 @@ func fetchData(client Config) (*HostSearchResult, error) {
 		return result, nil
 	}
 
-	result, err = loadCriminalIPAPIResponse(context.Background(), client.Host, client.Default.HttpClient, client.APIKey)
+	result, err = loadAPIResponse(context.Background(), client.Host, client.Default.HttpClient, client.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
 	}
@@ -172,25 +147,25 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
+
 	// tw.SetStyle(myInnerStyle)
 	var rows []table.Row
-
 	if result.Hostname.Count > 0 {
-		rows = append(rows, table.Row{"Name", result.Hostname.Data[0].DomainNameFull})
-		rows = append(rows, table.Row{"City", result.Whois.Data[0].City})
-		rows = append(rows, table.Row{"Country", result.Whois.Data[0].OrgCountryCode})
-		rows = append(rows, table.Row{"AS", result.Whois.Data[0].AsNo})
+		tw.AppendRow(table.Row{"Name", dashIfEmpty(result.Hostname.Data[0].DomainNameFull)})
+		tw.AppendRow(table.Row{"City", dashIfEmpty(result.Whois.Data[0].City)})
+		tw.AppendRow(table.Row{"Country", dashIfEmpty(result.Whois.Data[0].OrgCountryCode)})
+		tw.AppendRow(table.Row{"AS", dashIfEmpty(result.Whois.Data[0].AsNo)})
 	} else {
-		rows = append(rows, table.Row{"Name", "N/A"})
-		rows = append(rows, table.Row{"City", "N/A"})
-		rows = append(rows, table.Row{"Country", "N/A"})
-		rows = append(rows, table.Row{"AS", "N/A"})
+		tw.AppendRow(table.Row{"Name", "N/A"})
+		tw.AppendRow(table.Row{"City", "N/A"})
+		tw.AppendRow(table.Row{"Country", "N/A"})
+		tw.AppendRow(table.Row{"AS", "N/A"})
 	}
 
-	rows = append(rows, table.Row{"Score Inbound", result.Score.Inbound})
-	rows = append(rows, table.Row{"Score Outbound", result.Score.Outbound})
+	tw.AppendRow(table.Row{"Score Inbound", result.Score.Inbound})
+	tw.AppendRow(table.Row{"Score Outbound", result.Score.Outbound})
 
-	rows = append(rows, table.Row{"Ports"})
+	tw.AppendRow(table.Row{"Ports"})
 
 	for x, port := range result.Port.Data {
 		// always inclue port and socket
@@ -198,28 +173,28 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 			continue
 		}
 
-		rows = append(rows, table.Row{"", color.CyanString("%d/%s", port.OpenPortNo, port.Socket)})
-		rows = append(rows, table.Row{"", fmt.Sprintf("%s  Protocol: %s", IndentPipeHyphens, port.Protocol)})
-		rows = append(rows, table.Row{"", fmt.Sprintf("%s  Confirmed Time: %s", IndentPipeHyphens, port.ConfirmedTime)})
+		tw.AppendRow(table.Row{"", color.CyanString("%d/%s", port.OpenPortNo, port.Socket)})
+		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Protocol: %s", IndentPipeHyphens, port.Protocol)})
+		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Confirmed Time: %s", IndentPipeHyphens, port.ConfirmedTime)})
 
 		// vary output based on protocol
 		switch strings.ToLower(port.Protocol) {
 		case "https":
-			rows = append(rows, table.Row{"", fmt.Sprintf("%s  SDN Common Name: %s", IndentPipeHyphens, port.SdnCommonName)})
-			rows = append(rows, table.Row{"", fmt.Sprintf("%s  DNS Names: %s", IndentPipeHyphens, port.DNSNames)})
+			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  SDN Common Name: %s", IndentPipeHyphens, port.SdnCommonName)})
+			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  DNS Names: %s", IndentPipeHyphens, port.DNSNames)})
 		case "dns":
-			rows = append(rows, table.Row{"", fmt.Sprintf("%s  App Name (Version): %s (%s)", IndentPipeHyphens, port.AppName, port.AppVersion)})
-			rows = append(rows, table.Row{"", fmt.Sprintf("%s  Banner: %s", IndentPipeHyphens, tidyBanner(port.Banner))})
+			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  App Name (Version): %s (%s)", IndentPipeHyphens, port.AppName, port.AppVersion)})
+			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Banner: %s", IndentPipeHyphens, tidyBanner(port.Banner))})
 		default:
-			rows = append(rows, table.Row{"", fmt.Sprintf("%s  App Name (Version): %s (%s)", IndentPipeHyphens, port.AppName, port.AppVersion)})
-			rows = append(rows, table.Row{"", fmt.Sprintf("%s  Banner: %s", IndentPipeHyphens, tidyBanner(port.Banner))})
+			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  App Name (Version): %s (%s)", IndentPipeHyphens, port.AppName, port.AppVersion)})
+			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Banner: %s", IndentPipeHyphens, tidyBanner(port.Banner))})
 		}
 
 		// always include if detected as vulnerability
-		rows = append(rows, table.Row{"", fmt.Sprintf("%s  Is Vulnerability: %t", IndentPipeHyphens, port.IsVulnerability)})
+		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Is Vulnerability: %t", IndentPipeHyphens, port.IsVulnerability)})
 		if x+1 < len(result.Port.Data) {
 			// add a blank row between ports
-			rows = append(rows, table.Row{"", ""})
+			tw.AppendRow(table.Row{"", ""})
 		}
 		// {
 		//        "app_name": "Q9-P",
@@ -242,7 +217,7 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	}
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth},
+		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("CRIMINAL | Host: %s", result.IP)
@@ -250,7 +225,7 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadCriminalIPFile(path string) (res *HostSearchResult, err error) {
+func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -269,7 +244,7 @@ func loadCriminalIPFile(path string) (res *HostSearchResult, err error) {
 }
 
 func Run() (*HostSearchResult, error) {
-	result, err := loadCriminalIPFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
+	result, err := loadResultsFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
 	if err != nil {
 		return nil, fmt.Errorf("error loading criminalip file: %w", err)
 	}
@@ -714,3 +689,31 @@ func NilOrOriginal[T comparable](value *T, replacement string) interface{} {
 	}
 	return *value
 }
+
+func dashIfEmpty(value interface{}) string {
+	switch v := value.(type) {
+	case string:
+		if len(v) == 0 {
+			return "-"
+		}
+		return v
+	case *string:
+		if v == nil || len(*v) == 0 {
+			return "-"
+		}
+		return *v
+	case int:
+		return fmt.Sprintf("%d", v)
+	default:
+		return "-"
+	}
+}
+
+//
+// func dashIfEmpty(in string) string {
+// 	if strings.TrimSpace(in) == "" {
+// 		return "-"
+// 	}
+//
+// 	return in
+// }

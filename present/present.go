@@ -30,6 +30,9 @@ func outputTables(tws []*table.Writer) {
 	myOuterStyle.Title.Align = text.AlignCenter
 	myOuterStyle.Title.Colors = text.Colors{text.FgRed, text.BgBlack}
 	twOuter.SetTitle("NOODLE v0.1.0")
+	twOuter.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 1, AutoMerge: false, WidthMin: 60},
+	})
 	myOuterStyle.Box = table.StyleBoxRounded
 	myOuterStyle.Options.SeparateRows = true
 	myOuterStyle.Options.DrawBorder = true
