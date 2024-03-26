@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 )
@@ -31,31 +32,30 @@ type Config struct {
 	APIKey string
 }
 
-func Load(host netip.Addr, client *retryablehttp.Client, apiKey string) (res CriminalIPHostSearchResult, err error) {
-	ctx := context.Background()
-
-	apiResponse, err := loadCriminalIPAPIResponse(ctx, host, client, apiKey)
-	if err != nil {
-		return CriminalIPHostSearchResult{}, err
-	}
-	fmt.Println(apiResponse.IP)
-
-	jf, err := os.Open("testdata/shodan_google_dns_resp.json")
-	if err != nil {
-		return CriminalIPHostSearchResult{}, err
-	}
-
-	defer jf.Close()
-
-	decoder := json.NewDecoder(jf)
-
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, err
-	}
-
-	return res, nil
-}
+// func Load(host netip.Addr, client *retryablehttp.Client, apiKey string) (res CriminalIPHostSearchResult, err error) {
+// 	ctx := context.Background()
+//
+// 	apiResponse, err := loadCriminalIPAPIResponse(ctx, host, client, apiKey)
+// 	if err != nil {
+// 		return CriminalIPHostSearchResult{}, err
+// 	}
+//
+// 	jf, err := os.Open("testdata/shodan_google_dns_resp.json")
+// 	if err != nil {
+// 		return CriminalIPHostSearchResult{}, err
+// 	}
+//
+// 	defer jf.Close()
+//
+// 	decoder := json.NewDecoder(jf)
+//
+// 	err = decoder.Decode(&res)
+// 	if err != nil {
+// 		return res, err
+// 	}
+//
+// 	return res, nil
+// }
 
 func loadCriminalIPAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *CriminalIPHostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath)
@@ -68,7 +68,7 @@ func loadCriminalIPAPIResponse(ctx context.Context, host netip.Addr, client *ret
 		panic(err)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	q := sURL.Query()
@@ -82,10 +82,6 @@ func loadCriminalIPAPIResponse(ctx context.Context, host netip.Addr, client *ret
 
 	req.Header.Add("x-api-key", apiKey)
 
-	fmt.Println(req.URL.String())
-	fmt.Println(req.URL.RawQuery)
-	fmt.Println(req.Header.Get("x-api-key"))
-
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
@@ -97,6 +93,8 @@ func loadCriminalIPAPIResponse(ctx context.Context, host netip.Addr, client *ret
 		panic(err)
 	}
 
+	os.WriteFile(fmt.Sprintf("backups/criminalip_%s_report.json",
+		strings.ReplaceAll(host.String(), ".", "_")), rBody, 0644)
 	// do something with the response
 	defer resp.Body.Close()
 	if err = json.Unmarshal(rBody, &res); err != nil {
@@ -144,7 +142,7 @@ func fetchData(client Config) (*CriminalIPHostSearchResult, error) {
 }
 
 const (
-	MaxColumnWidth = 80
+	MaxColumnWidth = 120
 )
 
 func tidyBanner(banner string) string {
@@ -196,6 +194,10 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 
 	for x, port := range result.Port.Data {
 		// always inclue port and socket
+		if len(c.LimitPorts) > 0 && !slices.Contains(c.LimitPorts, fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket)) {
+			continue
+		}
+
 		rows = append(rows, table.Row{"", color.CyanString("%d/%s", port.OpenPortNo, port.Socket)})
 		rows = append(rows, table.Row{"", fmt.Sprintf("%s  Protocol: %s", IndentPipeHyphens, port.Protocol)})
 		rows = append(rows, table.Row{"", fmt.Sprintf("%s  Confirmed Time: %s", IndentPipeHyphens, port.ConfirmedTime)})

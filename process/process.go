@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/noodle/config"
-	"github.com/jonhadfield/noodle/criminalip"
 	"github.com/jonhadfield/noodle/present"
-	"github.com/jonhadfield/noodle/shodan"
+	"github.com/jonhadfield/noodle/providers/criminalip"
+	"github.com/jonhadfield/noodle/providers/shodan"
 	"os"
 )
 

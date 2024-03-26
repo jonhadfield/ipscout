@@ -8,5 +8,7 @@ import (
 type Default struct {
 	HttpClient  *retryablehttp.Client
 	Host        netip.Addr
+	LimitPorts  []string
+	MaxWidth    int
 	UseTestData bool
 }

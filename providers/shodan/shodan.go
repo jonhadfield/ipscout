@@ -4,22 +4,27 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/noodle/config"
+	"github.com/jonhadfield/noodle/providers"
 	"io"
 	"net/http"
 	"net/netip"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"time"
 )
 
 const (
-	APIURL         = "https://api.shodan.io"
-	HostIPPath     = "/shodan/host"
-	MaxColumnWidth = 80
+	APIURL               = "https://api.shodan.io"
+	HostIPPath           = "/shodan/host"
+	MaxColumnWidth       = 120
+	IndentPipeHyphens    = " |-----"
+	ShodanNoDataResponse = "No information available for that IP."
 )
 
 func Load(client *retryablehttp.Client, apiKey string) (res ShodanHostSearchResult, err error) {
@@ -73,6 +78,9 @@ func loadShodanAPIResponse(ctx context.Context, host netip.Addr, client *retryab
 	if err != nil {
 		panic(err)
 	}
+
+	os.WriteFile(fmt.Sprintf("backups/shodan_%s_report.json",
+		strings.ReplaceAll(host.String(), ".", "_")), rBody, 0644)
 
 	defer resp.Body.Close()
 
@@ -148,7 +156,14 @@ func fetchData(client Config) (*ShodanHostSearchResult, error) {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
 	}
 
-	fmt.Println(result.IPStr, result.Org)
+	switch result.Error {
+	case ShodanNoDataResponse:
+		return nil, providers.ErrNoDataFound
+	case "":
+		break
+	default:
+		return nil, fmt.Errorf("%s: %w", result.Error, providers.ErrDataProviderFailure)
+	}
 
 	return result, nil
 }
@@ -157,6 +172,10 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	result, err := fetchData(c.Client)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %w", err)
+	}
+
+	if result == nil {
+		return nil, fmt.Errorf("no data returned")
 	}
 
 	tw := table.NewWriter()
@@ -170,16 +189,42 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	rows = append(rows, table.Row{"AS", result.Asn})
 	rows = append(rows, table.Row{"Ports"})
 	// TODO: add ports
-	rows = append(rows, table.Row{"", "53/tcp"})
-	rows = append(rows, table.Row{"", "53/udp"})
-	rows = append(rows, table.Row{"", "443/tcp"})
-	rows = append(rows, table.Row{"", "|----- HTTP title: Google Public DNS"})
-	rows = append(rows, table.Row{"", "|----- Cert issuer: C=US, CN=GTS CA 1C3, O=Google Trust Services LLC"})
+	for _, dr := range result.Data {
+		if len(c.LimitPorts) > 0 && !slices.Contains(c.LimitPorts, fmt.Sprintf("%d/%s", dr.Port, dr.Transport)) {
+			continue
+		}
+
+		rows = append(rows, table.Row{"", color.CyanString("%d/%s", dr.Port, dr.Transport)})
+		rows = append(rows, table.Row{"", fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
+		rows = append(rows, table.Row{"", fmt.Sprintf("%s  HostNames: %s", IndentPipeHyphens, strings.Join(dr.Hostnames, ", "))})
+		if dr.HTTP.Status != 0 {
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s  HTTP", IndentPipeHyphens)})
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s    Status: %d", IndentPipeHyphens, dr.HTTP.Status)})
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s    Title: %s", IndentPipeHyphens, dr.HTTP.Title)})
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s    Server: %s", IndentPipeHyphens, dr.HTTP.Server)})
+		}
+		if dr.DNS.ResolverHostname != nil {
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s  DNS", IndentPipeHyphens)})
+			if dr.DNS.ResolverHostname != "" {
+				rows = append(rows, table.Row{"", fmt.Sprintf("%s    Resolver Hostname: %s", IndentPipeHyphens, dr.DNS.ResolverHostname)})
+			}
+			if dr.DNS.Software != nil {
+				rows = append(rows, table.Row{"", fmt.Sprintf("%s    Resolver Software: %s", IndentPipeHyphens, dr.DNS.Software)})
+			}
+			rows = append(rows, table.Row{"", fmt.Sprintf("%s    Recursive: %t", IndentPipeHyphens, dr.DNS.Recursive)})
+		}
+	}
+	// rows = append(rows, table.Row{"", "53/tcp"})
+	// rows = append(rows, table.Row{"", "53/udp"})
+	// rows = append(rows, table.Row{"", "443/tcp"})
+	// rows = append(rows, table.Row{"", "|----- HTTP title: Google Public DNS"})
+	// rows = append(rows, table.Row{"", "|----- Cert issuer: C=US, CN=GTS CA 1C3, O=Google Trust Services LLC"})
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth},
 	})
-	result.Data[0].Data = strings.ReplaceAll(result.Data[0].Domains[0], "\n", " ")
+
+	// result.Data[0].Data = strings.ReplaceAll(result.Data[0].Domains[0], "\n", " ")
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true
@@ -355,4 +400,5 @@ type ShodanHostSearchResult struct {
 	Data        []ShodanHostSearchResultData
 	Asn         string `json:"asn"`
 	IPStr       string `json:"ip_str"`
+	Error       string `json:"error"`
 }

@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/jonhadfield/noodle/criminalip"
 	"github.com/jonhadfield/noodle/process"
-	"github.com/jonhadfield/noodle/shodan"
+	"github.com/jonhadfield/noodle/providers/criminalip"
+	"github.com/jonhadfield/noodle/providers/shodan"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -39,6 +39,8 @@ var rootCmd = &cobra.Command{
 		pConfig.Host = host
 		pConfig.UseTestData = viper.GetBool("NOODLE_USE_TEST_DATA")
 		pConfig.HttpClient = getHTTPClient()
+		pConfig.LimitPorts = viper.GetStringSlice("limit-ports")
+		fmt.Println("Limiting ports", pConfig.LimitPorts)
 
 		processor, err := process.New(&pConfig)
 		if err != nil {
@@ -57,9 +59,13 @@ func Execute() {
 	}
 }
 
-var cfgFile string
+var (
+	cfgFile string
 
-var useTestData bool
+	useTestData bool
+
+	limitPorts []string
+)
 
 func getDefaultConfigPath() string {
 	home, err := homedir.Dir()
@@ -77,6 +83,12 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", getDefaultConfigPath(),
 		"config file (default is $HOME/.config/noodle/config.yml)")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
+	rootCmd.PersistentFlags().StringSliceVarP(&limitPorts, "limit-ports", "l", []string{"sss"}, "limit ports")
+
+	if err := viper.BindPFlag("limit-ports", rootCmd.Flag("limit-ports")); err != nil {
+		os.Exit(1)
+	}
+
 	rootCmd.PersistentFlags().Bool("viper", true, "Use Viper for configuration")
 	viper.SetDefault("author", "Jon Hadfield <jon@lessknown.co.uk>")
 	viper.SetDefault("license", "apache")
