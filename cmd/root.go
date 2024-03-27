@@ -83,7 +83,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", getDefaultConfigPath(),
 		"config file (default is $HOME/.config/noodle/config.yml)")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
-	rootCmd.PersistentFlags().StringSliceVarP(&limitPorts, "limit-ports", "l", []string{"sss"}, "limit ports")
+	rootCmd.PersistentFlags().StringSliceVarP(&limitPorts, "limit-ports", "l", []string{}, "limit ports")
 
 	if err := viper.BindPFlag("limit-ports", rootCmd.Flag("limit-ports")); err != nil {
 		os.Exit(1)
