@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/jonhadfield/noodle/config"
 	"github.com/jonhadfield/noodle/process"
 	"github.com/jonhadfield/noodle/providers/criminalip"
 	"github.com/jonhadfield/noodle/providers/shodan"
@@ -40,6 +41,7 @@ var rootCmd = &cobra.Command{
 		pConfig.UseTestData = viper.GetBool("NOODLE_USE_TEST_DATA")
 		pConfig.HttpClient = getHTTPClient()
 		pConfig.LimitPorts = viper.GetStringSlice("limit-ports")
+		pConfig.IndentSpaces = config.DefaultIndentSpaces
 		fmt.Println("Limiting ports", pConfig.LimitPorts)
 
 		processor, err := process.New(&pConfig)

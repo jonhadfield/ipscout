@@ -5,10 +5,15 @@ import (
 	"net/netip"
 )
 
+const (
+	DefaultIndentSpaces = 2
+)
+
 type Default struct {
-	HttpClient  *retryablehttp.Client
-	Host        netip.Addr
-	LimitPorts  []string
-	MaxWidth    int
-	UseTestData bool
+	HttpClient   *retryablehttp.Client
+	Host         netip.Addr
+	LimitPorts   []string
+	MaxWidth     int
+	IndentSpaces int
+	UseTestData  bool
 }
