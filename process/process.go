@@ -7,6 +7,8 @@ import (
 	"github.com/jonhadfield/noodle/present"
 	"github.com/jonhadfield/noodle/providers/criminalip"
 	"github.com/jonhadfield/noodle/providers/shodan"
+	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 	"os"
 )
 
@@ -72,14 +74,51 @@ func (p *Processor) Run() {
 func generateTables(runners map[string]TableClient) ([]*table.Writer, error) {
 	var tables []*table.Writer
 
-	for _, runner := range runners {
-		tbl, err := runner.CreateTable()
-		if err != nil {
+	generate := func(ctx context.Context) ([]*table.Writer, error) {
+		g, _ := errgroup.WithContext(ctx)
+
+		results := make([]*table.Writer, len(runners))
+
+		var x int
+
+		for name, runner := range runners {
+			_, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
+			g.Go(func() error {
+				result, err := runner.CreateTable()
+				if err == nil {
+					results[x] = result
+				}
+
+				x++
+
+				return err
+			})
+		}
+
+		if err := g.Wait(); err != nil {
 			return nil, err
 		}
 
-		tables = append(tables, tbl)
+		return results, nil
 	}
+
+	results, err := generate(context.Background())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return nil, err
+	}
+	for _, result := range results {
+		tables = append(tables, result)
+	}
+
+	// for _, runner := range runners {
+	// 	tbl, err := runner.CreateTable()
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	//
+	// 	tables = append(tables, tbl)
+	// }
 
 	return tables, nil
 
