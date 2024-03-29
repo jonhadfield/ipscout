@@ -200,9 +200,9 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	}
 
 	if filteredPorts > 0 {
-		tw.AppendRow(table.Row{"Ports", fmt.Sprintf("%d (%d filtered)", len(result.Data), filteredPorts)})
+		rows = append(rows, table.Row{"Ports", fmt.Sprintf("%d (%d filtered)", len(result.Data), filteredPorts)})
 	} else {
-		tw.AppendRow(table.Row{"Ports", len(result.Data)})
+		rows = append(rows, table.Row{"Ports", len(result.Data)})
 	}
 
 	if len(result.Data) > 0 {
@@ -265,7 +265,7 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 
 		tw.AppendRows(rows)
 		tw.SetColumnConfigs([]table.ColumnConfig{
-			{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth},
+			{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
 		})
 	}
 	// result.Data[0].Data = strings.ReplaceAll(result.Data[0].Domains[0], "\n", " ")

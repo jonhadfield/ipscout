@@ -56,7 +56,6 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 	}
 
 	req.Header.Add("x-api-key", apiKey)
-
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
@@ -143,6 +142,15 @@ func tidyBanner(banner string) string {
 	return strings.Join(lines, "\n")
 }
 
+func getDomains(domain HostSearchResultDomain) []string {
+	var domains []string
+	for _, d := range domain.Data {
+		domains = append(domains, d.Domain)
+	}
+
+	return domains
+}
+
 func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	result, err := fetchData(c.Config)
 	if err != nil {
@@ -159,10 +167,14 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 		tw.AppendRow(table.Row{"Country", dashIfEmpty(result.Whois.Data[0].OrgCountryCode)})
 		tw.AppendRow(table.Row{"AS", dashIfEmpty(result.Whois.Data[0].AsNo)})
 	} else {
-		tw.AppendRow(table.Row{"Name", "N/A"})
-		tw.AppendRow(table.Row{"City", "N/A"})
-		tw.AppendRow(table.Row{"Country", "N/A"})
-		tw.AppendRow(table.Row{"AS", "N/A"})
+		tw.AppendRow(table.Row{"Name", "-"})
+		tw.AppendRow(table.Row{"City", "-"})
+		tw.AppendRow(table.Row{"Country", "-"})
+		tw.AppendRow(table.Row{"AS", "-"})
+	}
+
+	if domains := getDomains(result.Domain); domains != nil {
+		tw.AppendRow(table.Row{"Domains", strings.Join(getDomains(result.Domain), ", ")})
 	}
 
 	tw.AppendRow(table.Row{"Score Inbound", result.Score.Inbound})
@@ -215,10 +227,13 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth},
+		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
 	})
 	tw.SetAutoIndex(false)
-	tw.SetTitle("CRIMINAL IP | Host: %s", result.IP)
+	tw.SetTitle("CRIMINAL IP | Host: %s", c.Host.String())
+	if c.UseTestData {
+		tw.SetTitle("CRIMINAL IP | Host: %s", result.IP)
+	}
 
 	return &tw, nil
 }
@@ -366,6 +381,18 @@ type HostSearchResultData struct {
 	} `json:"ssl,omitempty"`
 }
 
+type HostSearchResultDomain struct {
+	Count int `json:"count"`
+	Data  []struct {
+		Domain        string `json:"domain"`
+		IPType        string `json:"ip_type"`
+		Registrar     string `json:"registrar"`
+		CreateDate    string `json:"create_date"`
+		ConfirmedTime string `json:"confirmed_time"`
+		Email         string `json:"email"`
+	} `json:"data"`
+}
+
 type HostSearchResult struct {
 	IP     string `json:"ip"`
 	Issues struct {
@@ -392,18 +419,8 @@ type HostSearchResult struct {
 			ConfirmedTime string `json:"confirmed_time"`
 		} `json:"data"`
 	} `json:"protected_ip"`
-	Domain struct {
-		Count int `json:"count"`
-		Data  []struct {
-			Domain        string `json:"domain"`
-			IPType        string `json:"ip_type"`
-			Registrar     string `json:"registrar"`
-			CreateDate    string `json:"create_date"`
-			ConfirmedTime string `json:"confirmed_time"`
-			Email         string `json:"email"`
-		} `json:"data"`
-	} `json:"domain"`
-	Whois struct {
+	Domain HostSearchResultDomain `json:"domain"`
+	Whois  struct {
 		Count int `json:"count"`
 		Data  []struct {
 			AsName         string  `json:"as_name"`
