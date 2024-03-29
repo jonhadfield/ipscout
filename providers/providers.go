@@ -16,6 +16,10 @@ var (
 // - specified transport matches the data transport
 // - specified port/transport matches the data port/transport
 func PortMatch(port string, matchPorts []string) bool {
+	if len(matchPorts) == 0 {
+		return true
+	}
+
 	for _, p := range matchPorts {
 		splitMatch := splitPortTransport(p)
 		splitPort := splitPortTransport(port)
@@ -44,26 +48,18 @@ type PortTransport struct {
 
 func splitPortTransport(portTransport string) (pt PortTransport) {
 	parts := strings.Split(portTransport, "/")
-	if len(parts) == 1 && parts[0] != "" {
+
+	switch len(parts) {
+	case 1:
 		if isPort(parts[0]) {
 			pt.port = parts[0]
-
-			return
-		}
-
-		if isTransport(parts[0]) {
+		} else if isTransport(parts[0]) {
 			pt.transport = parts[0]
-
-			return
 		}
-	}
-
-	if len(parts) == 2 {
+	case 2:
 		if isPort(parts[0]) && isTransport(parts[1]) {
 			pt.port = parts[0]
 			pt.transport = parts[1]
-
-			return
 		}
 	}
 

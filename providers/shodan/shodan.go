@@ -177,7 +177,7 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 			return nil, err
 		}
 
-		fmt.Printf("cache hit: %s\n", cacheKey)
+		// fmt.Printf("cache hit: %s\n", cacheKey)
 
 		// if err = json.Unmarshal(item.Value, &result); err != nil {
 		// 	return nil, err

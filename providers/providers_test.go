@@ -7,7 +7,7 @@ import (
 
 func TestPortMatch(t *testing.T) {
 	ports := []string{"80", "tcp", "80/tcp"}
-
+	require.True(t, PortMatch("80", []string{}))
 	require.True(t, PortMatch("80", ports))
 	require.False(t, PortMatch("800", ports))
 	require.True(t, PortMatch("tcp", ports))

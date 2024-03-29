@@ -136,7 +136,7 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 			return nil, err
 		}
 
-		fmt.Printf("cache hit: %s\n", cacheKey)
+		// fmt.Printf("cache hit: %s\n", cacheKey)
 
 		// if err = json.Unmarshal(item.Value, &result); err != nil {
 		// 	return nil, err
@@ -201,7 +201,6 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
-
 	// tw.SetStyle(myInnerStyle)
 	var rows []table.Row
 	if result.Hostname.Count > 0 {
@@ -239,7 +238,6 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 
 	for x, port := range result.Port.Data {
 		if !providers.PortMatch(fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket), c.Global.Ports) {
-
 			continue
 		}
 
