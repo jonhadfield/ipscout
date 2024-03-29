@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/dgraph-io/badger/v4"
 	"github.com/hashicorp/go-retryablehttp"
 	"net/netip"
 )
@@ -10,6 +11,7 @@ const (
 )
 
 type Config struct {
+	Cache  *badger.DB
 	Global struct {
 		IndentSpaces  int      `mapstructure:"indent-spaces"`
 		Ports         []string `mapstructure:"ports"`

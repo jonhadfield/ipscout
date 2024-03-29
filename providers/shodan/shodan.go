@@ -7,6 +7,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jonhadfield/noodle/cache"
 	"github.com/jonhadfield/noodle/config"
 	"github.com/jonhadfield/noodle/providers"
 	"io"
@@ -88,11 +89,24 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 
 	defer resp.Body.Close()
 
-	if err = json.Unmarshal(rBody, &res); err != nil {
-		return nil, fmt.Errorf("error unmarshalling shodan response: %w", err)
+	res, err = unmarshalResponse(rBody)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
 
+	res.Raw = rBody
+
 	return res, nil
+}
+
+func unmarshalResponse(data []byte) (*HostSearchResult, error) {
+	var res HostSearchResult
+
+	if err := json.Unmarshal(data, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }
 
 func loadResultsFile(path string) (res *HostSearchResult, err error) {
@@ -154,6 +168,24 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		return result, nil
 	}
 
+	// load data from cache
+	cacheKey := fmt.Sprintf("shodan_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
+	var item *cache.Item
+	if item, err = cache.Read(client.Cache, cacheKey); err == nil {
+		result, err = unmarshalResponse(item.Value)
+		if err != nil {
+			return nil, err
+		}
+
+		fmt.Printf("cache hit: %s\n", cacheKey)
+
+		// if err = json.Unmarshal(item.Value, &result); err != nil {
+		// 	return nil, err
+		// }
+
+		return result, nil
+	}
+
 	result, err = loadAPIResponse(context.Background(), client.Host, client.HttpClient, client.Providers.Shodan.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
@@ -166,6 +198,14 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		break
 	default:
 		return nil, fmt.Errorf("%s: %w", result.Error, providers.ErrDataProviderFailure)
+	}
+
+	if err = cache.Upsert(client.Cache, cache.Item{
+		Key:     cacheKey,
+		Value:   result.Raw,
+		Created: time.Now(),
+	}); err != nil {
+		return nil, err
 	}
 
 	return result, nil
@@ -423,6 +463,7 @@ type HostSearchResultData struct {
 }
 
 type HostSearchResult struct {
+	Raw         []byte   `json:"raw"`
 	City        string   `json:"city"`
 	RegionCode  string   `json:"region_code"`
 	Os          any      `json:"os"`

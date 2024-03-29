@@ -3,6 +3,7 @@ package process
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jonhadfield/noodle/cache"
 	"github.com/jonhadfield/noodle/config"
 	"github.com/jonhadfield/noodle/present"
 	"github.com/jonhadfield/noodle/providers/criminalip"
@@ -52,6 +53,16 @@ type Processor struct {
 }
 
 func (p *Processor) Run() {
+	db, err := cache.Create()
+	if err != nil {
+		fmt.Printf("error creating cache: %v", err)
+		os.Exit(1)
+	}
+
+	p.Config.Cache = db
+
+	defer db.Close()
+
 	runners, err := genRunners(*p.Config)
 	if err != nil {
 		fmt.Printf("error generating runners: %v", err)

@@ -7,6 +7,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jonhadfield/noodle/cache"
 	"github.com/jonhadfield/noodle/config"
 	"github.com/jonhadfield/noodle/providers"
 	"io"
@@ -77,7 +78,24 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 
 	// do something with the response
 	defer resp.Body.Close()
-	if err = json.Unmarshal(rBody, &res); err != nil {
+
+	// if err = json.Unmarshal(rBody, &res); err != nil {
+	// 	return nil, err
+	// }
+	res, err = unmarshalResponse(rBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res.Raw = rBody
+
+	return res, nil
+}
+
+func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
+	var res *HostSearchResult
+
+	if err := json.Unmarshal(rBody, &res); err != nil {
 		return nil, err
 	}
 
@@ -110,9 +128,34 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		return result, nil
 	}
 
+	cacheKey := fmt.Sprintf("criminalip_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
+	var item *cache.Item
+	if item, err = cache.Read(client.Cache, cacheKey); err == nil {
+		result, err = unmarshalResponse(item.Value)
+		if err != nil {
+			return nil, err
+		}
+
+		fmt.Printf("cache hit: %s\n", cacheKey)
+
+		// if err = json.Unmarshal(item.Value, &result); err != nil {
+		// 	return nil, err
+		// }
+
+		return result, nil
+	}
+
 	result, err = loadAPIResponse(context.Background(), client.Host, client.HttpClient, client.Providers.CriminalIP.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
+	}
+
+	if err = cache.Upsert(client.Cache, cache.Item{
+		Key:     cacheKey,
+		Value:   result.Raw,
+		Created: time.Now(),
+	}); err != nil {
+		return nil, err
 	}
 
 	return result, nil
@@ -394,6 +437,7 @@ type HostSearchResultDomain struct {
 }
 
 type HostSearchResult struct {
+	Raw    []byte
 	IP     string `json:"ip"`
 	Issues struct {
 		IsVpn          bool `json:"is_vpn"`
