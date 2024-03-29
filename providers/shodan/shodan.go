@@ -78,8 +78,13 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 		panic(err)
 	}
 
-	os.WriteFile(fmt.Sprintf("backups/shodan_%s_report.json",
-		strings.ReplaceAll(host.String(), ".", "_")), rBody, 0644)
+	// TODO: remove before release
+	if os.Getenv("NOODLE_BACKUP_RESPONSES") == "true" {
+		if err = os.WriteFile(fmt.Sprintf("backups/shodan_%s_report.json",
+			strings.ReplaceAll(host.String(), ".", "_")), rBody, 0644); err != nil {
+			panic(err)
+		}
+	}
 
 	defer resp.Body.Close()
 
