@@ -14,7 +14,6 @@ import (
 	"net/netip"
 	"net/url"
 	"os"
-	"slices"
 	"strings"
 	"time"
 )
@@ -65,12 +64,12 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 
 	req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodGet, sURL.String(), nil)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
 
 	// read response body
@@ -123,7 +122,7 @@ type Client struct {
 
 type Config struct {
 	_ struct{}
-	config.Default
+	config.Config
 	Host   netip.Addr
 	APIKey string
 }
@@ -133,11 +132,10 @@ type Clienter interface {
 }
 
 type TableCreatorClient struct {
-	config.Default
-	Client Config
+	config.Config
 }
 
-func fetchData(client Config) (*HostSearchResult, error) {
+func fetchData(client config.Config) (*HostSearchResult, error) {
 	var result *HostSearchResult
 
 	var err error
@@ -151,7 +149,7 @@ func fetchData(client Config) (*HostSearchResult, error) {
 		return result, nil
 	}
 
-	result, err = loadAPIResponse(context.Background(), client.Host, client.Default.HttpClient, client.APIKey)
+	result, err = loadAPIResponse(context.Background(), client.Host, client.HttpClient, client.Providers.Shodan.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
 	}
@@ -169,7 +167,7 @@ func fetchData(client Config) (*HostSearchResult, error) {
 }
 
 func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
-	result, err := fetchData(c.Client)
+	result, err := fetchData(c.Config)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %w", err)
 	}
@@ -187,46 +185,58 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	rows = append(rows, table.Row{"City", result.City})
 	rows = append(rows, table.Row{"Country", result.CountryName})
 	rows = append(rows, table.Row{"AS", result.Asn})
+
+	var filteredPorts int
+
+	for _, dr := range result.Data {
+		if !providers.PortMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), c.Global.Ports) {
+			filteredPorts++
+		}
+	}
+
+	if filteredPorts > 0 {
+		tw.AppendRow(table.Row{"Ports", fmt.Sprintf("%d (%d filtered)", len(result.Data), filteredPorts)})
+	} else {
+		tw.AppendRow(table.Row{"Ports", len(result.Data)})
+	}
+
 	if len(result.Data) > 0 {
-		rows = append(rows, table.Row{"Ports", len(result.Data)})
 		for _, dr := range result.Data {
-			if len(c.LimitPorts) > 0 && !slices.Contains(c.LimitPorts, fmt.Sprintf("%d/%s", dr.Port, dr.Transport)) {
+			if !providers.PortMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), c.Global.Ports) {
 				continue
 			}
 
 			rows = append(rows, table.Row{"", color.CyanString("%d/%s", dr.Port, dr.Transport)})
-			rows = append(rows, table.Row{"", fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
+			rows = append(rows, table.Row{"",
+				fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
 			rows = append(rows, table.Row{"", fmt.Sprintf("%s  HostNames: %s", IndentPipeHyphens, strings.Join(dr.Hostnames, ", "))})
 			if dr.HTTP.Status != 0 {
 				rows = append(rows, table.Row{"", fmt.Sprintf("%s  HTTP", IndentPipeHyphens)})
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s%sStatus: %d",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.HTTP.Status)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Status)})
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s%sTitle: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.HTTP.Title)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Title)})
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s%sServer: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.HTTP.Server)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Server)})
 			}
 			if len(dr.Ssl.Versions) > 0 {
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s  SSL", IndentPipeHyphens)})
-				// rows = append(rows, table.Row{"",
-				// 	fmt.Sprintf("%s%sCipher: %s %d bits",
-				// 		IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.Ssl.Cipher.Name, dr.Ssl.Cipher.Bits)})
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s%sIssuer: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.Ssl.Cert.Issuer.Cn)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Issuer.Cn)})
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s%sSubject: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.Ssl.Cert.Subject.Cn)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Subject.Cn)})
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s%sVersions: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), strings.Join(dr.Ssl.Versions, ", "))})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), strings.Join(dr.Ssl.Versions, ", "))})
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s%sExpires: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.Ssl.Cert.Expires)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Expires)})
 			}
 			if dr.DNS.ResolverHostname != nil {
 				rows = append(rows, table.Row{"",
@@ -235,23 +245,19 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 				if dr.DNS.ResolverHostname != "" {
 					rows = append(rows, table.Row{"",
 						fmt.Sprintf("%s%sResolver Hostname: %s",
-							IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.DNS.ResolverHostname)})
+							IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.ResolverHostname)})
 				}
 				if dr.DNS.Software != nil {
 					rows = append(rows, table.Row{"",
 						fmt.Sprintf("%s%sResolver Software: %s",
-							IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.DNS.Software)})
+							IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.Software)})
 				}
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s%sRecursive: %t",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.IndentSpaces), dr.DNS.Recursive)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.Recursive)})
 			}
 		}
-		// rows = append(rows, table.Row{"", "53/tcp"})
-		// rows = append(rows, table.Row{"", "53/udp"})
-		// rows = append(rows, table.Row{"", "443/tcp"})
-		// rows = append(rows, table.Row{"", "|----- HTTP title: Google Public DNS"})
-		// rows = append(rows, table.Row{"", "|----- Cert issuer: C=US, CN=GTS CA 1C3, O=Google Trust Services LLC"})
+
 		tw.AppendRows(rows)
 		tw.SetColumnConfigs([]table.ColumnConfig{
 			{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth},
@@ -261,7 +267,7 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true
-	tw.SetTitle("SHODAN | Host: %s", c.Client.Host.String())
+	tw.SetTitle("SHODAN | Host: %s", c.Host.String())
 	if c.UseTestData {
 		tw.SetTitle("SHODAN | Host: %s", result.Data[0].IPStr)
 	}
@@ -269,12 +275,10 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	return &tw, nil
 }
 
-func NewTableClient(config Config) (*TableCreatorClient, error) {
+func NewTableClient(config config.Config) (*TableCreatorClient, error) {
 	tc := &TableCreatorClient{
-		Client: config,
+		config,
 	}
-
-	tc.Default = config.Default
 
 	return tc, nil
 }

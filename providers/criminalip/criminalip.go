@@ -8,13 +8,13 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/noodle/config"
+	"github.com/jonhadfield/noodle/providers"
 	"io"
 	"net/http"
 	"net/netip"
 	"net/url"
 	"os"
 	"regexp"
-	"slices"
 	"strings"
 	"time"
 )
@@ -27,7 +27,7 @@ const (
 
 type Config struct {
 	_ struct{}
-	config.Default
+	config.Config
 	Host   netip.Addr
 	APIKey string
 }
@@ -80,21 +80,18 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 }
 
 type TableCreatorClient struct {
-	config.Default
-	Client Config
+	config.Config
 }
 
-func NewTableClient(config Config) (*TableCreatorClient, error) {
+func NewTableClient(config config.Config) (*TableCreatorClient, error) {
 	tc := &TableCreatorClient{
-		Client: config,
+		Config: config,
 	}
-
-	tc.Default = config.Default
 
 	return tc, nil
 }
 
-func fetchData(client Config) (*HostSearchResult, error) {
+func fetchData(client config.Config) (*HostSearchResult, error) {
 	var result *HostSearchResult
 
 	var err error
@@ -108,7 +105,7 @@ func fetchData(client Config) (*HostSearchResult, error) {
 		return result, nil
 	}
 
-	result, err = loadAPIResponse(context.Background(), client.Host, client.Default.HttpClient, client.APIKey)
+	result, err = loadAPIResponse(context.Background(), client.Host, client.HttpClient, client.Providers.CriminalIP.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
 	}
@@ -141,7 +138,7 @@ func tidyBanner(banner string) string {
 }
 
 func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
-	result, err := fetchData(c.Client)
+	result, err := fetchData(c.Config)
 	if err != nil {
 		return nil, fmt.Errorf("error loading criminalip api response: %w", err)
 	}
@@ -165,11 +162,23 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	tw.AppendRow(table.Row{"Score Inbound", result.Score.Inbound})
 	tw.AppendRow(table.Row{"Score Outbound", result.Score.Outbound})
 
-	tw.AppendRow(table.Row{"Ports"})
+	var filteredPorts int
+
+	for _, port := range result.Port.Data {
+		if !providers.PortMatch(fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket), c.Global.Ports) {
+			filteredPorts++
+		}
+	}
+
+	if filteredPorts > 0 {
+		tw.AppendRow(table.Row{"Ports", fmt.Sprintf("%d (%d filtered)", len(result.Port.Data), filteredPorts)})
+	} else {
+		tw.AppendRow(table.Row{"Ports", len(result.Port.Data)})
+	}
 
 	for x, port := range result.Port.Data {
-		// always inclue port and socket
-		if len(c.LimitPorts) > 0 && !slices.Contains(c.LimitPorts, fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket)) {
+		if !providers.PortMatch(fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket), c.Global.Ports) {
+
 			continue
 		}
 
@@ -196,32 +205,15 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 			// add a blank row between ports
 			tw.AppendRow(table.Row{"", ""})
 		}
-		// {
-		//        "app_name": "Q9-P",
-		//        "banner": "xef@\tQ9-P-7.6\n\n  Resolver ID: res711.ams.rrdns.pch.net\n  bind.version: Q9-P-7.6\n  Recursion: enabled",
-		//        "app_version": "7.6",
-		//        "open_port_no": 53,
-		//        "port_status": "open",
-		//        "protocol": "DNS",
-		//        "socket": "udp",
-		//        "tags": [],
-		//        "dns_names": null,
-		//        "sdn_common_name": null,
-		//        "jarm_hash": null,
-		//        "ssl_info_raw": null,
-		//        "technologies": [],
-		//        "is_vulnerability": false,
-		//        "confirmed_time": "2024-03-22 08:26:55"
-		//      },
-
 	}
+
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth},
 	})
 	tw.SetAutoIndex(false)
-	tw.SetTitle("CRIMINAL | Host: %s", result.IP)
-	// }
+	tw.SetTitle("CRIMINAL IP | Host: %s", result.IP)
+
 	return &tw, nil
 }
 
@@ -241,15 +233,6 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	}
 
 	return res, nil
-}
-
-func Run() (*HostSearchResult, error) {
-	result, err := loadResultsFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
-	if err != nil {
-		return nil, fmt.Errorf("error loading criminalip file: %w", err)
-	}
-
-	return result, nil
 }
 
 type HostSearchResultData struct {
@@ -708,12 +691,3 @@ func dashIfEmpty(value interface{}) string {
 		return "-"
 	}
 }
-
-//
-// func dashIfEmpty(in string) string {
-// 	if strings.TrimSpace(in) == "" {
-// 		return "-"
-// 	}
-//
-// 	return in
-// }

@@ -10,7 +10,7 @@ import (
 func TestShodanHostDNSQuery(t *testing.T) {
 	t.Parallel()
 
-	jf, err := os.Open("../testdata/shodan_google_dns_resp.json")
+	jf, err := os.Open("testdata/shodan_google_dns_resp.json")
 	require.NoError(t, err)
 	defer jf.Close()
 

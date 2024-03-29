@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/jonhadfield/noodle/config"
 	"github.com/jonhadfield/noodle/process"
-	"github.com/jonhadfield/noodle/providers/criminalip"
-	"github.com/jonhadfield/noodle/providers/shodan"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -15,8 +13,10 @@ import (
 )
 
 const (
-	defaultConfigPath = ".config/noodle/config.yml"
+	defaultConfigPath = ".config/noodle/config.yaml"
 )
+
+var conf config.Config
 
 var rootCmd = &cobra.Command{
 	Use:   "noodle",
@@ -26,25 +26,11 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 
-		var host netip.Addr
-
-		if host, err = netip.ParseAddr(args[0]); err != nil {
+		if conf.Host, err = netip.ParseAddr(args[0]); err != nil {
 			return fmt.Errorf("invalid host: %w", err)
 		}
 
-		pConfig := process.Config{
-			Shodan:     shodan.Config{APIKey: viper.GetString("shodan_api_key")},
-			CriminalIP: criminalip.Config{APIKey: viper.GetString("criminal_ip_api_key")},
-		}
-
-		pConfig.Host = host
-		pConfig.UseTestData = viper.GetBool("NOODLE_USE_TEST_DATA")
-		pConfig.HttpClient = getHTTPClient()
-		pConfig.LimitPorts = viper.GetStringSlice("limit-ports")
-		pConfig.IndentSpaces = config.DefaultIndentSpaces
-		fmt.Println("Limiting ports", pConfig.LimitPorts)
-
-		processor, err := process.New(&pConfig)
+		processor, err := process.New(&conf)
 		if err != nil {
 			os.Exit(1)
 		}
@@ -66,7 +52,7 @@ var (
 
 	useTestData bool
 
-	limitPorts []string
+	ports []string
 )
 
 func getDefaultConfigPath() string {
@@ -85,17 +71,16 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", getDefaultConfigPath(),
 		"config file (default is $HOME/.config/noodle/config.yml)")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
-	rootCmd.PersistentFlags().StringSliceVarP(&limitPorts, "limit-ports", "l", []string{}, "limit ports")
+	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "l", []string{}, "limit ports")
 
-	if err := viper.BindPFlag("limit-ports", rootCmd.Flag("limit-ports")); err != nil {
+	if err := viper.BindPFlag("ports", rootCmd.Flag("ports")); err != nil {
+		fmt.Println("error binding limit-ports flag:", err)
 		os.Exit(1)
 	}
 
 	rootCmd.PersistentFlags().Bool("viper", true, "Use Viper for configuration")
 	viper.SetDefault("author", "Jon Hadfield <jon@lessknown.co.uk>")
 	viper.SetDefault("license", "apache")
-
-	// viper.SetEnvPrefix("noodle")
 }
 
 func initConfig() {
@@ -110,9 +95,43 @@ func initConfig() {
 		}
 
 		// Search config in home directory with name ".cobra" (without extension).
-		viper.AddConfigPath(home)
-		// viper.SetConfigName(".noodle")
+		viper.AddConfigPath(os.Getenv("PWD"))
+		viper.AddConfigPath(home + "/.config/noodle")
+		viper.SetConfigName("config.yaml")
 	}
 
-	_ = viper.ReadInConfig()
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Println("Can't read config:", err)
+		os.Exit(1)
+	}
+
+	if err := viper.Unmarshal(&conf); err != nil {
+
+		return
+	}
+
+	// read provider auth keys
+	readProviderAuthKeys()
+
+	conf.UseTestData = viper.GetBool("NOODLE_USE_TEST_DATA")
+	conf.HttpClient = getHTTPClient()
+
+	cliPorts := viper.GetStringSlice("ports")
+	if len(cliPorts) > 0 {
+		conf.Global.Ports = cliPorts
+	}
+
+	conf.Global.MaxValueChars = viper.GetInt32("max-value-chars")
+	conf.Global.IndentSpaces = config.DefaultIndentSpaces
+}
+
+func readProviderAuthKeys() {
+	// read provider auth keys from env if not set in config
+	if conf.Providers.Shodan.APIKey == "" {
+		conf.Providers.Shodan.APIKey = viper.GetString("shodan_api_key")
+	}
+
+	if conf.Providers.CriminalIP.APIKey == "" {
+		conf.Providers.CriminalIP.APIKey = viper.GetString("criminal_ip_api_key")
+	}
 }

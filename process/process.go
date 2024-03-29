@@ -14,17 +14,11 @@ type TableClient interface {
 	CreateTable() (*table.Writer, error)
 }
 
-func genRunners(config *Config) (map[string]TableClient, error) {
+func genRunners(config config.Config) (map[string]TableClient, error) {
 	runners := make(map[string]TableClient)
 
-	if config.Shodan.APIKey != "" || config.UseTestData {
-		shodanConfig := shodan.Config{
-			Default: config.Default,
-			Host:    config.Host,
-			APIKey:  config.Shodan.APIKey,
-		}
-
-		shodanClient, err := shodan.NewTableClient(shodanConfig)
+	if config.Providers.Shodan.APIKey != "" || config.UseTestData {
+		shodanClient, err := shodan.NewTableClient(config)
 		if err != nil {
 			return nil, err
 		}
@@ -32,13 +26,8 @@ func genRunners(config *Config) (map[string]TableClient, error) {
 		runners["shodan"] = shodanClient
 	}
 
-	if config.CriminalIP.APIKey != "" || config.UseTestData {
-		criminalIPConfig := criminalip.Config{
-			Default: config.Default,
-			Host:    config.Host,
-			APIKey:  config.CriminalIP.APIKey,
-		}
-		criminalIPClient, err := criminalip.NewTableClient(criminalIPConfig)
+	if config.Providers.CriminalIP.APIKey != "" || config.UseTestData {
+		criminalIPClient, err := criminalip.NewTableClient(config)
 		if err != nil {
 			return nil, err
 		}
@@ -52,17 +41,17 @@ func genRunners(config *Config) (map[string]TableClient, error) {
 }
 
 type Config struct {
-	config.Default
+	config.Config
 	Shodan     shodan.Config
 	CriminalIP criminalip.Config
 }
 
 type Processor struct {
-	Config *Config
+	Config *config.Config
 }
 
 func (p *Processor) Run() {
-	runners, err := genRunners(p.Config)
+	runners, err := genRunners(*p.Config)
 	if err != nil {
 		fmt.Printf("error generating runners: %v", err)
 		os.Exit(1)
@@ -96,12 +85,10 @@ func generateTables(runners map[string]TableClient) ([]*table.Writer, error) {
 
 }
 
-func New(config *Config) (Processor, error) {
+func New(config *config.Config) (Processor, error) {
 	p := Processor{
 		Config: config,
 	}
-
-	p.Config.Default = config.Default
 
 	return p, nil
 }
