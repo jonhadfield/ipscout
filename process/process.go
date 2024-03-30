@@ -6,6 +6,7 @@ import (
 	"github.com/jonhadfield/noodle/cache"
 	"github.com/jonhadfield/noodle/config"
 	"github.com/jonhadfield/noodle/present"
+	"github.com/jonhadfield/noodle/providers/aws"
 	"github.com/jonhadfield/noodle/providers/criminalip"
 	"github.com/jonhadfield/noodle/providers/shodan"
 	"os"
@@ -36,6 +37,17 @@ func genRunners(config config.Config) (map[string]TableClient, error) {
 
 		if criminalIPClient != nil {
 			runners["criminalip"] = criminalIPClient
+		}
+	}
+
+	if config.Providers.AWS.Enabled || config.UseTestData {
+		awsIPClient, err := aws.NewTableClient(config)
+		if err != nil {
+			return nil, err
+		}
+
+		if awsIPClient != nil {
+			runners["aws"] = awsIPClient
 		}
 	}
 

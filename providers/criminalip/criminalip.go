@@ -315,7 +315,7 @@ type HostSearchResultData struct {
 		} `json:"options"`
 		ID      string `json:"id"`
 		Crawler string `json:"crawler"`
-	} `json:"_shodan,omitempty"`
+	} `json:"_criminalip,omitempty"`
 	Port      int      `json:"port"`
 	Hostnames []string `json:"hostnames"`
 	Location  struct {
@@ -672,7 +672,7 @@ type HostSearchResult struct {
 // 	// 		} `json:"options"`
 // 	// 		Module  string `json:"module"`
 // 	// 		Crawler string `json:"crawler"`
-// 	// 	} `json:"_shodan,omitempty"`
+// 	// 	} `json:"_criminalip,omitempty"`
 // 	//
 // 	// 	Ssl struct {
 // 	// 		ChainSha256   []string `json:"chain_sha256"`

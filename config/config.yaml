@@ -9,8 +9,10 @@ providers:
         enabled: true
         max-ports: 10
         # ports: [80]
-        no-older-than: 1d
+        no-older-than: 30d
     criminalip:
         enabled: true
         max-ports: 10
-        no-older-than: 1d
+        no-older-than: 30d
+    aws:
+        enabled: true

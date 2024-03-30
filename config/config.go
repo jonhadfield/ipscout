@@ -55,6 +55,9 @@ type Providers struct {
 		Protocols   []string `mapstructure:"protocols"`
 		NoOlderThan string   `mapstructure:"no-older-than"`
 	} `mapstructure:"criminalip"`
+	AWS struct {
+		Enabled bool `mapstructure:"enabled"`
+	}
 }
 
 func unmarshalConfig(data []byte) (*Config, error) {
