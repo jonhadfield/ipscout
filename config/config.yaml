@@ -1,7 +1,7 @@
 ---
 global:
     indent-spaces: 2
-    max-value-chars: 200
+    max-value-chars: 300
     # ports: [80]
 
 providers:

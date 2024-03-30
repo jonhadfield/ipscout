@@ -21,6 +21,7 @@ import (
 )
 
 const (
+	ProviderName      = "criminalip"
 	APIURL            = "https://api.criminalip.io"
 	HostIPPath        = "/v1/asset/ip/report"
 	IndentPipeHyphens = " |-----"
@@ -249,13 +250,15 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 		switch strings.ToLower(port.Protocol) {
 		case "https":
 			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  SDN Common Name: %s", IndentPipeHyphens, port.SdnCommonName)})
-			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  DNS Names: %s", IndentPipeHyphens, port.DNSNames)})
+			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  DNS Names: %s", IndentPipeHyphens, providers.PreProcessValueOutput(&c.Config, ProviderName, port.DNSNames))})
 		case "dns":
 			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  App Name (Version): %s (%s)", IndentPipeHyphens, port.AppName, port.AppVersion)})
-			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Banner: %s", IndentPipeHyphens, tidyBanner(port.Banner))})
+			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Banner: %s",
+				IndentPipeHyphens, tidyBanner(providers.PreProcessValueOutput(&c.Config, ProviderName, port.Banner)))})
 		default:
 			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  App Name (Version): %s (%s)", IndentPipeHyphens, port.AppName, port.AppVersion)})
-			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Banner: %s", IndentPipeHyphens, tidyBanner(port.Banner))})
+			tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Banner: %s",
+				IndentPipeHyphens, tidyBanner(providers.PreProcessValueOutput(&c.Config, ProviderName, port.Banner)))})
 		}
 
 		// always include if detected as vulnerability

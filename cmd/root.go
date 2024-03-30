@@ -48,8 +48,9 @@ func Execute() {
 }
 
 var (
-	useTestData bool
-	ports       []string
+	useTestData   bool
+	ports         []string
+	maxValueChars int32
 )
 
 func init() {
@@ -58,9 +59,15 @@ func init() {
 	// 	"config file (default is $HOME/.config/noodle/config.yml)")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "l", []string{}, "limit ports")
+	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
 
 	if err := viper.BindPFlag("ports", rootCmd.Flag("ports")); err != nil {
 		fmt.Println("error binding limit-ports flag:", err)
+		os.Exit(1)
+	}
+
+	if err := viper.BindPFlag("max-value-chars", rootCmd.Flag("max-value-chars")); err != nil {
+		fmt.Println("error binding max-value-chars flag:", err)
 		os.Exit(1)
 	}
 
@@ -74,9 +81,9 @@ func init() {
 func initConfig() {
 	viper.AutomaticEnv()
 
-	configRoot := config.GetConfigRoot(appName)
+	configRoot := config.GetConfigRoot("", appName)
 
-	if err := config.CreateDefaultConfig(configRoot); err != nil {
+	if err := config.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		fmt.Printf("can't create default config: %v\n", err)
 
 		os.Exit(1)
@@ -112,7 +119,12 @@ func initConfig() {
 		conf.Global.Ports = cliPorts
 	}
 
-	conf.Global.MaxValueChars = viper.GetInt32("max-value-chars")
+	maxValueChars = viper.GetInt32("max-value-chars")
+
+	if maxValueChars > 0 {
+		conf.Global.MaxValueChars = maxValueChars
+	}
+
 	conf.Global.IndentSpaces = config.DefaultIndentSpaces
 }
 

@@ -2,6 +2,7 @@ package providers
 
 import (
 	"errors"
+	"github.com/jonhadfield/noodle/config"
 	"strconv"
 	"strings"
 )
@@ -39,6 +40,19 @@ func PortMatch(port string, matchPorts []string) bool {
 	}
 
 	return false
+}
+
+// TODO: Allow provider specific max value chars to override global
+func PreProcessValueOutput(conf *config.Config, provider string, in string) string {
+	out := strings.TrimSpace(in)
+
+	if conf.Global.MaxValueChars > 0 {
+		if len(out) > int(conf.Global.MaxValueChars) {
+			out = out[:conf.Global.MaxValueChars] + "..."
+		}
+	}
+
+	return out
 }
 
 type PortTransport struct {
