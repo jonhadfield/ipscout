@@ -1,0 +1,16 @@
+---
+global:
+    indent-spaces: 2
+    max-value-chars: 200
+    # ports: [80]
+
+providers:
+    shodan:
+        enabled: true
+        max-ports: 10
+        # ports: [80]
+        no-older-than: 1d
+    criminalip:
+        enabled: true
+        max-ports: 10
+        no-older-than: 1d

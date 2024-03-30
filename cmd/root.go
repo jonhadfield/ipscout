@@ -1,19 +1,18 @@
 package cmd
 
 import (
+	_ "embed"
 	"fmt"
 	"github.com/jonhadfield/noodle/config"
 	"github.com/jonhadfield/noodle/process"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"net/netip"
 	"os"
-	"path"
 )
 
 const (
-	defaultConfigPath = ".config/noodle/config.yaml"
+	appName = "noodle"
 )
 
 var conf config.Config
@@ -42,34 +41,21 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
+	// setup config
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
 
 var (
-	cfgFile string
-
 	useTestData bool
-
-	ports []string
+	ports       []string
 )
-
-func getDefaultConfigPath() string {
-	home, err := homedir.Dir()
-	if err != nil {
-		os.Exit(1)
-	}
-
-	return path.Join(home, defaultConfigPath)
-
-}
 
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", getDefaultConfigPath(),
-		"config file (default is $HOME/.config/noodle/config.yml)")
+	// 	"config file (default is $HOME/.config/noodle/config.yml)")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "l", []string{}, "limit ports")
 
@@ -79,26 +65,31 @@ func init() {
 	}
 
 	rootCmd.PersistentFlags().Bool("viper", true, "Use Viper for configuration")
+
 	viper.SetDefault("author", "Jon Hadfield <jon@lessknown.co.uk>")
+	// TODO: determine before release
 	viper.SetDefault("license", "apache")
 }
 
 func initConfig() {
 	viper.AutomaticEnv()
 
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			os.Exit(1)
-		}
+	configRoot := config.GetConfigRoot(appName)
 
-		// Search config in home directory with name ".cobra" (without extension).
-		viper.AddConfigPath(os.Getenv("PWD"))
-		viper.AddConfigPath(home + "/.config/noodle")
-		viper.SetConfigName("config.yaml")
+	if err := config.CreateDefaultConfig(configRoot); err != nil {
+		fmt.Printf("can't create default config: %v\n", err)
+
+		os.Exit(1)
 	}
+
+	if err := config.CreateCachePathIfNotExist(configRoot); err != nil {
+		fmt.Printf("can't create cache directory: %v\n", err)
+
+		os.Exit(1)
+	}
+
+	viper.AddConfigPath(configRoot)
+	viper.SetConfigName("config")
 
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println("Can't read config:", err)
