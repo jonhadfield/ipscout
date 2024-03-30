@@ -2,7 +2,7 @@ package providers
 
 import (
 	"errors"
-	"github.com/jonhadfield/noodle/config"
+	"github.com/jonhadfield/crosscheck-ip/config"
 	"strconv"
 	"strings"
 )

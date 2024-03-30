@@ -1,4 +1,4 @@
-module github.com/jonhadfield/noodle
+module github.com/jonhadfield/crosscheck-ip
 
 go 1.21.6
 

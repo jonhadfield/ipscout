@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
-	"github.com/jonhadfield/noodle/providers/criminalip"
-	"github.com/jonhadfield/noodle/providers/shodan"
+	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
+	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
 )
 
 type Resulter interface {

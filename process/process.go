@@ -3,12 +3,12 @@ package process
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jonhadfield/noodle/cache"
-	"github.com/jonhadfield/noodle/config"
-	"github.com/jonhadfield/noodle/present"
-	"github.com/jonhadfield/noodle/providers/aws"
-	"github.com/jonhadfield/noodle/providers/criminalip"
-	"github.com/jonhadfield/noodle/providers/shodan"
+	"github.com/jonhadfield/crosscheck-ip/cache"
+	"github.com/jonhadfield/crosscheck-ip/config"
+	"github.com/jonhadfield/crosscheck-ip/present"
+	"github.com/jonhadfield/crosscheck-ip/providers/aws"
+	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
+	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
 	"os"
 	"sync"
 )

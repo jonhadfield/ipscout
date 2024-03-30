@@ -3,8 +3,8 @@ package cmd
 import (
 	_ "embed"
 	"fmt"
-	"github.com/jonhadfield/noodle/config"
-	"github.com/jonhadfield/noodle/process"
+	"github.com/jonhadfield/crosscheck-ip/config"
+	"github.com/jonhadfield/crosscheck-ip/process"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"net/netip"
@@ -12,15 +12,15 @@ import (
 )
 
 const (
-	appName = "noodle"
+	appName = "crosscheck-ip"
 )
 
 var conf config.Config
 
 var rootCmd = &cobra.Command{
-	Use:   "noodle",
-	Short: "noodle",
-	Long:  `noodle is a CLI application that does stuff.`,
+	Use:   "crosscheck-ip",
+	Short: "crosscheck-ip",
+	Long:  `crosscheck-ip is a CLI application that does stuff.`,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
@@ -56,7 +56,7 @@ var (
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// 	"config file (default is $HOME/.config/noodle/config.yml)")
+	// 	"config file (default is $HOME/.config/crosscheck-ip/config.yml)")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "l", []string{}, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")

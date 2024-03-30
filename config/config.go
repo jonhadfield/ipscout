@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	AppName               = "noodle"
+	AppName               = "crosscheck-ip"
 	DefaultIndentSpaces   = 2
 	DefaultConfigFileName = "config.yaml"
-	// DefaultConfigFileRoot = ".config/noodle"
+	// DefaultConfigFileRoot = ".config/crosscheck-ip"
 )
 
 //go:embed config.yaml
