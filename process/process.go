@@ -2,6 +2,7 @@ package process
 
 import (
 	"fmt"
+	"github.com/briandowns/spinner"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/crosscheck-ip/cache"
 	"github.com/jonhadfield/crosscheck-ip/config"
@@ -12,6 +13,7 @@ import (
 	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
 	"os"
 	"sync"
+	"time"
 )
 
 type TableClient interface {
@@ -109,7 +111,10 @@ func generateTables(runners map[string]TableClient) ([]*table.Writer, error) {
 	var tables []*table.Writer
 
 	var w sync.WaitGroup
-
+	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+	s.Start() // Start the spinner
+	// time.Sleep(4 * time.Second) // Run for some time to simulate work
+	s.Suffix = " checking ip..."
 	for name, runner := range runners {
 		_, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
 		w.Add(1)
@@ -130,6 +135,9 @@ func generateTables(runners map[string]TableClient) ([]*table.Writer, error) {
 	}
 
 	w.Wait()
+	// allow time to output spinner
+	time.Sleep(100 * time.Millisecond)
+	s.Stop()
 
 	return tables, nil
 }
