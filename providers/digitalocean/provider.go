@@ -1,15 +1,13 @@
-package aws
+package digitalocean
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/crosscheck-ip/cache"
 	"github.com/jonhadfield/crosscheck-ip/config"
-	"github.com/jonhadfield/crosscheck-ip/providers"
-	"github.com/jonhadfield/ip-fetcher/providers/aws"
+	"github.com/jonhadfield/ip-fetcher/providers/digitalocean"
 	"net/netip"
 	"os"
 	"strings"
@@ -17,7 +15,7 @@ import (
 )
 
 const (
-	ProviderName = "aws"
+	ProviderName = "digitalocean"
 )
 
 type Config struct {
@@ -28,57 +26,30 @@ type Config struct {
 }
 
 func loadAPIResponse(host netip.Addr, client *retryablehttp.Client) (res *HostSearchResult, err error) {
-	awsClient := aws.New()
-	awsClient.Client = client
+	digitaloceanClient := digitalocean.New()
+	digitaloceanClient.Client = client
 
-	doc, etag, err := awsClient.Fetch()
+	doc, err := digitaloceanClient.Fetch()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching digitalocean data: %w", err)
 	}
 
-	if host.Is4() {
-		for _, prefix := range doc.Prefixes {
-			if prefix.IPPrefix.Contains(host) {
-				res = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPPrefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
-				}
-			}
-		}
-	}
-
-	if host.Is6() {
-		for _, prefix := range doc.IPv6Prefixes {
-			if prefix.IPv6Prefix.Contains(host) {
-				res = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPv6Prefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
-				}
+	for _, record := range doc.Records {
+		if record.Network.Contains(host) {
+			res = &HostSearchResult{
+				Record:       record,
+				ETag:         doc.ETag,
+				LastModified: doc.LastModified,
 			}
 		}
 	}
 
 	if res == nil {
-		return nil, providers.ErrNoMatchFound
+		// fmt.Printf("no digitalocean match for host: %s\n", host.String())
+		return nil, nil
 	}
-
-	res.SyncToken = doc.SyncToken
-
-	res.CreateDate, err = time.Parse("2006-01-02-15-04-05", doc.CreateDate)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing create date: %w", err)
-	}
-
-	res.ETag = etag
 
 	var raw []byte
-
 	raw, err = json.Marshal(res)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
@@ -88,7 +59,7 @@ func loadAPIResponse(host netip.Addr, client *retryablehttp.Client) (res *HostSe
 
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("backups/aws_%s_report.json",
+		if err = os.WriteFile(fmt.Sprintf("backups/digitalocean_%s_report.json",
 			strings.ReplaceAll(host.String(), ".", "_")), raw, 0644); err != nil {
 			panic(err)
 		}
@@ -125,7 +96,7 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 	var err error
 
 	if client.UseTestData {
-		result, err = loadResultsFile("providers/aws/testdata/aws_18_164_52_75_report.json")
+		result, err = loadResultsFile("providers/digitalocean/testdata/digitalocean_18_164_52_75_report.json")
 		if err != nil {
 			return nil, err
 		}
@@ -133,12 +104,13 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		return result, nil
 	}
 
-	cacheKey := fmt.Sprintf("aws_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
+	cacheKey := fmt.Sprintf("digitalocean_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
 	var item *cache.Item
 	if item, err = cache.Read(client.Cache, cacheKey); err == nil {
 		result, err = unmarshalResponse(item.Value)
 		if err != nil {
 			defer func() {
+				fmt.Printf("removing invalid cache item: %s\n", cacheKey)
 				cache.Delete(client.Cache, cacheKey)
 			}()
 
@@ -148,23 +120,15 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		return result, nil
 	}
 
-	// TODO: move host matching logic outside of loadAPIResponse to make error cleaner and code less smelly
 	result, err = loadAPIResponse(client.Host, client.HttpClient)
 	if err != nil {
-		switch {
-		case errors.Is(err, providers.ErrNoDataFound):
-			return nil, fmt.Errorf("data not loaded: %w", err)
+		return nil, fmt.Errorf("error loading digitalocean api response: %w", err)
+	}
 
-		case errors.Is(err, providers.ErrFailedToFetchData):
-			return nil, fmt.Errorf("error loading aws api response: %w", err)
+	if result == nil {
+		cache.Delete(client.Cache, cacheKey)
 
-		case errors.Is(err, providers.ErrNoMatchFound):
-			cache.Delete(client.Cache, cacheKey)
-
-			return nil, fmt.Errorf("no result found for host: %s: %w", client.Host.String(), err)
-		default:
-			return nil, fmt.Errorf("error loading aws api response: %w", err)
-		}
+		return nil, fmt.Errorf("no result found for host: %s", client.Host.String())
 	}
 
 	if err = cache.Upsert(client.Cache, cache.Item{
@@ -185,30 +149,19 @@ const (
 func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	result, err := fetchData(c.Config)
 	if err != nil {
-		switch {
-		case errors.Is(err, providers.ErrNoDataFound):
-			return nil, fmt.Errorf("data not loaded: %w", err)
-		case errors.Is(err, providers.ErrFailedToFetchData):
-			return nil, err
-		case errors.Is(err, providers.ErrNoMatchFound):
-			// reset the error as no longer useful for table creation
-			return nil, nil
-		default:
-			return nil, fmt.Errorf("error loading aws api response: %w", err)
-		}
+		fmt.Printf("error loading digitalocean api response: %v\n", err)
+		return nil, fmt.Errorf("error loading digitalocean api response: %w", err)
 	}
 
 	tw := table.NewWriter()
 	var rows []table.Row
-	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix.IPPrefix.String())})
-	tw.AppendRow(table.Row{"Service", dashIfEmpty(result.Prefix.Service)})
-	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Prefix.Region)})
-	if !result.CreateDate.IsZero() {
-		tw.AppendRow(table.Row{"Source Update", dashIfEmpty(result.CreateDate.String())})
-	}
-
-	if result.SyncToken != "" {
-		tw.AppendRow(table.Row{"Sync Token", dashIfEmpty(result.SyncToken)})
+	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Record.NetworkText)})
+	tw.AppendRow(table.Row{"Country Code", dashIfEmpty(result.Record.CountryCode)})
+	tw.AppendRow(table.Row{"City Name", dashIfEmpty(result.Record.CityName)})
+	tw.AppendRow(table.Row{"City Code", dashIfEmpty(result.Record.CityCode)})
+	tw.AppendRow(table.Row{"Zip Code", dashIfEmpty(result.Record.ZipCode)})
+	if !result.LastModified.IsZero() {
+		tw.AppendRow(table.Row{"Source Update", dashIfEmpty(result.LastModified.String())})
 	}
 
 	if result.ETag != "" {
@@ -220,9 +173,9 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
 	})
 	tw.SetAutoIndex(false)
-	tw.SetTitle("AWS IP | Host: %s", c.Host.String())
+	tw.SetTitle("DigitalOcean IP | Host: %s", c.Host.String())
 	if c.UseTestData {
-		tw.SetTitle("AWS IP | Host: %s", result.Prefix.IPPrefix.String())
+		tw.SetTitle("DigitalOcean IP | Host: %s", result.Record.NetworkText)
 	}
 
 	return &tw, nil
@@ -247,12 +200,10 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 }
 
 type HostSearchResult struct {
-	Raw            []byte
-	aws.Prefix     `json:"prefix"`
-	aws.IPv6Prefix `json:"ipv6Prefix"`
-	ETag           string    `json:"etag"`
-	SyncToken      string    `json:"syncToken"`
-	CreateDate     time.Time `json:"createDate"`
+	Raw          []byte
+	Record       digitalocean.Record `json:"prefix"`
+	ETag         string              `json:"etag"`
+	LastModified time.Time           `json:"last_modified"`
 }
 
 func dashIfEmpty(value interface{}) string {

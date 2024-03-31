@@ -3,6 +3,7 @@ package shodan
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
@@ -20,6 +21,7 @@ import (
 )
 
 const (
+	ProviderName      = "shodan"
 	APIURL            = "https://api.shodan.io"
 	HostIPPath        = "/shodan/host"
 	MaxColumnWidth    = 120
@@ -80,7 +82,7 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 	}
 
 	// TODO: remove before release
-	if os.Getenv("NOODLE_BACKUP_RESPONSES") == "true" {
+	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("backups/shodan_%s_report.json",
 			strings.ReplaceAll(host.String(), ".", "_")), rBody, 0644); err != nil {
 			panic(err)
@@ -162,7 +164,7 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 	if client.UseTestData {
 		result, err = loadResultsFile("providers/shodan/testdata/shodan_google_dns_resp.json")
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error loading shodan test data: %w", err)
 		}
 
 		return result, nil
@@ -174,7 +176,7 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 	if item, err = cache.Read(client.Cache, cacheKey); err == nil {
 		result, err = unmarshalResponse(item.Value)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error unmarshalling cached shodan response: %w", err)
 		}
 
 		// fmt.Printf("cache hit: %s\n", cacheKey)
@@ -197,7 +199,7 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 	case "":
 		break
 	default:
-		return nil, fmt.Errorf("%s: %w", result.Error, providers.ErrDataProviderFailure)
+		return nil, fmt.Errorf("%s: %w", result.Error, providers.ErrFailedToFetchData)
 	}
 
 	if err = cache.Upsert(client.Cache, cache.Item{
@@ -214,7 +216,11 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	result, err := fetchData(c.Config)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching data: %w", err)
+		if errors.Is(err, providers.ErrNoDataFound) {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("error fetching shodan data: %w", err)
 	}
 
 	if result == nil {
@@ -371,8 +377,8 @@ type HostSearchResultData struct {
 		Software         any  `json:"software"`
 	} `json:"dns,omitempty"`
 	HTTP struct {
-		Status     int    `json:"status"`
-		RobotsHash string `json:"robots_hash"`
+		Status     int `json:"status"`
+		RobotsHash int `json:"robots_hash"`
 		Redirects  []struct {
 			Host     string `json:"host"`
 			Data     string `json:"data"`
@@ -396,7 +402,7 @@ type HostSearchResultData struct {
 		} `json:"components"`
 		Server          string `json:"server"`
 		Sitemap         string `json:"sitemap"`
-		SecurityTxtHash string `json:"securitytxt_hash"`
+		SecurityTxtHash int    `json:"securitytxt_hash"`
 	} `json:"http,omitempty"`
 	IP        int      `json:"ip"`
 	Domains   []string `json:"domains"`

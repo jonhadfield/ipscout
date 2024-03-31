@@ -8,6 +8,7 @@ import (
 	"github.com/jonhadfield/crosscheck-ip/present"
 	"github.com/jonhadfield/crosscheck-ip/providers/aws"
 	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
+	"github.com/jonhadfield/crosscheck-ip/providers/digitalocean"
 	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
 	"os"
 	"sync"
@@ -23,31 +24,42 @@ func genRunners(config config.Config) (map[string]TableClient, error) {
 	if config.Providers.Shodan.APIKey != "" || config.UseTestData {
 		shodanClient, err := shodan.NewTableClient(config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error creating shodan client: %w", err)
 		}
 
-		runners["shodan"] = shodanClient
+		runners[shodan.ProviderName] = shodanClient
 	}
 
 	if config.Providers.CriminalIP.APIKey != "" || config.UseTestData {
 		criminalIPClient, err := criminalip.NewTableClient(config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error creating criminalip client: %w", err)
 		}
 
 		if criminalIPClient != nil {
-			runners["criminalip"] = criminalIPClient
+			runners[criminalip.ProviderName] = criminalIPClient
 		}
 	}
 
 	if config.Providers.AWS.Enabled || config.UseTestData {
 		awsIPClient, err := aws.NewTableClient(config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error creating aws client: %w", err)
 		}
 
 		if awsIPClient != nil {
-			runners["aws"] = awsIPClient
+			runners[aws.ProviderName] = awsIPClient
+		}
+	}
+
+	if config.Providers.DigitalOcean.Enabled || config.UseTestData {
+		digitaloceanIPClient, err := digitalocean.NewTableClient(config)
+		if err != nil {
+			return nil, fmt.Errorf("error creating digitalocean client: %w", err)
+		}
+
+		if digitaloceanIPClient != nil {
+			runners[digitalocean.ProviderName] = digitaloceanIPClient
 		}
 	}
 
@@ -110,7 +122,10 @@ func generateTables(runners map[string]TableClient) ([]*table.Writer, error) {
 				return
 			}
 
-			tables = append(tables, tbl)
+			// add table if we had a match and have something to present
+			if tbl != nil {
+				tables = append(tables, tbl)
+			}
 		}()
 	}
 

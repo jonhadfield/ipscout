@@ -70,7 +70,7 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 	}
 
 	// TODO: remove before release
-	if os.Getenv("NOODLE_BACKUP_RESPONSES") == "true" {
+	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("backups/criminalip_%s_report.json",
 			strings.ReplaceAll(host.String(), ".", "_")), rBody, 0644); err != nil {
 			panic(err)

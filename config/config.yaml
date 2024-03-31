@@ -16,3 +16,5 @@ providers:
         no-older-than: 30d
     aws:
         enabled: true
+    digitalocean:
+        enabled: true

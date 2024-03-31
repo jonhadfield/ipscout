@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	ErrNoDataFound         = errors.New("no data found")
-	ErrDataProviderFailure = errors.New("data provider failure")
+	ErrFailedToFetchData = errors.New("failed to fetch data")
+	ErrNoDataFound       = errors.New("no data found")
+	ErrNoMatchFound      = errors.New("no match found")
 )
 
 // PortMatch returns true if either:

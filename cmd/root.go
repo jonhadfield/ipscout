@@ -99,7 +99,7 @@ func initConfig() {
 	viper.SetConfigName("config")
 
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Can't read config:", err)
+		fmt.Println("can't read config:", err)
 		os.Exit(1)
 	}
 
@@ -111,7 +111,7 @@ func initConfig() {
 	// read provider auth keys
 	readProviderAuthKeys()
 
-	conf.UseTestData = viper.GetBool("NOODLE_USE_TEST_DATA")
+	conf.UseTestData = viper.GetBool("CCI_USE_TEST_DATA")
 	conf.HttpClient = getHTTPClient()
 
 	cliPorts := viper.GetStringSlice("ports")

@@ -57,12 +57,14 @@ type Providers struct {
 	} `mapstructure:"criminalip"`
 	AWS struct {
 		Enabled bool `mapstructure:"enabled"`
-	}
+	} `mapstructure:"aws"`
+	DigitalOcean struct {
+		Enabled bool `mapstructure:"enabled"`
+	} `mapstructure:"digitalocean"`
 }
 
 func unmarshalConfig(data []byte) (*Config, error) {
 	var conf Config
-
 	if err := yaml.Unmarshal(data, &conf); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
@@ -71,36 +73,35 @@ func unmarshalConfig(data []byte) (*Config, error) {
 }
 
 func CreateDefaultConfigIfMissing(path string) error {
-	var conf *Config
 
 	var err error
 
 	// check if config already exists
-	if _, err = os.Stat(filepath.Join(path, DefaultConfigFileName)); err == nil {
+	_, err = os.Stat(filepath.Join(path, DefaultConfigFileName))
+
+	switch {
+	case err == nil:
+		// DEBUG
+		// fmt.Println("config already exists")
 		return nil
-	}
-
-	// check default config is valid
-	if conf, err = unmarshalConfig([]byte(defaultConfig)); err != nil {
-		return fmt.Errorf("default config invalid: %w", err)
-	}
-
-	if err = yaml.Unmarshal([]byte(defaultConfig), &conf); err != nil {
-		return fmt.Errorf("default config invalid: %w", err)
-	}
-
-	// create dir specified in path argument if missing
-	if _, err = os.Stat(path); os.IsNotExist(err) {
-		if err = os.MkdirAll(path, 0700); err != nil {
-			return fmt.Errorf("failed to create config directory: %w", err)
+	case os.IsNotExist(err):
+		// check default config is valid
+		if _, err = unmarshalConfig([]byte(defaultConfig)); err != nil {
+			return fmt.Errorf("default config invalid: %w", err)
 		}
-	}
 
-	// create default config file if missing
-	if _, err = os.Stat(path); os.IsNotExist(err) {
+		// create dir specified in path argument if missing
+		if _, err = os.Stat(path); os.IsNotExist(err) {
+			if err = os.MkdirAll(path, 0700); err != nil {
+				return fmt.Errorf("failed to create config directory: %w", err)
+			}
+		}
+
 		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(defaultConfig), 0700); err != nil {
 			return fmt.Errorf("failed to write default config: %w", err)
 		}
+	case err != nil:
+		return fmt.Errorf("failed to stat config directory: %w", err)
 	}
 
 	return nil
