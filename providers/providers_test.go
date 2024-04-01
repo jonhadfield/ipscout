@@ -16,6 +16,30 @@ func TestPortMatch(t *testing.T) {
 	require.True(t, PortMatch("80/udp", ports))
 }
 
+func TestPortMatchNonWideTransport(t *testing.T) {
+	ports := []string{"80", "80/tcp"}
+	require.False(t, PortMatch("50/tcp", ports))
+	require.True(t, PortMatch("80", []string{}))
+	require.True(t, PortMatch("80", ports))
+	require.False(t, PortMatch("800", ports))
+	require.True(t, PortMatch("tcp", ports))
+	require.False(t, PortMatch("udp", ports))
+	require.True(t, PortMatch("80/tcp", ports))
+	require.True(t, PortMatch("80/udp", ports))
+}
+
+func TestPortMatchNonWidePort(t *testing.T) {
+	ports := []string{"tcp", "80/tcp"}
+	require.True(t, PortMatch("50/tcp", ports))
+	require.True(t, PortMatch("80", []string{}))
+	require.True(t, PortMatch("80", ports))
+	require.False(t, PortMatch("800", ports))
+	require.True(t, PortMatch("tcp", ports))
+	require.False(t, PortMatch("udp", ports))
+	require.True(t, PortMatch("80/tcp", ports))
+	require.False(t, PortMatch("80/udp", ports))
+}
+
 func TestSplitPortTransport(t *testing.T) {
 	pt := splitPortTransport("80")
 	require.Equal(t, "80", pt.port)

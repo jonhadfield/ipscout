@@ -17,24 +17,30 @@ var (
 // - specified port matches the data port
 // - specified transport matches the data transport
 // - specified port/transport matches the data port/transport
-func PortMatch(port string, matchPorts []string) bool {
+func PortMatch(incomingPort string, matchPorts []string) bool {
 	if len(matchPorts) == 0 {
 		return true
 	}
 
 	for _, p := range matchPorts {
 		splitMatch := splitPortTransport(p)
-		splitPort := splitPortTransport(port)
+		splitIncomingPort := splitPortTransport(incomingPort)
 
 		// most specific first
 		switch {
-		case splitMatch.port == splitPort.port && splitMatch.transport == splitPort.transport:
-			// if both parts of match port are set, then only a full match will do
+		case splitIncomingPort.port != "" && splitIncomingPort.transport != "" && splitMatch.port == splitIncomingPort.port && splitMatch.transport == splitIncomingPort.transport:
+			// if both parts of match incomingPort are set and both match then return true
 			return true
-		case splitMatch.port != "" && splitMatch.port == splitPort.port:
-			// if only port is set, then only port needs to match
+		case splitIncomingPort.port != "" && splitIncomingPort.transport != "" && splitMatch.transport == "" && splitMatch.port == splitIncomingPort.port && splitMatch.transport != splitIncomingPort.transport:
+			// if both parts of match incomingPort are set and only port to match is set matches then return true
 			return true
-		case splitMatch.transport != "" && splitMatch.transport == splitPort.transport:
+		case splitIncomingPort.port != "" && splitIncomingPort.transport != "" && splitMatch.port == "" && splitMatch.transport == splitIncomingPort.transport:
+			// if both parts of match incomingPort are set and only transport matches then return true
+			return true
+		case splitIncomingPort.transport == "" && splitIncomingPort.port != "" && splitMatch.port == splitIncomingPort.port:
+			// if only incomingPort is set, then only incomingPort needs to match
+			return true
+		case splitIncomingPort.port == "" && splitIncomingPort.transport != "" && splitMatch.transport == splitIncomingPort.transport:
 			// if only transport is set, then only transport needs to match
 			return true
 		}
