@@ -13,8 +13,10 @@ import (
 	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
 	"github.com/jonhadfield/crosscheck-ip/providers/digitalocean"
 	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
+	"github.com/mitchellh/go-homedir"
 	"golang.org/x/sync/errgroup"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -29,7 +31,6 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 	runners := make(map[string]ProviderClient)
 	c.Logger.Info("creating provider clients")
 	if c.Providers.Shodan.APIKey != "" || c.UseTestData {
-		c.Logger.Info("creating shodan client")
 		shodanClient, err := shodan.NewProviderClient(c)
 		if err != nil {
 			return nil, fmt.Errorf("error creating shodan client: %w", err)
@@ -85,7 +86,14 @@ type Processor struct {
 }
 
 func (p *Processor) Run() {
-	db, err := cache.Create()
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		p.Config.Logger.Error("failed to get home directory", "error", err)
+
+		os.Exit(1)
+	}
+
+	db, err := cache.Create(filepath.Join(homeDir, ".config", "crosscheck-ip"))
 	if err != nil {
 		p.Config.Logger.Error("failed to create cache", "error", err)
 
@@ -120,7 +128,11 @@ func (p *Processor) Run() {
 		os.Exit(1)
 	}
 
-	p.Config.Logger.Info("host matching results", "providers queried", len(providerClients), "matching results", len(results))
+	results.RLock()
+	matchingResults := len(results.m)
+	results.RUnlock()
+
+	p.Config.Logger.Info("host matching findHostsResults", "providers queried", len(providerClients), "matching findHostsResults", matchingResults)
 
 	tables, err := generateTables(providerClients, results, p.Config.HideProgress)
 	if err != nil {
@@ -129,11 +141,9 @@ func (p *Processor) Run() {
 		os.Exit(1)
 	}
 
-	// fmt.Printf("generated %d result tables\n", len(results))
-
 	// present data
-	if err = present.Tables(tables); err != nil {
-		fmt.Printf("error presenting tables: %v", err)
+	if err = present.Tables(p.Config, tables); err != nil {
+		p.Config.Logger.Error("failed to present tables", "error", err)
 		os.Exit(1)
 	}
 }
@@ -173,8 +183,16 @@ func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) e
 	return nil
 }
 
-func findHosts(runners map[string]ProviderClient, hideProgress bool) (map[string][]byte, error) {
-	results := make(map[string][]byte)
+type findHostsResults struct {
+	sync.RWMutex
+	m map[string][]byte
+}
+
+func findHosts(runners map[string]ProviderClient, hideProgress bool) (*findHostsResults, error) {
+	var results findHostsResults
+	results.Lock()
+	results.m = make(map[string][]byte)
+	results.Unlock()
 
 	var w sync.WaitGroup
 
@@ -200,8 +218,9 @@ func findHosts(runners map[string]ProviderClient, hideProgress bool) (map[string
 			}
 
 			if result != nil {
-				// fmt.Printf("found result for %s\n", name)
-				results[name] = result
+				results.Lock()
+				results.m[name] = result
+				results.Unlock()
 			}
 		}()
 	}
@@ -210,13 +229,10 @@ func findHosts(runners map[string]ProviderClient, hideProgress bool) (map[string
 	// allow time to output spinner
 	time.Sleep(100 * time.Millisecond)
 
-	return results, nil
+	return &results, nil
 }
 
-func generateTables(runners map[string]ProviderClient, results map[string][]byte, hideProgress bool) ([]*table.Writer, error) {
-	if len(results) == 0 {
-		panic("oops")
-	}
+func generateTables(runners map[string]ProviderClient, results *findHostsResults, hideProgress bool) ([]*table.Writer, error) {
 	var tables []*table.Writer
 
 	var w sync.WaitGroup
@@ -235,14 +251,17 @@ func generateTables(runners map[string]ProviderClient, results map[string][]byte
 		w.Add(1)
 		go func() {
 			defer w.Done()
-			// fmt.Printf("data is: %s\n", results[name])
-			if results[name] == nil {
+			// fmt.Printf("data is: %s\n", findHostsResults[name])
+			results.RLock()
+			if results.m[name] == nil {
 				// fmt.Printf("skipping %s as no data returned\n", name)
 				return
 			}
 
-			// fmt.Printf("generating table for %s with data: %d\n", name, len(results[name]))
-			tbl, err := runner.CreateTable(results[name])
+			createTableData := results.m[name]
+			results.RUnlock()
+
+			tbl, err := runner.CreateTable(createTableData)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				return

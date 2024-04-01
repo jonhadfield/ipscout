@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
+	"github.com/jonhadfield/crosscheck-ip/config"
 	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
 	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
 )
@@ -12,8 +13,8 @@ type Resulter interface {
 	CreateTable() *table.Writer
 }
 
-func Tables(tws []*table.Writer) error {
-	outputTables(tws)
+func Tables(c *config.Config, tws []*table.Writer) error {
+	outputTables(c, tws)
 
 	return nil
 }
@@ -23,7 +24,7 @@ type CombinedData struct {
 	CriminalIP criminalip.HostSearchResult
 }
 
-func outputTables(tws []*table.Writer) {
+func outputTables(c *config.Config, tws []*table.Writer) {
 	twOuter := table.NewWriter()
 
 	myOuterStyle := table.StyleColoredDark

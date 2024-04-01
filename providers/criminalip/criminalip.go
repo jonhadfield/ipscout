@@ -77,12 +77,8 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 		}
 	}
 
-	// do something with the response
 	defer resp.Body.Close()
 
-	// if err = json.Unmarshal(rBody, &res); err != nil {
-	// 	return nil, err
-	// }
 	res, err = unmarshalResponse(rBody)
 	if err != nil {
 		return nil, err
@@ -107,9 +103,11 @@ type ProviderClient struct {
 	config.Config
 }
 
-func NewProviderClient(config config.Config) (*ProviderClient, error) {
+func NewProviderClient(c config.Config) (*ProviderClient, error) {
+	c.Logger.Debug("creating criminalip client")
+
 	tc := &ProviderClient{
-		Config: config,
+		Config: c,
 	}
 
 	return tc, nil
@@ -202,8 +200,7 @@ func getDomains(domain HostSearchResultDomain) []string {
 }
 
 func (c *ProviderClient) Initialise() error {
-	// fmt.Println("initialising criminalip client")
-	// TODO: anything to initialise?
+	c.Logger.Debug("initialising criminalip client")
 
 	return nil
 }
@@ -211,7 +208,6 @@ func (c *ProviderClient) Initialise() error {
 func (c *ProviderClient) FindHost() ([]byte, error) {
 	result, err := fetchData(c.Config)
 	if err != nil {
-		fmt.Printf("error loading criminalip api response: %v\n", err)
 		return nil, fmt.Errorf("error loading criminalip api response: %w", err)
 	}
 
@@ -227,17 +223,21 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw := table.NewWriter()
 	// tw.SetStyle(myInnerStyle)
 	var rows []table.Row
-	if result.Hostname.Count > 0 {
-		tw.AppendRow(table.Row{"Name", dashIfEmpty(result.Hostname.Data[0].DomainNameFull)})
-		tw.AppendRow(table.Row{"City", dashIfEmpty(result.Whois.Data[0].City)})
-		tw.AppendRow(table.Row{"Country", dashIfEmpty(result.Whois.Data[0].OrgCountryCode)})
-		tw.AppendRow(table.Row{"AS", dashIfEmpty(result.Whois.Data[0].AsNo)})
-	} else {
-		tw.AppendRow(table.Row{"Name", "-"})
-		tw.AppendRow(table.Row{"City", "-"})
-		tw.AppendRow(table.Row{"Country", "-"})
-		tw.AppendRow(table.Row{"AS", "-"})
+	if result.Whois.Count > 0 {
+		for _, whois := range result.Whois.Data {
+			tw.AppendRow(table.Row{"WHOIS", providers.DashIfEmpty(whois.ConfirmedTime)})
+			tw.AppendRow(table.Row{" - Org", providers.DashIfEmpty(whois.OrgName)})
+			tw.AppendRow(table.Row{" - Country", providers.DashIfEmpty(strings.ToUpper(whois.OrgCountryCode))})
+			tw.AppendRow(table.Row{" - Region", providers.DashIfEmpty(whois.Region)})
+			tw.AppendRow(table.Row{" - City", providers.DashIfEmpty(whois.City)})
+		}
 	}
+	// if result.Hostname.Count > 0 {
+	// 	tw.AppendRow(table.Row{"Whois",fmt.Sprintf("Name: %s", DashIfEmpty(result.Hostname.Data[0].DomainNameFull, "City: %s", DashIfEmpty(result.Hostname.Data[0].), "Country: %s", DashIfEmpty(result.Hostname.Data[0].CountryName), "Region: %s", DashIfEmpty(result.Hostname.Data[0].RegionCode), "Postal Code: %s", DashIfEmpty(result.Hostname.Data[0].PostalCode), "Latitude: %f", result.Hostname.Data[0].Latitude, "Longitude: %f", result.Hostname.Data[0].Longitude)}))
+	// 	tw.AppendRow(table.Row{"City", DashIfEmpty(result.Whois.Data[0].City)})
+	// 	tw.AppendRow(table.Row{"Country", DashIfEmpty(result.Whois.Data[0].OrgCountryCode)})
+	// 	tw.AppendRow(table.Row{"AS", DashIfEmpty(result.Whois.Data[0].AsNo)})
+	// }
 
 	if domains := getDomains(result.Domain); domains != nil {
 		tw.AppendRow(table.Row{"Domains", strings.Join(getDomains(result.Domain), ", ")})
@@ -762,23 +762,4 @@ func NilOrOriginal[T comparable](value *T, replacement string) interface{} {
 		return replacement
 	}
 	return *value
-}
-
-func dashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		if len(v) == 0 {
-			return "-"
-		}
-		return v
-	case *string:
-		if v == nil || len(*v) == 0 {
-			return "-"
-		}
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }

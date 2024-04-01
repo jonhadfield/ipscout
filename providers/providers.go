@@ -2,6 +2,7 @@ package providers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jonhadfield/crosscheck-ip/config"
 	"strconv"
 	"strings"
@@ -124,4 +125,23 @@ func isTransport(in any) bool {
 	}
 
 	return false
+}
+
+func DashIfEmpty(value interface{}) string {
+	switch v := value.(type) {
+	case string:
+		if len(v) == 0 {
+			return "-"
+		}
+		return v
+	case *string:
+		if v == nil || len(*v) == 0 {
+			return "-"
+		}
+		return *v
+	case int:
+		return fmt.Sprintf("%d", v)
+	default:
+		return "-"
+	}
 }

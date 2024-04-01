@@ -50,9 +50,11 @@ type ProviderClient struct {
 	config.Config
 }
 
-func NewProviderClient(config config.Config) (*ProviderClient, error) {
+func NewProviderClient(c config.Config) (*ProviderClient, error) {
+	c.Logger.Debug("creating aws client")
+
 	tc := &ProviderClient{
-		Config: config,
+		Config: c,
 	}
 
 	return tc, nil
@@ -89,6 +91,8 @@ func (c *ProviderClient) loadProviderData() error {
 }
 
 func (c *ProviderClient) Initialise() error {
+	c.Logger.Debug("initialising aws client")
+
 	ok, err := cache.CheckExists(c.Cache, ProviderName)
 	if err != nil {
 		return err

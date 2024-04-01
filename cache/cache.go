@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/dgraph-io/badger/v4"
+	"path/filepath"
 	"time"
 )
 
@@ -14,8 +15,8 @@ type Item struct {
 	Created time.Time
 }
 
-func Create() (*badger.DB, error) {
-	db, err := badger.Open(badger.DefaultOptions("/tmp/badger").WithLogger(nil))
+func Create(path string) (*badger.DB, error) {
+	db, err := badger.Open(badger.DefaultOptions(filepath.Join(path, "badger")).WithLogger(nil))
 	if err != nil {
 		return nil, err
 	}

@@ -6,6 +6,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/crosscheck-ip/cache"
 	"github.com/jonhadfield/crosscheck-ip/config"
+	"github.com/jonhadfield/crosscheck-ip/providers"
 	"github.com/jonhadfield/ip-fetcher/providers/digitalocean"
 	"net/netip"
 	"os"
@@ -31,6 +32,8 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 		return nil, err
 	}
 
+	res.Raw = rBody
+
 	return res, nil
 }
 
@@ -48,9 +51,11 @@ type ProviderClient struct {
 	config.Config
 }
 
-func NewProviderClient(config config.Config) (*ProviderClient, error) {
+func NewProviderClient(c config.Config) (*ProviderClient, error) {
+	c.Logger.Debug("creating digitalocean client")
+
 	tc := &ProviderClient{
-		Config: config,
+		Config: c,
 	}
 
 	return tc, nil
@@ -70,8 +75,6 @@ func (c *ProviderClient) loadProviderData() error {
 		return err
 	}
 
-	// fmt.Println("upserting digitalocean data", len(data))
-
 	err = cache.Upsert(c.Cache, cache.Item{
 		Key:     ProviderName,
 		Value:   data,
@@ -90,6 +93,8 @@ const (
 )
 
 func (c *ProviderClient) Initialise() error {
+	c.Logger.Debug("initialising digitalocean client")
+
 	// load provider data into cache if not already present and fresh
 	ok, err := cache.CheckExists(c.Cache, ProviderName)
 	if err != nil {
@@ -123,6 +128,8 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 			return nil, err
 		}
 
+		c.Logger.Info("digitalocean host match test data loaded")
+
 		return result.Raw, nil
 	}
 
@@ -132,12 +139,18 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		result, err = unmarshalResponse(item.Value)
 		if err != nil {
 			defer func() {
-				fmt.Printf("removing invalid cache item: %s\n", cacheKey)
-				cache.Delete(c.Cache, cacheKey)
+				c.Logger.Debug("removing invalid item in digitalocean cache", "key", cacheKey)
+				_ = cache.Delete(c.Cache, cacheKey)
 			}()
 
 			return nil, fmt.Errorf("error unmarshalling cached response: %w", err)
 		}
+
+		if len(result.Raw) == 0 {
+			return nil, providers.ErrNoMatchFound
+		}
+
+		c.Logger.Info("digitalocean host match data found in cache")
 
 		return result.Raw, nil
 	}
@@ -147,11 +160,13 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		doc, err = unmarshalProviderData(item.Value)
 		if err != nil {
 			defer func() {
-				cache.Delete(c.Cache, cacheKey)
+				_ = cache.Delete(c.Cache, cacheKey)
 			}()
 
-			return nil, fmt.Errorf("error unmarshalling cached aws provider doc: %w", err)
+			return nil, fmt.Errorf("error unmarshalling cached digitalocean provider doc: %w", err)
 		}
+
+		// c.Logger.Info("digitalocean provider data found in cache")
 	}
 
 	for _, record := range doc.Records {
@@ -161,12 +176,17 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 				ETag:         doc.ETag,
 				LastModified: doc.LastModified,
 			}
+
+			c.Logger.Debug("returning digitalocean host match data")
+
+			break
 		}
 	}
 
 	if result == nil {
-		// fmt.Printf("no digitalocean match for host: %s\n", c.Host.String())
-		return nil, nil
+		c.Logger.Debug("digitalocean host not found in data")
+
+		return nil, providers.ErrNoMatchFound
 	}
 
 	var raw []byte
@@ -179,6 +199,8 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
+		c.Logger.Debug("backing up digitalocean host report")
+
 		if err = os.WriteFile(fmt.Sprintf("backups/digitalocean_%s_report.json",
 			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0644); err != nil {
 			panic(err)

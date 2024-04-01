@@ -55,6 +55,11 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("shodan api request failed: %s", resp.Status)
+	}
+
 	// read response body
 	rBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -82,6 +87,9 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 	}
 
 	res.Raw = rBody
+	if res.Raw == nil {
+		return nil, providers.ErrNoMatchFound
+	}
 
 	return res, nil
 }
@@ -167,6 +175,9 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 			}
 
 			c.Logger.Info("shodan response found in cache", "host", c.Host.String())
+
+			result.Raw = item.Value
+
 			return result, nil
 		}
 	}
@@ -188,7 +199,7 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 }
 
 func (c *ProviderClient) Initialise() error {
-	// TODO: anything to initialise?
+	c.Logger.Debug("initialising shodan client")
 
 	return nil
 }
@@ -198,6 +209,8 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
 	}
+
+	c.Logger.Debug("shodan host match data", "size", len(result.Raw))
 
 	return result.Raw, nil
 }
@@ -209,18 +222,21 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	if result == nil {
-		return nil, fmt.Errorf("no data returned")
+		return nil, nil
 	}
 
 	tw := table.NewWriter()
+	tw.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 1, AutoMerge: true},
+	})
 
 	var rows []table.Row
 
-	rows = append(rows, table.Row{"Updated", result.LastUpdate})
-	rows = append(rows, table.Row{"Name", strings.Join(result.Hostnames, ", ")})
-	rows = append(rows, table.Row{"City", result.City})
-	rows = append(rows, table.Row{"Country", result.CountryName})
-	rows = append(rows, table.Row{"AS", result.Asn})
+	tw.AppendRow(table.Row{"WHOIS", providers.DashIfEmpty(result.LastUpdate)})
+	tw.AppendRow(table.Row{" - Org", providers.DashIfEmpty(result.Org)})
+	tw.AppendRow(table.Row{" - Country", fmt.Sprintf("%s (%s)", providers.DashIfEmpty(result.CountryName), providers.DashIfEmpty(strings.ToUpper(result.CountryCode)))})
+	tw.AppendRow(table.Row{" - Region", providers.DashIfEmpty(result.RegionCode)})
+	tw.AppendRow(table.Row{" - City", providers.DashIfEmpty(result.City)})
 
 	var filteredPorts int
 
@@ -246,6 +262,15 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			rows = append(rows, table.Row{"",
 				fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
 			rows = append(rows, table.Row{"", fmt.Sprintf("%s  HostNames: %s", IndentPipeHyphens, strings.Join(dr.Hostnames, ", "))})
+			if dr.SSH.Type != "" {
+				rows = append(rows, table.Row{"", fmt.Sprintf("%s  SSH", IndentPipeHyphens)})
+				rows = append(rows, table.Row{"",
+					fmt.Sprintf("%s%sType: %s",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.SSH.Type)})
+				rows = append(rows, table.Row{"",
+					fmt.Sprintf("%s%sCipher: %s",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.SSH.Cipher)})
+			}
 			if dr.HTTP.Status != 0 {
 				rows = append(rows, table.Row{"", fmt.Sprintf("%s  HTTP", IndentPipeHyphens)})
 				rows = append(rows, table.Row{"",
@@ -292,6 +317,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 					fmt.Sprintf("%s%sRecursive: %t",
 						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.Recursive)})
 			}
+
 		}
 
 		tw.AppendRows(rows)
@@ -308,12 +334,16 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		tw.SetTitle("SHODAN | Host: %s", result.Data[0].IPStr)
 	}
 
+	c.Logger.Debug("shodan table created", "host", c.Host.String())
+
 	return &tw, nil
 }
 
-func NewProviderClient(config config.Config) (*ProviderClient, error) {
+func NewProviderClient(c config.Config) (*ProviderClient, error) {
+	c.Logger.Debug("creating shodan client")
+
 	tc := &ProviderClient{
-		config,
+		c,
 	}
 
 	return tc, nil
@@ -361,6 +391,24 @@ type HostSearchResultData struct {
 		ResolverID       any  `json:"resolver_id"`
 		Software         any  `json:"software"`
 	} `json:"dns,omitempty"`
+	SSH struct {
+		Hassh       string `json:"hassh"`
+		Fingerprint string `json:"fingerprint"`
+		Mac         string `json:"mac"`
+		Cipher      string `json:"cipher"`
+		Key         string `json:"key"`
+		Kex         struct {
+			Languages               []string `json:"languages"`
+			ServerHostKeyAlgorithms []string `json:"server_host_key_algorithms"`
+			EncryptionAlgorithms    []string `json:"encryption_algorithms"`
+			KexFollows              bool     `json:"kex_follows"`
+			Unused                  int      `json:"unused"`
+			KexAlgorithms           []string `json:"kex_algorithms"`
+			CompressionAlgorithms   []string `json:"compression_algorithms"`
+			MacAlgorithms           []string `json:"mac_algorithms"`
+		} `json:"kex"`
+		Type string `json:"type"`
+	} `json:"ssh"`
 	HTTP struct {
 		Status     int `json:"status"`
 		RobotsHash int `json:"robots_hash"`
