@@ -103,12 +103,12 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	return res, nil
 }
 
-type TableCreatorClient struct {
+type ProviderClient struct {
 	config.Config
 }
 
-func NewTableClient(config config.Config) (*TableCreatorClient, error) {
-	tc := &TableCreatorClient{
+func NewProviderClient(config config.Config) (*ProviderClient, error) {
+	tc := &ProviderClient{
 		Config: config,
 	}
 
@@ -142,13 +142,15 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		// if err = json.Unmarshal(item.Value, &result); err != nil {
 		// 	return nil, err
 		// }
-
+		// fmt.Println("0cache hit with bytes: ", result.Raw)
+		result.Raw = item.Value
+		// fmt.Println("1cache hit with bytes: ", result.Raw)
 		return result, nil
 	}
 
 	result, err = loadAPIResponse(context.Background(), client.Host, client.HttpClient, client.Providers.CriminalIP.APIKey)
 	if err != nil {
-		return nil, fmt.Errorf("error loading shodan api response: %w", err)
+		return nil, fmt.Errorf("error loading criminal ip api response: %w", err)
 	}
 
 	if err = cache.Upsert(client.Cache, cache.Item{
@@ -195,10 +197,27 @@ func getDomains(domain HostSearchResultDomain) []string {
 	return domains
 }
 
-func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
+func (c *ProviderClient) Initialise() error {
+	// fmt.Println("initialising criminalip client")
+	// TODO: anything to initialise?
+
+	return nil
+}
+
+func (c *ProviderClient) FindHost() ([]byte, error) {
 	result, err := fetchData(c.Config)
 	if err != nil {
+		fmt.Printf("error loading criminalip api response: %v\n", err)
 		return nil, fmt.Errorf("error loading criminalip api response: %w", err)
+	}
+
+	return result.Raw, nil
+}
+
+func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
+	result, err := unmarshalResponse(data)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling criminalip api response: %w", err)
 	}
 
 	tw := table.NewWriter()

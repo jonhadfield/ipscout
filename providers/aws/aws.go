@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/crosscheck-ip/cache"
 	"github.com/jonhadfield/crosscheck-ip/config"
@@ -27,76 +26,6 @@ type Config struct {
 	APIKey string
 }
 
-func loadAPIResponse(host netip.Addr, client *retryablehttp.Client) (res *HostSearchResult, err error) {
-	awsClient := aws.New()
-	awsClient.Client = client
-
-	doc, etag, err := awsClient.Fetch()
-	if err != nil {
-		return nil, err
-	}
-
-	if host.Is4() {
-		for _, prefix := range doc.Prefixes {
-			if prefix.IPPrefix.Contains(host) {
-				res = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPPrefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
-				}
-			}
-		}
-	}
-
-	if host.Is6() {
-		for _, prefix := range doc.IPv6Prefixes {
-			if prefix.IPv6Prefix.Contains(host) {
-				res = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPv6Prefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
-				}
-			}
-		}
-	}
-
-	if res == nil {
-		return nil, providers.ErrNoMatchFound
-	}
-
-	res.SyncToken = doc.SyncToken
-
-	res.CreateDate, err = time.Parse("2006-01-02-15-04-05", doc.CreateDate)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing create date: %w", err)
-	}
-
-	res.ETag = etag
-
-	var raw []byte
-
-	raw, err = json.Marshal(res)
-	if err != nil {
-		return nil, fmt.Errorf("error marshalling response: %w", err)
-	}
-
-	res.Raw = raw
-
-	// TODO: remove before release
-	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("backups/aws_%s_report.json",
-			strings.ReplaceAll(host.String(), ".", "_")), raw, 0644); err != nil {
-			panic(err)
-		}
-	}
-
-	return res, nil
-}
-
 func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	var res *HostSearchResult
 
@@ -107,83 +36,194 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	return res, nil
 }
 
-type TableCreatorClient struct {
+func unmarshalProviderData(rBody []byte) (*aws.Doc, error) {
+	var res *aws.Doc
+
+	if err := json.Unmarshal(rBody, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+type ProviderClient struct {
 	config.Config
 }
 
-func NewTableClient(config config.Config) (*TableCreatorClient, error) {
-	tc := &TableCreatorClient{
+func NewProviderClient(config config.Config) (*ProviderClient, error) {
+	tc := &ProviderClient{
 		Config: config,
 	}
 
 	return tc, nil
 }
 
-func fetchData(client config.Config) (*HostSearchResult, error) {
+const (
+	MaxColumnWidth = 120
+)
+
+func (c *ProviderClient) loadProviderData() error {
+	// TODO: check cache for data first
+
+	awsClient := aws.New()
+	awsClient.Client = c.HttpClient
+
+	doc, etag, err := awsClient.Fetch()
+	if err != nil {
+		return err
+	}
+
+	data, err := json.Marshal(doc)
+	if err != nil {
+		return err
+	}
+
+	err = cache.Upsert(c.Cache, cache.Item{
+		Key:     ProviderName,
+		Value:   data,
+		Version: etag,
+		Created: time.Now(),
+	})
+
+	return nil
+}
+
+func (c *ProviderClient) Initialise() error {
+	err := c.loadProviderData()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *ProviderClient) FindHost() ([]byte, error) {
+	var out []byte
+
 	var result *HostSearchResult
 
 	var err error
 
-	if client.UseTestData {
+	// load test results data
+	if c.UseTestData {
 		result, err = loadResultsFile("providers/aws/testdata/aws_18_164_52_75_report.json")
 		if err != nil {
 			return nil, err
 		}
 
-		return result, nil
+		out, err = json.Marshal(result)
+		if err != nil {
+			return nil, fmt.Errorf("error marshalling test data: %w", err)
+		}
+
+		return out, nil
 	}
 
-	cacheKey := fmt.Sprintf("aws_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
+	// check results cache for match
+	cacheKey := fmt.Sprintf("aws_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
 	var item *cache.Item
-	if item, err = cache.Read(client.Cache, cacheKey); err == nil {
+	if item, err = cache.Read(c.Cache, cacheKey); err == nil {
 		result, err = unmarshalResponse(item.Value)
 		if err != nil {
 			defer func() {
-				cache.Delete(client.Cache, cacheKey)
+				cache.Delete(c.Cache, cacheKey)
 			}()
 
 			return nil, fmt.Errorf("error unmarshalling cached response: %w", err)
 		}
 
-		return result, nil
+		out, err = json.Marshal(result)
+		if err != nil {
+			return nil, fmt.Errorf("error marshalling cached response: %w", err)
+		}
+
+		return out, nil
 	}
 
-	// TODO: move host matching logic outside of loadAPIResponse to make error cleaner and code less smelly
-	result, err = loadAPIResponse(client.Host, client.HttpClient)
-	if err != nil {
-		switch {
-		case errors.Is(err, providers.ErrNoDataFound):
-			return nil, fmt.Errorf("data not loaded: %w", err)
+	var doc *aws.Doc
+	if item, err = cache.Read(c.Cache, ProviderName); err == nil {
+		doc, err = unmarshalProviderData(item.Value)
+		if err != nil {
+			defer func() {
+				cache.Delete(c.Cache, cacheKey)
+			}()
 
-		case errors.Is(err, providers.ErrFailedToFetchData):
-			return nil, fmt.Errorf("error loading aws api response: %w", err)
-
-		case errors.Is(err, providers.ErrNoMatchFound):
-			cache.Delete(client.Cache, cacheKey)
-
-			return nil, fmt.Errorf("no result found for host: %s: %w", client.Host.String(), err)
-		default:
-			return nil, fmt.Errorf("error loading aws api response: %w", err)
+			return nil, fmt.Errorf("error unmarshalling cached aws provider doc: %w", err)
 		}
 	}
 
-	if err = cache.Upsert(client.Cache, cache.Item{
-		Key:     cacheKey,
-		Value:   result.Raw,
-		Created: time.Now(),
-	}); err != nil {
-		return nil, err
+	var match *HostSearchResult
+
+	if c.Host.Is4() {
+		for _, prefix := range doc.Prefixes {
+			if prefix.IPPrefix.Contains(c.Host) {
+				match = &HostSearchResult{
+					Prefix: aws.Prefix{
+						IPPrefix: prefix.IPPrefix,
+						Region:   prefix.Region,
+						Service:  prefix.Service,
+					},
+				}
+			}
+		}
 	}
 
-	return result, nil
+	if c.Host.Is6() {
+		for _, prefix := range doc.IPv6Prefixes {
+			if prefix.IPv6Prefix.Contains(c.Host) {
+				match = &HostSearchResult{
+					Prefix: aws.Prefix{
+						IPPrefix: prefix.IPv6Prefix,
+						Region:   prefix.Region,
+						Service:  prefix.Service,
+					},
+				}
+			}
+		}
+	}
+
+	if match == nil {
+		return nil, providers.ErrNoMatchFound
+	}
+
+	match.SyncToken = doc.SyncToken
+
+	match.CreateDate, err = time.Parse("2006-01-02-15-04-05", doc.CreateDate)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing create date: %w", err)
+	}
+
+	match.ETag = item.Version
+
+	var raw []byte
+
+	raw, err = json.Marshal(match)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling response: %w", err)
+	}
+
+	match.Raw = raw
+
+	// TODO: remove before release
+	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
+		if err = os.WriteFile(fmt.Sprintf("backups/aws_%s_report.json",
+			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0644); err != nil {
+			panic(err)
+		}
+	}
+
+	return raw, nil
 }
 
-const (
-	MaxColumnWidth = 120
-)
+func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
+	var err error
+	var result HostSearchResult
+	if err = json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("error unmarshalling aws data: %w", err)
+	}
 
-func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
-	result, err := fetchData(c.Config)
+	// awsData := data.(*HostSearchResult)
+	// result, err := fetchData(c.Config)
 	if err != nil {
 		switch {
 		case errors.Is(err, providers.ErrNoDataFound):
@@ -212,7 +252,7 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	}
 
 	if result.ETag != "" {
-		tw.AppendRow(table.Row{"ETag", dashIfEmpty(result.ETag)})
+		tw.AppendRow(table.Row{"Version", dashIfEmpty(result.ETag)})
 	}
 
 	tw.AppendRows(rows)

@@ -3,7 +3,6 @@ package digitalocean
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/crosscheck-ip/cache"
 	"github.com/jonhadfield/crosscheck-ip/config"
@@ -25,49 +24,6 @@ type Config struct {
 	APIKey string
 }
 
-func loadAPIResponse(host netip.Addr, client *retryablehttp.Client) (res *HostSearchResult, err error) {
-	digitaloceanClient := digitalocean.New()
-	digitaloceanClient.Client = client
-
-	doc, err := digitaloceanClient.Fetch()
-	if err != nil {
-		return nil, fmt.Errorf("error fetching digitalocean data: %w", err)
-	}
-
-	for _, record := range doc.Records {
-		if record.Network.Contains(host) {
-			res = &HostSearchResult{
-				Record:       record,
-				ETag:         doc.ETag,
-				LastModified: doc.LastModified,
-			}
-		}
-	}
-
-	if res == nil {
-		// fmt.Printf("no digitalocean match for host: %s\n", host.String())
-		return nil, nil
-	}
-
-	var raw []byte
-	raw, err = json.Marshal(res)
-	if err != nil {
-		return nil, fmt.Errorf("error marshalling response: %w", err)
-	}
-
-	res.Raw = raw
-
-	// TODO: remove before release
-	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("backups/digitalocean_%s_report.json",
-			strings.ReplaceAll(host.String(), ".", "_")), raw, 0644); err != nil {
-			panic(err)
-		}
-	}
-
-	return res, nil
-}
-
 func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	var res *HostSearchResult
 
@@ -78,79 +34,160 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	return res, nil
 }
 
-type TableCreatorClient struct {
+func unmarshalProviderData(data []byte) (*digitalocean.Doc, error) {
+	var res *digitalocean.Doc
+
+	if err := json.Unmarshal(data, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+type ProviderClient struct {
 	config.Config
 }
 
-func NewTableClient(config config.Config) (*TableCreatorClient, error) {
-	tc := &TableCreatorClient{
+func NewProviderClient(config config.Config) (*ProviderClient, error) {
+	tc := &ProviderClient{
 		Config: config,
 	}
 
 	return tc, nil
 }
 
-func fetchData(client config.Config) (*HostSearchResult, error) {
-	var result *HostSearchResult
+func (c *ProviderClient) loadProviderData() error {
+	// TODO: check cache for data first
+	// fmt.Printf("loading digitalocean data\n")
+	digitaloceanClient := digitalocean.New()
+	digitaloceanClient.Client = c.HttpClient
 
-	var err error
-
-	if client.UseTestData {
-		result, err = loadResultsFile("providers/digitalocean/testdata/digitalocean_18_164_52_75_report.json")
-		if err != nil {
-			return nil, err
-		}
-
-		return result, nil
-	}
-
-	cacheKey := fmt.Sprintf("digitalocean_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
-	var item *cache.Item
-	if item, err = cache.Read(client.Cache, cacheKey); err == nil {
-		result, err = unmarshalResponse(item.Value)
-		if err != nil {
-			defer func() {
-				fmt.Printf("removing invalid cache item: %s\n", cacheKey)
-				cache.Delete(client.Cache, cacheKey)
-			}()
-
-			return nil, fmt.Errorf("error unmarshalling cached response: %w", err)
-		}
-
-		return result, nil
-	}
-
-	result, err = loadAPIResponse(client.Host, client.HttpClient)
+	doc, err := digitaloceanClient.Fetch()
 	if err != nil {
-		return nil, fmt.Errorf("error loading digitalocean api response: %w", err)
+		return fmt.Errorf("error fetching digitalocean data: %w", err)
 	}
 
-	if result == nil {
-		cache.Delete(client.Cache, cacheKey)
-
-		return nil, fmt.Errorf("no result found for host: %s", client.Host.String())
+	data, err := json.Marshal(doc)
+	if err != nil {
+		return err
 	}
 
-	if err = cache.Upsert(client.Cache, cache.Item{
-		Key:     cacheKey,
-		Value:   result.Raw,
+	// fmt.Println("upserting digitalocean data", len(data))
+
+	err = cache.Upsert(c.Cache, cache.Item{
+		Key:     ProviderName,
+		Value:   data,
+		Version: doc.ETag,
 		Created: time.Now(),
-	}); err != nil {
-		return nil, err
+	})
+	if err != nil {
+		return err
 	}
 
-	return result, nil
+	return nil
 }
 
 const (
 	MaxColumnWidth = 120
 )
 
-func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
-	result, err := fetchData(c.Config)
+func (c *ProviderClient) Initialise() error {
+	// load provider data into cache if not already present and fresh
+	err := c.loadProviderData()
 	if err != nil {
 		fmt.Printf("error loading digitalocean api response: %v\n", err)
-		return nil, fmt.Errorf("error loading digitalocean api response: %w", err)
+		return fmt.Errorf("error loading digitalocean api response: %w", err)
+	}
+
+	return nil
+}
+
+func (c *ProviderClient) FindHost() ([]byte, error) {
+	var result *HostSearchResult
+
+	var err error
+
+	if c.UseTestData {
+		result, err = loadResultsFile("providers/digitalocean/testdata/digitalocean_18_164_52_75_report.json")
+		if err != nil {
+			return nil, err
+		}
+
+		return result.Raw, nil
+	}
+
+	cacheKey := fmt.Sprintf("digitalocean_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
+	var item *cache.Item
+	if item, err = cache.Read(c.Cache, cacheKey); err == nil {
+		result, err = unmarshalResponse(item.Value)
+		if err != nil {
+			defer func() {
+				fmt.Printf("removing invalid cache item: %s\n", cacheKey)
+				cache.Delete(c.Cache, cacheKey)
+			}()
+
+			return nil, fmt.Errorf("error unmarshalling cached response: %w", err)
+		}
+
+		return result.Raw, nil
+	}
+
+	var doc *digitalocean.Doc
+	if item, err = cache.Read(c.Cache, ProviderName); err == nil {
+		doc, err = unmarshalProviderData(item.Value)
+		if err != nil {
+			defer func() {
+				cache.Delete(c.Cache, cacheKey)
+			}()
+
+			return nil, fmt.Errorf("error unmarshalling cached aws provider doc: %w", err)
+		}
+	}
+
+	for _, record := range doc.Records {
+		if record.Network.Contains(c.Host) {
+			result = &HostSearchResult{
+				Record:       record,
+				ETag:         doc.ETag,
+				LastModified: doc.LastModified,
+			}
+		}
+	}
+
+	if result == nil {
+		// fmt.Printf("no digitalocean match for host: %s\n", c.Host.String())
+		return nil, nil
+	}
+
+	var raw []byte
+	raw, err = json.Marshal(result)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling response: %w", err)
+	}
+
+	result.Raw = raw
+
+	// TODO: remove before release
+	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
+		if err = os.WriteFile(fmt.Sprintf("backups/digitalocean_%s_report.json",
+			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0644); err != nil {
+			panic(err)
+		}
+	}
+
+	return result.Raw, nil
+}
+
+func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
+	// result, err := fetchData(c.Config)
+	// if err != nil {
+	// 	fmt.Printf("error loading digitalocean api response: %v\n", err)
+	// 	return nil, fmt.Errorf("error loading digitalocean api response: %w", err)
+	// }
+
+	result, err := unmarshalResponse(data)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
 
 	tw := table.NewWriter()
@@ -165,7 +202,7 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	}
 
 	if result.ETag != "" {
-		tw.AppendRow(table.Row{"ETag", dashIfEmpty(result.ETag)})
+		tw.AppendRow(table.Row{"Version", dashIfEmpty(result.ETag)})
 	}
 
 	tw.AppendRows(rows)

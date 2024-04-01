@@ -9,6 +9,7 @@ import (
 type Item struct {
 	Key     string
 	Value   []byte
+	Version string
 	Created time.Time
 }
 

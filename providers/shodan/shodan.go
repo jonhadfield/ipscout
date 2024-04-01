@@ -3,7 +3,6 @@ package shodan
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
@@ -26,31 +25,13 @@ const (
 	HostIPPath        = "/shodan/host"
 	MaxColumnWidth    = 120
 	IndentPipeHyphens = " |-----"
-	NoDataResponse    = "No information available for that IP."
+	NoMatch           = "no matches found for that host."
 )
-
-func Load(client *retryablehttp.Client, apiKey string) (res HostSearchResult, err error) {
-	jf, err := os.Open("testdata/shodan_google_dns_resp.json")
-	if err != nil {
-		return HostSearchResult{}, err
-	}
-
-	defer jf.Close()
-
-	decoder := json.NewDecoder(jf)
-
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, err
-	}
-
-	return res, nil
-}
 
 func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *HostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath, host.String())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to creatw shodan api url path: %w", err)
 	}
 
 	sURL, err := url.Parse(urlPath)
@@ -74,11 +55,17 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
-
 	// read response body
 	rBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error reading shodan response: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	if rBody == nil {
+		return nil, providers.ErrNoDataFound
+
 	}
 
 	// TODO: remove before release
@@ -88,8 +75,6 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 			panic(err)
 		}
 	}
-
-	defer resp.Body.Close()
 
 	res, err = unmarshalResponse(rBody)
 	if err != nil {
@@ -107,7 +92,7 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, err
 	}
-
+	res.Raw = data
 	return &res, nil
 }
 
@@ -148,11 +133,12 @@ type Config struct {
 	APIKey string
 }
 
-type Clienter interface {
-	CreateTable() (*table.Writer, error)
+type Provider interface {
+	LoadData() ([]byte, error)
+	CreateTable([]byte) (*table.Writer, error)
 }
 
-type TableCreatorClient struct {
+type ProviderClient struct {
 	config.Config
 }
 
@@ -174,32 +160,19 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 	cacheKey := fmt.Sprintf("shodan_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
 	var item *cache.Item
 	if item, err = cache.Read(client.Cache, cacheKey); err == nil {
-		result, err = unmarshalResponse(item.Value)
-		if err != nil {
-			return nil, fmt.Errorf("error unmarshalling cached shodan response: %w", err)
+		if item.Value != nil && len(item.Value) > 0 {
+			result, err = unmarshalResponse(item.Value)
+			if err != nil {
+				return nil, fmt.Errorf("error unmarshalling cached shodan response: %w", err)
+			}
+
+			return result, nil
 		}
-
-		// fmt.Printf("cache hit: %s\n", cacheKey)
-
-		// if err = json.Unmarshal(item.Value, &result); err != nil {
-		// 	return nil, err
-		// }
-
-		return result, nil
 	}
 
 	result, err = loadAPIResponse(context.Background(), client.Host, client.HttpClient, client.Providers.Shodan.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
-	}
-
-	switch result.Error {
-	case NoDataResponse:
-		return nil, providers.ErrNoDataFound
-	case "":
-		break
-	default:
-		return nil, fmt.Errorf("%s: %w", result.Error, providers.ErrFailedToFetchData)
 	}
 
 	if err = cache.Upsert(client.Cache, cache.Item{
@@ -213,14 +186,25 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 	return result, nil
 }
 
-func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
+func (c *ProviderClient) Initialise() error {
+	// TODO: anything to initialise?
+
+	return nil
+}
+
+func (c *ProviderClient) FindHost() ([]byte, error) {
 	result, err := fetchData(c.Config)
 	if err != nil {
-		if errors.Is(err, providers.ErrNoDataFound) {
-			return nil, nil
-		}
+		return nil, fmt.Errorf("error loading shodan api response: %w", err)
+	}
 
-		return nil, fmt.Errorf("error fetching shodan data: %w", err)
+	return result.Raw, nil
+}
+
+func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
+	var result *HostSearchResult
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("error unmarshalling shodan data: %w", err)
 	}
 
 	if result == nil {
@@ -326,8 +310,8 @@ func (c *TableCreatorClient) CreateTable() (*table.Writer, error) {
 	return &tw, nil
 }
 
-func NewTableClient(config config.Config) (*TableCreatorClient, error) {
-	tc := &TableCreatorClient{
+func NewProviderClient(config config.Config) (*ProviderClient, error) {
+	tc := &ProviderClient{
 		config,
 	}
 
