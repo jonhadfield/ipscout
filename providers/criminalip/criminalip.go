@@ -126,6 +126,8 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 			return nil, err
 		}
 
+		client.Logger.Info("loaded criminal ip test data", "host", client.Host.String())
+
 		return result, nil
 	}
 
@@ -136,6 +138,8 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		client.Logger.Info("criminal ip response found in cache", "host", client.Host.String())
 
 		// fmt.Printf("cache hit: %s\n", cacheKey)
 

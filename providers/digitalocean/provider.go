@@ -57,8 +57,6 @@ func NewProviderClient(config config.Config) (*ProviderClient, error) {
 }
 
 func (c *ProviderClient) loadProviderData() error {
-	// TODO: check cache for data first
-	// fmt.Printf("loading digitalocean data\n")
 	digitaloceanClient := digitalocean.New()
 	digitaloceanClient.Client = c.HttpClient
 
@@ -93,9 +91,21 @@ const (
 
 func (c *ProviderClient) Initialise() error {
 	// load provider data into cache if not already present and fresh
-	err := c.loadProviderData()
+	ok, err := cache.CheckExists(c.Cache, ProviderName)
 	if err != nil {
-		fmt.Printf("error loading digitalocean api response: %v\n", err)
+		return err
+	}
+
+	if ok {
+		c.Logger.Info("digitalocean provider data found in cache")
+
+		return nil
+	}
+
+	c.Logger.Info("loading digitalocean provider data from source")
+
+	err = c.loadProviderData()
+	if err != nil {
 		return fmt.Errorf("error loading digitalocean api response: %w", err)
 	}
 
@@ -179,12 +189,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
-	// result, err := fetchData(c.Config)
-	// if err != nil {
-	// 	fmt.Printf("error loading digitalocean api response: %v\n", err)
-	// 	return nil, fmt.Errorf("error loading digitalocean api response: %w", err)
-	// }
-
 	result, err := unmarshalResponse(data)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling response: %w", err)

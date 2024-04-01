@@ -28,10 +28,10 @@ const (
 	NoMatch           = "no matches found for that host."
 )
 
-func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *HostSearchResult, err error) {
-	urlPath, err := url.JoinPath(APIURL, HostIPPath, host.String())
+func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *HostSearchResult, err error) {
+	urlPath, err := url.JoinPath(APIURL, HostIPPath, c.Host.String())
 	if err != nil {
-		return nil, fmt.Errorf("failed to creatw shodan api url path: %w", err)
+		return nil, fmt.Errorf("failed to create shodan api url path: %w", err)
 	}
 
 	sURL, err := url.Parse(urlPath)
@@ -51,7 +51,7 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	resp, err := client.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -65,15 +65,15 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 
 	if rBody == nil {
 		return nil, providers.ErrNoDataFound
-
 	}
 
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("backups/shodan_%s_report.json",
-			strings.ReplaceAll(host.String(), ".", "_")), rBody, 0644); err != nil {
+			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0644); err != nil {
 			panic(err)
 		}
+		c.Logger.Debug("backed up shodan response", "host", c.Host.String())
 	}
 
 	res, err = unmarshalResponse(rBody)
@@ -142,12 +142,12 @@ type ProviderClient struct {
 	config.Config
 }
 
-func fetchData(client config.Config) (*HostSearchResult, error) {
+func fetchData(c config.Config) (*HostSearchResult, error) {
 	var result *HostSearchResult
 
 	var err error
 
-	if client.UseTestData {
+	if c.UseTestData {
 		result, err = loadResultsFile("providers/shodan/testdata/shodan_google_dns_resp.json")
 		if err != nil {
 			return nil, fmt.Errorf("error loading shodan test data: %w", err)
@@ -157,25 +157,26 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 	}
 
 	// load data from cache
-	cacheKey := fmt.Sprintf("shodan_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
+	cacheKey := fmt.Sprintf("shodan_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
 	var item *cache.Item
-	if item, err = cache.Read(client.Cache, cacheKey); err == nil {
+	if item, err = cache.Read(c.Cache, cacheKey); err == nil {
 		if item.Value != nil && len(item.Value) > 0 {
 			result, err = unmarshalResponse(item.Value)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached shodan response: %w", err)
 			}
 
+			c.Logger.Info("shodan response found in cache", "host", c.Host.String())
 			return result, nil
 		}
 	}
 
-	result, err = loadAPIResponse(context.Background(), client.Host, client.HttpClient, client.Providers.Shodan.APIKey)
+	result, err = loadAPIResponse(context.Background(), c, c.Providers.Shodan.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading shodan api response: %w", err)
 	}
 
-	if err = cache.Upsert(client.Cache, cache.Item{
+	if err = cache.Upsert(c.Cache, cache.Item{
 		Key:     cacheKey,
 		Value:   result.Raw,
 		Created: time.Now(),

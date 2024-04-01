@@ -25,11 +25,12 @@ type ProviderClient interface {
 	CreateTable([]byte) (*table.Writer, error)
 }
 
-func getProviderClients(config config.Config) (map[string]ProviderClient, error) {
+func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 	runners := make(map[string]ProviderClient)
-
-	if config.Providers.Shodan.APIKey != "" || config.UseTestData {
-		shodanClient, err := shodan.NewProviderClient(config)
+	c.Logger.Info("creating provider clients")
+	if c.Providers.Shodan.APIKey != "" || c.UseTestData {
+		c.Logger.Info("creating shodan client")
+		shodanClient, err := shodan.NewProviderClient(c)
 		if err != nil {
 			return nil, fmt.Errorf("error creating shodan client: %w", err)
 		}
@@ -37,8 +38,8 @@ func getProviderClients(config config.Config) (map[string]ProviderClient, error)
 		runners[shodan.ProviderName] = shodanClient
 	}
 
-	if config.Providers.CriminalIP.APIKey != "" || config.UseTestData {
-		criminalIPClient, err := criminalip.NewProviderClient(config)
+	if c.Providers.CriminalIP.APIKey != "" || c.UseTestData {
+		criminalIPClient, err := criminalip.NewProviderClient(c)
 		if err != nil {
 			return nil, fmt.Errorf("error creating criminalip client: %w", err)
 		}
@@ -48,8 +49,8 @@ func getProviderClients(config config.Config) (map[string]ProviderClient, error)
 		}
 	}
 
-	if config.Providers.AWS.Enabled || config.UseTestData {
-		awsIPClient, err := aws.NewProviderClient(config)
+	if c.Providers.AWS.Enabled || c.UseTestData {
+		awsIPClient, err := aws.NewProviderClient(c)
 		if err != nil {
 			return nil, fmt.Errorf("error creating aws client: %w", err)
 		}
@@ -59,8 +60,8 @@ func getProviderClients(config config.Config) (map[string]ProviderClient, error)
 		}
 	}
 
-	if config.Providers.DigitalOcean.Enabled || config.UseTestData {
-		digitaloceanIPClient, err := digitalocean.NewProviderClient(config)
+	if c.Providers.DigitalOcean.Enabled || c.UseTestData {
+		digitaloceanIPClient, err := digitalocean.NewProviderClient(c)
 		if err != nil {
 			return nil, fmt.Errorf("error creating digitalocean client: %w", err)
 		}
@@ -86,7 +87,8 @@ type Processor struct {
 func (p *Processor) Run() {
 	db, err := cache.Create()
 	if err != nil {
-		fmt.Printf("error creating cache: %v", err)
+		p.Config.Logger.Error("failed to create cache", "error", err)
+
 		os.Exit(1)
 	}
 
@@ -97,29 +99,33 @@ func (p *Processor) Run() {
 	// get provider clients
 	providerClients, err := getProviderClients(*p.Config)
 	if err != nil {
-		fmt.Printf("error generating providerClients: %v", err)
+		p.Config.Logger.Error("failed to generate provider clients", "error", err)
+
 		os.Exit(1)
 	}
 
 	// initialise providers
-	err = initialiseProviders(providerClients)
+	err = initialiseProviders(providerClients, p.Config.HideProgress)
 	if err != nil {
-		fmt.Printf("error initialising providers: %v", err)
+		p.Config.Logger.Error("failed to initialise providers", "error", err)
+
 		os.Exit(1)
 	}
 
 	// generate tables
-	results, err := findHosts(providerClients)
+	results, err := findHosts(providerClients, p.Config.HideProgress)
 	if err != nil {
-		fmt.Printf("error generating tables: %v", err)
+		p.Config.Logger.Error("failed to find hosts", "error", err)
+
 		os.Exit(1)
 	}
 
-	// fmt.Printf("found %d results from %d providers\n", len(results), len(providerClients))
+	p.Config.Logger.Info("host matching results", "providers queried", len(providerClients), "matching results", len(results))
 
-	tables, err := generateTables(providerClients, results)
+	tables, err := generateTables(providerClients, results, p.Config.HideProgress)
 	if err != nil {
-		fmt.Printf("error generating tables: %v", err)
+		p.Config.Logger.Error("failed to generate tables", "error", err)
+
 		os.Exit(1)
 	}
 
@@ -132,15 +138,19 @@ func (p *Processor) Run() {
 	}
 }
 
-func initialiseProviders(runners map[string]ProviderClient) error {
+func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) error {
 	var err error
 
 	var g errgroup.Group
 
-	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
-	s.Start() // Start the spinner
-	// time.Sleep(4 * time.Second) // Run for some time to simulate work
-	s.Suffix = " initialising providers..."
+	if !hideProgress {
+		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+		s.Start() // Start the spinner
+		// time.Sleep(4 * time.Second) // Run for some time to simulate work
+		s.Suffix = " initialising providers..."
+
+		defer s.Stop()
+	}
 	for name, runner := range runners {
 		_, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
 		g.Go(func() error {
@@ -159,19 +169,23 @@ func initialiseProviders(runners map[string]ProviderClient) error {
 	}
 	// allow time to output spinner
 	time.Sleep(100 * time.Millisecond)
-	s.Stop()
 
 	return nil
 }
 
-func findHosts(runners map[string]ProviderClient) (map[string][]byte, error) {
+func findHosts(runners map[string]ProviderClient, hideProgress bool) (map[string][]byte, error) {
 	results := make(map[string][]byte)
 
 	var w sync.WaitGroup
-	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
-	s.Start() // Start the spinner
-	// time.Sleep(4 * time.Second) // Run for some time to simulate work
-	s.Suffix = " searching providers..."
+
+	if !hideProgress {
+		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+		s.Start() // Start the spinner
+		// time.Sleep(4 * time.Second) // Run for some time to simulate work
+		s.Suffix = " searching providers..."
+
+		defer s.Stop()
+	}
 
 	for name, runner := range runners {
 		name, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
@@ -195,22 +209,26 @@ func findHosts(runners map[string]ProviderClient) (map[string][]byte, error) {
 	w.Wait()
 	// allow time to output spinner
 	time.Sleep(100 * time.Millisecond)
-	s.Stop()
 
 	return results, nil
 }
 
-func generateTables(runners map[string]ProviderClient, results map[string][]byte) ([]*table.Writer, error) {
+func generateTables(runners map[string]ProviderClient, results map[string][]byte, hideProgress bool) ([]*table.Writer, error) {
 	if len(results) == 0 {
 		panic("oops")
 	}
 	var tables []*table.Writer
 
 	var w sync.WaitGroup
-	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
-	s.Start() // Start the spinner
-	// time.Sleep(4 * time.Second) // Run for some time to simulate work
-	s.Suffix = " generating output..."
+
+	if !hideProgress {
+		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+		s.Start() // Start the spinner
+		// time.Sleep(4 * time.Second) // Run for some time to simulate work
+		s.Suffix = " generating output..."
+
+		defer s.Stop()
+	}
 
 	for name, runner := range runners {
 		name, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
@@ -239,7 +257,6 @@ func generateTables(runners map[string]ProviderClient, results map[string][]byte
 	w.Wait()
 	// allow time to output spinner
 	time.Sleep(100 * time.Millisecond)
-	s.Stop()
 
 	return tables, nil
 }

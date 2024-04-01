@@ -89,7 +89,18 @@ func (c *ProviderClient) loadProviderData() error {
 }
 
 func (c *ProviderClient) Initialise() error {
-	err := c.loadProviderData()
+	ok, err := cache.CheckExists(c.Cache, ProviderName)
+	if err != nil {
+		return err
+	}
+
+	if ok {
+		c.Logger.Info("aws provider data found in cache")
+
+		return nil
+	}
+
+	err = c.loadProviderData()
 	if err != nil {
 		return err
 	}
@@ -116,6 +127,8 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 			return nil, fmt.Errorf("error marshalling test data: %w", err)
 		}
 
+		c.Logger.Info("aws match returned from test data", "host", c.Host.String())
+
 		return out, nil
 	}
 
@@ -137,6 +150,8 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 			return nil, fmt.Errorf("error marshalling cached response: %w", err)
 		}
 
+		c.Logger.Info("aws match found in cache", "host", c.Host.String())
+
 		return out, nil
 	}
 
@@ -150,6 +165,9 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 			return nil, fmt.Errorf("error unmarshalling cached aws provider doc: %w", err)
 		}
+
+		c.Logger.Info("aws provider data returned from cache", "size", len(item.Value))
+
 	}
 
 	var match *HostSearchResult
@@ -186,6 +204,8 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, providers.ErrNoMatchFound
 	}
 
+	c.Logger.Info("aws match found", "host", c.Host.String())
+
 	match.SyncToken = doc.SyncToken
 
 	match.CreateDate, err = time.Parse("2006-01-02-15-04-05", doc.CreateDate)
@@ -208,8 +228,12 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("backups/aws_%s_report.json",
 			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0644); err != nil {
-			panic(err)
+
+			return nil, err
 		}
+
+		c.Logger.Info("backed up aws response", "host", c.Host.String())
+
 	}
 
 	return raw, nil

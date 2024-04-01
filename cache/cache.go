@@ -2,6 +2,7 @@ package cache
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/dgraph-io/badger/v4"
 	"time"
 )
@@ -53,6 +54,30 @@ func Read(db *badger.DB, key string) (*Item, error) {
 	}
 
 	return &item, nil
+}
+
+func CheckExists(db *badger.DB, key string) (bool, error) {
+	var found bool
+	err := db.View(func(txn *badger.Txn) error {
+		_, err := txn.Get([]byte(key))
+		if err != nil {
+			if errors.Is(err, badger.ErrKeyNotFound) {
+				return nil
+			}
+
+			return err
+		}
+
+		found = true
+
+		return nil
+	})
+
+	if err != nil {
+		return false, err
+	}
+
+	return found, nil
 }
 
 func Delete(db *badger.DB, key string) error {

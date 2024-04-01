@@ -7,6 +7,7 @@ import (
 	"github.com/jonhadfield/crosscheck-ip/process"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"log/slog"
 	"net/netip"
 	"os"
 )
@@ -57,6 +58,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	// 	"config file (default is $HOME/.config/crosscheck-ip/config.yml)")
+	rootCmd.PersistentFlags().BoolVar(&useTestData, "debug", false, "show debug logging")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "l", []string{}, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
@@ -68,6 +70,11 @@ func init() {
 
 	if err := viper.BindPFlag("max-value-chars", rootCmd.Flag("max-value-chars")); err != nil {
 		fmt.Println("error binding max-value-chars flag:", err)
+		os.Exit(1)
+	}
+
+	if err := viper.BindPFlag("debug", rootCmd.Flag("debug")); err != nil {
+		fmt.Println("error binding debug flag:", err)
 		os.Exit(1)
 	}
 
@@ -111,6 +118,12 @@ func initConfig() {
 	// read provider auth keys
 	readProviderAuthKeys()
 
+	conf.Logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		// AddSource:   false,
+		Level: (map[bool]slog.Level{true: slog.LevelDebug, false: slog.LevelWarn})[viper.GetBool("debug")],
+		// ReplaceAttr: nil,
+	}))
+	conf.HideProgress = (map[bool]bool{true: true, false: false})[viper.GetBool("debug")]
 	conf.UseTestData = viper.GetBool("CCI_USE_TEST_DATA")
 	conf.HttpClient = getHTTPClient()
 

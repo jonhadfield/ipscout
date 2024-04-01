@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
+	"log/slog"
 	"net/netip"
 	"os"
 	"path"
@@ -24,15 +25,17 @@ const (
 var defaultConfig string
 
 type Config struct {
+	Logger *slog.Logger
 	Cache  *badger.DB
 	Global struct {
 		IndentSpaces  int      `mapstructure:"indent-spaces"`
 		Ports         []string `mapstructure:"ports"`
 		MaxValueChars int32    `mapstructure:"max-value-chars"`
 	} `mapstructure:"global"`
-	HttpClient *retryablehttp.Client
-	Host       netip.Addr
-	Providers  Providers `mapstructure:"providers"`
+	HttpClient   *retryablehttp.Client
+	Host         netip.Addr
+	Providers    Providers `mapstructure:"providers"`
+	HideProgress bool      `mapstructure:"hide-progress"`
 
 	// MaxWidth      int
 	UseTestData bool
@@ -73,7 +76,6 @@ func unmarshalConfig(data []byte) (*Config, error) {
 }
 
 func CreateDefaultConfigIfMissing(path string) error {
-
 	var err error
 
 	// check if config already exists
