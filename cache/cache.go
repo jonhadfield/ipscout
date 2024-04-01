@@ -16,7 +16,7 @@ type Item struct {
 }
 
 func Create(path string) (*badger.DB, error) {
-	db, err := badger.Open(badger.DefaultOptions(filepath.Join(path, "badger")).WithLogger(nil))
+	db, err := badger.Open(badger.DefaultOptions(filepath.Join(path, "cache")).WithLogger(nil))
 	if err != nil {
 		return nil, err
 	}
