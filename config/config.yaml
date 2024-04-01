@@ -2,6 +2,7 @@
 global:
     indent-spaces: 2
     max-value-chars: 300
+    max-age: 90d
     # ports: [80]
 
 providers:
@@ -9,11 +10,9 @@ providers:
         enabled: true
         max-ports: 10
         # ports: [80]
-        no-older-than: 7d
     criminalip:
         enabled: true
         max-ports: 10
-        no-older-than: 7d
     aws:
         enabled: true
     digitalocean:

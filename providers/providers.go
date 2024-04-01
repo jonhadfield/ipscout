@@ -14,6 +14,45 @@ var (
 	ErrNoMatchFound      = errors.New("no match found")
 )
 
+func AgeToHours(age string) (int64, error) {
+	if age == "" {
+		return 0, nil
+	}
+
+	age = strings.ToLower(age)
+
+	// assume hours specified
+	var multipler int
+
+	switch {
+	case strings.HasSuffix(age, "h"):
+		age = strings.TrimSuffix(age, "h")
+		multipler = 1
+	case strings.HasSuffix(age, "d"):
+		age = strings.TrimSuffix(age, "d")
+		multipler = 24
+	case strings.HasSuffix(age, "w"):
+		age = strings.TrimSuffix(age, "w")
+		multipler = 24 * 7
+	case strings.HasSuffix(age, "m"):
+		age = strings.TrimSuffix(age, "m")
+		multipler = 24 * 30
+	case strings.HasSuffix(age, "y"):
+		age = strings.TrimSuffix(age, "m")
+		multipler = 24 * 365
+	default:
+
+	}
+
+	var ageNum int64
+	ageNum, err := strconv.ParseInt(age, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("error parsing age: %w", err)
+	}
+
+	return ageNum * int64(multipler), nil
+}
+
 // PortMatch returns true if either:
 // - specified port matches the data port
 // - specified transport matches the data transport

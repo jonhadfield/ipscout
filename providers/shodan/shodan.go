@@ -20,12 +20,12 @@ import (
 )
 
 const (
-	ProviderName      = "shodan"
-	APIURL            = "https://api.shodan.io"
-	HostIPPath        = "/shodan/host"
-	MaxColumnWidth    = 120
-	IndentPipeHyphens = " |-----"
-	NoMatch           = "no matches found for that host."
+	ProviderName           = "shodan"
+	APIURL                 = "https://api.shodan.io"
+	HostIPPath             = "/shodan/host"
+	MaxColumnWidth         = 120
+	IndentPipeHyphens      = " |-----"
+	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
 )
 
 func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *HostSearchResult, err error) {
@@ -240,9 +240,37 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var filteredPorts int
 
+	allowedPorts := c.Global.Ports
+	if c.Providers.Shodan.Ports != nil {
+		allowedPorts = c.Providers.Shodan.Ports
+	}
+
+	maxAgeInHours, err := providers.AgeToHours(c.Global.MaxAge)
+	if err != nil {
+		c.Logger.Warn("error parsing max-age", "age", c.Global.MaxAge)
+		// default to three months
+		maxAgeInHours = 2191
+	}
+
+	portsAfterDate := time.Now().Add(-time.Duration(maxAgeInHours) * time.Hour)
+
 	for _, dr := range result.Data {
-		if !providers.PortMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), c.Global.Ports) {
+		if !providers.PortMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), allowedPorts) {
 			filteredPorts++
+		}
+
+		var timestamp time.Time
+		timestamp, err = time.Parse(portLastModifiedFormat, dr.Timestamp)
+		if err != nil {
+			c.Logger.Warn("error parsing shodan port timestamp", "time", dr.Timestamp)
+		}
+
+		if timestamp.Before(portsAfterDate) {
+			c.Logger.Debug("skipping port as older than max age", "port", fmt.Sprintf("%d/%s", dr.Port, dr.Transport), "timestamp", dr.Timestamp, "max-age", c.Global.MaxAge)
+
+			filteredPorts++
+
+			continue
 		}
 	}
 
@@ -254,14 +282,32 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	if len(result.Data) > 0 {
 		for _, dr := range result.Data {
-			if !providers.PortMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), c.Global.Ports) {
+			// check if older than max age allowed
+			var timestamp time.Time
+			timestamp, err = time.Parse(portLastModifiedFormat, dr.Timestamp)
+			if err != nil {
+				c.Logger.Warn("error parsing shodan port timestamp", "time", dr.Timestamp)
+			}
+
+			if timestamp.Before(portsAfterDate) {
+				c.Logger.Debug("skipping port as older than max age", "port", fmt.Sprintf("%d/%s", dr.Port, dr.Transport), "timestamp", dr.Timestamp, "max-age", c.Global.MaxAge)
+				continue
+			}
+
+			if !providers.PortMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), allowedPorts) {
 				continue
 			}
 
 			rows = append(rows, table.Row{"", color.CyanString("%d/%s", dr.Port, dr.Transport)})
-			rows = append(rows, table.Row{"",
-				fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
-			rows = append(rows, table.Row{"", fmt.Sprintf("%s  HostNames: %s", IndentPipeHyphens, strings.Join(dr.Hostnames, ", "))})
+			if len(dr.Domains) > 0 {
+				rows = append(rows, table.Row{"",
+					fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
+			}
+
+			if len(dr.Hostnames) > 0 {
+				rows = append(rows, table.Row{"", fmt.Sprintf("%s  HostNames: %s", IndentPipeHyphens, strings.Join(dr.Hostnames, ", "))})
+			}
+
 			if dr.SSH.Type != "" {
 				rows = append(rows, table.Row{"", fmt.Sprintf("%s  SSH", IndentPipeHyphens)})
 				rows = append(rows, table.Row{"",
@@ -271,6 +317,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 					fmt.Sprintf("%s%sCipher: %s",
 						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.SSH.Cipher)})
 			}
+
 			if dr.HTTP.Status != 0 {
 				rows = append(rows, table.Row{"", fmt.Sprintf("%s  HTTP", IndentPipeHyphens)})
 				rows = append(rows, table.Row{"",
@@ -283,6 +330,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 					fmt.Sprintf("%s%sServer: %s",
 						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Server)})
 			}
+
 			if len(dr.Ssl.Versions) > 0 {
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s  SSL", IndentPipeHyphens)})
@@ -325,7 +373,6 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
 		})
 	}
-	// result.Data[0].Data = strings.ReplaceAll(result.Data[0].Domains[0], "\n", " ")
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true

@@ -53,6 +53,7 @@ var (
 	useTestData   bool
 	ports         []string
 	maxValueChars int32
+	maxAge        string
 	logLevel      string
 )
 
@@ -61,8 +62,9 @@ func init() {
 
 	// 	"config file (default is $HOME/.config/crosscheck-ip/config.yml)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "WARN", "set log level as: ERROR, WARN, INFO, DEBUG")
+	rootCmd.PersistentFlags().StringVar(&maxAge, "max-age", "90d", "max age of data to consider")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
-	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "l", []string{}, "limit ports")
+	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", []string{}, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
 
 	if err := viper.BindPFlag("ports", rootCmd.Flag("ports")); err != nil {
@@ -77,6 +79,11 @@ func init() {
 
 	if err := viper.BindPFlag("log-level", rootCmd.Flag("log-level")); err != nil {
 		fmt.Println("error binding log-level flag:", err)
+		os.Exit(1)
+	}
+
+	if err := viper.BindPFlag("max-age", rootCmd.Flag("max-age")); err != nil {
+		fmt.Println("error binding max-age flag:", err)
 		os.Exit(1)
 	}
 

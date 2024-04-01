@@ -248,9 +248,41 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var filteredPorts int
 
+	allowedPorts := c.Global.Ports
+	if c.Providers.Shodan.Ports != nil {
+		allowedPorts = c.Providers.CriminalIP.Ports
+	}
+
+	var maxAgeInHours int64
+
+	maxAgeInHours, err = providers.AgeToHours(c.Global.MaxAge)
+	if err != nil {
+		c.Logger.Warn("error parsing max-age", "age", c.Global.MaxAge)
+		// default to three months
+		maxAgeInHours = 2191
+	}
+
+	portsAfterDate := time.Now().Add(-time.Duration(maxAgeInHours) * time.Hour)
+
 	for _, port := range result.Port.Data {
-		if !providers.PortMatch(fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket), c.Global.Ports) {
+		if !providers.PortMatch(fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket), allowedPorts) {
 			filteredPorts++
+
+			continue
+		}
+
+		var confirmedTime time.Time
+		confirmedTime, err = time.Parse(time.DateTime, port.ConfirmedTime)
+		if err != nil {
+			c.Logger.Warn("error parsing criminalip port confirmed time", "time", port.ConfirmedTime)
+		}
+
+		if confirmedTime.Before(portsAfterDate) {
+			c.Logger.Debug("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
+
+			filteredPorts++
+
+			continue
 		}
 	}
 
@@ -261,7 +293,19 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	for x, port := range result.Port.Data {
-		if !providers.PortMatch(fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket), c.Global.Ports) {
+		// check if older than max age allowed
+		var confirmedTime time.Time
+		confirmedTime, err = time.Parse(time.DateTime, port.ConfirmedTime)
+		if err != nil {
+			c.Logger.Warn("error parsing criminalip port confirmed time", "time", port.ConfirmedTime)
+		}
+
+		if confirmedTime.Before(portsAfterDate) {
+			c.Logger.Debug("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
+			continue
+		}
+
+		if !providers.PortMatch(fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket), allowedPorts) {
 			continue
 		}
 
