@@ -56,6 +56,10 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
 
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, providers.ErrNoMatchFound
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("shodan api request failed: %s", resp.Status)
 	}
