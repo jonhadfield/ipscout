@@ -6,23 +6,21 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestUnmarshalConfig(t *testing.T) {
 	t.Run("ValidConfig", func(t *testing.T) {
 		data := []byte(defaultConfig)
 		conf, err := unmarshalConfig(data)
-		assert.NoError(t, err)
-		assert.NotNil(t, conf)
+		require.NoError(t, err)
+		require.NotNil(t, conf)
 	})
 
 	t.Run("InvalidConfig", func(t *testing.T) {
 		data := []byte("invalid config")
 		conf, err := unmarshalConfig(data)
-		assert.Error(t, err)
-		assert.Nil(t, conf)
+		require.Error(t, err)
+		require.Nil(t, conf)
 	})
 }
 
@@ -30,30 +28,30 @@ func TestCreateDefaultConfig(t *testing.T) {
 	t.Run("PathExists", func(t *testing.T) {
 		path := "/tmp"
 		err := CreateDefaultConfigIfMissing(path)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("PathDoesNotExist", func(t *testing.T) {
 		path := "/tmp/nonexistent"
 		err := CreateDefaultConfigIfMissing(path)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		_, err = os.Stat(path)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("InvalidPath", func(t *testing.T) {
 		path := ""
 		err := CreateDefaultConfigIfMissing(path)
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 }
 
 func TestCreateCachePathIfNotExist(t *testing.T) {
 
 	t.Run("PathExists", func(t *testing.T) {
-		dir := t.TempDir()
+		tempDir := t.TempDir()
 
-		configRoot := GetConfigRoot(dir, AppName)
+		configRoot := GetConfigRoot(tempDir, AppName)
 
 		// create config root (required for cache path)
 		require.NoError(t, CreateDefaultConfigIfMissing(configRoot))
@@ -67,35 +65,33 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 		require.ErrorIs(t, err, os.ErrNotExist)
 
 		// create cache path
-		require.NoError(t, CreateCachePathIfNotExist(configRoot))
+		require.NoError(t, CreateConfigPathStructure(configRoot))
 		// check cache path exists
-		_, err = os.Stat(filepath.Join(configRoot, "cache"))
-		require.NoError(t, err)
-
-		// create cache path for a second time (if not exists)
-		require.NoError(t, CreateCachePathIfNotExist(configRoot))
-		// check cache path exists
-		_, err = os.Stat(filepath.Join(configRoot, "cache"))
-		require.NoError(t, err)
+		for _, dir := range []string{"backups", "cache"} {
+			_, err = os.Stat(filepath.Join(configRoot, dir))
+			require.NoError(t, err)
+		}
 	})
 
 	t.Run("PathDoesNotExist", func(t *testing.T) {
-		dir := t.TempDir()
-		configRoot := GetConfigRoot(dir, AppName)
+		tempDir := t.TempDir()
+		configRoot := GetConfigRoot(tempDir, AppName)
 
 		// create config root (required for cache path)
 		require.NoError(t, CreateDefaultConfigIfMissing(configRoot))
 
-		err := CreateCachePathIfNotExist(configRoot)
-		assert.NoError(t, err)
-		_, err = os.Stat(filepath.Join(configRoot, "cache"))
-		assert.NoError(t, err)
+		err := CreateConfigPathStructure(configRoot)
+		require.NoError(t, err)
+		for _, dir := range []string{"backups", "cache"} {
+			_, err = os.Stat(filepath.Join(configRoot, dir))
+			require.NoError(t, err)
+		}
 	})
 
 	t.Run("InvalidPath", func(t *testing.T) {
 		path := ""
-		err := CreateCachePathIfNotExist(path)
-		assert.Error(t, err)
+		err := CreateConfigPathStructure(path)
+		require.Error(t, err)
 	})
 }
 

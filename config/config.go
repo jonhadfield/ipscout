@@ -109,9 +109,9 @@ func CreateDefaultConfigIfMissing(path string) error {
 	return nil
 }
 
-// CreateBackupsPathIfNotExist creates a cache directory in the specified path if it does not exist
+// CreateConfigPathStructure creates all the necessary paths under config root if they don't exist
 // and returns an error if it fails to create the directory, or the config root does not exist
-func CreateBackupsPathIfNotExist(configRoot string) error {
+func CreateConfigPathStructure(configRoot string) error {
 	// check config root exists
 	_, err := os.Stat(configRoot)
 	if err != nil {
@@ -120,42 +120,19 @@ func CreateBackupsPathIfNotExist(configRoot string) error {
 		}
 	}
 
-	_, err = os.Stat(path.Join(configRoot, "backups"))
-	if err != nil {
-		if os.IsNotExist(err) {
-			mErr := os.MkdirAll(path.Join(configRoot, "backups"), 0700)
-			if mErr != nil {
-				return fmt.Errorf("failed to create backups directory: %v", mErr)
+	for _, dir := range []string{"backups", "cache"} {
+		_, err = os.Stat(path.Join(configRoot, dir))
+		if err != nil {
+			if os.IsNotExist(err) {
+				mErr := os.MkdirAll(path.Join(configRoot, dir), 0700)
+				if mErr != nil {
+					return fmt.Errorf("failed to create %s directory: %v", dir, mErr)
+				}
+			} else {
+				return fmt.Errorf("failed to stat %s directory: %v", dir, err)
 			}
-		} else {
-			return fmt.Errorf("failed to stat backups directory: %v", err)
 		}
-	}
 
-	return nil
-}
-
-// CreateCachePathIfNotExist creates a cache directory in the specified path if it does not exist
-// and returns an error if it fails to create the directory, or the config root does not exist
-func CreateCachePathIfNotExist(configRoot string) error {
-	// check config root exists
-	_, err := os.Stat(configRoot)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return fmt.Errorf("config root does not exist: %v", err)
-		}
-	}
-
-	_, err = os.Stat(path.Join(configRoot, "cache"))
-	if err != nil {
-		if os.IsNotExist(err) {
-			mErr := os.MkdirAll(path.Join(configRoot, "cache"), 0700)
-			if mErr != nil {
-				return fmt.Errorf("failed to create cache directory: %v", mErr)
-			}
-		} else {
-			return fmt.Errorf("failed to stat cache directory: %v", err)
-		}
 	}
 
 	return nil

@@ -122,14 +122,8 @@ func initConfig(cmd *cobra.Command) error {
 	// Bind the current command's flags to viper
 	// fmt.Println("cmd.loglevel", cmd.Flags())
 
-	if err := config.CreateCachePathIfNotExist(configRoot); err != nil {
+	if err := config.CreateConfigPathStructure(configRoot); err != nil {
 		fmt.Printf("can't create cache directory: %v\n", err)
-
-		os.Exit(1)
-	}
-
-	if err := config.CreateBackupsPathIfNotExist(configRoot); err != nil {
-		fmt.Printf("can't create backups directory: %v\n", err)
 
 		os.Exit(1)
 	}
