@@ -26,6 +26,7 @@ var defaultConfig string
 
 type Config struct {
 	Logger *slog.Logger
+	Output *os.File
 	Cache  *badger.DB
 	Global struct {
 		LogLevel      string   `mapstructure:"log-level"`
@@ -107,6 +108,20 @@ func CreateDefaultConfigIfMissing(path string) error {
 	}
 
 	return nil
+}
+
+func New() Config {
+	return Config{
+		Global: struct {
+			LogLevel      string   `mapstructure:"log-level"`
+			IndentSpaces  int      `mapstructure:"indent-spaces"`
+			Ports         []string `mapstructure:"ports"`
+			MaxValueChars int32    `mapstructure:"max-value-chars"`
+			MaxAge        string   `mapstructure:"max-age"`
+		}{
+			IndentSpaces: DefaultIndentSpaces,
+		},
+	}
 }
 
 // CreateConfigPathStructure creates all the necessary paths under config root if they don't exist

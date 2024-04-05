@@ -131,10 +131,10 @@ func initConfig(cmd *cobra.Command) error {
 	// read provider auth keys
 	readProviderAuthKeys(v)
 
-	hOptions := slog.HandlerOptions{AddSource: false}
-
 	// set cmd flags to those learned by viper if cmd flag is not set and viper's is
 	bindFlags(cmd, v)
+
+	conf.Output = os.Stdout
 
 	conf.Providers.AWS.Enabled = v.GetBool("providers.aws.enabled")
 	conf.Providers.DigitalOcean.Enabled = v.GetBool("providers.digitalocean.enabled")
@@ -152,29 +152,8 @@ func initConfig(cmd *cobra.Command) error {
 
 	conf.Global.MaxAge = v.GetString("global.max_age")
 
-	ll, err := cmd.Flags().GetString("log-level")
-	if err != nil {
-		fmt.Println("error getting log-level:", err)
-		os.Exit(1)
-	}
-
-	// set log level
-	switch strings.ToUpper(ll) {
-	case "ERROR":
-		hOptions.Level = slog.LevelError
-		conf.HideProgress = false
-	case "WARN":
-		hOptions.Level = slog.LevelWarn
-		conf.HideProgress = false
-	case "INFO":
-		hOptions.Level = slog.LevelInfo
-		conf.HideProgress = true
-	case "DEBUG":
-		hOptions.Level = slog.LevelDebug
-		conf.HideProgress = true
-	}
-
-	conf.Logger = slog.New(slog.NewTextHandler(os.Stdout, &hOptions))
+	// initialise logging
+	initLogging(cmd)
 
 	conf.HttpClient = getHTTPClient()
 
@@ -211,6 +190,34 @@ func initConfig(cmd *cobra.Command) error {
 	conf.Global.IndentSpaces = config.DefaultIndentSpaces
 
 	return nil
+}
+
+func initLogging(cmd *cobra.Command) {
+	hOptions := slog.HandlerOptions{AddSource: false}
+
+	ll, err := cmd.Flags().GetString("log-level")
+	if err != nil {
+		fmt.Println("error getting log-level:", err)
+		os.Exit(1)
+	}
+
+	// set log level
+	switch strings.ToUpper(ll) {
+	case "ERROR":
+		hOptions.Level = slog.LevelError
+		conf.HideProgress = false
+	case "WARN":
+		hOptions.Level = slog.LevelWarn
+		conf.HideProgress = false
+	case "INFO":
+		hOptions.Level = slog.LevelInfo
+		conf.HideProgress = true
+	case "DEBUG":
+		hOptions.Level = slog.LevelDebug
+		conf.HideProgress = true
+	}
+
+	conf.Logger = slog.New(slog.NewTextHandler(os.Stdout, &hOptions))
 }
 
 func readProviderAuthKeys(v *viper.Viper) {
