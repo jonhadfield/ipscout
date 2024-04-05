@@ -112,6 +112,22 @@ func (c *ProviderClient) Initialise() error {
 	return nil
 }
 
+func loadTestData(c *ProviderClient) ([]byte, error) {
+	tdf, err := loadResultsFile("providers/aws/testdata/aws_18_164_52_75_report.json")
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := json.Marshal(tdf)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling test data: %w", err)
+	}
+
+	c.Logger.Info("aws match returned from test data", "host", c.Host.String())
+
+	return out, nil
+}
+
 func (c *ProviderClient) FindHost() ([]byte, error) {
 	var out []byte
 
@@ -121,14 +137,10 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	// load test results data
 	if c.UseTestData {
-		result, err = loadResultsFile("providers/aws/testdata/aws_18_164_52_75_report.json")
+		var loadErr error
+		out, loadErr = loadTestData(c)
 		if err != nil {
-			return nil, err
-		}
-
-		out, err = json.Marshal(result)
-		if err != nil {
-			return nil, fmt.Errorf("error marshalling test data: %w", err)
+			return nil, loadErr
 		}
 
 		c.Logger.Info("aws match returned from test data", "host", c.Host.String())
@@ -174,38 +186,43 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	}
 
-	var match *HostSearchResult
+	// var match *HostSearchResult
+	//
+	// if c.Host.Is4() {
+	// 	for _, prefix := range doc.Prefixes {
+	// 		if prefix.IPPrefix.Contains(c.Host) {
+	// 			match = &HostSearchResult{
+	// 				Prefix: aws.Prefix{
+	// 					IPPrefix: prefix.IPPrefix,
+	// 					Region:   prefix.Region,
+	// 					Service:  prefix.Service,
+	// 				},
+	// 			}
+	// 		}
+	// 	}
+	// }
+	//
+	// if c.Host.Is6() {
+	// 	for _, prefix := range doc.IPv6Prefixes {
+	// 		if prefix.IPv6Prefix.Contains(c.Host) {
+	// 			match = &HostSearchResult{
+	// 				Prefix: aws.Prefix{
+	// 					IPPrefix: prefix.IPv6Prefix,
+	// 					Region:   prefix.Region,
+	// 					Service:  prefix.Service,
+	// 				},
+	// 			}
+	// 		}
+	// 	}
+	// }
+	//
+	// if match == nil {
+	// 	return nil, providers.ErrNoMatchFound
+	// }
 
-	if c.Host.Is4() {
-		for _, prefix := range doc.Prefixes {
-			if prefix.IPPrefix.Contains(c.Host) {
-				match = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPPrefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
-				}
-			}
-		}
-	}
-
-	if c.Host.Is6() {
-		for _, prefix := range doc.IPv6Prefixes {
-			if prefix.IPv6Prefix.Contains(c.Host) {
-				match = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPv6Prefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
-				}
-			}
-		}
-	}
-
-	if match == nil {
-		return nil, providers.ErrNoMatchFound
+	match, err := matchIPToDoc(c.Host, doc)
+	if err != nil {
+		return nil, err
 	}
 
 	c.Logger.Info("aws match found", "host", c.Host.String())
@@ -243,6 +260,47 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	return raw, nil
 }
 
+func matchIPToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
+	var match *HostSearchResult
+
+	if host.Is4() {
+		for _, prefix := range doc.Prefixes {
+			if prefix.IPPrefix.Contains(host) {
+				match = &HostSearchResult{
+					Prefix: aws.Prefix{
+						IPPrefix: prefix.IPPrefix,
+						Region:   prefix.Region,
+						Service:  prefix.Service,
+					},
+				}
+				return match, nil
+			}
+		}
+	}
+
+	if host.Is6() {
+		for _, prefix := range doc.IPv6Prefixes {
+			if prefix.IPv6Prefix.Contains(host) {
+				match = &HostSearchResult{
+					Prefix: aws.Prefix{
+						IPPrefix: prefix.IPv6Prefix,
+						Region:   prefix.Region,
+						Service:  prefix.Service,
+					},
+				}
+				return match, nil
+			}
+
+		}
+	}
+
+	if match == nil {
+		return nil, providers.ErrNoMatchFound
+	}
+
+	return match, nil
+}
+
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var err error
 	var result HostSearchResult
@@ -250,8 +308,6 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		return nil, fmt.Errorf("error unmarshalling aws data: %w", err)
 	}
 
-	// awsData := data.(*HostSearchResult)
-	// result, err := fetchData(c.Config)
 	if err != nil {
 		switch {
 		case errors.Is(err, providers.ErrNoDataFound):

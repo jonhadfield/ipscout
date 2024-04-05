@@ -6,6 +6,7 @@ import (
 	"github.com/jonhadfield/crosscheck-ip/config"
 	"github.com/jonhadfield/crosscheck-ip/process"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"log/slog"
 	"net/netip"
@@ -19,91 +20,107 @@ const (
 
 var conf config.Config
 
-var rootCmd = &cobra.Command{
-	Use:   "crosscheck-ip",
-	Short: "crosscheck-ip",
-	Long:  `crosscheck-ip is a CLI application that does stuff.`,
-	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		var err error
+func newRootCommand() *cobra.Command {
+	var (
+		useTestData   bool
+		ports         []string
+		maxValueChars int32
+		maxAge        string
+		logLevel      string
+	)
 
-		if conf.Host, err = netip.ParseAddr(args[0]); err != nil {
-			return fmt.Errorf("invalid host: %w", err)
-		}
+	rootCmd := &cobra.Command{
+		Use:   "crosscheck-ip",
+		Short: "crosscheck-ip",
+		Long:  `crosscheck-ip is a CLI application that does stuff.`,
+		Args:  cobra.ExactArgs(1),
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// You can bind cobra and viper in a few locations, but PersistencePreRunE on the root command works well
+			return initConfig(cmd)
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			// out := cmd.OutOrStdout()
 
-		processor, err := process.New(&conf)
-		if err != nil {
-			os.Exit(1)
-		}
+			var err error
 
-		processor.Run()
+			if conf.Host, err = netip.ParseAddr(args[0]); err != nil {
+				return fmt.Errorf("invalid host: %w", err)
+			}
 
-		return nil
-	},
+			processor, err := process.New(&conf)
+			if err != nil {
+				os.Exit(1)
+			}
+
+			processor.Run()
+
+			return nil
+		},
+	}
+
+	// Define cobra flags, the default value has the lowest (least significant) precedence
+	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "WARN", "set log level as: ERROR, WARN, INFO, DEBUG")
+	rootCmd.PersistentFlags().StringVar(&maxAge, "max-age", "", "max age of data to consider")
+	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
+	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", nil, "limit ports")
+	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
+
+	rootCmd.AddCommand(versionCmd)
+
+	return rootCmd
+
 }
 
 func Execute() {
 	// setup config
+	rootCmd := newRootCommand()
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
 
-var (
-	useTestData   bool
-	ports         []string
-	maxValueChars int32
-	maxAge        string
-	logLevel      string
-)
+func bindFlags(cmd *cobra.Command, v *viper.Viper) {
+	cmd.Flags().VisitAll(func(flg *pflag.Flag) {
+		// Determine the naming convention of the flags when represented in the config file
+		// configName := strings.ReplaceAll(flg.Name, "-", "_")
+		configName := flg.Name
+		// configName = strings.ReplaceAll(configName, "-", "_")
+		// Apply the viper config value to the flag when the flag is not set and viper has a value
+		v.Set(configName, flg.Value)
+		if !flg.Changed && v.IsSet(configName) {
+			val := v.Get(configName)
+			if err := cmd.Flags().Set(flg.Name, fmt.Sprintf("%v", val)); err != nil {
+				fmt.Printf("error setting flag %s: %v\n", flg.Name, err)
+			}
+		}
 
-func init() {
-	cobra.OnInitialize(initConfig)
-
-	// 	"config file (default is $HOME/.config/crosscheck-ip/config.yml)")
-	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "WARN", "set log level as: ERROR, WARN, INFO, DEBUG")
-	rootCmd.PersistentFlags().StringVar(&maxAge, "max-age", "90d", "max age of data to consider")
-	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
-	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", []string{}, "limit ports")
-	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
-
-	if err := viper.BindPFlag("ports", rootCmd.Flag("ports")); err != nil {
-		fmt.Println("error binding limit-ports flag:", err)
-		os.Exit(1)
-	}
-
-	if err := viper.BindPFlag("max-value-chars", rootCmd.Flag("max-value-chars")); err != nil {
-		fmt.Println("error binding max-value-chars flag:", err)
-		os.Exit(1)
-	}
-
-	if err := viper.BindPFlag("log-level", rootCmd.Flag("log-level")); err != nil {
-		fmt.Println("error binding log-level flag:", err)
-		os.Exit(1)
-	}
-
-	if err := viper.BindPFlag("max-age", rootCmd.Flag("max-age")); err != nil {
-		fmt.Println("error binding max-age flag:", err)
-		os.Exit(1)
-	}
-
-	rootCmd.PersistentFlags().Bool("viper", true, "Use Viper for configuration")
-
-	viper.SetDefault("author", "Jon Hadfield <jon@lessknown.co.uk>")
-	// TODO: determine before release
-	viper.SetDefault("license", "apache")
+	})
 }
 
-func initConfig() {
-	viper.AutomaticEnv()
+func initConfig(cmd *cobra.Command) error {
+	v := viper.New()
 
 	configRoot := config.GetConfigRoot("", appName)
-
 	if err := config.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		fmt.Printf("can't create default config: %v\n", err)
 
 		os.Exit(1)
 	}
+
+	v.AddConfigPath(configRoot)
+	// v.AddConfigPath(".")
+	v.SetConfigName("config")
+
+	if err := v.ReadInConfig(); err != nil {
+		fmt.Println("can't read config:", err)
+		os.Exit(1)
+	}
+
+	// v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	// Bind the current command's flags to viper
+	// fmt.Println("cmd.loglevel", cmd.Flags())
 
 	if err := config.CreateCachePathIfNotExist(configRoot); err != nil {
 		fmt.Printf("can't create cache directory: %v\n", err)
@@ -111,25 +128,38 @@ func initConfig() {
 		os.Exit(1)
 	}
 
-	viper.AddConfigPath(configRoot)
-	viper.SetConfigName("config")
-
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("can't read config:", err)
-		os.Exit(1)
-	}
-
-	if err := viper.Unmarshal(&conf); err != nil {
-
-		return
-	}
-
 	// read provider auth keys
-	readProviderAuthKeys()
+	readProviderAuthKeys(v)
 
 	hOptions := slog.HandlerOptions{AddSource: false}
 
-	switch strings.ToUpper(viper.GetString("log-level")) {
+	// set cmd flags to those learned by viper if cmd flag is not set and viper's is
+	bindFlags(cmd, v)
+
+	conf.Providers.AWS.Enabled = v.GetBool("providers.aws.enabled")
+	conf.Providers.DigitalOcean.Enabled = v.GetBool("providers.digitalocean.enabled")
+	conf.Providers.CriminalIP.Enabled = v.GetBool("providers.criminalip.enabled")
+	conf.Providers.Shodan.Enabled = v.GetBool("providers.shodan.enabled")
+	conf.Global.Ports = v.GetStringSlice("global.ports")
+	conf.Global.MaxValueChars = v.GetInt32("global.max_value_chars")
+	conf.Global.MaxAge = v.GetString("global.max_age")
+	// TODO: Nasty Hack Alert
+	// if not specified, ports is returned as a string: "[]"
+	// set to nil if that's the case
+	if len(conf.Global.Ports) == 0 || conf.Global.Ports[0] == "[]" {
+		conf.Global.Ports = nil
+	}
+
+	conf.Global.MaxAge = v.GetString("global.max_age")
+
+	ll, err := cmd.Flags().GetString("log-level")
+	if err != nil {
+		fmt.Println("error getting log-level:", err)
+		os.Exit(1)
+	}
+
+	// set log level
+	switch strings.ToUpper(ll) {
 	case "ERROR":
 		hOptions.Level = slog.LevelError
 		conf.HideProgress = false
@@ -145,30 +175,51 @@ func initConfig() {
 	}
 
 	conf.Logger = slog.New(slog.NewTextHandler(os.Stdout, &hOptions))
-	conf.UseTestData = viper.GetBool("CCI_USE_TEST_DATA")
+
 	conf.HttpClient = getHTTPClient()
 
-	cliPorts := viper.GetStringSlice("ports")
-	if len(cliPorts) > 0 {
-		conf.Global.Ports = cliPorts
+	utd, err := cmd.Flags().GetBool("use-test-data")
+	if err != nil {
+		fmt.Println("error getting use-test-data value:", err)
+		os.Exit(1)
 	}
 
-	maxValueChars = viper.GetInt32("max-value-chars")
+	conf.UseTestData = utd
 
+	ports, _ := cmd.Flags().GetStringSlice("ports")
+	// TODO: Nasty Hack Alert
+	// if not specified, ports is returned as a string: "[]"
+	// set to nil if that's the case
+	if len(ports) == 0 || ports[0] == "[]" {
+		ports = nil
+	}
+	// if no ports specified on cli then default to global ports
+	if len(ports) > 0 {
+		conf.Global.Ports = ports
+	}
+
+	maxAge, _ := cmd.Flags().GetString("max-age")
+	if maxAge != "" {
+		conf.Global.MaxAge = maxAge
+	}
+
+	maxValueChars, _ := cmd.Flags().GetInt32("max-value-chars")
 	if maxValueChars > 0 {
 		conf.Global.MaxValueChars = maxValueChars
 	}
 
 	conf.Global.IndentSpaces = config.DefaultIndentSpaces
+
+	return nil
 }
 
-func readProviderAuthKeys() {
+func readProviderAuthKeys(v *viper.Viper) {
 	// read provider auth keys from env if not set in config
 	if conf.Providers.Shodan.APIKey == "" {
-		conf.Providers.Shodan.APIKey = viper.GetString("shodan_api_key")
+		conf.Providers.Shodan.APIKey = v.GetString("shodan_api_key")
 	}
 
 	if conf.Providers.CriminalIP.APIKey == "" {
-		conf.Providers.CriminalIP.APIKey = viper.GetString("criminal_ip_api_key")
+		conf.Providers.CriminalIP.APIKey = v.GetString("criminal_ip_api_key")
 	}
 }

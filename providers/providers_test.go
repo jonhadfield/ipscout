@@ -3,41 +3,168 @@ package providers
 import (
 	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
 )
 
-func TestPortMatch(t *testing.T) {
+// portAgeCheck returns true if the port is within the max age
+// func portAgeCheck(portConfirmedTime string, timeFormat string, maxAge string) (bool, error) {
+// 	// if no age filter provided, then return false
+// 	if maxAge == "" {
+// 		return false, nil
+// 	}
+//
+// 	var confirmedTime time.Time
+// 	var err error
+//
+// 	maxAgeHours, err := AgeToHours(maxAge)
+// 	if err != nil {
+// 		return false, fmt.Errorf("error parsing max-age: %w", err)
+// 	}
+//
+// 	confirmedTime, err = time.Parse(timeFormat, portConfirmedTime)
+// 	if err != nil {
+// 		return false, err
+// 	}
+//
+// 	if confirmedTime.Before(time.Now().Add(-time.Duration(maxAgeHours) * time.Hour)) {
+// 		return true, err
+// 	}
+//
+// 	return false, nil
+// }
+
+func TestPortAgeCheckWithNoValues(t *testing.T) {
+	res, err := portAgeCheck("", "", "")
+	require.Error(t, err)
+	require.False(t, res)
+}
+
+func TestPortAgeCheckNoMaxAge(t *testing.T) {
+	res, err := portAgeCheck("2024-04-04 00:00:00", time.DateTime, "")
+	require.NoError(t, err)
+	require.True(t, res)
+}
+
+func TestPortAgeCheckOlderThanMaxAge(t *testing.T) {
+	res, err := portAgeCheck("2024-04-01 00:00:00", time.DateTime, "1d")
+	require.NoError(t, err)
+	require.False(t, res)
+}
+
+func TestPortMatchFilterWithNoValues(t *testing.T) {
+	res, err := PortMatchFilter(PortMatchFilterInput{
+		IncomingPort:        "",
+		MatchPorts:          nil,
+		ConfirmedDate:       "",
+		ConfirmedDateFormat: "",
+		MaxAge:              "",
+	})
+	require.Error(t, err)
+	require.False(t, res)
+}
+
+func TestPortMatchFilterWithNetworkMatch(t *testing.T) {
+	res, err := PortMatchFilter(PortMatchFilterInput{
+		IncomingPort:        "80",
+		MatchPorts:          []string{"90/udp", "80"},
+		ConfirmedDate:       "",
+		ConfirmedDateFormat: "",
+		MaxAge:              "",
+	})
+	require.NoError(t, err)
+	require.True(t, res)
+}
+
+func TestPortMatchFilterWithNegativeNetworkMatch(t *testing.T) {
+	res, err := PortMatchFilter(PortMatchFilterInput{
+		IncomingPort:        "80",
+		MatchPorts:          []string{"800"},
+		ConfirmedDate:       "",
+		ConfirmedDateFormat: "",
+		MaxAge:              "",
+	})
+	require.NoError(t, err)
+	require.False(t, res)
+}
+
+func TestPortMatchFilterWithDateAndNoMaxAge(t *testing.T) {
+	res, err := PortMatchFilter(PortMatchFilterInput{
+		IncomingPort:        "80",
+		MatchPorts:          []string{"800"},
+		ConfirmedDate:       "2006-01-02 15:04:05",
+		ConfirmedDateFormat: time.DateTime,
+		MaxAge:              "",
+	})
+	// PortMatch will only attempt to match age if provided,
+	// so this does not constitute an error despite providing confirmed date and format
+	require.NoError(t, err)
+	// returns false as no port match and no age match attempted
+	require.False(t, res)
+}
+
+func TestPortMatchFilterWithNegativeNetworkMatchPositiveDateMatch(t *testing.T) {
+	res, err := PortMatchFilter(PortMatchFilterInput{
+		IncomingPort:        "80",
+		MatchPorts:          []string{"800"},
+		ConfirmedDate:       "2006-01-02 15:04:05",
+		ConfirmedDateFormat: time.DateTime,
+		MaxAge:              "",
+	})
+	require.NoError(t, err)
+	require.False(t, res)
+}
+
+func TestPortMatchFilterWithPortMatchOnly(t *testing.T) {
+	res, err := PortMatchFilter(PortMatchFilterInput{
+		IncomingPort:        "",
+		MatchPorts:          nil,
+		ConfirmedDate:       "",
+		ConfirmedDateFormat: "",
+		MaxAge:              "",
+	})
+	require.Error(t, err)
+	require.False(t, res)
+}
+
+func TestPortNetworkMatchWithoutPortsSpecified(t *testing.T) {
+	var ports []string
+	require.True(t, PortNetworkMatch("80", ports))
+	require.True(t, PortNetworkMatch("80/udp", ports))
+}
+
+func TestPortNetworkMatch(t *testing.T) {
 	ports := []string{"80", "tcp", "80/tcp"}
-	require.True(t, PortMatch("80", []string{}))
-	require.True(t, PortMatch("80", ports))
-	require.False(t, PortMatch("800", ports))
-	require.True(t, PortMatch("tcp", ports))
-	require.False(t, PortMatch("udp", ports))
-	require.True(t, PortMatch("80/tcp", ports))
-	require.True(t, PortMatch("80/udp", ports))
+	require.True(t, PortNetworkMatch("80", []string{}))
+	require.True(t, PortNetworkMatch("80", ports))
+	require.False(t, PortNetworkMatch("800", ports))
+	require.True(t, PortNetworkMatch("tcp", ports))
+	require.False(t, PortNetworkMatch("udp", ports))
+	require.True(t, PortNetworkMatch("80/tcp", ports))
+	require.True(t, PortNetworkMatch("80/udp", ports))
 }
 
-func TestPortMatchNonWideTransport(t *testing.T) {
+func TestPortNetworkMatchNonWideTransport(t *testing.T) {
 	ports := []string{"80", "80/tcp"}
-	require.False(t, PortMatch("50/tcp", ports))
-	require.True(t, PortMatch("80", []string{}))
-	require.True(t, PortMatch("80", ports))
-	require.False(t, PortMatch("800", ports))
-	require.True(t, PortMatch("tcp", ports))
-	require.False(t, PortMatch("udp", ports))
-	require.True(t, PortMatch("80/tcp", ports))
-	require.True(t, PortMatch("80/udp", ports))
+	require.False(t, PortNetworkMatch("50/tcp", ports))
+	require.True(t, PortNetworkMatch("80", []string{}))
+	require.True(t, PortNetworkMatch("80", ports))
+	require.False(t, PortNetworkMatch("800", ports))
+	require.True(t, PortNetworkMatch("tcp", ports))
+	require.False(t, PortNetworkMatch("udp", ports))
+	require.True(t, PortNetworkMatch("80/tcp", ports))
+	require.True(t, PortNetworkMatch("80/udp", ports))
 }
 
-func TestPortMatchNonWidePort(t *testing.T) {
+func TestPortNetworkMatchNonWidePort(t *testing.T) {
 	ports := []string{"tcp", "80/tcp"}
-	require.True(t, PortMatch("50/tcp", ports))
-	require.True(t, PortMatch("80", []string{}))
-	require.True(t, PortMatch("80", ports))
-	require.False(t, PortMatch("800", ports))
-	require.True(t, PortMatch("tcp", ports))
-	require.False(t, PortMatch("udp", ports))
-	require.True(t, PortMatch("80/tcp", ports))
-	require.False(t, PortMatch("80/udp", ports))
+	require.True(t, PortNetworkMatch("50/tcp", ports))
+	require.True(t, PortNetworkMatch("80", []string{}))
+	require.True(t, PortNetworkMatch("80", ports))
+	require.False(t, PortNetworkMatch("800", ports))
+	require.True(t, PortNetworkMatch("tcp", ports))
+	require.False(t, PortNetworkMatch("udp", ports))
+	require.True(t, PortNetworkMatch("80/tcp", ports))
+	require.False(t, PortNetworkMatch("80/udp", ports))
 }
 
 func TestSplitPortTransport(t *testing.T) {

@@ -30,7 +30,7 @@ type ProviderClient interface {
 func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 	runners := make(map[string]ProviderClient)
 	c.Logger.Info("creating provider clients")
-	if c.Providers.Shodan.APIKey != "" || c.UseTestData {
+	if c.Providers.Shodan.APIKey != "" || c.Providers.Shodan.Enabled || c.UseTestData {
 		shodanClient, err := shodan.NewProviderClient(c)
 		if err != nil {
 			return nil, fmt.Errorf("error creating shodan client: %w", err)
@@ -39,7 +39,7 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 		runners[shodan.ProviderName] = shodanClient
 	}
 
-	if c.Providers.CriminalIP.APIKey != "" || c.UseTestData {
+	if c.Providers.CriminalIP.APIKey != "" || c.Providers.CriminalIP.Enabled || c.UseTestData {
 		criminalIPClient, err := criminalip.NewProviderClient(c)
 		if err != nil {
 			return nil, fmt.Errorf("error creating criminalip client: %w", err)
@@ -164,10 +164,10 @@ func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) e
 	for name, runner := range runners {
 		_, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
 		g.Go(func() error {
-			err = runner.Initialise()
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				return err
+			iErr := runner.Initialise()
+			if iErr != nil {
+				fmt.Fprintln(os.Stderr, iErr)
+				return iErr
 			}
 
 			return nil
@@ -186,6 +186,11 @@ func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) e
 type findHostsResults struct {
 	sync.RWMutex
 	m map[string][]byte
+}
+
+type generateTablesResults struct {
+	sync.RWMutex
+	m []*table.Writer
 }
 
 func findHosts(runners map[string]ProviderClient, hideProgress bool) (*findHostsResults, error) {
@@ -233,7 +238,7 @@ func findHosts(runners map[string]ProviderClient, hideProgress bool) (*findHosts
 }
 
 func generateTables(runners map[string]ProviderClient, results *findHostsResults, hideProgress bool) ([]*table.Writer, error) {
-	var tables []*table.Writer
+	var tables generateTablesResults
 
 	var w sync.WaitGroup
 
@@ -268,7 +273,9 @@ func generateTables(runners map[string]ProviderClient, results *findHostsResults
 			}
 
 			if tbl != nil {
-				tables = append(tables, tbl)
+				tables.RWMutex.Lock()
+				tables.m = append(tables.m, tbl)
+				tables.RWMutex.Unlock()
 			}
 		}()
 	}
@@ -277,7 +284,7 @@ func generateTables(runners map[string]ProviderClient, results *findHostsResults
 	// allow time to output spinner
 	time.Sleep(100 * time.Millisecond)
 
-	return tables, nil
+	return tables.m, nil
 }
 
 func New(config *config.Config) (Processor, error) {

@@ -204,6 +204,9 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 
 func (c *ProviderClient) Initialise() error {
 	c.Logger.Debug("initialising shodan client")
+	if c.Providers.Shodan.APIKey == "" && !c.UseTestData {
+		return fmt.Errorf("shodan provider api key not set")
+	}
 
 	return nil
 }
@@ -259,7 +262,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	portsAfterDate := time.Now().Add(-time.Duration(maxAgeInHours) * time.Hour)
 
 	for _, dr := range result.Data {
-		if !providers.PortMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), allowedPorts) {
+		if !providers.PortNetworkMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), allowedPorts) {
 			filteredPorts++
 		}
 
@@ -270,7 +273,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		}
 
 		if timestamp.Before(portsAfterDate) {
-			c.Logger.Debug("skipping port as older than max age", "port", fmt.Sprintf("%d/%s", dr.Port, dr.Transport), "timestamp", dr.Timestamp, "max-age", c.Global.MaxAge)
+			c.Logger.Debug("skipping shodan port %s as older than max age", "port", fmt.Sprintf("%d/%s", dr.Port, dr.Transport), "timestamp", dr.Timestamp, "max-age", c.Global.MaxAge)
 
 			filteredPorts++
 
@@ -294,11 +297,11 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			}
 
 			if timestamp.Before(portsAfterDate) {
-				c.Logger.Debug("skipping port as older than max age", "port", fmt.Sprintf("%d/%s", dr.Port, dr.Transport), "timestamp", dr.Timestamp, "max-age", c.Global.MaxAge)
+				c.Logger.Debug("skipping shodan port %s as older than max age", "port", fmt.Sprintf("%d/%s", dr.Port, dr.Transport), "timestamp", dr.Timestamp, "max-age", c.Global.MaxAge)
 				continue
 			}
 
-			if !providers.PortMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), allowedPorts) {
+			if !providers.PortNetworkMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), allowedPorts) {
 				continue
 			}
 

@@ -1,18 +1,18 @@
 ---
 global:
-    indent-spaces: 2
-    max-value-chars: 300
-    max-age: 90d
+    indent_spaces: 2
+    max_value_chars: 300
+    max_age: 90d
     # ports: [80]
 
 providers:
     shodan:
         enabled: true
-        max-ports: 10
+        max_ports: 10
         # ports: [80]
     criminalip:
         enabled: true
-        max-ports: 10
+        max_ports: 10
     aws:
         enabled: true
     digitalocean:

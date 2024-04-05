@@ -15,6 +15,14 @@ type Item struct {
 	Created time.Time
 }
 
+var (
+	ErrUpsertFailed      = errors.New("upsert failed")
+	ErrCreateCacheFailed = errors.New("create cache failed")
+	ErrKeyNotFound       = badger.ErrKeyNotFound
+	ErrCreateKeyFailed   = errors.New("create key failed")
+	ErrDeleteKeyFailed   = errors.New("delete key failed")
+)
+
 func Create(path string) (*badger.DB, error) {
 	db, err := badger.Open(badger.DefaultOptions(filepath.Join(path, "cache")).WithLogger(nil))
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/jonhadfield/crosscheck-ip/config"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var (
@@ -53,12 +54,10 @@ func AgeToHours(age string) (int64, error) {
 	return ageNum * int64(multipler), nil
 }
 
-// PortMatch returns true if either:
-// - specified port matches the data port
-// - specified transport matches the data transport
-// - specified port/transport matches the data port/transport
-func PortMatch(incomingPort string, matchPorts []string) bool {
+// PortNetworkMatch returns true if the incomingPort matches any of the matchPorts
+func PortNetworkMatch(incomingPort string, matchPorts []string) bool {
 	if len(matchPorts) == 0 {
+		// if len(matchPorts) == 0 || matchPorts[0] == "[]" {
 		return true
 	}
 
@@ -89,10 +88,77 @@ func PortMatch(incomingPort string, matchPorts []string) bool {
 	return false
 }
 
+// portAgeCheck returns true if the port is within the max age
+func portAgeCheck(portConfirmedTime string, timeFormat string, maxAge string) (bool, error) {
+	switch {
+	case portConfirmedTime == "":
+		return false, fmt.Errorf("no port confirmed time provided")
+	case timeFormat == "":
+		return false, fmt.Errorf("no time format provided")
+	}
+
+	// if no age filter provided, then return true
+	if maxAge == "" {
+		return true, nil
+	}
+
+	var confirmedTime time.Time
+	var err error
+
+	maxAgeHours, err := AgeToHours(maxAge)
+	if err != nil {
+		return false, fmt.Errorf("error parsing max-age: %w", err)
+	}
+
+	confirmedTime, err = time.Parse(timeFormat, portConfirmedTime)
+	if err != nil {
+		return false, err
+	}
+
+	if confirmedTime.After(time.Now().Add(-time.Duration(maxAgeHours) * time.Hour)) {
+		return true, err
+	}
+
+	return false, nil
+}
+
+type PortMatchFilterInput struct {
+	IncomingPort        string
+	MatchPorts          []string
+	ConfirmedDate       string
+	ConfirmedDateFormat string
+	MaxAge              string
+}
+
+func PortMatchFilter(in PortMatchFilterInput) (bool, error) {
+	// ensure an incoming port is provided
+	if len(in.IncomingPort) == 0 && len(in.MaxAge) == 0 {
+		return false, errors.New("no incoming port nor max age provided")
+	}
+
+	// check we have a match before continuing
+	if len(in.IncomingPort) > 0 && !PortNetworkMatch(in.IncomingPort, in.MatchPorts) {
+		return false, nil
+	}
+
+	if in.MaxAge != "" {
+		ageOk, err := portAgeCheck(in.ConfirmedDate, in.ConfirmedDateFormat, in.MaxAge)
+		if err != nil {
+			return false, fmt.Errorf("error checking port age: %w", err)
+		}
+
+		if !ageOk {
+			return false, nil
+		}
+	}
+
+	// default to true as no filter matched
+	return true, nil
+}
+
 // TODO: Allow provider specific max value chars to override global
 func PreProcessValueOutput(conf *config.Config, provider string, in string) string {
 	out := strings.TrimSpace(in)
-
 	if conf.Global.MaxValueChars > 0 {
 		if len(out) > int(conf.Global.MaxValueChars) {
 			out = out[:conf.Global.MaxValueChars] + "..."

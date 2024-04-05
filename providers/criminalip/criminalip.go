@@ -139,12 +139,6 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 
 		client.Logger.Info("criminal ip response found in cache", "host", client.Host.String())
 
-		// fmt.Printf("cache hit: %s\n", cacheKey)
-
-		// if err = json.Unmarshal(item.Value, &result); err != nil {
-		// 	return nil, err
-		// }
-		// fmt.Println("0cache hit with bytes: ", result.Raw)
 		result.Raw = item.Value
 		// fmt.Println("1cache hit with bytes: ", result.Raw)
 		return result, nil
@@ -232,12 +226,6 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			tw.AppendRow(table.Row{" - City", providers.DashIfEmpty(whois.City)})
 		}
 	}
-	// if result.Hostname.Count > 0 {
-	// 	tw.AppendRow(table.Row{"Whois",fmt.Sprintf("Name: %s", DashIfEmpty(result.Hostname.Data[0].DomainNameFull, "City: %s", DashIfEmpty(result.Hostname.Data[0].), "Country: %s", DashIfEmpty(result.Hostname.Data[0].CountryName), "Region: %s", DashIfEmpty(result.Hostname.Data[0].RegionCode), "Postal Code: %s", DashIfEmpty(result.Hostname.Data[0].PostalCode), "Latitude: %f", result.Hostname.Data[0].Latitude, "Longitude: %f", result.Hostname.Data[0].Longitude)}))
-	// 	tw.AppendRow(table.Row{"City", DashIfEmpty(result.Whois.Data[0].City)})
-	// 	tw.AppendRow(table.Row{"Country", DashIfEmpty(result.Whois.Data[0].OrgCountryCode)})
-	// 	tw.AppendRow(table.Row{"AS", DashIfEmpty(result.Whois.Data[0].AsNo)})
-	// }
 
 	if domains := getDomains(result.Domain); domains != nil {
 		tw.AppendRow(table.Row{"Domains", strings.Join(getDomains(result.Domain), ", ")})
@@ -253,36 +241,33 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		allowedPorts = c.Providers.CriminalIP.Ports
 	}
 
-	var maxAgeInHours int64
-
-	maxAgeInHours, err = providers.AgeToHours(c.Global.MaxAge)
-	if err != nil {
-		c.Logger.Warn("error parsing max-age", "age", c.Global.MaxAge)
-		// default to three months
-		maxAgeInHours = 2191
-	}
-
-	portsAfterDate := time.Now().Add(-time.Duration(maxAgeInHours) * time.Hour)
+	// var maxAgeInHours int64
+	//
+	// maxAgeInHours, err = providers.AgeToHours(c.Global.MaxAge)
+	// if err != nil {
+	// 	c.Logger.Warn("error parsing max-age", "age", c.Global.MaxAge)
+	// 	// default to three months
+	// 	maxAgeInHours = 2191
+	// }
+	//
+	// portsAfterDate := time.Now().Add(-time.Duration(maxAgeInHours) * time.Hour)
 
 	for _, port := range result.Port.Data {
-		if !providers.PortMatch(fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket), allowedPorts) {
-			filteredPorts++
+		var ok bool
 
-			continue
-		}
-
-		var confirmedTime time.Time
-		confirmedTime, err = time.Parse(time.DateTime, port.ConfirmedTime)
+		ok, err = providers.PortMatchFilter(providers.PortMatchFilterInput{
+			IncomingPort:        fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket),
+			MatchPorts:          allowedPorts,
+			ConfirmedDate:       port.ConfirmedTime,
+			ConfirmedDateFormat: time.DateTime,
+			MaxAge:              c.Global.MaxAge,
+		})
 		if err != nil {
-			c.Logger.Warn("error parsing criminalip port confirmed time", "time", port.ConfirmedTime)
+			return nil, fmt.Errorf("error checking port match filter: %w", err)
 		}
 
-		if confirmedTime.Before(portsAfterDate) {
-			c.Logger.Debug("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
-
+		if !ok {
 			filteredPorts++
-
-			continue
 		}
 	}
 
@@ -293,24 +278,25 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	for x, port := range result.Port.Data {
-		// check if older than max age allowed
-		var confirmedTime time.Time
-		confirmedTime, err = time.Parse(time.DateTime, port.ConfirmedTime)
+		var ok bool
+		ok, err = providers.PortMatchFilter(providers.PortMatchFilterInput{
+			IncomingPort:        fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket),
+			MatchPorts:          allowedPorts,
+			ConfirmedDate:       port.ConfirmedTime,
+			ConfirmedDateFormat: time.DateTime,
+			MaxAge:              c.Global.MaxAge,
+		})
 		if err != nil {
-			c.Logger.Warn("error parsing criminalip port confirmed time", "time", port.ConfirmedTime)
+			return nil, fmt.Errorf("error checking port match filter: %w", err)
 		}
 
-		if confirmedTime.Before(portsAfterDate) {
-			c.Logger.Debug("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
-			continue
-		}
-
-		if !providers.PortMatch(fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket), allowedPorts) {
+		if !ok {
+			c.Logger.Info("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
 			continue
 		}
 
 		tw.AppendRow(table.Row{"", color.CyanString("%d/%s", port.OpenPortNo, port.Socket)})
-		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Protocol: %s", IndentPipeHyphens, port.Protocol)})
+		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Protocol: %s", IndentPipeHyphens, providers.DashIfEmpty(port.Protocol))})
 		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Confirmed Time: %s", IndentPipeHyphens, port.ConfirmedTime)})
 
 		// vary output based on protocol

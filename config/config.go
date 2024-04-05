@@ -28,6 +28,7 @@ type Config struct {
 	Logger *slog.Logger
 	Cache  *badger.DB
 	Global struct {
+		LogLevel      string   `mapstructure:"log-level"`
 		IndentSpaces  int      `mapstructure:"indent-spaces"`
 		Ports         []string `mapstructure:"ports"`
 		MaxValueChars int32    `mapstructure:"max-value-chars"`
@@ -44,16 +45,14 @@ type Config struct {
 
 type Providers struct {
 	Shodan struct {
-		APIKey   string   `mapstructure:"api-key"`
-		Enabled  bool     `mapstructure:"enabled"`
-		MaxPorts int      `mapstructure:"max-ports"`
-		Ports    []string `mapstructure:"ports"`
+		APIKey  string   `mapstructure:"api-key"`
+		Enabled bool     `mapstructure:"enabled"`
+		Ports   []string `mapstructure:"ports"`
 	} `mapstructure:"shodan"`
 	CriminalIP struct {
-		APIKey   string   `mapstructure:"api-key"`
-		Enabled  bool     `mapstructure:"enabled"`
-		MaxPorts int      `mapstructure:"max-ports"`
-		Ports    []string `mapstructure:"ports"`
+		APIKey  string   `mapstructure:"api-key"`
+		Enabled bool     `mapstructure:"enabled"`
+		Ports   []string `mapstructure:"ports"`
 	} `mapstructure:"criminalip"`
 	AWS struct {
 		Enabled bool `mapstructure:"enabled"`
@@ -73,6 +72,10 @@ func unmarshalConfig(data []byte) (*Config, error) {
 }
 
 func CreateDefaultConfigIfMissing(path string) error {
+	if path == "" {
+		return fmt.Errorf("config path not specified")
+	}
+
 	var err error
 
 	// check if config already exists
