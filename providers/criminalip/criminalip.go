@@ -34,7 +34,7 @@ type Config struct {
 	APIKey string
 }
 
-func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp.Client, apiKey string) (res *HostSearchResult, err error) {
+func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (res *HostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 	defer cancel()
 
 	q := sURL.Query()
-	q.Add("ip", host.String())
+	q.Add("ip", conf.Host.String())
 	sURL.RawQuery = q.Encode()
 
 	req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodGet, sURL.String(), nil)
@@ -58,7 +58,7 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 	}
 
 	req.Header.Add("x-api-key", apiKey)
-	resp, err := client.Do(req)
+	resp, err := conf.HttpClient.Do(req)
 	if err != nil {
 		panic(err)
 	}
@@ -72,7 +72,7 @@ func loadAPIResponse(ctx context.Context, host netip.Addr, client *retryablehttp
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/criminalip_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(host.String(), ".", "_")), rBody, 0644); err != nil {
+			strings.ReplaceAll(conf.Host.String(), ".", "_")), rBody, 0644); err != nil {
 			panic(err)
 		}
 		// c.Logger.Debug("backed up shodan response", "host", c.Host.String())
