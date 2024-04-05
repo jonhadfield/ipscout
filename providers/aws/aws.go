@@ -186,40 +186,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	}
 
-	// var match *HostSearchResult
-	//
-	// if c.Host.Is4() {
-	// 	for _, prefix := range doc.Prefixes {
-	// 		if prefix.IPPrefix.Contains(c.Host) {
-	// 			match = &HostSearchResult{
-	// 				Prefix: aws.Prefix{
-	// 					IPPrefix: prefix.IPPrefix,
-	// 					Region:   prefix.Region,
-	// 					Service:  prefix.Service,
-	// 				},
-	// 			}
-	// 		}
-	// 	}
-	// }
-	//
-	// if c.Host.Is6() {
-	// 	for _, prefix := range doc.IPv6Prefixes {
-	// 		if prefix.IPv6Prefix.Contains(c.Host) {
-	// 			match = &HostSearchResult{
-	// 				Prefix: aws.Prefix{
-	// 					IPPrefix: prefix.IPv6Prefix,
-	// 					Region:   prefix.Region,
-	// 					Service:  prefix.Service,
-	// 				},
-	// 			}
-	// 		}
-	// 	}
-	// }
-	//
-	// if match == nil {
-	// 	return nil, providers.ErrNoMatchFound
-	// }
-
 	match, err := matchIPToDoc(c.Host, doc)
 	if err != nil {
 		return nil, err
@@ -247,14 +213,11 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("backups/aws_%s_report.json",
+		if err = os.WriteFile(fmt.Sprintf("%s/backups/aws_%s_report.json", config.GetConfigRoot("", config.AppName),
 			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0644); err != nil {
-
-			return nil, err
+			panic(err)
 		}
-
 		c.Logger.Info("backed up aws response", "host", c.Host.String())
-
 	}
 
 	return raw, nil

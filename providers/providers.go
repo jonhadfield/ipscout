@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jonhadfield/crosscheck-ip/config"
+	"log/slog"
 	"strconv"
 	"strings"
 	"time"
@@ -123,7 +124,9 @@ func portAgeCheck(portConfirmedTime string, timeFormat string, maxAge string) (b
 }
 
 type PortMatchFilterInput struct {
+	Provider            string
 	IncomingPort        string
+	Logger              *slog.Logger
 	MatchPorts          []string
 	ConfirmedDate       string
 	ConfirmedDateFormat string

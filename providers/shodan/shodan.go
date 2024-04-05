@@ -78,7 +78,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("backups/shodan_%s_report.json",
+		if err = os.WriteFile(fmt.Sprintf("%s/backups/shodan_%s_report.json", config.GetConfigRoot("", config.AppName),
 			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0644); err != nil {
 			panic(err)
 		}
@@ -247,34 +247,21 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var filteredPorts int
 
-	allowedPorts := c.Global.Ports
-	if c.Providers.Shodan.Ports != nil {
-		allowedPorts = c.Providers.Shodan.Ports
-	}
-
-	maxAgeInHours, err := providers.AgeToHours(c.Global.MaxAge)
-	if err != nil {
-		c.Logger.Warn("error parsing max-age", "age", c.Global.MaxAge)
-		// default to three months
-		maxAgeInHours = 2191
-	}
-
-	portsAfterDate := time.Now().Add(-time.Duration(maxAgeInHours) * time.Hour)
-
 	for _, dr := range result.Data {
-		if !providers.PortNetworkMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), allowedPorts) {
-			filteredPorts++
-		}
+		var ok bool
 
-		var timestamp time.Time
-		timestamp, err = time.Parse(portLastModifiedFormat, dr.Timestamp)
+		ok, err := providers.PortMatchFilter(providers.PortMatchFilterInput{
+			IncomingPort:        fmt.Sprintf("%d/%s", dr.Port, dr.Transport),
+			MatchPorts:          c.Global.Ports,
+			ConfirmedDate:       dr.Timestamp,
+			ConfirmedDateFormat: portLastModifiedFormat,
+			MaxAge:              c.Global.MaxAge,
+		})
 		if err != nil {
-			c.Logger.Warn("error parsing shodan port timestamp", "time", dr.Timestamp)
+			return nil, fmt.Errorf("error checking port match filter: %w", err)
 		}
 
-		if timestamp.Before(portsAfterDate) {
-			c.Logger.Debug("skipping shodan port %s as older than max age", "port", fmt.Sprintf("%d/%s", dr.Port, dr.Transport), "timestamp", dr.Timestamp, "max-age", c.Global.MaxAge)
-
+		if !ok {
 			filteredPorts++
 
 			continue
@@ -289,19 +276,20 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	if len(result.Data) > 0 {
 		for _, dr := range result.Data {
-			// check if older than max age allowed
-			var timestamp time.Time
-			timestamp, err = time.Parse(portLastModifiedFormat, dr.Timestamp)
+			ok, err := providers.PortMatchFilter(providers.PortMatchFilterInput{
+				IncomingPort:        fmt.Sprintf("%d/%s", dr.Port, dr.Transport),
+				MatchPorts:          c.Global.Ports,
+				ConfirmedDate:       dr.Timestamp,
+				ConfirmedDateFormat: portLastModifiedFormat,
+				MaxAge:              c.Global.MaxAge,
+			})
 			if err != nil {
-				c.Logger.Warn("error parsing shodan port timestamp", "time", dr.Timestamp)
+				return nil, fmt.Errorf("error checking port match filter: %w", err)
 			}
 
-			if timestamp.Before(portsAfterDate) {
-				c.Logger.Debug("skipping shodan port %s as older than max age", "port", fmt.Sprintf("%d/%s", dr.Port, dr.Transport), "timestamp", dr.Timestamp, "max-age", c.Global.MaxAge)
-				continue
-			}
+			if !ok {
+				filteredPorts++
 
-			if !providers.PortNetworkMatch(fmt.Sprintf("%d/%s", dr.Port, dr.Transport), allowedPorts) {
 				continue
 			}
 
@@ -309,6 +297,10 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			if len(dr.Domains) > 0 {
 				rows = append(rows, table.Row{"",
 					fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
+			}
+
+			if dr.Timestamp != "" {
+				rows = append(rows, table.Row{"", fmt.Sprintf("%s  Timestamp: %s", IndentPipeHyphens, dr.Timestamp)})
 			}
 
 			if len(dr.Hostnames) > 0 {

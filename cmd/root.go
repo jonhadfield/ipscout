@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	appName = "crosscheck-ip"
+	AppName = "crosscheck-ip"
 )
 
 var conf config.Config
@@ -100,7 +100,7 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 func initConfig(cmd *cobra.Command) error {
 	v := viper.New()
 
-	configRoot := config.GetConfigRoot("", appName)
+	configRoot := config.GetConfigRoot("", AppName)
 	if err := config.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		fmt.Printf("can't create default config: %v\n", err)
 
@@ -124,6 +124,12 @@ func initConfig(cmd *cobra.Command) error {
 
 	if err := config.CreateCachePathIfNotExist(configRoot); err != nil {
 		fmt.Printf("can't create cache directory: %v\n", err)
+
+		os.Exit(1)
+	}
+
+	if err := config.CreateBackupsPathIfNotExist(configRoot); err != nil {
+		fmt.Printf("can't create backups directory: %v\n", err)
 
 		os.Exit(1)
 	}

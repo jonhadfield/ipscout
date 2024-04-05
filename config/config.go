@@ -109,6 +109,32 @@ func CreateDefaultConfigIfMissing(path string) error {
 	return nil
 }
 
+// CreateBackupsPathIfNotExist creates a cache directory in the specified path if it does not exist
+// and returns an error if it fails to create the directory, or the config root does not exist
+func CreateBackupsPathIfNotExist(configRoot string) error {
+	// check config root exists
+	_, err := os.Stat(configRoot)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("config root does not exist: %v", err)
+		}
+	}
+
+	_, err = os.Stat(path.Join(configRoot, "backups"))
+	if err != nil {
+		if os.IsNotExist(err) {
+			mErr := os.MkdirAll(path.Join(configRoot, "backups"), 0700)
+			if mErr != nil {
+				return fmt.Errorf("failed to create backups directory: %v", mErr)
+			}
+		} else {
+			return fmt.Errorf("failed to stat backups directory: %v", err)
+		}
+	}
+
+	return nil
+}
+
 // CreateCachePathIfNotExist creates a cache directory in the specified path if it does not exist
 // and returns an error if it fails to create the directory, or the config root does not exist
 func CreateCachePathIfNotExist(configRoot string) error {
