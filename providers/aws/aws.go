@@ -69,8 +69,6 @@ const (
 )
 
 func (c *ProviderClient) loadProviderData() error {
-	// TODO: check cache for data first
-
 	awsClient := aws.New()
 	awsClient.Client = c.HttpClient
 
@@ -84,14 +82,12 @@ func (c *ProviderClient) loadProviderData() error {
 		return err
 	}
 
-	err = cache.Upsert(c.Cache, cache.Item{
+	return cache.Upsert(c.Cache, cache.Item{
 		Key:     ProviderName,
 		Value:   data,
 		Version: etag,
 		Created: time.Now(),
 	})
-
-	return nil
 }
 
 func (c *ProviderClient) Initialise() error {
@@ -133,14 +129,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 }
 
 func (c *ProviderClient) loadHostProviderDataFromCache() (*aws.Doc, error) {
-	// load host data from cache
 	cacheKey := fmt.Sprintf("aws_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
-
-	// check if the host data is already in the cache
-	// exists, err := cache.CheckExists(c.Cache, cacheKey)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("error checking aws cache: %w", err)
-	// }
 
 	var result *HostSearchResult
 
@@ -176,7 +165,6 @@ func (c *ProviderClient) loadHostProviderDataFromCache() (*aws.Doc, error) {
 			return nil, fmt.Errorf("error unmarshalling cached aws provider doc: %w", err)
 		}
 
-		// c.Logger.Info("aws provider data found in cache")
 	}
 	if err != nil {
 		return nil, fmt.Errorf("error reading aws cache: %w", err)
@@ -208,43 +196,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	// check results cache for match
-	// cacheKey := fmt.Sprintf("aws_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
-	// var item *cache.Item
-	// if item, err = cache.Read(c.Cache, cacheKey); err == nil {
-	// 	result, err = unmarshalResponse(item.Value)
-	// 	if err != nil {
-	// 		defer func() {
-	// 			cache.Delete(c.Cache, cacheKey)
-	// 		}()
-	//
-	// 		return nil, fmt.Errorf("error unmarshalling cached response: %w", err)
-	// 	}
-	//
-	// 	out, err = json.Marshal(result)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("error marshalling cached response: %w", err)
-	// 	}
-	//
-	// 	c.Logger.Info("aws match found in cache", "host", c.Host.String())
-	//
-	// 	return out, nil
-	// }
-	//
-	// var doc *aws.Doc
-	// if item, err = cache.Read(c.Cache, ProviderName); err == nil {
-	// 	doc, err = unmarshalProviderData(item.Value)
-	// 	if err != nil {
-	// 		defer func() {
-	// 			cache.Delete(c.Cache, cacheKey)
-	// 		}()
-	//
-	// 		return nil, fmt.Errorf("error unmarshalling cached aws provider doc: %w", err)
-	// 	}
-	//
-	// 	c.Logger.Info("aws provider data returned from cache", "size", len(item.Value))
-	//
-	// }
 
 	match, err := matchIPToDoc(c.Host, doc)
 	if err != nil {

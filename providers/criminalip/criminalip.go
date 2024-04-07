@@ -81,7 +81,7 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/criminalip_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(conf.Host.String(), ".", "_")), rBody, 0644); err != nil {
+			strings.ReplaceAll(conf.Host.String(), ".", "_")), rBody, 0600); err != nil {
 			panic(err)
 		}
 		// c.Logger.Debug("backed up shodan response", "host", c.Host.String())
