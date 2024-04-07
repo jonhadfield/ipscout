@@ -84,8 +84,6 @@ func CreateDefaultConfigIfMissing(path string) error {
 
 	switch {
 	case err == nil:
-		// DEBUG
-		// fmt.Println("config already exists")
 		return nil
 	case os.IsNotExist(err):
 		// check default config is valid
@@ -133,7 +131,6 @@ func CreateConfigPathStructure(configRoot string) error {
 				return fmt.Errorf("failed to stat %s directory: %v", dir, err)
 			}
 		}
-
 	}
 
 	return nil

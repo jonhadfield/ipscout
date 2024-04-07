@@ -133,30 +133,21 @@ type PortMatchFilterInput struct {
 	MaxAge              string
 }
 
-func PortMatchFilter(in PortMatchFilterInput) (bool, error) {
-	// ensure an incoming port is provided
+// PortMatchFilter returns true if the incoming port matches the matchPorts and the port is within the max age
+func PortMatchFilter(in PortMatchFilterInput) (ageMatch, netMatch bool, err error) {
 	if len(in.IncomingPort) == 0 && len(in.MaxAge) == 0 {
-		return false, errors.New("no incoming port nor max age provided")
+		return false, false, errors.New("no incoming port nor max age provided")
 	}
 
-	// check we have a match before continuing
-	if len(in.IncomingPort) > 0 && !PortNetworkMatch(in.IncomingPort, in.MatchPorts) {
-		return false, nil
-	}
+	netMatch = PortNetworkMatch(in.IncomingPort, in.MatchPorts)
 
-	if in.MaxAge != "" {
-		ageOk, err := portAgeCheck(in.ConfirmedDate, in.ConfirmedDateFormat, in.MaxAge)
-		if err != nil {
-			return false, fmt.Errorf("error checking port age: %w", err)
-		}
-
-		if !ageOk {
-			return false, nil
-		}
+	ageMatch, err = portAgeCheck(in.ConfirmedDate, in.ConfirmedDateFormat, in.MaxAge)
+	if err != nil {
+		return ageMatch, false, fmt.Errorf("error checking port age: %w", err)
 	}
 
 	// default to true as no filter matched
-	return true, nil
+	return ageMatch, netMatch, nil
 }
 
 // TODO: Allow provider specific max value chars to override global

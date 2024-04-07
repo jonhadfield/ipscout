@@ -45,7 +45,7 @@ func Upsert(db *badger.DB, item Item) error {
 }
 
 func Read(db *badger.DB, key string) (*Item, error) {
-	var item Item
+	var item *Item
 
 	err := db.View(func(txn *badger.Txn) error {
 		itemFound, err := txn.Get([]byte(key))
@@ -57,12 +57,11 @@ func Read(db *badger.DB, key string) (*Item, error) {
 			return json.Unmarshal(val, &item)
 		})
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
-	return &item, nil
+	return nil, ErrKeyNotFound
 }
 
 func CheckExists(db *badger.DB, key string) (bool, error) {

@@ -117,43 +117,38 @@ func (c *ProviderClient) Initialise() error {
 	return nil
 }
 
-func (c *ProviderClient) FindHost() ([]byte, error) {
+func (c *ProviderClient) loadHostProviderDataFromCache() (*digitalocean.Doc, error) {
+	// load host data from cache
+	cacheKey := fmt.Sprintf("digitalocean_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
+
+	// check if the host data is already in the cache
+	// exists, err := cache.CheckExists(c.Cache, cacheKey)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error checking digitalocean cache: %w", err)
+	// }
+
 	var result *HostSearchResult
 
-	var err error
-
-	if c.UseTestData {
-		result, err = loadResultsFile("providers/digitalocean/testdata/digitalocean_18_164_52_75_report.json")
-		if err != nil {
-			return nil, err
-		}
-
-		c.Logger.Info("digitalocean host match test data loaded")
-
-		return result.Raw, nil
+	item, err := cache.Read(c.Cache, cacheKey)
+	if err != nil {
+		return nil, fmt.Errorf("error reading digitalocean cache: %w", err)
 	}
 
-	cacheKey := fmt.Sprintf("digitalocean_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
-	var item *cache.Item
-	if item, err = cache.Read(c.Cache, cacheKey); err == nil {
-		result, err = unmarshalResponse(item.Value)
-		if err != nil {
-			defer func() {
-				c.Logger.Debug("removing invalid item in digitalocean cache", "key", cacheKey)
-				_ = cache.Delete(c.Cache, cacheKey)
-			}()
+	result, err = unmarshalResponse(item.Value)
+	if err != nil {
+		defer func() {
+			c.Logger.Debug("removing invalid item in digitalocean cache", "key", cacheKey)
+			_ = cache.Delete(c.Cache, cacheKey)
+		}()
 
-			return nil, fmt.Errorf("error unmarshalling cached response: %w", err)
-		}
-
-		if len(result.Raw) == 0 {
-			return nil, providers.ErrNoMatchFound
-		}
-
-		c.Logger.Info("digitalocean host match data found in cache")
-
-		return result.Raw, nil
+		return nil, fmt.Errorf("error unmarshalling cached response: %w", err)
 	}
+
+	if len(result.Raw) == 0 {
+		return nil, providers.ErrNoMatchFound
+	}
+
+	c.Logger.Info("digitalocean host match data found in cache")
 
 	var doc *digitalocean.Doc
 	if item, err = cache.Read(c.Cache, ProviderName); err == nil {
@@ -168,7 +163,37 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 		// c.Logger.Info("digitalocean provider data found in cache")
 	}
+	if err != nil {
+		return nil, fmt.Errorf("error reading digitalocean cache: %w", err)
+	}
 
+	return doc, nil
+}
+
+// FindHost searches for the host in the digitalocean data
+func (c *ProviderClient) FindHost() ([]byte, error) {
+	var result *HostSearchResult
+
+	var err error
+
+	// return cached report if test data is enabled
+	if c.UseTestData {
+		result, err = loadResultsFile("providers/digitalocean/testdata/digitalocean_18_164_52_75_report.json")
+		if err != nil {
+			return nil, err
+		}
+
+		c.Logger.Info("digitalocean host match test data loaded")
+
+		return result.Raw, nil
+	}
+
+	doc, err := c.loadHostProviderDataFromCache()
+	if err != nil {
+		return nil, fmt.Errorf("error loading digitalocean host data from cache: %w", err)
+	}
+
+	// search in the data for the host
 	for _, record := range doc.Records {
 		if record.Network.Contains(c.Host) {
 			result = &HostSearchResult{

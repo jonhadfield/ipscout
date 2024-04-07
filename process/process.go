@@ -1,14 +1,12 @@
 package process
 
 import (
-	"errors"
 	"fmt"
 	"github.com/briandowns/spinner"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/crosscheck-ip/cache"
 	"github.com/jonhadfield/crosscheck-ip/config"
 	"github.com/jonhadfield/crosscheck-ip/present"
-	"github.com/jonhadfield/crosscheck-ip/providers"
 	"github.com/jonhadfield/crosscheck-ip/providers/aws"
 	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
 	"github.com/jonhadfield/crosscheck-ip/providers/digitalocean"
@@ -17,6 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -75,6 +74,18 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 	return runners, nil
 }
 
+func getEnabledProviders(runners map[string]ProviderClient) []string {
+	keys := make([]string, len(runners))
+
+	i := 0
+	for k := range runners {
+		keys[i] = k
+		i++
+	}
+
+	return keys
+}
+
 type Config struct {
 	config.Config
 	Shodan     shodan.Config
@@ -112,6 +123,8 @@ func (p *Processor) Run() {
 		os.Exit(1)
 	}
 
+	enabledProviders := getEnabledProviders(providerClients)
+
 	// initialise providers
 	err = initialiseProviders(providerClients, p.Config.HideProgress)
 	if err != nil {
@@ -133,8 +146,13 @@ func (p *Processor) Run() {
 	results.RUnlock()
 
 	p.Config.Logger.Info("host matching findHostsResults", "providers queried", len(providerClients), "matching findHostsResults", matchingResults)
+	if matchingResults == 0 {
+		p.Config.Logger.Warn("no results found", "host", p.Config.Host.String(), "providers checked", strings.Join(enabledProviders, ","))
 
-	tables, err := generateTables(providerClients, results, p.Config.HideProgress)
+		os.Exit(0)
+	}
+
+	tables, err := generateTables(nil, providerClients, results, p.Config.HideProgress)
 	if err != nil {
 		p.Config.Logger.Error("failed to generate tables", "error", err)
 
@@ -215,9 +233,8 @@ func findHosts(runners map[string]ProviderClient, hideProgress bool) (*findHosts
 		w.Add(1)
 		go func() {
 			defer w.Done()
-
 			result, err := runner.FindHost()
-			if err != nil && !errors.Is(err, providers.ErrNoMatchFound) {
+			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				return
 			}
@@ -237,15 +254,14 @@ func findHosts(runners map[string]ProviderClient, hideProgress bool) (*findHosts
 	return &results, nil
 }
 
-func generateTables(runners map[string]ProviderClient, results *findHostsResults, hideProgress bool) ([]*table.Writer, error) {
+func generateTables(out *os.File, runners map[string]ProviderClient, results *findHostsResults, hideProgress bool) ([]*table.Writer, error) {
 	var tables generateTablesResults
 
 	var w sync.WaitGroup
-
 	if !hideProgress {
-		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriterFile(out))
 		s.Start() // Start the spinner
-		// time.Sleep(4 * time.Second) // Run for some time to simulate work
+
 		s.Suffix = " generating output..."
 
 		defer s.Stop()
@@ -256,10 +272,8 @@ func generateTables(runners map[string]ProviderClient, results *findHostsResults
 		w.Add(1)
 		go func() {
 			defer w.Done()
-			// fmt.Printf("data is: %s\n", findHostsResults[name])
 			results.RLock()
 			if results.m[name] == nil {
-				// fmt.Printf("skipping %s as no data returned\n", name)
 				return
 			}
 
@@ -271,6 +285,8 @@ func generateTables(runners map[string]ProviderClient, results *findHostsResults
 				fmt.Fprintln(os.Stderr, err)
 				return
 			}
+
+			// fmt.Println(tbl, err)
 
 			if tbl != nil {
 				tables.RWMutex.Lock()

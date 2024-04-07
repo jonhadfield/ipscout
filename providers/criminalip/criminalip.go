@@ -4,12 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/hashicorp/go-retryablehttp"
-	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jonhadfield/crosscheck-ip/cache"
-	"github.com/jonhadfield/crosscheck-ip/config"
-	"github.com/jonhadfield/crosscheck-ip/providers"
 	"io"
 	"net/http"
 	"net/netip"
@@ -18,6 +12,13 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
+	"github.com/hashicorp/go-retryablehttp"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jonhadfield/crosscheck-ip/cache"
+	"github.com/jonhadfield/crosscheck-ip/config"
+	"github.com/jonhadfield/crosscheck-ip/providers"
 )
 
 const (
@@ -61,6 +62,14 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 	resp, err := conf.HttpClient.Do(req)
 	if err != nil {
 		panic(err)
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, providers.ErrNoMatchFound
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("criminal api request failed: %s", resp.Status)
 	}
 
 	// read response body
@@ -115,12 +124,12 @@ func NewProviderClient(c config.Config) (*ProviderClient, error) {
 }
 
 func fetchData(client config.Config) (*HostSearchResult, error) {
-	var result *HostSearchResult
-
-	var err error
+	// var result *HostSearchResult
+	//
+	// var err error
 
 	if client.UseTestData {
-		result, err = loadResultsFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
+		result, err := loadResultsFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
 		if err != nil {
 			return nil, err
 		}
@@ -131,21 +140,26 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 	}
 
 	cacheKey := fmt.Sprintf("criminalip_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
-	var item *cache.Item
-	if item, err = cache.Read(client.Cache, cacheKey); err == nil {
-		result, err = unmarshalResponse(item.Value)
-		if err != nil {
-			return nil, err
+	if item, err := cache.Read(client.Cache, cacheKey); err == nil {
+		// if item == nil {
+		// 	return nil, nil
+		// }
+
+		if item != nil {
+			result, uErr := unmarshalResponse(item.Value)
+			if uErr != nil {
+				return nil, uErr
+			}
+
+			client.Logger.Info("criminal ip response found in cache", "host", client.Host.String())
+
+			result.Raw = item.Value
+			return result, nil
 		}
 
-		client.Logger.Info("criminal ip response found in cache", "host", client.Host.String())
-
-		result.Raw = item.Value
-		// fmt.Println("1cache hit with bytes: ", result.Raw)
-		return result, nil
 	}
 
-	result, err = loadAPIResponse(context.Background(), client.Host, client.HttpClient, client.Providers.CriminalIP.APIKey)
+	result, err := loadAPIResponse(context.Background(), &client, client.Providers.CriminalIP.APIKey)
 	if err != nil {
 		return nil, fmt.Errorf("error loading criminal ip api response: %w", err)
 	}
@@ -168,6 +182,7 @@ const (
 func tidyBanner(banner string) string {
 	// remove empty lines using regex match
 	var lines []string
+
 	r := regexp.MustCompile(`^(\s*$|$)`)
 	for x, line := range strings.Split(banner, "\n") {
 		if r.MatchString(line) {
@@ -187,6 +202,7 @@ func tidyBanner(banner string) string {
 
 func getDomains(domain HostSearchResultDomain) []string {
 	var domains []string
+
 	for _, d := range domain.Data {
 		domains = append(domains, d.Domain)
 	}
@@ -201,6 +217,10 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {
+	if c.Host.Is6() {
+		return nil, fmt.Errorf("ipv6 not supported by criminalip: %w", providers.ErrNoMatchFound)
+	}
+
 	result, err := fetchData(c.Config)
 	if err != nil {
 		return nil, fmt.Errorf("error loading criminalip api response: %w", err)
@@ -209,10 +229,62 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	return result.Raw, nil
 }
 
+type GeneratePortDataForTableInput struct {
+	entries []PortDataEntry
+}
+
+type GeneratePortDataForTableOutput struct {
+	entries []WrappedPortDataEntry
+	skips   int
+	matches int
+}
+
+func (c *ProviderClient) GenPortDataForTable(in []PortDataEntry) (GeneratePortDataForTableOutput, error) {
+	var err error
+
+	var out GeneratePortDataForTableOutput
+
+	out.entries = make([]WrappedPortDataEntry, len(in))
+
+	for _, entry := range in {
+		var ageMatch, netMatch bool
+		ageMatch, netMatch, err = providers.PortMatchFilter(providers.PortMatchFilterInput{
+			IncomingPort:        fmt.Sprintf("%d/%s", entry.OpenPortNo, entry.Socket),
+			MatchPorts:          c.Providers.CriminalIP.Ports,
+			ConfirmedDate:       entry.ConfirmedTime,
+			ConfirmedDateFormat: time.DateTime,
+			MaxAge:              c.Global.MaxAge,
+		})
+		if err != nil {
+			return GeneratePortDataForTableOutput{}, fmt.Errorf("error checking port match filter: %w", err)
+		}
+
+		wrappedEntry := WrappedPortDataEntry{
+			AgeMatch:      ageMatch,
+			NetworkMatch:  netMatch,
+			PortDataEntry: entry,
+		}
+
+		out.entries = append(out.entries, wrappedEntry)
+
+		if !ageMatch {
+			out.matches++
+		} else {
+			out.skips++
+		}
+	}
+
+	return out, err
+}
+
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	result, err := unmarshalResponse(data)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling criminalip api response: %w", err)
+	}
+
+	if result == nil {
+		return nil, nil
 	}
 
 	tw := table.NewWriter()
@@ -235,64 +307,20 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{"Score Inbound", result.Score.Inbound})
 	tw.AppendRow(table.Row{"Score Outbound", result.Score.Outbound})
 
-	var filteredPorts int
-
-	allowedPorts := c.Global.Ports
-	if c.Providers.Shodan.Ports != nil {
-		allowedPorts = c.Providers.CriminalIP.Ports
+	portDataForTable, err := c.GenPortDataForTable(result.Port.Data)
+	if err != nil {
+		return nil, fmt.Errorf("error generating port data for table: %w", err)
 	}
 
-	// var maxAgeInHours int64
-	//
-	// maxAgeInHours, err = providers.AgeToHours(c.Global.MaxAge)
-	// if err != nil {
-	// 	c.Logger.Warn("error parsing max-age", "age", c.Global.MaxAge)
-	// 	// default to three months
-	// 	maxAgeInHours = 2191
-	// }
-	//
-	// portsAfterDate := time.Now().Add(-time.Duration(maxAgeInHours) * time.Hour)
-
-	for _, port := range result.Port.Data {
-		var ok bool
-
-		ok, err = providers.PortMatchFilter(providers.PortMatchFilterInput{
-			IncomingPort:        fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket),
-			MatchPorts:          allowedPorts,
-			ConfirmedDate:       port.ConfirmedTime,
-			ConfirmedDateFormat: time.DateTime,
-			MaxAge:              c.Global.MaxAge,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("error checking port match filter: %w", err)
-		}
-
-		if !ok {
-			filteredPorts++
-		}
-	}
-
-	if filteredPorts > 0 {
-		tw.AppendRow(table.Row{"Ports", fmt.Sprintf("%d (%d filtered)", len(result.Port.Data), filteredPorts)})
+	if portDataForTable.skips > 0 {
+		tw.AppendRow(table.Row{"Ports", fmt.Sprintf("%d (%d filtered)", len(result.Port.Data), portDataForTable.skips)})
 	} else {
 		tw.AppendRow(table.Row{"Ports", len(result.Port.Data)})
 	}
 
-	for x, port := range result.Port.Data {
-		var ok bool
-		ok, err = providers.PortMatchFilter(providers.PortMatchFilterInput{
-			IncomingPort:        fmt.Sprintf("%d/%s", port.OpenPortNo, port.Socket),
-			MatchPorts:          allowedPorts,
-			ConfirmedDate:       port.ConfirmedTime,
-			ConfirmedDateFormat: time.DateTime,
-			MaxAge:              c.Global.MaxAge,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("error checking port match filter: %w", err)
-		}
-
-		if !ok {
-			c.Logger.Info("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
+	for x, port := range portDataForTable.entries {
+		if !port.AgeMatch {
+			c.Logger.Debug("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
 			continue
 		}
 
@@ -325,7 +353,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
+		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("CRIMINAL IP | Host: %s", c.Host.String())
@@ -491,6 +519,34 @@ type HostSearchResultDomain struct {
 	} `json:"data"`
 }
 
+type WrappedPortDataEntry struct {
+	AgeMatch     bool
+	NetworkMatch bool
+	PortDataEntry
+}
+
+type PortDataEntry struct {
+	AppName       string   `json:"app_name"`
+	ConfirmedTime string   `json:"confirmed_time"`
+	Banner        string   `json:"banner"`
+	AppVersion    string   `json:"app_version"`
+	OpenPortNo    int      `json:"open_port_no"`
+	PortStatus    string   `json:"port_status"`
+	Protocol      string   `json:"protocol"`
+	Socket        string   `json:"socket"`
+	Tags          []string `json:"tags"`
+	DNSNames      string   `json:"dns_names"`
+	SdnCommonName string   `json:"sdn_common_name"`
+	JarmHash      string   `json:"jarm_hash"`
+	SslInfoRaw    string   `json:"ssl_info_raw"`
+	Technologies  []struct {
+		TechName    string `json:"tech_name"`
+		TechVersion string `json:"tech_version"`
+		TechLogoURL string `json:"tech_logo_url"`
+	} `json:"technologies"`
+	IsVulnerability bool `json:"is_vulnerability"`
+}
+
 type HostSearchResult struct {
 	Raw    []byte
 	IP     string `json:"ip"`
@@ -611,28 +667,8 @@ type HostSearchResult struct {
 		} `json:"data"`
 	} `json:"ip_category"`
 	Port struct {
-		Count int `json:"count"`
-		Data  []struct {
-			AppName       string   `json:"app_name"`
-			ConfirmedTime string   `json:"confirmed_time"`
-			Banner        string   `json:"banner"`
-			AppVersion    string   `json:"app_version"`
-			OpenPortNo    int      `json:"open_port_no"`
-			PortStatus    string   `json:"port_status"`
-			Protocol      string   `json:"protocol"`
-			Socket        string   `json:"socket"`
-			Tags          []string `json:"tags"`
-			DNSNames      string   `json:"dns_names"`
-			SdnCommonName string   `json:"sdn_common_name"`
-			JarmHash      string   `json:"jarm_hash"`
-			SslInfoRaw    string   `json:"ssl_info_raw"`
-			Technologies  []struct {
-				TechName    string `json:"tech_name"`
-				TechVersion string `json:"tech_version"`
-				TechLogoURL string `json:"tech_logo_url"`
-			} `json:"technologies"`
-			IsVulnerability bool `json:"is_vulnerability"`
-		} `json:"data"`
+		Count int             `json:"count"`
+		Data  []PortDataEntry `json:"data"`
 	} `json:"port"`
 	Vulnerability struct {
 		Count int `json:"count"`
@@ -697,100 +733,4 @@ type HostSearchResult struct {
 		} `json:"data"`
 	} `json:"mobile"`
 	Status int `json:"status"`
-}
-
-// type HostSearchResult struct {
-// 	City        string   `json:"city"`
-// 	RegionCode  string   `json:"region_code"`
-// 	Os          any      `json:"os"`
-// 	Tags        []any    `json:"tags"`
-// 	IP          string   `json:"ip"`
-// 	Isp         string   `json:"isp"`
-// 	AreaCode    any      `json:"area_code"`
-// 	Longitude   float64  `json:"longitude"`
-// 	LastUpdate  string   `json:"last_update"`
-// 	Ports       []int    `json:"ports"`
-// 	Latitude    float64  `json:"latitude"`
-// 	Hostnames   []string `json:"hostnames"`
-// 	CountryCode string   `json:"country_code"`
-// 	CountryName string   `json:"country_name"`
-// 	Domains     []string `json:"domains"`
-// 	Org         string   `json:"org"`
-// 	Data        []HostSearchResultData
-// 	//
-// 	// 	// ////
-// 	// 	CriminalIP0 struct {
-// 	// 		ID      string `json:"id"`
-// 	// 		Region  string `json:"region"`
-// 	// 		Options struct {
-// 	// 		} `json:"options"`
-// 	// 		Module  string `json:"module"`
-// 	// 		Crawler string `json:"crawler"`
-// 	// 	} `json:"_criminalip,omitempty"`
-// 	//
-// 	// 	Ssl struct {
-// 	// 		ChainSha256   []string `json:"chain_sha256"`
-// 	// 		Jarm          string   `json:"jarm"`
-// 	// 		Chain         []string `json:"chain"`
-// 	// 		Dhparams      any      `json:"dhparams"`
-// 	// 		Versions      []string `json:"versions"`
-// 	// 		AcceptableCas []any    `json:"acceptable_cas"`
-// 	// 		Tlsext        []struct {
-// 	// 			ID   int    `json:"id"`
-// 	// 			Name string `json:"name"`
-// 	// 		} `json:"tlsext"`
-// 	// 		Ja3S string `json:"ja3s"`
-// 	// 		Cert struct {
-// 	// 			SigAlg     string `json:"sig_alg"`
-// 	// 			Issued     string `json:"issued"`
-// 	// 			Expires    string `json:"expires"`
-// 	// 			Expired    bool   `json:"expired"`
-// 	// 			Version    int    `json:"version"`
-// 	// 			Extensions []struct {
-// 	// 				Critical bool   `json:"critical,omitempty"`
-// 	// 				Data     string `json:"data"`
-// 	// 				Name     string `json:"name"`
-// 	// 			} `json:"extensions"`
-// 	// 			Fingerprint struct {
-// 	// 				Sha256 string `json:"sha256"`
-// 	// 				Sha1   string `json:"sha1"`
-// 	// 			} `json:"fingerprint"`
-// 	// 			Serial  int64 `json:"serial"`
-// 	// 			Subject struct {
-// 	// 				Cn string `json:"CN"`
-// 	// 			} `json:"subject"`
-// 	// 			Pubkey struct {
-// 	// 				Type string `json:"type"`
-// 	// 				Bits int    `json:"bits"`
-// 	// 			} `json:"pubkey"`
-// 	// 			Issuer struct {
-// 	// 				C  string `json:"C"`
-// 	// 				Cn string `json:"CN"`
-// 	// 				O  string `json:"O"`
-// 	// 			} `json:"issuer"`
-// 	// 		} `json:"cert"`
-// 	// 		Cipher struct {
-// 	// 			Version string `json:"version"`
-// 	// 			Bits    int    `json:"bits"`
-// 	// 			Name    string `json:"name"`
-// 	// 		} `json:"cipher"`
-// 	// 		Trust struct {
-// 	// 			Revoked bool `json:"revoked"`
-// 	// 			Browser any  `json:"browser"`
-// 	// 		} `json:"trust"`
-// 	// 		HandshakeStates []string `json:"handshake_states"`
-// 	// 		Alpn            []any    `json:"alpn"`
-// 	// 		Ocsp            struct {
-// 	// 		} `json:"ocsp"`
-// 	// 	} `json:"ssl,omitempty"`
-// 	// } `json:"data"`
-// 	Asn   string `json:"asn"`
-// 	IPStr string `json:"ip_str"`
-// }
-
-func NilOrOriginal[T comparable](value *T, replacement string) interface{} {
-	if value == nil {
-		return replacement
-	}
-	return *value
 }

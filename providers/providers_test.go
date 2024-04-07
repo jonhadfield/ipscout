@@ -52,7 +52,7 @@ func TestPortAgeCheckOlderThanMaxAge(t *testing.T) {
 }
 
 func TestPortMatchFilterWithNoValues(t *testing.T) {
-	res, err := PortMatchFilter(PortMatchFilterInput{
+	_, res, err := PortMatchFilter(PortMatchFilterInput{
 		IncomingPort:        "",
 		MatchPorts:          nil,
 		ConfirmedDate:       "",
@@ -64,31 +64,31 @@ func TestPortMatchFilterWithNoValues(t *testing.T) {
 }
 
 func TestPortMatchFilterWithNetworkMatch(t *testing.T) {
-	res, err := PortMatchFilter(PortMatchFilterInput{
+	_, res, err := PortMatchFilter(PortMatchFilterInput{
 		IncomingPort:        "80",
 		MatchPorts:          []string{"90/udp", "80"},
-		ConfirmedDate:       "",
-		ConfirmedDateFormat: "",
-		MaxAge:              "",
+		ConfirmedDate:       "2006-01-02 15:04:05",
+		ConfirmedDateFormat: time.DateTime,
+		MaxAge:              "8h",
 	})
 	require.NoError(t, err)
 	require.True(t, res)
 }
 
 func TestPortMatchFilterWithNegativeNetworkMatch(t *testing.T) {
-	res, err := PortMatchFilter(PortMatchFilterInput{
+	_, res, err := PortMatchFilter(PortMatchFilterInput{
 		IncomingPort:        "80",
 		MatchPorts:          []string{"800"},
-		ConfirmedDate:       "",
-		ConfirmedDateFormat: "",
-		MaxAge:              "",
+		ConfirmedDate:       "2024-01-02 15:04:05",
+		ConfirmedDateFormat: time.DateTime,
+		MaxAge:              "10000w",
 	})
 	require.NoError(t, err)
 	require.False(t, res)
 }
 
 func TestPortMatchFilterWithDateAndNoMaxAge(t *testing.T) {
-	res, err := PortMatchFilter(PortMatchFilterInput{
+	_, res, err := PortMatchFilter(PortMatchFilterInput{
 		IncomingPort:        "80",
 		MatchPorts:          []string{"800"},
 		ConfirmedDate:       "2006-01-02 15:04:05",
@@ -103,7 +103,7 @@ func TestPortMatchFilterWithDateAndNoMaxAge(t *testing.T) {
 }
 
 func TestPortMatchFilterWithNegativeNetworkMatchPositiveDateMatch(t *testing.T) {
-	res, err := PortMatchFilter(PortMatchFilterInput{
+	_, res, err := PortMatchFilter(PortMatchFilterInput{
 		IncomingPort:        "80",
 		MatchPorts:          []string{"800"},
 		ConfirmedDate:       "2006-01-02 15:04:05",
@@ -115,7 +115,7 @@ func TestPortMatchFilterWithNegativeNetworkMatchPositiveDateMatch(t *testing.T) 
 }
 
 func TestPortMatchFilterWithPortMatchOnly(t *testing.T) {
-	res, err := PortMatchFilter(PortMatchFilterInput{
+	_, res, err := PortMatchFilter(PortMatchFilterInput{
 		IncomingPort:        "",
 		MatchPorts:          nil,
 		ConfirmedDate:       "",

@@ -214,7 +214,7 @@ func (c *ProviderClient) Initialise() error {
 func (c *ProviderClient) FindHost() ([]byte, error) {
 	result, err := fetchData(c.Config)
 	if err != nil {
-		return nil, fmt.Errorf("error loading shodan api response: %w", err)
+		return nil, err
 	}
 
 	c.Logger.Debug("shodan host match data", "size", len(result.Raw))
@@ -250,7 +250,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	for _, dr := range result.Data {
 		var ok bool
 
-		ok, err := providers.PortMatchFilter(providers.PortMatchFilterInput{
+		_, ok, err := providers.PortMatchFilter(providers.PortMatchFilterInput{
 			IncomingPort:        fmt.Sprintf("%d/%s", dr.Port, dr.Transport),
 			MatchPorts:          c.Global.Ports,
 			ConfirmedDate:       dr.Timestamp,
@@ -276,7 +276,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	if len(result.Data) > 0 {
 		for _, dr := range result.Data {
-			ok, err := providers.PortMatchFilter(providers.PortMatchFilterInput{
+			_, ok, err := providers.PortMatchFilter(providers.PortMatchFilterInput{
 				IncomingPort:        fmt.Sprintf("%d/%s", dr.Port, dr.Transport),
 				MatchPorts:          c.Global.Ports,
 				ConfirmedDate:       dr.Timestamp,
