@@ -123,6 +123,10 @@ func NewProviderClient(c config.Config) (*ProviderClient, error) {
 	return tc, nil
 }
 
+func (c *ProviderClient) GetConfig() *config.Config {
+	return &c.Config
+}
+
 func fetchData(client config.Config) (*HostSearchResult, error) {
 	// var result *HostSearchResult
 	//

@@ -61,6 +61,10 @@ func NewProviderClient(c config.Config) (*ProviderClient, error) {
 	return tc, nil
 }
 
+func (c *ProviderClient) GetConfig() *config.Config {
+	return &c.Config
+}
+
 func (c *ProviderClient) loadProviderData() error {
 	digitaloceanClient := digitalocean.New()
 	digitaloceanClient.Client = c.HttpClient
@@ -111,7 +115,7 @@ func (c *ProviderClient) Initialise() error {
 
 	err = c.loadProviderData()
 	if err != nil {
-		return fmt.Errorf("error loading digitalocean api response: %w", err)
+		return fmt.Errorf("loading digitalocean api response: %w", err)
 	}
 
 	return nil
@@ -190,7 +194,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	doc, err := c.loadHostProviderDataFromCache()
 	if err != nil {
-		return nil, fmt.Errorf("error loading digitalocean host data from cache: %w", err)
+		return nil, fmt.Errorf("loading digitalocean host data from cache: %w", err)
 	}
 
 	// search in the data for the host

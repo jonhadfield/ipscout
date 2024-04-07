@@ -154,6 +154,10 @@ type ProviderClient struct {
 	config.Config
 }
 
+func (c *ProviderClient) GetConfig() *config.Config {
+	return &c.Config
+}
+
 func fetchData(c config.Config) (*HostSearchResult, error) {
 	var result *HostSearchResult
 
@@ -188,7 +192,7 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 
 	result, err = loadAPIResponse(context.Background(), c, c.Providers.Shodan.APIKey)
 	if err != nil {
-		return nil, fmt.Errorf("error loading shodan api response: %w", err)
+		return nil, fmt.Errorf("loading shodan api response: %w", err)
 	}
 
 	if err = cache.Upsert(c.Cache, cache.Item{
@@ -393,6 +397,10 @@ func NewProviderClient(c config.Config) (*ProviderClient, error) {
 	}
 
 	return tc, nil
+}
+
+func (c *Client) GetConfig() *config.Config {
+	return &c.Config.Config
 }
 
 func (c *Client) GetData() (result *HostSearchResult, err error) {

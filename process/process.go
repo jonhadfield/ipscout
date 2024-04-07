@@ -21,6 +21,7 @@ import (
 )
 
 type ProviderClient interface {
+	GetConfig() *config.Config
 	Initialise() error
 	FindHost() ([]byte, error)
 	CreateTable([]byte) (*table.Writer, error)
@@ -145,9 +146,9 @@ func (p *Processor) Run() {
 	matchingResults := len(results.m)
 	results.RUnlock()
 
-	p.Config.Logger.Info("host matching findHostsResults", "providers queried", len(providerClients), "matching findHostsResults", matchingResults)
+	p.Config.Logger.Info("host matching results", "providers queried", len(providerClients), "matching results", matchingResults)
 	if matchingResults == 0 {
-		p.Config.Logger.Warn("no results found", "host", p.Config.Host.String(), "providers checked", strings.Join(enabledProviders, ","))
+		p.Config.Logger.Warn("no results found", "host", p.Config.Host.String(), "providers checked", strings.Join(enabledProviders, ", "))
 
 		os.Exit(0)
 	}
@@ -235,7 +236,7 @@ func findHosts(runners map[string]ProviderClient, hideProgress bool) (*findHosts
 			defer w.Done()
 			result, err := runner.FindHost()
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+				runner.GetConfig().Logger.Debug(err.Error())
 				return
 			}
 

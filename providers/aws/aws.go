@@ -60,6 +60,10 @@ func NewProviderClient(c config.Config) (*ProviderClient, error) {
 	return tc, nil
 }
 
+func (c *ProviderClient) GetConfig() *config.Config {
+	return &c.Config
+}
+
 const (
 	MaxColumnWidth = 120
 )
