@@ -6,14 +6,15 @@ global:
     # ports: [80]
 
 providers:
-    shodan:
+    aws:
         enabled: true
-        max_ports: 10
-        # ports: [80]
+    azure:
+        enabled: true
     criminalip:
         enabled: true
         max_ports: 10
-    aws:
-        enabled: true
     digitalocean:
         enabled: true
+    shodan:
+        enabled: true
+        max_ports: 10

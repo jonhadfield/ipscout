@@ -8,6 +8,7 @@ import (
 	"github.com/jonhadfield/crosscheck-ip/config"
 	"github.com/jonhadfield/crosscheck-ip/present"
 	"github.com/jonhadfield/crosscheck-ip/providers/aws"
+	"github.com/jonhadfield/crosscheck-ip/providers/azure"
 	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
 	"github.com/jonhadfield/crosscheck-ip/providers/digitalocean"
 	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
@@ -37,6 +38,17 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 		}
 
 		runners[shodan.ProviderName] = shodanClient
+	}
+
+	if c.Providers.Azure.Enabled || c.UseTestData {
+		azureIPClient, err := azure.NewProviderClient(c)
+		if err != nil {
+			return nil, fmt.Errorf("error creating azure client: %w", err)
+		}
+
+		if azureIPClient != nil {
+			runners[azure.ProviderName] = azureIPClient
+		}
 	}
 
 	if c.Providers.CriminalIP.APIKey != "" || c.Providers.CriminalIP.Enabled || c.UseTestData {
@@ -105,7 +117,7 @@ func (p *Processor) Run() {
 		os.Exit(1)
 	}
 
-	db, err := cache.Create(filepath.Join(homeDir, ".config", "crosscheck-ip"))
+	db, err := cache.Create(p.Config.Logger, filepath.Join(homeDir, ".config", "crosscheck-ip"))
 	if err != nil {
 		p.Config.Logger.Error("failed to create cache", "error", err)
 
@@ -153,7 +165,7 @@ func (p *Processor) Run() {
 		os.Exit(0)
 	}
 
-	tables, err := generateTables(nil, providerClients, results, p.Config.HideProgress)
+	tables, err := generateTables(p.Config.Output, providerClients, results, p.Config.HideProgress)
 	if err != nil {
 		p.Config.Logger.Error("failed to generate tables", "error", err)
 

@@ -94,6 +94,11 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 		return nil, err
 	}
 
+	// check if response contains an error, despite a 200 status code
+	if res.Status == http.StatusForbidden {
+		return nil, fmt.Errorf("criminal ip api error: %s: %w", res.Message, providers.ErrForbiddenByProvider)
+	}
+
 	res.Raw = rBody
 
 	return res, nil
@@ -144,11 +149,7 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 	}
 
 	cacheKey := fmt.Sprintf("criminalip_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
-	if item, err := cache.Read(client.Cache, cacheKey); err == nil {
-		// if item == nil {
-		// 	return nil, nil
-		// }
-
+	if item, err := cache.Read(client.Logger, client.Cache, cacheKey); err == nil {
 		if item != nil {
 			result, uErr := unmarshalResponse(item.Value)
 			if uErr != nil {
@@ -160,7 +161,6 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 			result.Raw = item.Value
 			return result, nil
 		}
-
 	}
 
 	result, err := loadAPIResponse(context.Background(), &client, client.Providers.CriminalIP.APIKey)
@@ -168,7 +168,7 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		return nil, fmt.Errorf("error loading criminal ip api response: %w", err)
 	}
 
-	if err = cache.Upsert(client.Cache, cache.Item{
+	if err = cache.Upsert(client.Logger, client.Cache, cache.Item{
 		Key:     cacheKey,
 		Value:   result.Raw,
 		Created: time.Now(),
@@ -324,7 +324,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	for x, port := range portDataForTable.entries {
 		if !port.AgeMatch {
-			c.Logger.Debug("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
+			// c.Logger.Debug("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
 			continue
 		}
 
@@ -736,5 +736,6 @@ type HostSearchResult struct {
 			Organization string `json:"organization"`
 		} `json:"data"`
 	} `json:"mobile"`
-	Status int `json:"status"`
+	Message string `json:"message"`
+	Status  int    `json:"status"`
 }

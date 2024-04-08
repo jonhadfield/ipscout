@@ -175,7 +175,7 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 	// load data from cache
 	cacheKey := fmt.Sprintf("shodan_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
 	var item *cache.Item
-	if item, err = cache.Read(c.Cache, cacheKey); err == nil {
+	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		if item.Value != nil && len(item.Value) > 0 {
 			result, err = unmarshalResponse(item.Value)
 			if err != nil {
@@ -195,7 +195,7 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 		return nil, fmt.Errorf("loading shodan api response: %w", err)
 	}
 
-	if err = cache.Upsert(c.Cache, cache.Item{
+	if err = cache.Upsert(c.Logger, c.Cache, cache.Item{
 		Key:     cacheKey,
 		Value:   result.Raw,
 		Created: time.Now(),

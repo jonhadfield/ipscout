@@ -1,22 +1,23 @@
-package aws
+package azure
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jonhadfield/crosscheck-ip/cache"
-	"github.com/jonhadfield/crosscheck-ip/config"
-	"github.com/jonhadfield/crosscheck-ip/providers"
-	"github.com/jonhadfield/ip-fetcher/providers/aws"
 	"net/netip"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jonhadfield/crosscheck-ip/cache"
+	"github.com/jonhadfield/crosscheck-ip/config"
+	"github.com/jonhadfield/crosscheck-ip/providers"
+	"github.com/jonhadfield/ip-fetcher/providers/azure"
 )
 
 const (
-	ProviderName = "aws"
+	ProviderName = "azure"
 )
 
 type Config struct {
@@ -26,8 +27,18 @@ type Config struct {
 	APIKey string
 }
 
-func unmarshalProviderData(rBody []byte) (*aws.Doc, error) {
-	var res *aws.Doc
+func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
+	var res *HostSearchResult
+
+	if err := json.Unmarshal(rBody, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func unmarshalProviderData(rBody []byte) (*azure.Doc, error) {
+	var res *azure.Doc
 
 	if err := json.Unmarshal(rBody, &res); err != nil {
 		return nil, err
@@ -41,7 +52,7 @@ type ProviderClient struct {
 }
 
 func NewProviderClient(c config.Config) (*ProviderClient, error) {
-	c.Logger.Debug("creating aws client")
+	c.Logger.Debug("creating azure client")
 
 	tc := &ProviderClient{
 		Config: c,
@@ -58,21 +69,24 @@ const (
 	MaxColumnWidth = 120
 )
 
-func (c *ProviderClient) loadProviderData() error {
-	awsClient := aws.New()
-	awsClient.Client = c.HttpClient
+func (c *ProviderClient) loadProviderDataFromSource() error {
+	azureClient := azure.New()
+	azureClient.Client = c.HttpClient
 
-	doc, etag, err := awsClient.Fetch()
+	doc, etag, err := azureClient.Fetch()
 	if err != nil {
 		return err
 	}
+
+	c.Logger.Debug("fetched azure data from source", "size", len(doc.Values), "etag", etag)
 
 	data, err := json.Marshal(doc)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("writing cache key:", providers.CacheProviderPrefix+ProviderName)
+	c.Logger.Debug("writing azure provider data to cache", "size", len(data), "etag", etag)
+
 	return cache.Upsert(c.Logger, c.Cache, cache.Item{
 		Key:     providers.CacheProviderPrefix + ProviderName,
 		Value:   data,
@@ -82,7 +96,7 @@ func (c *ProviderClient) loadProviderData() error {
 }
 
 func (c *ProviderClient) Initialise() error {
-	c.Logger.Debug("initialising aws client")
+	c.Logger.Debug("initialising azure client")
 
 	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
 	if err != nil {
@@ -90,13 +104,12 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("aws provider data found in cache")
+		c.Logger.Info("azure provider data found in cache")
 
 		return nil
 	}
 
-	// load data from source and store in cache
-	err = c.loadProviderData()
+	err = c.loadProviderDataFromSource()
 	if err != nil {
 		return err
 	}
@@ -105,7 +118,7 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	tdf, err := loadResultsFile("providers/aws/testdata/aws_18_164_52_75_report.json")
+	tdf, err := loadResultsFile("providers/azure/testdata/azure_18_164_52_75_report.json")
 	if err != nil {
 		return nil, err
 	}
@@ -115,14 +128,17 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 		return nil, fmt.Errorf("error marshalling test data: %w", err)
 	}
 
-	c.Logger.Info("aws match returned from test data", "host", c.Host.String())
+	c.Logger.Info("azure match returned from test data", "host", c.Host.String())
 
 	return out, nil
 }
 
-func (c *ProviderClient) loadProviderDataFromCache() (*aws.Doc, error) {
+func (c *ProviderClient) loadProviderDataFromCache() (*azure.Doc, error) {
+	c.Logger.Info("loading azure provider data from cache")
+
 	cacheKey := providers.CacheProviderPrefix + ProviderName
-	var doc *aws.Doc
+
+	var doc *azure.Doc
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		var uErr error
 		doc, uErr = unmarshalProviderData(item.Value)
@@ -131,14 +147,15 @@ func (c *ProviderClient) loadProviderDataFromCache() (*aws.Doc, error) {
 				_ = cache.Delete(c.Logger, c.Cache, cacheKey)
 			}()
 
-			return nil, fmt.Errorf("error unmarshalling cached aws provider doc: %w", err)
+			return nil, fmt.Errorf("error unmarshalling cached azure provider doc: %w", uErr)
 		}
 	} else if err != nil {
-		return nil, fmt.Errorf("error reading aws provider cache: %w", err)
+		return nil, fmt.Errorf("error reading azure provider data from cache: %w", err)
 	}
 
 	return doc, nil
 }
+
 func (c *ProviderClient) FindHost() ([]byte, error) {
 	var out []byte
 
@@ -152,7 +169,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 			return nil, loadErr
 		}
 
-		c.Logger.Info("aws match returned from test data", "host", c.Host.String())
+		c.Logger.Info("azure match returned from test data", "host", c.Host.String())
 
 		return out, nil
 	}
@@ -167,16 +184,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, err
 	}
 
-	c.Logger.Info("aws match found", "host", c.Host.String())
-
-	match.SyncToken = doc.SyncToken
-
-	match.CreateDate, err = time.Parse("2006-01-02-15-04-05", doc.CreateDate)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing create date: %w", err)
-	}
-
-	// match.ETag = item.Version
+	c.Logger.Info("azure match found", "host", c.Host.String())
 
 	var raw []byte
 
@@ -189,50 +197,43 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("%s/backups/aws_%s_report.json", config.GetConfigRoot("", config.AppName),
+		if err = os.WriteFile(fmt.Sprintf("%s/backups/azure_%s_report.json", config.GetConfigRoot("", config.AppName),
 			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0644); err != nil {
 			panic(err)
 		}
-		c.Logger.Info("backed up aws response", "host", c.Host.String())
+		c.Logger.Info("backed up azure response", "host", c.Host.String())
 	}
 
 	return raw, nil
 }
 
-func matchIPToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
+func matchIPToDoc(host netip.Addr, doc *azure.Doc) (*HostSearchResult, error) {
 	var match *HostSearchResult
 
-	if host.Is4() {
-		for _, prefix := range doc.Prefixes {
-			if prefix.IPPrefix.Contains(host) {
+	for _, value := range doc.Values {
+		props := value.Properties
+
+		for _, prefix := range props.AddressPrefixes {
+			p, err := netip.ParsePrefix(prefix)
+			if err != nil {
+				return nil, err
+			}
+
+			if p.Contains(host) {
 				match = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPPrefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
+					Raw:          nil,
+					Prefix:       p,
+					ChangeNumber: props.ChangeNumber,
+					Cloud:        doc.Cloud,
+					Name:         value.Name,
+					ID:           value.ID,
+					Properties:   props,
 				}
+
 				return match, nil
 			}
 		}
 	}
-
-	if host.Is6() {
-		for _, prefix := range doc.IPv6Prefixes {
-			if prefix.IPv6Prefix.Contains(host) {
-				match = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPv6Prefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
-				}
-				return match, nil
-			}
-
-		}
-	}
-
 	if match == nil {
 		return nil, providers.ErrNoMatchFound
 	}
@@ -244,7 +245,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var err error
 	var result HostSearchResult
 	if err = json.Unmarshal(data, &result); err != nil {
-		return nil, fmt.Errorf("error unmarshalling aws data: %w", err)
+		return nil, fmt.Errorf("error unmarshalling azure data: %w", err)
 	}
 
 	if err != nil {
@@ -257,35 +258,28 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			// reset the error as no longer useful for table creation
 			return nil, nil
 		default:
-			return nil, fmt.Errorf("error loading aws api response: %w", err)
+			return nil, fmt.Errorf("error loading azure api response: %w", err)
 		}
 	}
 
 	tw := table.NewWriter()
 	var rows []table.Row
-	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix.IPPrefix.String())})
-	tw.AppendRow(table.Row{"Service", dashIfEmpty(result.Prefix.Service)})
-	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Prefix.Region)})
-	if !result.CreateDate.IsZero() {
-		tw.AppendRow(table.Row{"Source Update", dashIfEmpty(result.CreateDate.String())})
-	}
-
-	if result.SyncToken != "" {
-		tw.AppendRow(table.Row{"Sync Token", dashIfEmpty(result.SyncToken)})
-	}
-
-	if result.ETag != "" {
-		tw.AppendRow(table.Row{"Version", dashIfEmpty(result.ETag)})
-	}
-
+	tw.AppendRow(table.Row{"Name", dashIfEmpty(result.Name)})
+	tw.AppendRow(table.Row{"ID", dashIfEmpty(result.ID)})
+	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Properties.Region)})
+	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix)})
+	tw.AppendRow(table.Row{"Platform", dashIfEmpty(result.Properties.Platform)})
+	tw.AppendRow(table.Row{"Cloud", dashIfEmpty(result.Cloud)})
+	tw.AppendRow(table.Row{"System Service", dashIfEmpty(result.Properties.SystemService)})
+	tw.AppendRow(table.Row{"Network Features", dashIfEmpty(strings.Join(result.Properties.NetworkFeatures, ","))})
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
 	})
 	tw.SetAutoIndex(false)
-	tw.SetTitle("AWS IP | Host: %s", c.Host.String())
+	tw.SetTitle("Azure IP | Host: %s", c.Host.String())
 	if c.UseTestData {
-		tw.SetTitle("AWS IP | Host: %s", result.Prefix.IPPrefix.String())
+		tw.SetTitle("Azure IP | Host: %s", result.Prefix.String())
 	}
 
 	return &tw, nil
@@ -310,12 +304,13 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 }
 
 type HostSearchResult struct {
-	Raw            []byte
-	aws.Prefix     `json:"prefix"`
-	aws.IPv6Prefix `json:"ipv6Prefix"`
-	ETag           string    `json:"etag"`
-	SyncToken      string    `json:"syncToken"`
-	CreateDate     time.Time `json:"createDate"`
+	Raw          []byte
+	Prefix       netip.Prefix
+	ChangeNumber int              `json:"changeNumber"`
+	Cloud        string           `json:"cloud"`
+	Name         string           `json:"name"`
+	ID           string           `json:"id"`
+	Properties   azure.Properties `json:"properties"`
 }
 
 func dashIfEmpty(value interface{}) string {

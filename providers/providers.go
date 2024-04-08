@@ -11,9 +11,12 @@ import (
 )
 
 var (
-	ErrFailedToFetchData = errors.New("failed to fetch data")
-	ErrNoDataFound       = errors.New("no data found")
-	ErrNoMatchFound      = errors.New("no match found")
+	ErrFailedToFetchData   = errors.New("failed to fetch data")
+	ErrNoDataFound         = errors.New("no data found")
+	ErrNoMatchFound        = errors.New("no match found")
+	ErrForbiddenByProvider = errors.New("forbidden by provider")
+	CacheProviderPrefix    = "provider_"
+	CacheHostPrefix        = "host_"
 )
 
 func AgeToHours(age string) (int64, error) {

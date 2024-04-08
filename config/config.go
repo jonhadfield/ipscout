@@ -58,6 +58,9 @@ type Providers struct {
 	AWS struct {
 		Enabled bool `mapstructure:"enabled"`
 	} `mapstructure:"aws"`
+	Azure struct {
+		Enabled bool `mapstructure:"enabled"`
+	} `mapstructure:"azure"`
 	DigitalOcean struct {
 		Enabled bool `mapstructure:"enabled"`
 	} `mapstructure:"digitalocean"`

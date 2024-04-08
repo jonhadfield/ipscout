@@ -65,6 +65,7 @@ func newRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", nil, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
 
+	rootCmd.AddCommand(newCacheCommand())
 	rootCmd.AddCommand(versionCmd)
 
 	return rootCmd
@@ -137,6 +138,7 @@ func initConfig(cmd *cobra.Command) error {
 	conf.Output = os.Stdout
 
 	conf.Providers.AWS.Enabled = v.GetBool("providers.aws.enabled")
+	conf.Providers.Azure.Enabled = v.GetBool("providers.azure.enabled")
 	conf.Providers.DigitalOcean.Enabled = v.GetBool("providers.digitalocean.enabled")
 	conf.Providers.CriminalIP.Enabled = v.GetBool("providers.criminalip.enabled")
 	conf.Providers.Shodan.Enabled = v.GetBool("providers.shodan.enabled")
