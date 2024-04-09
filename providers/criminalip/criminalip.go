@@ -271,7 +271,7 @@ func (c *ProviderClient) GenPortDataForTable(in []PortDataEntry) (GeneratePortDa
 
 		out.entries = append(out.entries, wrappedEntry)
 
-		if !ageMatch {
+		if ageMatch && netMatch {
 			out.matches++
 		} else {
 			out.skips++
