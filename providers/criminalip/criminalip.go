@@ -26,6 +26,7 @@ const (
 	APIURL            = "https://api.criminalip.io"
 	HostIPPath        = "/v1/asset/ip/report"
 	IndentPipeHyphens = " |-----"
+	ResultTTL         = time.Duration(24 * time.Hour)
 )
 
 type Config struct {
@@ -168,11 +169,11 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		return nil, fmt.Errorf("error loading criminal ip api response: %w", err)
 	}
 
-	if err = cache.Upsert(client.Logger, client.Cache, cache.Item{
+	if err = cache.UpsertWithTTL(client.Logger, client.Cache, cache.Item{
 		Key:     cacheKey,
 		Value:   result.Raw,
 		Created: time.Now(),
-	}); err != nil {
+	}, ResultTTL); err != nil {
 		return nil, err
 	}
 

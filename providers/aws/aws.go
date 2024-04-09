@@ -17,6 +17,7 @@ import (
 
 const (
 	ProviderName = "aws"
+	DocTTL       = time.Duration(24 * time.Hour)
 )
 
 type Config struct {
@@ -72,13 +73,12 @@ func (c *ProviderClient) loadProviderData() error {
 		return err
 	}
 
-	fmt.Println("writing cache key:", providers.CacheProviderPrefix+ProviderName)
-	return cache.Upsert(c.Logger, c.Cache, cache.Item{
+	return cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		Key:     providers.CacheProviderPrefix + ProviderName,
 		Value:   data,
 		Version: etag,
 		Created: time.Now(),
-	})
+	}, DocTTL)
 }
 
 func (c *ProviderClient) Initialise() error {

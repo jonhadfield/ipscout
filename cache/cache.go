@@ -106,6 +106,20 @@ func Upsert(logger *slog.Logger, db *badger.DB, item Item) error {
 	})
 }
 
+func UpsertWithTTL(logger *slog.Logger, db *badger.DB, item Item, ttl time.Duration) error {
+	mItem, err := json.Marshal(item)
+
+	if err != nil {
+		return err
+	}
+
+	logger.Info("upserting item", "key", item.Key, "value len", len(mItem), "ttl", ttl.String())
+	return db.Update(func(txn *badger.Txn) error {
+		e := badger.NewEntry([]byte(item.Key), mItem).WithTTL(ttl)
+		return txn.SetEntry(e)
+	})
+}
+
 func Read(logger *slog.Logger, db *badger.DB, key string) (*Item, error) {
 	logger.Info("reading cache item", "key", key)
 

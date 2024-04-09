@@ -16,6 +16,7 @@ import (
 
 const (
 	ProviderName = "digitalocean"
+	DocTTL       = time.Duration(24 * time.Hour)
 )
 
 type Config struct {
@@ -79,12 +80,12 @@ func (c *ProviderClient) loadProviderData() error {
 		return err
 	}
 
-	err = cache.Upsert(c.Logger, c.Cache, cache.Item{
+	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		Key:     providers.CacheProviderPrefix + ProviderName,
 		Value:   data,
 		Version: doc.ETag,
 		Created: time.Now(),
-	})
+	}, DocTTL)
 	if err != nil {
 		return err
 	}

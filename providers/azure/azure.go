@@ -18,6 +18,7 @@ import (
 
 const (
 	ProviderName = "azure"
+	DocTTL       = time.Duration(24 * time.Hour)
 )
 
 type Config struct {
@@ -87,12 +88,12 @@ func (c *ProviderClient) loadProviderDataFromSource() error {
 
 	c.Logger.Debug("writing azure provider data to cache", "size", len(data), "etag", etag)
 
-	return cache.Upsert(c.Logger, c.Cache, cache.Item{
+	return cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		Key:     providers.CacheProviderPrefix + ProviderName,
 		Value:   data,
 		Version: etag,
 		Created: time.Now(),
-	})
+	}, DocTTL)
 }
 
 func (c *ProviderClient) Initialise() error {

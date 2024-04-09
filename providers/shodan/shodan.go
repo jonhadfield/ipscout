@@ -26,6 +26,7 @@ const (
 	MaxColumnWidth         = 120
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
+	ResultTTL              = time.Duration(12 * time.Hour)
 )
 
 func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *HostSearchResult, err error) {
@@ -195,11 +196,11 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 		return nil, fmt.Errorf("loading shodan api response: %w", err)
 	}
 
-	if err = cache.Upsert(c.Logger, c.Cache, cache.Item{
+	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		Key:     cacheKey,
 		Value:   result.Raw,
 		Created: time.Now(),
-	}); err != nil {
+	}, ResultTTL); err != nil {
 		return nil, err
 	}
 
