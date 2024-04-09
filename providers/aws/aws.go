@@ -203,33 +203,52 @@ func matchIPToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
 	var match *HostSearchResult
 
 	if host.Is4() {
-		for _, prefix := range doc.Prefixes {
-			if prefix.IPPrefix.Contains(host) {
-				match = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPPrefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
-				}
-				return match, nil
-			}
-		}
+		return matchIPv4ToDoc(host, doc)
 	}
 
 	if host.Is6() {
-		for _, prefix := range doc.IPv6Prefixes {
-			if prefix.IPv6Prefix.Contains(host) {
-				match = &HostSearchResult{
-					Prefix: aws.Prefix{
-						IPPrefix: prefix.IPv6Prefix,
-						Region:   prefix.Region,
-						Service:  prefix.Service,
-					},
-				}
-				return match, nil
-			}
+		matchIPv6ToDoc(host, doc)
+	}
 
+	return match, nil
+}
+
+func matchIPv6ToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
+	var match *HostSearchResult
+
+	for _, prefix := range doc.IPv6Prefixes {
+		if prefix.IPv6Prefix.Contains(host) {
+			match = &HostSearchResult{
+				Prefix: aws.Prefix{
+					IPPrefix: prefix.IPv6Prefix,
+					Region:   prefix.Region,
+					Service:  prefix.Service,
+				},
+			}
+			return match, nil
+		}
+	}
+
+	if match == nil {
+		return nil, providers.ErrNoMatchFound
+	}
+
+	return match, nil
+}
+
+func matchIPv4ToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
+	var match *HostSearchResult
+
+	for _, prefix := range doc.Prefixes {
+		if prefix.IPPrefix.Contains(host) {
+			match = &HostSearchResult{
+				Prefix: aws.Prefix{
+					IPPrefix: prefix.IPPrefix,
+					Region:   prefix.Region,
+					Service:  prefix.Service,
+				},
+			}
+			return match, nil
 		}
 	}
 
