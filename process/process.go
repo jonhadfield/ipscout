@@ -11,6 +11,7 @@ import (
 	"github.com/jonhadfield/crosscheck-ip/providers/azure"
 	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
 	"github.com/jonhadfield/crosscheck-ip/providers/digitalocean"
+	"github.com/jonhadfield/crosscheck-ip/providers/ipurl"
 	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
 	"github.com/mitchellh/go-homedir"
 	"golang.org/x/sync/errgroup"
@@ -84,6 +85,17 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 		}
 	}
 
+	if c.Providers.IPURL.Enabled || c.UseTestData {
+		IPURLClient, err := ipurl.NewProviderClient(c)
+		if err != nil {
+			return nil, fmt.Errorf("error creating ipurl client: %w", err)
+		}
+
+		if IPURLClient != nil {
+			runners[ipurl.ProviderName] = IPURLClient
+		}
+	}
+
 	return runners, nil
 }
 
@@ -103,6 +115,7 @@ type Config struct {
 	config.Config
 	Shodan     shodan.Config
 	CriminalIP criminalip.Config
+	IPURL      ipurl.Config
 }
 
 type Processor struct {

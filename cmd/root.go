@@ -141,6 +141,8 @@ func initConfig(cmd *cobra.Command) error {
 	conf.Providers.Azure.Enabled = v.GetBool("providers.azure.enabled")
 	conf.Providers.DigitalOcean.Enabled = v.GetBool("providers.digitalocean.enabled")
 	conf.Providers.CriminalIP.Enabled = v.GetBool("providers.criminalip.enabled")
+	conf.Providers.IPURL.Enabled = v.GetBool("providers.ipurl.enabled")
+	conf.Providers.IPURL.URLs = v.GetStringSlice("providers.ipurl.urls")
 	conf.Providers.Shodan.Enabled = v.GetBool("providers.shodan.enabled")
 	conf.Global.Ports = v.GetStringSlice("global.ports")
 	conf.Global.MaxValueChars = v.GetInt32("global.max_value_chars")

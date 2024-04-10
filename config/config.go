@@ -64,6 +64,10 @@ type Providers struct {
 	DigitalOcean struct {
 		Enabled bool `mapstructure:"enabled"`
 	} `mapstructure:"digitalocean"`
+	IPURL struct {
+		Enabled bool     `mapstructure:"enabled"`
+		URLs    []string `mapstructure:"urls"`
+	} `mapstructure:"ipurl"`
 }
 
 func unmarshalConfig(data []byte) (*Config, error) {
