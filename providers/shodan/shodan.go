@@ -208,6 +208,13 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 }
 
 func (c *ProviderClient) Initialise() error {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	c.Logger.Debug("initialising shodan client")
 	if c.Providers.Shodan.APIKey == "" && !c.UseTestData {
 		return fmt.Errorf("shodan provider api key not set")
@@ -217,6 +224,13 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.FindDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	result, err := fetchData(c.Config)
 	if err != nil {
 		return nil, err

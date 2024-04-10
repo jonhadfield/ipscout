@@ -159,12 +159,20 @@ func (p *Processor) Run() {
 		os.Exit(1)
 	}
 
-	// generate tables
+	for provider, dur := range p.Config.Stats.InitialiseDuration {
+		fmt.Printf("initialise %s took %v\n", provider, dur)
+	}
+
+	// find hosts
 	results, err := findHosts(providerClients, p.Config.HideProgress)
 	if err != nil {
 		p.Config.Logger.Error("failed to find hosts", "error", err)
 
 		os.Exit(1)
+	}
+
+	for provider, dur := range p.Config.Stats.FindDuration {
+		fmt.Printf("find hosts %s took %v\n", provider, dur)
 	}
 
 	results.RLock()
@@ -175,7 +183,7 @@ func (p *Processor) Run() {
 	if matchingResults == 0 {
 		p.Config.Logger.Warn("no results found", "host", p.Config.Host.String(), "providers checked", strings.Join(enabledProviders, ", "))
 
-		os.Exit(0)
+		return
 	}
 
 	tables, err := generateTables(p.Config.Output, providerClients, results, p.Config.HideProgress)

@@ -82,6 +82,13 @@ func (c *ProviderClient) loadProviderData() error {
 }
 
 func (c *ProviderClient) Initialise() error {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	c.Logger.Debug("initialising aws client")
 
 	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
@@ -140,6 +147,13 @@ func (c *ProviderClient) loadProviderDataFromCache() (*aws.Doc, error) {
 	return doc, nil
 }
 func (c *ProviderClient) FindHost() ([]byte, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.FindDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	var out []byte
 
 	var err error

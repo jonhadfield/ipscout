@@ -216,12 +216,26 @@ func getDomains(domain HostSearchResultDomain) []string {
 }
 
 func (c *ProviderClient) Initialise() error {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	c.Logger.Debug("initialising criminalip client")
 
 	return nil
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.FindDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	if c.Host.Is6() {
 		return nil, fmt.Errorf("ipv6 not supported by criminalip: %w", providers.ErrNoMatchFound)
 	}

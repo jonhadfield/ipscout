@@ -98,6 +98,13 @@ const (
 )
 
 func (c *ProviderClient) Initialise() error {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	c.Logger.Debug("initialising digitalocean client")
 
 	// load provider data into cache if not already present and fresh
@@ -150,6 +157,13 @@ func (c *ProviderClient) loadProviderDataFromCache() (*digitalocean.Doc, error) 
 
 // FindHost searches for the host in the digitalocean data
 func (c *ProviderClient) FindHost() ([]byte, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.FindDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	var result *HostSearchResult
 
 	var err error

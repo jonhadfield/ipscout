@@ -72,7 +72,7 @@ func newCacheListCommand() *cobra.Command {
 			// }
 			//
 			// processor.Run()
-			cacher, err := cache.NewClient(&conf)
+			cacher, err := cache.NewClient(conf)
 			if err != nil {
 				os.Exit(1)
 			}

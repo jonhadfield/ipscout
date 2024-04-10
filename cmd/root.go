@@ -18,7 +18,7 @@ const (
 	AppName = "crosscheck-ip"
 )
 
-var conf config.Config
+var conf *config.Config
 
 func newRootCommand() *cobra.Command {
 	var (
@@ -47,11 +47,10 @@ func newRootCommand() *cobra.Command {
 				return fmt.Errorf("invalid host: %w", err)
 			}
 
-			processor, err := process.New(&conf)
+			processor, err := process.New(conf)
 			if err != nil {
 				os.Exit(1)
 			}
-
 			processor.Run()
 
 			return nil
@@ -101,6 +100,7 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 func initConfig(cmd *cobra.Command) error {
 	v := viper.New()
 
+	conf = config.New()
 	configRoot := config.GetConfigRoot("", AppName)
 	if err := config.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		fmt.Printf("can't create default config: %v\n", err)

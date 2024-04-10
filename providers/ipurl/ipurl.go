@@ -33,6 +33,13 @@ type Config struct {
 }
 
 func (c *ProviderClient) Initialise() error {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	c.Logger.Debug("initialising ipurl client")
 
 	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
@@ -164,8 +171,14 @@ func (c *ProviderClient) GetConfig() *config.Config {
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.FindDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	var err error
-	fmt.Println("ipurl find host")
 	// load test results data
 	// if c.UseTestData {
 	// 	var loadErr error
