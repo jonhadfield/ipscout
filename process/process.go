@@ -159,8 +159,10 @@ func (p *Processor) Run() {
 		os.Exit(1)
 	}
 
-	for provider, dur := range p.Config.Stats.InitialiseDuration {
-		fmt.Printf("initialise %s took %v\n", provider, dur)
+	if strings.EqualFold(p.Config.Global.LogLevel, "debug") {
+		for provider, dur := range p.Config.Stats.InitialiseDuration {
+			p.Config.Logger.Debug("initialise timing", "provider", provider, "duration", dur.String())
+		}
 	}
 
 	// find hosts
@@ -171,8 +173,10 @@ func (p *Processor) Run() {
 		os.Exit(1)
 	}
 
-	for provider, dur := range p.Config.Stats.FindDuration {
-		fmt.Printf("find hosts %s took %v\n", provider, dur)
+	if strings.EqualFold(p.Config.Global.LogLevel, "debug") {
+		for provider, dur := range p.Config.Stats.FindHostDuration {
+			p.Config.Logger.Debug("find hosts timing", "provider", provider, "duration", dur.String())
+		}
 	}
 
 	results.RLock()
@@ -186,11 +190,17 @@ func (p *Processor) Run() {
 		return
 	}
 
-	tables, err := generateTables(p.Config.Output, providerClients, results, p.Config.HideProgress)
+	tables, err := generateTables(p.Config, providerClients, results)
 	if err != nil {
 		p.Config.Logger.Error("failed to generate tables", "error", err)
 
 		os.Exit(1)
+	}
+
+	if strings.EqualFold(p.Config.Global.LogLevel, "debug") {
+		for provider, dur := range p.Config.Stats.CreateTableDuration {
+			p.Config.Logger.Debug("create tables timing", "provider", provider, "duration", dur.String())
+		}
 	}
 
 	// present data
@@ -230,7 +240,7 @@ func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) e
 		return nil
 	}
 	// allow time to output spinner
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
 
 	return nil
 }
@@ -283,17 +293,17 @@ func findHosts(runners map[string]ProviderClient, hideProgress bool) (*findHosts
 
 	w.Wait()
 	// allow time to output spinner
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
 
 	return &results, nil
 }
 
-func generateTables(out *os.File, runners map[string]ProviderClient, results *findHostsResults, hideProgress bool) ([]*table.Writer, error) {
+func generateTables(conf *config.Config, runners map[string]ProviderClient, results *findHostsResults) ([]*table.Writer, error) {
 	var tables generateTablesResults
 
 	var w sync.WaitGroup
-	if !hideProgress {
-		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriterFile(out))
+	if !conf.HideProgress {
+		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriterFile(conf.Output))
 		s.Start() // Start the spinner
 
 		s.Suffix = " generating output..."
@@ -332,7 +342,7 @@ func generateTables(out *os.File, runners map[string]ProviderClient, results *fi
 
 	w.Wait()
 	// allow time to output spinner
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
 
 	return tables.m, nil
 }

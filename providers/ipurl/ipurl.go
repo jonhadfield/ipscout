@@ -102,6 +102,7 @@ func (c *ProviderClient) loadProviderDataFromSource() error {
 		return err
 	}
 
+	// fmt.Println("prefixes", prefixes)
 	var mStoredPrefixes []byte
 	if mStoredPrefixes, err = json.Marshal(StoredPrefixes{Prefixes: prefixes, Hash: urlsHash}); err != nil {
 		return err
@@ -174,7 +175,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	start := time.Now()
 	defer func() {
 		c.Stats.Mu.Lock()
-		c.Stats.FindDuration[ProviderName] = time.Since(start)
+		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
 		c.Stats.Mu.Unlock()
 	}()
 
@@ -203,34 +204,22 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	for prefix, urls := range doc.Prefixes {
 		if prefix.Contains(c.Host) {
-			c.Logger.Info("ipurl match found", "host", c.Host.String())
+			c.Logger.Info("ipurl match found", "host", c.Host.String(), "urls", urls)
 			if matches == nil {
 				matches = make(map[netip.Prefix][]string)
 			}
 
 			matches[prefix] = urls
-
-			// match.Raw = raw
 		}
 	}
-
-	//
-	//
-	// match, err := matchIPToDoc(c.Host, doc)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	c.Logger.Info("ipurl match found", "host", c.Host.String())
 
 	var raw []byte
-
 	raw, err = json.Marshal(matches)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
 	}
-
-	// match.Raw = raw
 
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
@@ -271,6 +260,13 @@ func unmarshalResponse(rBody []byte) (HostSearchResult, error) {
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	result, err := unmarshalResponse(data)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling criminalip api response: %w", err)

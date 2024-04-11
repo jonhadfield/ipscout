@@ -227,7 +227,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	start := time.Now()
 	defer func() {
 		c.Stats.Mu.Lock()
-		c.Stats.FindDuration[ProviderName] = time.Since(start)
+		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
 		c.Stats.Mu.Unlock()
 	}()
 
@@ -242,6 +242,13 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	var result *HostSearchResult
 	if err := json.Unmarshal(data, &result); err != nil {
 		return nil, fmt.Errorf("error unmarshalling shodan data: %w", err)

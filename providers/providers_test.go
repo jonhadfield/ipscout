@@ -52,19 +52,20 @@ func TestPortAgeCheckOlderThanMaxAge(t *testing.T) {
 }
 
 func TestPortMatchFilterWithNoValues(t *testing.T) {
-	_, res, err := PortMatchFilter(PortMatchFilterInput{
+	ageMatch, netMatch, err := PortMatchFilter(PortMatchFilterInput{
 		IncomingPort:        "",
 		MatchPorts:          nil,
 		ConfirmedDate:       "",
 		ConfirmedDateFormat: "",
 		MaxAge:              "",
 	})
-	require.Error(t, err)
-	require.False(t, res)
+	require.NoError(t, err)
+	require.True(t, ageMatch)
+	require.True(t, netMatch)
 }
 
 func TestPortMatchFilterWithNetworkMatch(t *testing.T) {
-	_, res, err := PortMatchFilter(PortMatchFilterInput{
+	age, res, err := PortMatchFilter(PortMatchFilterInput{
 		IncomingPort:        "80",
 		MatchPorts:          []string{"90/udp", "80"},
 		ConfirmedDate:       "2006-01-02 15:04:05",
@@ -73,10 +74,11 @@ func TestPortMatchFilterWithNetworkMatch(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.True(t, res)
+	require.False(t, age)
 }
 
 func TestPortMatchFilterWithNegativeNetworkMatch(t *testing.T) {
-	_, res, err := PortMatchFilter(PortMatchFilterInput{
+	age, res, err := PortMatchFilter(PortMatchFilterInput{
 		IncomingPort:        "80",
 		MatchPorts:          []string{"800"},
 		ConfirmedDate:       "2024-01-02 15:04:05",
@@ -85,6 +87,7 @@ func TestPortMatchFilterWithNegativeNetworkMatch(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.False(t, res)
+	require.True(t, age)
 }
 
 func TestPortMatchFilterWithDateAndNoMaxAge(t *testing.T) {
@@ -115,15 +118,16 @@ func TestPortMatchFilterWithNegativeNetworkMatchPositiveDateMatch(t *testing.T) 
 }
 
 func TestPortMatchFilterWithPortMatchOnly(t *testing.T) {
-	_, res, err := PortMatchFilter(PortMatchFilterInput{
-		IncomingPort:        "",
-		MatchPorts:          nil,
+	ageMatch, netMatch, err := PortMatchFilter(PortMatchFilterInput{
+		IncomingPort:        "80/tcp",
+		MatchPorts:          []string{"tcp"},
 		ConfirmedDate:       "",
 		ConfirmedDateFormat: "",
 		MaxAge:              "",
 	})
-	require.Error(t, err)
-	require.False(t, res)
+	require.NoError(t, err)
+	require.True(t, ageMatch)
+	require.True(t, netMatch)
 }
 
 func TestPortNetworkMatchWithoutPortsSpecified(t *testing.T) {

@@ -30,26 +30,26 @@ type Stats struct {
 	Mu                  sync.Mutex
 	InitialiseDuration  map[string]time.Duration
 	InitialiseUsedCache map[string]bool
-	FindDuration        map[string]time.Duration
-	FindUsedCache       map[string]bool
-	GenerateDuration    map[string]time.Duration
+	FindHostDuration    map[string]time.Duration
+	FindHostUsedCache   map[string]bool
+	CreateTableDuration map[string]time.Duration
 }
 
 func New() *Config {
 	return &Config{
-		Stats: Stats{
+		Stats: &Stats{
 			InitialiseDuration:  make(map[string]time.Duration),
 			InitialiseUsedCache: make(map[string]bool),
-			FindDuration:        make(map[string]time.Duration),
-			FindUsedCache:       make(map[string]bool),
-			GenerateDuration:    make(map[string]time.Duration),
+			FindHostDuration:    make(map[string]time.Duration),
+			FindHostUsedCache:   make(map[string]bool),
+			CreateTableDuration: make(map[string]time.Duration),
 		},
 	}
 }
 
 type Config struct {
 	Logger *slog.Logger
-	Stats  Stats
+	Stats  *Stats
 	Output *os.File
 	Cache  *badger.DB
 	Global struct {

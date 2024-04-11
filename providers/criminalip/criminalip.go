@@ -134,10 +134,6 @@ func (c *ProviderClient) GetConfig() *config.Config {
 }
 
 func fetchData(client config.Config) (*HostSearchResult, error) {
-	// var result *HostSearchResult
-	//
-	// var err error
-
 	if client.UseTestData {
 		result, err := loadResultsFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
 		if err != nil {
@@ -232,7 +228,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	start := time.Now()
 	defer func() {
 		c.Stats.Mu.Lock()
-		c.Stats.FindDuration[ProviderName] = time.Since(start)
+		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
 		c.Stats.Mu.Unlock()
 	}()
 
@@ -269,7 +265,7 @@ func (c *ProviderClient) GenPortDataForTable(in []PortDataEntry) (GeneratePortDa
 		var ageMatch, netMatch bool
 		ageMatch, netMatch, err = providers.PortMatchFilter(providers.PortMatchFilterInput{
 			IncomingPort:        fmt.Sprintf("%d/%s", entry.OpenPortNo, entry.Socket),
-			MatchPorts:          c.Providers.CriminalIP.Ports,
+			MatchPorts:          c.Global.Ports,
 			ConfirmedDate:       entry.ConfirmedTime,
 			ConfirmedDateFormat: time.DateTime,
 			MaxAge:              c.Global.MaxAge,
@@ -297,6 +293,13 @@ func (c *ProviderClient) GenPortDataForTable(in []PortDataEntry) (GeneratePortDa
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
 	result, err := unmarshalResponse(data)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling criminalip api response: %w", err)
@@ -338,8 +341,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	for x, port := range portDataForTable.entries {
-		if !port.AgeMatch {
-			// c.Logger.Debug("skipping port as older than max age", "port", port.OpenPortNo, "confirmed_time", port.ConfirmedTime, "max-age", c.Global.MaxAge)
+		if !port.AgeMatch || !port.NetworkMatch {
 			continue
 		}
 

@@ -136,20 +136,31 @@ type PortMatchFilterInput struct {
 	MaxAge              string
 }
 
-// PortMatchFilter returns true if the incoming port matches the matchPorts and the port is within the max age
+// PortMatchFilter returns true by default, and false if either age or netmatch is specified
+// and doesn't match
 func PortMatchFilter(in PortMatchFilterInput) (ageMatch, netMatch bool, err error) {
-	if len(in.IncomingPort) == 0 && len(in.MaxAge) == 0 {
-		return false, false, errors.New("no incoming port nor max age provided")
+	ageMatch = true
+	netMatch = true
+
+	switch in.IncomingPort {
+	case "":
+		netMatch = true
+	default:
+		netMatch = PortNetworkMatch(in.IncomingPort, in.MatchPorts)
 	}
 
-	netMatch = PortNetworkMatch(in.IncomingPort, in.MatchPorts)
-
-	ageMatch, err = portAgeCheck(in.ConfirmedDate, in.ConfirmedDateFormat, in.MaxAge)
-	if err != nil {
-		return ageMatch, false, fmt.Errorf("error checking port age: %w", err)
+	switch {
+	case in.ConfirmedDate == "" && in.ConfirmedDateFormat == "":
+		ageMatch = true
+	case in.ConfirmedDate == "" || in.ConfirmedDateFormat == "":
+		return false, false, fmt.Errorf("both confirmed date and format must be specified")
+	default:
+		ageMatch, err = portAgeCheck(in.ConfirmedDate, in.ConfirmedDateFormat, in.MaxAge)
+		if err != nil {
+			return false, false, fmt.Errorf("error checking port age: %w", err)
+		}
 	}
 
-	// default to true as no filter matched
 	return ageMatch, netMatch, nil
 }
 
