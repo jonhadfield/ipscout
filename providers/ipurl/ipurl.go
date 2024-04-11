@@ -117,23 +117,6 @@ func (c *ProviderClient) loadProviderDataFromSource() error {
 		return err
 	}
 
-	// for prefix, urls := range prefixes {
-	// 	fmt.Printf("prefix: %s - %s\n", prefix, urls)
-	// 	// if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-	// 	// 	Key:     providers.CacheProviderPrefix + ProviderName,
-	// 	// 	Value:   prefix,
-	// 	// 	Version: "",
-	// 	// 	Created: cache.Now(),
-	// 	// }, providers.DocTTL); err != nil {
-	// 	// 	return err
-	// 	// }
-	// }
-
-	// retryablehttp.NewRequestWithContext(ctx, http.MethodGet, iu, nil)
-	// prefixUrls = append(prefixUrls, iu)
-	// requests = append(requests, url.Request{
-	// 	Url: iu,
-	// }
 	return nil
 }
 
@@ -204,6 +187,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	for prefix, urls := range doc.Prefixes {
 		if prefix.Contains(c.Host) {
+			fmt.Printf("prefix: %s - %s\n", prefix, urls)
 			c.Logger.Info("ipurl match found", "host", c.Host.String(), "urls", urls)
 			if matches == nil {
 				matches = make(map[netip.Prefix][]string)
@@ -212,8 +196,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 			matches[prefix] = urls
 		}
 	}
-
-	c.Logger.Info("ipurl match found", "host", c.Host.String())
 
 	var raw []byte
 	raw, err = json.Marshal(matches)
