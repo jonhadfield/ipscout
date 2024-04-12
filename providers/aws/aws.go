@@ -277,10 +277,6 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var err error
 	var result HostSearchResult
 	if err = json.Unmarshal(data, &result); err != nil {
-		return nil, fmt.Errorf("error unmarshalling aws data: %w", err)
-	}
-
-	if err != nil {
 		switch {
 		case errors.Is(err, providers.ErrNoDataFound):
 			return nil, fmt.Errorf("data not loaded: %w", err)
