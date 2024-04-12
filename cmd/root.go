@@ -205,6 +205,8 @@ func initLogging(cmd *cobra.Command) {
 		os.Exit(1)
 	}
 
+	conf.Global.LogLevel = ll
+
 	// set log level
 	switch strings.ToUpper(ll) {
 	case "ERROR":
