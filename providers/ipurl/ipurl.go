@@ -197,6 +197,10 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		}
 	}
 
+	if matches == nil {
+		return nil, fmt.Errorf("ip urls: %w", providers.ErrNoMatchFound)
+	}
+
 	var raw []byte
 	raw, err = json.Marshal(matches)
 	if err != nil {

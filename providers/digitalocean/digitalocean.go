@@ -201,9 +201,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	}
 
 	if result == nil {
-		c.Logger.Debug("digitalocean host not found in data")
-
-		return nil, providers.ErrNoMatchFound
+		return nil, fmt.Errorf("digitalocean: %w", providers.ErrNoMatchFound)
 	}
 
 	var raw []byte

@@ -93,7 +93,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 
 	res.Raw = rBody
 	if res.Raw == nil {
-		return nil, providers.ErrNoMatchFound
+		return nil, fmt.Errorf("shodan: %w", providers.ErrNoMatchFound)
 	}
 
 	return res, nil

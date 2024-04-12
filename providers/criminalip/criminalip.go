@@ -66,7 +66,7 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, providers.ErrNoMatchFound
+		return nil, fmt.Errorf("criminal ip: %w", providers.ErrNoMatchFound)
 	}
 
 	if resp.StatusCode != http.StatusOK {

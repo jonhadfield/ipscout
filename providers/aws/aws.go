@@ -221,7 +221,7 @@ func matchIPToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
 	}
 
 	if host.Is6() {
-		matchIPv6ToDoc(host, doc)
+		return matchIPv6ToDoc(host, doc)
 	}
 
 	return match, nil
@@ -243,7 +243,7 @@ func matchIPv6ToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
 		}
 	}
 
-	return nil, providers.ErrNoMatchFound
+	return nil, fmt.Errorf("aws: %w", providers.ErrNoMatchFound)
 }
 
 func matchIPv4ToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
@@ -258,15 +258,12 @@ func matchIPv4ToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
 					Service:  prefix.Service,
 				},
 			}
+
 			return match, nil
 		}
 	}
 
-	if match == nil {
-		return nil, providers.ErrNoMatchFound
-	}
-
-	return match, nil
+	return nil, fmt.Errorf("aws: %w", providers.ErrNoMatchFound)
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
