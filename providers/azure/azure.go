@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jonhadfield/crosscheck-ip/cache"
-	"github.com/jonhadfield/crosscheck-ip/config"
-	"github.com/jonhadfield/crosscheck-ip/providers"
 	"github.com/jonhadfield/ip-fetcher/providers/azure"
+	"github.com/jonhadfield/ipscout/cache"
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/providers"
 )
 
 const (

@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"github.com/briandowns/spinner"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jonhadfield/crosscheck-ip/cache"
-	"github.com/jonhadfield/crosscheck-ip/config"
-	"github.com/jonhadfield/crosscheck-ip/present"
-	"github.com/jonhadfield/crosscheck-ip/providers/abuseipdb"
-	"github.com/jonhadfield/crosscheck-ip/providers/aws"
-	"github.com/jonhadfield/crosscheck-ip/providers/azure"
-	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
-	"github.com/jonhadfield/crosscheck-ip/providers/digitalocean"
-	"github.com/jonhadfield/crosscheck-ip/providers/ipurl"
-	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
+	"github.com/jonhadfield/ipscout/cache"
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/present"
+	"github.com/jonhadfield/ipscout/providers/abuseipdb"
+	"github.com/jonhadfield/ipscout/providers/aws"
+	"github.com/jonhadfield/ipscout/providers/azure"
+	"github.com/jonhadfield/ipscout/providers/criminalip"
+	"github.com/jonhadfield/ipscout/providers/digitalocean"
+	"github.com/jonhadfield/ipscout/providers/ipurl"
+	"github.com/jonhadfield/ipscout/providers/shodan"
 	"github.com/mitchellh/go-homedir"
 	"golang.org/x/sync/errgroup"
 	"os"
@@ -143,7 +143,7 @@ func (p *Processor) Run() {
 		os.Exit(1)
 	}
 
-	db, err := cache.Create(p.Config.Logger, filepath.Join(homeDir, ".config", "crosscheck-ip"))
+	db, err := cache.Create(p.Config.Logger, filepath.Join(homeDir, ".config", "ipscout"))
 	if err != nil {
 		p.Config.Logger.Error("failed to create cache", "error", err)
 

@@ -3,7 +3,7 @@ package providers
 import (
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/crosscheck-ip/config"
+	"github.com/jonhadfield/ipscout/config"
 	"log/slog"
 	"strconv"
 	"strings"

@@ -3,7 +3,7 @@ package cmd
 import (
 	_ "embed"
 	"fmt"
-	"github.com/jonhadfield/crosscheck-ip/cache"
+	"github.com/jonhadfield/ipscout/cache"
 	"github.com/spf13/cobra"
 	"os"
 )

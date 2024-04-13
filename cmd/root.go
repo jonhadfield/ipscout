@@ -3,8 +3,8 @@ package cmd
 import (
 	_ "embed"
 	"fmt"
-	"github.com/jonhadfield/crosscheck-ip/config"
-	"github.com/jonhadfield/crosscheck-ip/process"
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/process"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	AppName = "crosscheck-ip"
+	AppName = "ipscout"
 )
 
 var conf *config.Config
@@ -30,9 +30,9 @@ func newRootCommand() *cobra.Command {
 	)
 
 	rootCmd := &cobra.Command{
-		Use:   "crosscheck-ip",
-		Short: "crosscheck-ip",
-		Long:  `crosscheck-ip is a CLI application that does stuff.`,
+		Use:   "ipscout",
+		Short: "ipscout",
+		Long:  `ipscout is a CLI application that does stuff.`,
 		Args:  cobra.ExactArgs(1),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// You can bind cobra and viper in a few locations, but PersistencePreRunE on the root command works well

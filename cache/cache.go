@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgraph-io/badger/v4"
-	"github.com/jonhadfield/crosscheck-ip/config"
-	"github.com/jonhadfield/crosscheck-ip/providers"
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/providers"
 	"github.com/mitchellh/go-homedir"
 	"log/slog"
 	"os"
@@ -49,7 +49,7 @@ func (client *Client) List() error {
 		os.Exit(1)
 	}
 
-	db, err := Create(client.Config.Logger, filepath.Join(homeDir, ".config", "crosscheck-ip"))
+	db, err := Create(client.Config.Logger, filepath.Join(homeDir, ".config", "ipscout"))
 	if err != nil {
 		client.Config.Logger.Error("failed to create cache", "error", err)
 

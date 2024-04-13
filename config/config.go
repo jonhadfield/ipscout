@@ -17,10 +17,10 @@ import (
 )
 
 const (
-	AppName               = "crosscheck-ip"
+	AppName               = "ipscout"
 	DefaultIndentSpaces   = 2
 	DefaultConfigFileName = "config.yaml"
-	// DefaultConfigFileRoot = ".config/crosscheck-ip"
+	// DefaultConfigFileRoot = ".config/ipscout"
 )
 
 //go:embed config.yaml

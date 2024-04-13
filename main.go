@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/jonhadfield/crosscheck-ip/cmd"
+	"github.com/jonhadfield/ipscout/cmd"
 )
 
 func main() {

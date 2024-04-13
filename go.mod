@@ -1,4 +1,4 @@
-module github.com/jonhadfield/crosscheck-ip
+module github.com/jonhadfield/ipscout
 
 go 1.21.6
 

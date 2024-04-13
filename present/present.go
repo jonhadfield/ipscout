@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
-	"github.com/jonhadfield/crosscheck-ip/config"
-	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
-	"github.com/jonhadfield/crosscheck-ip/providers/shodan"
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/providers/criminalip"
+	"github.com/jonhadfield/ipscout/providers/shodan"
 )
 
 type Resulter interface {
@@ -30,7 +30,7 @@ func outputTables(c *config.Config, tws []*table.Writer) {
 	myOuterStyle := table.StyleColoredDark
 	myOuterStyle.Title.Align = text.AlignCenter
 	myOuterStyle.Title.Colors = text.Colors{text.FgRed, text.BgBlack}
-	twOuter.SetTitle("Crosscheck IP v0.0.1")
+	twOuter.SetTitle("IP Scout IP v0.0.1")
 	twOuter.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMin: 60},
 	})
