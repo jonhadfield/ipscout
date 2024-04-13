@@ -224,6 +224,10 @@ func (c *ProviderClient) loadProviderDataFromCache() (*StoredPrefixes, error) {
 		return nil, fmt.Errorf("error reading ipurl provider cache: %w", err)
 	}
 
+	c.Stats.Mu.Lock()
+	c.Stats.FindHostUsedCache[ProviderName] = true
+	c.Stats.Mu.Unlock()
+
 	return doc, nil
 }
 

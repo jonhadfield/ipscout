@@ -145,6 +145,10 @@ func (c *ProviderClient) loadProviderDataFromCache() (*aws.Doc, error) {
 		return nil, fmt.Errorf("error reading aws provider cache: %w", err)
 	}
 
+	c.Stats.Mu.Lock()
+	c.Stats.FindHostUsedCache[ProviderName] = true
+	c.Stats.Mu.Unlock()
+
 	return doc, nil
 }
 func (c *ProviderClient) FindHost() ([]byte, error) {

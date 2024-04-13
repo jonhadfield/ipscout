@@ -160,6 +160,11 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 			client.Logger.Info("criminal ip response found in cache", "host", client.Host.String())
 
 			result.Raw = item.Value
+
+			client.Stats.Mu.Lock()
+			client.Stats.FindHostUsedCache[ProviderName] = true
+			client.Stats.Mu.Unlock()
+
 			return result, nil
 		}
 	}

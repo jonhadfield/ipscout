@@ -192,6 +192,10 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 
 			result.Raw = item.Value
 
+			c.Stats.Mu.Lock()
+			c.Stats.FindHostUsedCache[ProviderName] = true
+			c.Stats.Mu.Unlock()
+
 			return result, nil
 		}
 	}

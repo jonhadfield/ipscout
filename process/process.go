@@ -190,6 +190,10 @@ func (p *Processor) Run() {
 		for provider, dur := range p.Config.Stats.FindHostDuration {
 			p.Config.Logger.Debug("find hosts timing", "provider", provider, "duration", dur.String())
 		}
+
+		for provider, uc := range p.Config.Stats.FindHostUsedCache {
+			p.Config.Logger.Debug("find hosts data load", "provider", provider, "cache", uc)
+		}
 	}
 
 	results.RLock()
