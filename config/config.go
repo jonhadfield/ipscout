@@ -82,6 +82,11 @@ type Providers struct {
 	AWS struct {
 		Enabled bool `mapstructure:"enabled"`
 	} `mapstructure:"aws"`
+	AbuseIPDB struct {
+		Enabled bool   `mapstructure:"enabled"`
+		APIKey  string `mapstructure:"api-key"`
+		MaxAge  int    `mapstructure:"max-age"`
+	} `mapstructure:"abuseipdb"`
 	Azure struct {
 		Enabled bool `mapstructure:"enabled"`
 	} `mapstructure:"azure"`

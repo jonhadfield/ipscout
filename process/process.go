@@ -7,6 +7,7 @@ import (
 	"github.com/jonhadfield/crosscheck-ip/cache"
 	"github.com/jonhadfield/crosscheck-ip/config"
 	"github.com/jonhadfield/crosscheck-ip/present"
+	"github.com/jonhadfield/crosscheck-ip/providers/abuseipdb"
 	"github.com/jonhadfield/crosscheck-ip/providers/aws"
 	"github.com/jonhadfield/crosscheck-ip/providers/azure"
 	"github.com/jonhadfield/crosscheck-ip/providers/criminalip"
@@ -23,6 +24,7 @@ import (
 )
 
 type ProviderClient interface {
+	Enabled() bool
 	GetConfig() *config.Config
 	Initialise() error
 	FindHost() ([]byte, error)
@@ -39,6 +41,17 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 		}
 
 		runners[shodan.ProviderName] = shodanClient
+	}
+
+	if c.Providers.AbuseIPDB.APIKey != "" || c.Providers.AbuseIPDB.Enabled || c.UseTestData {
+		AbuseIPDBClient, err := abuseipdb.NewProviderClient(c)
+		if err != nil {
+			return nil, fmt.Errorf("error creating abuseipdb client: %w", err)
+		}
+
+		if AbuseIPDBClient != nil {
+			runners[abuseipdb.ProviderName] = AbuseIPDBClient
+		}
 	}
 
 	if c.Providers.Azure.Enabled || c.UseTestData {

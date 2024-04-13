@@ -138,6 +138,8 @@ func initConfig(cmd *cobra.Command) error {
 	conf.Output = os.Stdout
 
 	conf.Providers.AWS.Enabled = v.GetBool("providers.aws.enabled")
+	conf.Providers.AbuseIPDB.Enabled = v.GetBool("providers.abuseipdb.enabled")
+	conf.Providers.AbuseIPDB.MaxAge = v.GetInt("providers.abuseipdb.max_age")
 	conf.Providers.Azure.Enabled = v.GetBool("providers.azure.enabled")
 	conf.Providers.DigitalOcean.Enabled = v.GetBool("providers.digitalocean.enabled")
 	conf.Providers.CriminalIP.Enabled = v.GetBool("providers.criminalip.enabled")
@@ -228,6 +230,10 @@ func initLogging(cmd *cobra.Command) {
 
 func readProviderAuthKeys(v *viper.Viper) {
 	// read provider auth keys from env if not set in config
+	if conf.Providers.AbuseIPDB.APIKey == "" {
+		conf.Providers.AbuseIPDB.APIKey = v.GetString("abuseipdb_api_key")
+	}
+
 	if conf.Providers.Shodan.APIKey == "" {
 		conf.Providers.Shodan.APIKey = v.GetString("shodan_api_key")
 	}

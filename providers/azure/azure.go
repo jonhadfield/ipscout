@@ -62,6 +62,10 @@ func NewProviderClient(c config.Config) (*ProviderClient, error) {
 	return tc, nil
 }
 
+func (c *ProviderClient) Enabled() bool {
+	return c.Config.Providers.Azure.Enabled
+}
+
 func (c *ProviderClient) GetConfig() *config.Config {
 	return &c.Config
 }

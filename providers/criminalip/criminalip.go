@@ -29,6 +29,28 @@ const (
 	ResultTTL         = time.Duration(24 * time.Hour)
 )
 
+type ProviderClient struct {
+	config.Config
+}
+
+func NewProviderClient(c config.Config) (*ProviderClient, error) {
+	c.Logger.Debug("creating criminalip client")
+
+	tc := &ProviderClient{
+		Config: c,
+	}
+
+	return tc, nil
+}
+
+func (c *ProviderClient) GetConfig() *config.Config {
+	return &c.Config
+}
+
+func (c *ProviderClient) Enabled() bool {
+	return c.Config.Providers.CriminalIP.Enabled
+}
+
 type Config struct {
 	_ struct{}
 	config.Config
@@ -47,7 +69,7 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 		panic(err)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	q := sURL.Query()
@@ -58,7 +80,7 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 	if err != nil {
 		panic(err)
 	}
-
+	conf.HttpClient.HTTPClient.Timeout = 30 * time.Second
 	req.Header.Add("x-api-key", apiKey)
 	resp, err := conf.HttpClient.Do(req)
 	if err != nil {
@@ -113,24 +135,6 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	}
 
 	return res, nil
-}
-
-type ProviderClient struct {
-	config.Config
-}
-
-func NewProviderClient(c config.Config) (*ProviderClient, error) {
-	c.Logger.Debug("creating criminalip client")
-
-	tc := &ProviderClient{
-		Config: c,
-	}
-
-	return tc, nil
-}
-
-func (c *ProviderClient) GetConfig() *config.Config {
-	return &c.Config
 }
 
 func fetchData(client config.Config) (*HostSearchResult, error) {

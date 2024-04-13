@@ -29,6 +29,26 @@ const (
 	ResultTTL              = time.Duration(12 * time.Hour)
 )
 
+type Config struct {
+	_ struct{}
+	config.Config
+	Host   netip.Addr
+	APIKey string
+}
+
+type Provider interface {
+	LoadData() ([]byte, error)
+	CreateTable([]byte) (*table.Writer, error)
+}
+
+type ProviderClient struct {
+	config.Config
+}
+
+func (c *ProviderClient) Enabled() bool {
+	return c.Config.Providers.Shodan.Enabled
+}
+
 func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *HostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath, c.Host.String())
 	if err != nil {
@@ -40,7 +60,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 		panic(err)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	q := sURL.Query()
@@ -137,22 +157,6 @@ func (ssr *HostSearchResult) CreateTable() *table.Writer {
 type Client struct {
 	Config     Config
 	HTTPClient *retryablehttp.Client
-}
-
-type Config struct {
-	_ struct{}
-	config.Config
-	Host   netip.Addr
-	APIKey string
-}
-
-type Provider interface {
-	LoadData() ([]byte, error)
-	CreateTable([]byte) (*table.Writer, error)
-}
-
-type ProviderClient struct {
-	config.Config
 }
 
 func (c *ProviderClient) GetConfig() *config.Config {

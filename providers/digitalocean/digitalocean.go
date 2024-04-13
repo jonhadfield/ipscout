@@ -26,6 +26,28 @@ type Config struct {
 	APIKey string
 }
 
+type ProviderClient struct {
+	config.Config
+}
+
+func NewProviderClient(c config.Config) (*ProviderClient, error) {
+	c.Logger.Debug("creating digitalocean client")
+
+	tc := &ProviderClient{
+		Config: c,
+	}
+
+	return tc, nil
+}
+
+func (c *ProviderClient) Enabled() bool {
+	return c.Config.Providers.DigitalOcean.Enabled
+}
+
+func (c *ProviderClient) GetConfig() *config.Config {
+	return &c.Config
+}
+
 func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	var res *HostSearchResult
 
@@ -46,24 +68,6 @@ func unmarshalProviderData(data []byte) (*digitalocean.Doc, error) {
 	}
 
 	return res, nil
-}
-
-type ProviderClient struct {
-	config.Config
-}
-
-func NewProviderClient(c config.Config) (*ProviderClient, error) {
-	c.Logger.Debug("creating digitalocean client")
-
-	tc := &ProviderClient{
-		Config: c,
-	}
-
-	return tc, nil
-}
-
-func (c *ProviderClient) GetConfig() *config.Config {
-	return &c.Config
 }
 
 func (c *ProviderClient) loadProviderData() error {

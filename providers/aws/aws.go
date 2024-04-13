@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	ProviderName = "aws"
-	DocTTL       = time.Duration(24 * time.Hour)
+	ProviderName   = "aws"
+	DocTTL         = time.Duration(24 * time.Hour)
+	MaxColumnWidth = 120
 )
 
 type Config struct {
@@ -25,16 +26,6 @@ type Config struct {
 	config.Config
 	Host   netip.Addr
 	APIKey string
-}
-
-func unmarshalProviderData(rBody []byte) (*aws.Doc, error) {
-	var res *aws.Doc
-
-	if err := json.Unmarshal(rBody, &res); err != nil {
-		return nil, err
-	}
-
-	return res, nil
 }
 
 type ProviderClient struct {
@@ -51,13 +42,23 @@ func NewProviderClient(c config.Config) (*ProviderClient, error) {
 	return tc, nil
 }
 
+func (c *ProviderClient) Enabled() bool {
+	return c.Config.Providers.AWS.Enabled
+}
+
 func (c *ProviderClient) GetConfig() *config.Config {
 	return &c.Config
 }
 
-const (
-	MaxColumnWidth = 120
-)
+func unmarshalProviderData(rBody []byte) (*aws.Doc, error) {
+	var res *aws.Doc
+
+	if err := json.Unmarshal(rBody, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
 
 func (c *ProviderClient) loadProviderData() error {
 	awsClient := aws.New()

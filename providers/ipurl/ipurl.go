@@ -32,6 +32,93 @@ type Config struct {
 	URLs []string
 }
 
+func (c *ProviderClient) Enabled() bool {
+	return c.Config.Providers.IPURL.Enabled
+}
+
+func (c *ProviderClient) GetConfig() *config.Config {
+	return &c.Config
+}
+
+func (c *ProviderClient) FindHost() ([]byte, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
+	var err error
+	// load test results data
+	// if c.UseTestData {
+	// 	var loadErr error
+	// 	out, loadErr = loadTestData(c)
+	// 	if err != nil {
+	// 		return nil, loadErr
+	// 	}
+	//
+	// 	c.Logger.Info("ipurl match returned from test data", "host", c.Host.String())
+	//
+	// 	return out, nil
+	// }
+
+	hash := generateURLsHash(c.Providers.IPURL.URLs)
+
+	doc, err := c.loadProviderDataFromCache()
+	if err != nil {
+		return nil, err
+	}
+
+	var matches map[netip.Prefix][]string
+
+	for prefix, urls := range doc.Prefixes {
+		if prefix.Contains(c.Host) {
+			fmt.Printf("prefix: %s - %s\n", prefix, urls)
+			c.Logger.Info("ipurl match found", "host", c.Host.String(), "urls", urls)
+			if matches == nil {
+				matches = make(map[netip.Prefix][]string)
+			}
+
+			matches[prefix] = urls
+		}
+	}
+
+	if matches == nil {
+		return nil, fmt.Errorf("ip urls: %w", providers.ErrNoMatchFound)
+	}
+
+	var raw []byte
+	raw, err = json.Marshal(matches)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling response: %w", err)
+	}
+
+	// TODO: remove before release
+	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
+		if err = os.WriteFile(fmt.Sprintf("%s/backups/ipurl_%s_report.json", config.GetConfigRoot("", config.AppName),
+			hash), raw, 0600); err != nil {
+			panic(err)
+		}
+		c.Logger.Info("backed up ipurl response", "host", c.Host.String())
+	}
+
+	return raw, nil
+}
+
+func NewProviderClient(c config.Config) (*ProviderClient, error) {
+	c.Logger.Debug("creating ipurl client")
+
+	tc := &ProviderClient{
+		Config: c,
+	}
+
+	return tc, nil
+}
+
+type ProviderClient struct {
+	config.Config
+}
+
 func (c *ProviderClient) Initialise() error {
 	start := time.Now()
 	defer func() {
@@ -148,89 +235,6 @@ func unmarshalProviderData(rBody []byte) (*StoredPrefixes, error) {
 	}
 
 	return res, nil
-}
-
-func (c *ProviderClient) GetConfig() *config.Config {
-	return &c.Config
-}
-
-func (c *ProviderClient) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
-
-	var err error
-	// load test results data
-	// if c.UseTestData {
-	// 	var loadErr error
-	// 	out, loadErr = loadTestData(c)
-	// 	if err != nil {
-	// 		return nil, loadErr
-	// 	}
-	//
-	// 	c.Logger.Info("ipurl match returned from test data", "host", c.Host.String())
-	//
-	// 	return out, nil
-	// }
-
-	hash := generateURLsHash(c.Providers.IPURL.URLs)
-
-	doc, err := c.loadProviderDataFromCache()
-	if err != nil {
-		return nil, err
-	}
-
-	var matches map[netip.Prefix][]string
-
-	for prefix, urls := range doc.Prefixes {
-		if prefix.Contains(c.Host) {
-			fmt.Printf("prefix: %s - %s\n", prefix, urls)
-			c.Logger.Info("ipurl match found", "host", c.Host.String(), "urls", urls)
-			if matches == nil {
-				matches = make(map[netip.Prefix][]string)
-			}
-
-			matches[prefix] = urls
-		}
-	}
-
-	if matches == nil {
-		return nil, fmt.Errorf("ip urls: %w", providers.ErrNoMatchFound)
-	}
-
-	var raw []byte
-	raw, err = json.Marshal(matches)
-	if err != nil {
-		return nil, fmt.Errorf("error marshalling response: %w", err)
-	}
-
-	// TODO: remove before release
-	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("%s/backups/ipurl_%s_report.json", config.GetConfigRoot("", config.AppName),
-			hash), raw, 0600); err != nil {
-			panic(err)
-		}
-		c.Logger.Info("backed up ipurl response", "host", c.Host.String())
-	}
-
-	return raw, nil
-}
-
-func NewProviderClient(c config.Config) (*ProviderClient, error) {
-	c.Logger.Debug("creating ipurl client")
-
-	tc := &ProviderClient{
-		Config: c,
-	}
-
-	return tc, nil
-}
-
-type ProviderClient struct {
-	config.Config
 }
 
 type HostSearchResult map[netip.Prefix][]string
