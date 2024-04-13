@@ -117,7 +117,6 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 	}
 
 	res, err = unmarshalResponse(rBody)
-	fmt.Println("body here", string(rBody))
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
