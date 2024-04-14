@@ -30,7 +30,7 @@ func outputTables(c *config.Config, tws []*table.Writer) {
 	myOuterStyle := table.StyleColoredDark
 	myOuterStyle.Title.Align = text.AlignCenter
 	myOuterStyle.Title.Colors = text.Colors{text.FgRed, text.BgBlack}
-	twOuter.SetTitle("IP Scout IP v0.0.1")
+	twOuter.SetTitle("IP Scout v0.0.1")
 	twOuter.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMin: 60},
 	})

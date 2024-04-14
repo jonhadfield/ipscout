@@ -11,9 +11,9 @@ import (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print the version number of IP Scout IP",
+	Short: "Print the version number of IP Scout",
 	Long:  `All software has versions. This is IP Scout's'`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("IP Scout IP v0.0.1 -- HEAD")
+		fmt.Println("IP Scout v0.0.1 -- HEAD")
 	},
 }
