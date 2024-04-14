@@ -250,6 +250,42 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	return result.Raw, nil
 }
 
+func (c *ProviderClient) Classify(data []byte) (providers.Classification, error) {
+	var result *HostSearchResult
+	result, err := unmarshalResponse(data)
+	if err != nil {
+		return providers.Classification{}, fmt.Errorf("error unmarshalling abuseipdb data: %w", err)
+	}
+
+	cla := providers.Classification{
+		Provider:             ProviderName,
+		Country:              result.Data.CountryName,
+		IsProxy:              result.Data.IsTor,
+		RemoteAccessPortOpen: false,
+		PortsOpen:            0,
+		LastReport:           0,
+		InitialThreatLevel:   0,
+	}
+	fmt.Printf("abuseipdb classify: %v\n", cla)
+
+	return providers.Classification{}, nil
+
+	//defer func() {
+	//	c.Stats.Mu.Lock()
+	//	c.Stats.FindHostDuration[ProviderName] = time.Since(start)
+	//	c.Stats.Mu.Unlock()
+	//}()
+	//
+	//result, err := fetchData(c.Config)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//c.Logger.Debug("abuseipdb host match data", "size", len(result.Raw))
+	//
+	//return result.Raw, nil
+}
+
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	start := time.Now()
 	defer func() {
@@ -289,9 +325,9 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true
-	tw.SetTitle("AbuseIPDB | Host: %s", c.Host.String())
+	tw.SetTitle("ABUSE IPDB | Host: %s", c.Host.String())
 	if c.UseTestData {
-		tw.SetTitle("AbuseIPDB | Host: %s", result.Data.IPAddress)
+		tw.SetTitle("ABUSE IPDB | Host: %s", result.Data.IPAddress)
 	}
 
 	c.Logger.Debug("abuseipdb table created", "host", c.Host.String())

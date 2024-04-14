@@ -7,6 +7,7 @@ import (
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/config"
 	"github.com/jonhadfield/ipscout/present"
+	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
 	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/providers/azure"
@@ -16,6 +17,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/shodan"
 	"github.com/mitchellh/go-homedir"
 	"golang.org/x/sync/errgroup"
+	"gonum.org/v1/gonum/mat"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,6 +30,8 @@ type ProviderClient interface {
 	GetConfig() *config.Config
 	Initialise() error
 	FindHost() ([]byte, error)
+	// extract data for classification
+	Classify(data []byte) (providers.Classification, error)
 	CreateTable([]byte) (*table.Writer, error)
 }
 
@@ -225,6 +229,102 @@ func (p *Processor) Run() {
 		p.Config.Logger.Error("failed to present tables", "error", err)
 		os.Exit(1)
 	}
+}
+
+func Classify(results *findHostsResults) (providers.Classification, error) {
+	// Define matrix data: Country weight, number of open ports, reported in last day
+	// Rows format: [1, Country, Number of Open Ports, Reported in Last Day]
+	data := mat.NewDense(3, 4, []float64{
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 1 * 1.5, 10, 1, // Russia, 10 open ports, reported in the last day
+		1, 2 * 1.5, 20, 0, // China, 20 open ports, not reported in the last day
+	})
+	y := []float64{3, 7, 8} // Threat levels
+
+	// Prepare variables
+	_, _ = data.Dims()
+
+	// Solve the linear regression using QR decomposition
+	var qr mat.QR
+	qr.Factorize(data)
+
+	// Prepare the result variables
+	beta := mat.NewDense(4, 1, nil)
+	//var beta *mat.Dense
+	qr.SolveTo(beta, false, mat.NewVecDense(len(y), y))
+
+	// Print the coefficients
+	fmt.Println("Coefficients:", beta)
+
+	// Predicting a new data point
+	// New data: USA, 8 open ports, reported today
+	newData := mat.NewDense(1, 4, []float64{1, 0 * 1.5, 8, 1})
+	var pred mat.Dense
+	pred.Mul(newData, beta)
+	fmt.Println("Predicted Threat Level:", pred.At(0, 0))
+	//
+	//for name, data := range results.m {
+	//
+	//}
+
+	fmt.Println(results.m)
+
+	return providers.Classification{}, nil
+}
+
+func ClassifyCoefficients() *mat.Dense {
+	// Define matrix data: Country weight, number of open ports, reported in last day
+	// Rows format: [1, Country, Number of Open Ports, Reported in Last Day]
+	data := mat.NewDense(12, 4, []float64{
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 1 * 1.5, 5, 0, // Test, 5 open ports, not reported in the last day
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 0 * 1.5, 5, 0, // USA, 5 open ports, not reported in the last day
+		1, 1 * 1.5, 10, 1, // Russia, 10 open ports, reported in the last day
+		1, 2 * 1.5, 20, 0, // China, 20 open ports, not reported in the last day
+	})
+	y := []float64{3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 8} // Threat levels
+
+	// Prepare variables
+	r, c := data.Dims()
+	fmt.Println(r, c)
+
+	// Solve the linear regression using QR decomposition
+	var qr mat.QR
+	qr.Factorize(data)
+
+	// Prepare the result variables
+	beta := mat.NewDense(4, 1, nil)
+	//var beta *mat.Dense
+	err := qr.SolveTo(beta, false, mat.NewVecDense(len(y), y))
+	fmt.Println(err)
+
+	// Print the coefficients
+	fmt.Printf("%#+v\n", beta)
+
+	return beta
+	//
+	//// Predicting a new data point
+	//// New data: USA, 8 open ports, reported today
+	//newData := mat.NewDense(1, 4, []float64{1, 0 * 1.5, 8, 1})
+	//var pred mat.Dense
+	//pred.Mul(newData, beta)
+	//fmt.Println("Predicted Threat Level:", pred.At(0, 0))
+	////
+	////for name, data := range results.m {
+	////
+	////}
+	//
+	//fmt.Println(results.m)
+	//
+	//return providers.Classification{}, nil
+
 }
 
 func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) error {

@@ -765,3 +765,24 @@ type HostSearchResult struct {
 	Message string `json:"message"`
 	Status  int    `json:"status"`
 }
+
+func (c *ProviderClient) Classify([]byte) (providers.Classification, error) {
+	//start := time.Now()
+
+	return providers.Classification{}, nil
+
+	//defer func() {
+	//	c.Stats.Mu.Lock()
+	//	c.Stats.FindHostDuration[ProviderName] = time.Since(start)
+	//	c.Stats.Mu.Unlock()
+	//}()
+	//
+	//result, err := fetchData(c.Config)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//c.Logger.Debug("abuseipdb host match data", "size", len(result.Raw))
+	//
+	//return result.Raw, nil
+}

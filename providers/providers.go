@@ -19,6 +19,16 @@ var (
 	CacheHostPrefix        = "host_"
 )
 
+type Classification struct {
+	Provider             string
+	Country              string
+	IsProxy              bool
+	PortsOpen            int
+	RemoteAccessPortOpen bool
+	LastReport           int
+	InitialThreatLevel   int
+}
+
 func AgeToHours(age string) (int64, error) {
 	if age == "" {
 		return 0, nil
