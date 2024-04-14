@@ -242,13 +242,20 @@ func isTransport(in any) bool {
 
 func DashIfEmpty(value interface{}) string {
 	switch v := value.(type) {
+	case time.Time:
+		if v.IsZero() || v == time.Date(0001, time.January, 1, 0, 0, 0, 0, time.UTC) {
+			return "-"
+		}
+
+		return v.Format(time.DateTime)
 	case string:
-		if len(v) == 0 {
+		trimmed := strings.TrimSpace(v)
+		if len(trimmed) == 0 {
 			return "-"
 		}
 		return v
 	case *string:
-		if v == nil || len(*v) == 0 {
+		if v == nil || len(strings.TrimSpace(*v)) == 0 {
 			return "-"
 		}
 		return *v

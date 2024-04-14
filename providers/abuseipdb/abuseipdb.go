@@ -94,7 +94,6 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 		return nil, fmt.Errorf("abuseipdb api request failed: %s", resp.Status)
 	}
 
-	fmt.Printf("abuseipdb response: %s\n", resp.Body)
 	// read response body
 	rBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -272,15 +271,25 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		{Number: 1, AutoMerge: true},
 	})
 
-	tw.AppendRow(table.Row{"Last Reported", result.Data.LastReportedAt.Format(time.DateTime)})
+	tw.AppendRow(table.Row{"Last Reported", providers.DashIfEmpty(result.Data.LastReportedAt)})
 	tw.AppendRow(table.Row{"Abuse Confidence Score", providers.DashIfEmpty(result.Data.AbuseConfidenceScore)})
+	tw.AppendRow(table.Row{"Public", result.Data.IsPublic})
+	tw.AppendRow(table.Row{"Domain", providers.DashIfEmpty(result.Data.Domain)})
+	tw.AppendRow(table.Row{"Hostnames", providers.DashIfEmpty(strings.Join(result.Data.Hostnames, ", "))})
+	tw.AppendRow(table.Row{"TOR", result.Data.IsTor})
+	tw.AppendRow(table.Row{"Country", providers.DashIfEmpty(result.Data.CountryName)})
 	tw.AppendRow(table.Row{"Usage Type", providers.DashIfEmpty(result.Data.UsageType)})
-	tw.AppendRow(table.Row{"Reports", fmt.Sprintf("%d (%d days)",
-		result.Data.TotalReports, c.Providers.AbuseIPDB.MaxAge)})
+	tw.AppendRow(table.Row{"ISP", providers.DashIfEmpty(result.Data.Isp)})
+	tw.AppendRow(table.Row{"Reports", fmt.Sprintf("%d (%d days %d users)",
+		result.Data.TotalReports, c.Providers.AbuseIPDB.MaxAge, result.Data.NumDistinctUsers)})
 
-	for _, dr := range result.Data.Reports {
+	for x, dr := range result.Data.Reports {
 		tw.AppendRow(table.Row{"", color.CyanString("%s", dr.ReportedAt.Format(time.DateTime))})
 		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Comment: %s", IndentPipeHyphens, dr.Comment)})
+
+		if x == c.Global.MaxReports {
+			break
+		}
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
@@ -335,7 +344,7 @@ type HostSearchResult struct {
 		UsageType            string    `json:"usageType,omitempty"`
 		Isp                  string    `json:"isp,omitempty"`
 		Domain               string    `json:"domain,omitempty"`
-		Hostnames            []any     `json:"hostnames,omitempty"`
+		Hostnames            []string  `json:"hostnames,omitempty"`
 		IsTor                bool      `json:"isTor,omitempty"`
 		TotalReports         int       `json:"totalReports,omitempty"`
 		NumDistinctUsers     int       `json:"numDistinctUsers,omitempty"`
