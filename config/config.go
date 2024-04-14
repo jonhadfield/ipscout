@@ -19,6 +19,7 @@ import (
 const (
 	AppName               = "ipscout"
 	DefaultIndentSpaces   = 2
+	DefaultMaxReports     = 5
 	DefaultConfigFileName = "config.yaml"
 	// DefaultConfigFileRoot = ".config/ipscout"
 )
@@ -58,6 +59,7 @@ type Config struct {
 		Ports         []string `mapstructure:"ports"`
 		MaxValueChars int32    `mapstructure:"max-value-chars"`
 		MaxAge        string   `mapstructure:"max-age"`
+		MaxReports    int      `mapstructure:"max-reports"`
 	} `mapstructure:"global"`
 	HttpClient   *retryablehttp.Client
 	Host         netip.Addr

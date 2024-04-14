@@ -26,6 +26,7 @@ func newRootCommand() *cobra.Command {
 		ports         []string
 		maxValueChars int32
 		maxAge        string
+		maxReports    int
 		logLevel      string
 	)
 
@@ -60,6 +61,7 @@ func newRootCommand() *cobra.Command {
 	// Define cobra flags, the default value has the lowest (least significant) precedence
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "WARN", "set log level as: ERROR, WARN, INFO, DEBUG")
 	rootCmd.PersistentFlags().StringVar(&maxAge, "max-age", "", "max age of data to consider")
+	rootCmd.PersistentFlags().IntVar(&maxReports, "max-reports", config.DefaultMaxReports, "max reports to output for each provider")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", nil, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
@@ -149,6 +151,7 @@ func initConfig(cmd *cobra.Command) error {
 	conf.Global.Ports = v.GetStringSlice("global.ports")
 	conf.Global.MaxValueChars = v.GetInt32("global.max_value_chars")
 	conf.Global.MaxAge = v.GetString("global.max_age")
+	conf.Global.MaxReports = v.GetInt("global.max_reports")
 	// TODO: Nasty Hack Alert
 	// if not specified, ports is returned as a string: "[]"
 	// set to nil if that's the case
