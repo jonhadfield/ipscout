@@ -121,7 +121,7 @@ func UpsertWithTTL(logger *slog.Logger, db *badger.DB, item Item, ttl time.Durat
 }
 
 func Read(logger *slog.Logger, db *badger.DB, key string) (*Item, error) {
-	logger.Info("reading cache item", "key", key)
+	logger.Debug("reading cache item", "key", key)
 
 	var item *Item
 
@@ -132,7 +132,7 @@ func Read(logger *slog.Logger, db *badger.DB, key string) (*Item, error) {
 		}
 
 		return itemFound.Value(func(val []byte) error {
-			logger.Info("read cache item", "key", key, "value len", len(val))
+			logger.Debug("read cache item", "key", key, "value len", len(val))
 
 			if uErr := json.Unmarshal(val, &item); uErr != nil {
 				return uErr
@@ -149,7 +149,7 @@ func Read(logger *slog.Logger, db *badger.DB, key string) (*Item, error) {
 }
 
 func CheckExists(logger *slog.Logger, db *badger.DB, key string) (bool, error) {
-	logger.Info("checking cache item exists", "key", key)
+	logger.Debug("checking cache item exists", "key", key)
 
 	var found bool
 	err := db.View(func(txn *badger.Txn) error {

@@ -41,13 +41,32 @@ type Config struct {
 	APIKey string
 }
 
+func NewProviderClient(c config.Config) (*ProviderClient, error) {
+	c.Logger.Debug("creating abuseipdb client")
+
+	tc := &ProviderClient{
+		c,
+	}
+
+	return tc, nil
+}
+
+func (c *Client) GetConfig() *config.Config {
+	return &c.Config.Config
+}
+
+func (c *Client) GetData() (result *HostSearchResult, err error) {
+	result, err = loadResultsFile("abuseipdb/testdata/abuseipdb_google_dns_resp.json")
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 type Provider interface {
 	LoadData() ([]byte, error)
 	CreateTable([]byte) (*table.Writer, error)
-}
-
-type ProviderClient struct {
-	config.Config
 }
 
 func (c *ProviderClient) Enabled() bool {
@@ -56,6 +75,103 @@ func (c *ProviderClient) Enabled() bool {
 
 func (c *ProviderClient) GetConfig() *config.Config {
 	return &c.Config
+}
+
+type ProviderClient struct {
+	config.Config
+}
+
+func (c *ProviderClient) Initialise() error {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
+	c.Logger.Debug("initialising abuseipdb client")
+	if c.Providers.AbuseIPDB.APIKey == "" && !c.UseTestData {
+		return fmt.Errorf("abuseipdb provider api key not set")
+	}
+
+	return nil
+}
+
+func (c *ProviderClient) FindHost() ([]byte, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
+	result, err := fetchData(c.Config)
+	if err != nil {
+		return nil, err
+	}
+
+	c.Logger.Debug("abuseipdb host match data", "size", len(result.Raw))
+
+	return result.Raw, nil
+}
+
+func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
+	start := time.Now()
+	defer func() {
+		c.Stats.Mu.Lock()
+		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
+	}()
+
+	var result *HostSearchResult
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("error unmarshalling abuseipdb data: %w", err)
+	}
+
+	if result == nil {
+		return nil, nil
+	}
+
+	tw := table.NewWriter()
+	tw.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 1, AutoMerge: true},
+	})
+
+	tw.AppendRow(table.Row{"Last Reported", providers.DashIfEmpty(result.Data.LastReportedAt)})
+	tw.AppendRow(table.Row{"Abuse Confidence Score", providers.DashIfEmpty(result.Data.AbuseConfidenceScore)})
+	tw.AppendRow(table.Row{"Public", result.Data.IsPublic})
+	tw.AppendRow(table.Row{"Domain", providers.DashIfEmpty(result.Data.Domain)})
+	tw.AppendRow(table.Row{"Hostnames", providers.DashIfEmpty(strings.Join(result.Data.Hostnames, ", "))})
+	tw.AppendRow(table.Row{"TOR", result.Data.IsTor})
+	tw.AppendRow(table.Row{"Country", providers.DashIfEmpty(result.Data.CountryName)})
+	tw.AppendRow(table.Row{"Usage Type", providers.DashIfEmpty(result.Data.UsageType)})
+	tw.AppendRow(table.Row{"ISP", providers.DashIfEmpty(result.Data.Isp)})
+	tw.AppendRow(table.Row{"Reports", fmt.Sprintf("%d (%d days %d users)",
+		result.Data.TotalReports, c.Providers.AbuseIPDB.MaxAge, result.Data.NumDistinctUsers)})
+
+	for x, dr := range result.Data.Reports {
+		tw.AppendRow(table.Row{"", color.CyanString("%s", dr.ReportedAt.Format(time.DateTime))})
+		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Comment: %s", IndentPipeHyphens, dr.Comment)})
+
+		if x == c.Global.MaxReports {
+			break
+		}
+	}
+
+	tw.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
+	})
+	tw.SetAutoIndex(false)
+	// tw.SetStyle(table.StyleColoredDark)
+	// tw.Style().Options.DrawBorder = true
+	tw.SetTitle("AbuseIPDB | Host: %s", c.Host.String())
+	if c.UseTestData {
+		tw.SetTitle("AbuseIPDB | Host: %s", result.Data.IPAddress)
+	}
+
+	c.Logger.Debug("abuseipdb table created", "host", c.Host.String())
+
+	return &tw, nil
 }
 
 func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *HostSearchResult, err error) {
@@ -209,122 +325,6 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 		Value:   result.Raw,
 		Created: time.Now(),
 	}, ResultTTL); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (c *ProviderClient) Initialise() error {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
-
-	c.Logger.Debug("initialising abuseipdb client")
-	if c.Providers.AbuseIPDB.APIKey == "" && !c.UseTestData {
-		return fmt.Errorf("abuseipdb provider api key not set")
-	}
-
-	return nil
-}
-
-func (c *ProviderClient) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
-
-	result, err := fetchData(c.Config)
-	if err != nil {
-		return nil, err
-	}
-
-	c.Logger.Debug("abuseipdb host match data", "size", len(result.Raw))
-
-	return result.Raw, nil
-}
-
-func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
-
-	var result *HostSearchResult
-	if err := json.Unmarshal(data, &result); err != nil {
-		return nil, fmt.Errorf("error unmarshalling abuseipdb data: %w", err)
-	}
-
-	if result == nil {
-		return nil, nil
-	}
-
-	tw := table.NewWriter()
-	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 1, AutoMerge: true},
-	})
-
-	tw.AppendRow(table.Row{"Last Reported", providers.DashIfEmpty(result.Data.LastReportedAt)})
-	tw.AppendRow(table.Row{"Abuse Confidence Score", providers.DashIfEmpty(result.Data.AbuseConfidenceScore)})
-	tw.AppendRow(table.Row{"Public", result.Data.IsPublic})
-	tw.AppendRow(table.Row{"Domain", providers.DashIfEmpty(result.Data.Domain)})
-	tw.AppendRow(table.Row{"Hostnames", providers.DashIfEmpty(strings.Join(result.Data.Hostnames, ", "))})
-	tw.AppendRow(table.Row{"TOR", result.Data.IsTor})
-	tw.AppendRow(table.Row{"Country", providers.DashIfEmpty(result.Data.CountryName)})
-	tw.AppendRow(table.Row{"Usage Type", providers.DashIfEmpty(result.Data.UsageType)})
-	tw.AppendRow(table.Row{"ISP", providers.DashIfEmpty(result.Data.Isp)})
-	tw.AppendRow(table.Row{"Reports", fmt.Sprintf("%d (%d days %d users)",
-		result.Data.TotalReports, c.Providers.AbuseIPDB.MaxAge, result.Data.NumDistinctUsers)})
-
-	for x, dr := range result.Data.Reports {
-		tw.AppendRow(table.Row{"", color.CyanString("%s", dr.ReportedAt.Format(time.DateTime))})
-		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Comment: %s", IndentPipeHyphens, dr.Comment)})
-
-		if x == c.Global.MaxReports {
-			break
-		}
-	}
-
-	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
-	})
-	tw.SetAutoIndex(false)
-	// tw.SetStyle(table.StyleColoredDark)
-	// tw.Style().Options.DrawBorder = true
-	tw.SetTitle("AbuseIPDB | Host: %s", c.Host.String())
-	if c.UseTestData {
-		tw.SetTitle("AbuseIPDB | Host: %s", result.Data.IPAddress)
-	}
-
-	c.Logger.Debug("abuseipdb table created", "host", c.Host.String())
-
-	return &tw, nil
-}
-
-func NewProviderClient(c config.Config) (*ProviderClient, error) {
-	c.Logger.Debug("creating abuseipdb client")
-
-	tc := &ProviderClient{
-		c,
-	}
-
-	return tc, nil
-}
-
-func (c *Client) GetConfig() *config.Config {
-	return &c.Config.Config
-}
-
-func (c *Client) GetData() (result *HostSearchResult, err error) {
-	result, err = loadResultsFile("abuseipdb/testdata/abuseipdb_google_dns_resp.json")
-	if err != nil {
 		return nil, err
 	}
 

@@ -11,10 +11,7 @@ import (
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/config"
 	"github.com/jonhadfield/ipscout/providers"
-	"net/http"
 	"net/netip"
-	"net/url"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -22,7 +19,7 @@ import (
 
 const (
 	ProviderName = "ipurl"
-	CacheTTL     = time.Duration(24 * time.Hour)
+	CacheTTL     = time.Duration(3 * time.Hour)
 )
 
 type Config struct {
@@ -48,36 +45,18 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		c.Stats.Mu.Unlock()
 	}()
 
-	var err error
-	// load test results data
-	// if c.UseTestData {
-	// 	var loadErr error
-	// 	out, loadErr = loadTestData(c)
-	// 	if err != nil {
-	// 		return nil, loadErr
-	// 	}
-	//
-	// 	c.Logger.Info("ipurl match returned from test data", "host", c.Host.String())
-	//
-	// 	return out, nil
-	// }
+	pwp := make(map[netip.Prefix][]string)
 
-	hash := generateURLsHash(c.Providers.IPURL.URLs)
-
-	doc, err := c.loadProviderDataFromCache()
+	err := c.loadProviderDataFromCache(pwp)
 	if err != nil {
 		return nil, err
 	}
 
-	var matches map[netip.Prefix][]string
+	matches := make(map[netip.Prefix][]string)
 
-	for prefix, urls := range doc.Prefixes {
+	for prefix, urls := range pwp {
 		if prefix.Contains(c.Host) {
-			fmt.Printf("prefix: %s - %s\n", prefix, urls)
 			c.Logger.Info("ipurl match found", "host", c.Host.String(), "urls", urls)
-			if matches == nil {
-				matches = make(map[netip.Prefix][]string)
-			}
 
 			matches[prefix] = urls
 		}
@@ -91,15 +70,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	raw, err = json.Marshal(matches)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
-	}
-
-	// TODO: remove before release
-	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("%s/backups/ipurl_%s_report.json", config.GetConfigRoot("", config.AppName),
-			hash), raw, 0600); err != nil {
-			panic(err)
-		}
-		c.Logger.Info("backed up ipurl response", "host", c.Host.String())
 	}
 
 	return raw, nil
@@ -129,23 +99,46 @@ func (c *ProviderClient) Initialise() error {
 
 	c.Logger.Debug("initialising ipurl client")
 
-	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
-	if err != nil {
-		return err
-	}
-
-	if ok {
-		c.Logger.Info("ipurl provider data found in cache")
-
-		return nil
-	}
-
-	err = c.loadProviderDataFromSource()
+	err := c.refreshURLCache()
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// refreshURLCache checks the cache for each of the urls in the config and loads them into cache if not found
+func (c *ProviderClient) refreshURLCache() error {
+	// refresh list
+	var refreshList []string
+	for _, u := range c.Providers.IPURL.URLs {
+		if ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName+"_"+generateURLHash(u)); err != nil {
+			return err
+		} else if !ok {
+			// add to refresh list
+			refreshList = append(refreshList, u)
+		}
+	}
+
+	c.Logger.Debug("refreshing ipurl cache",
+		"urls", len(c.Providers.IPURL.URLs),
+		"fresh", len(c.Providers.IPURL.URLs)-len(refreshList),
+		"not in cache", len(refreshList))
+
+	if err := c.loadProviderURLsFromSource(refreshList); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// generateURLHash concatenates the provider name and the url string and returns a hash
+func generateURLHash(us string) string {
+	h := sha1.New()
+	h.Write([]byte(us))
+	r := hex.EncodeToString(h.Sum(nil))
+
+	return r
 }
 
 func generateURLsHash(urls []string) string {
@@ -163,56 +156,64 @@ type StoredPrefixes struct {
 	Prefixes map[netip.Prefix][]string
 }
 
-func (c *ProviderClient) loadProviderDataFromSource() error {
+type StoredURLPrefixes struct {
+	URL      string
+	Prefixes []netip.Prefix
+}
+
+func (c *ProviderClient) loadProviderURLsFromSource(providerUrls []string) error {
 	ic := ipfetcherURL.New(ipfetcherURL.WithHttpClient(c.HttpClient))
 	ic.HttpClient = c.HttpClient
-	var reqs []ipfetcherURL.Request
 
 	// create a hash from the slice of urls
 	// this will identify the data we cache based of this input
-	urlsHash := generateURLsHash(c.Providers.IPURL.URLs)
-
-	for _, iu := range c.Providers.IPURL.URLs {
-		u, err := url.Parse(iu)
+	for _, iu := range providerUrls {
+		_, err := c.loadProviderURLFromSource(iu)
 		if err != nil {
-			return err
+			c.Logger.Error("error loading provider url", "url", iu, "error", err)
 		}
-
-		reqs = append(reqs, ipfetcherURL.Request{
-			Method: http.MethodGet,
-			Url:    u,
-		})
-	}
-
-	prefixes, err := ic.FetchPrefixes(reqs)
-	if err != nil {
-		return err
-	}
-
-	// fmt.Println("prefixes", prefixes)
-	var mStoredPrefixes []byte
-	if mStoredPrefixes, err = json.Marshal(StoredPrefixes{Prefixes: prefixes, Hash: urlsHash}); err != nil {
-		return err
-	}
-
-	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-		Key:     providers.CacheProviderPrefix + ProviderName + "_" + urlsHash,
-		Value:   mStoredPrefixes,
-		Version: urlsHash,
-		Created: time.Now(),
-	}, CacheTTL); err != nil {
-		return err
 	}
 
 	return nil
 }
 
-func (c *ProviderClient) loadProviderDataFromCache() (*StoredPrefixes, error) {
-	cacheKey := providers.CacheProviderPrefix + ProviderName + "_" + generateURLsHash(c.Providers.IPURL.URLs)
-	var doc *StoredPrefixes
+// loadProviderDataFromSource fetches the data from the source and caches it for individual urls
+func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix, error) {
+	hf := ipfetcherURL.HttpFile{
+		Client: c.HttpClient,
+		Url:    pURL,
+		Debug:  false,
+	}
+
+	hfPrefixes, err := hf.FetchPrefixes()
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the prefixes for this url
+	var mHfPrefixes []byte
+	if mHfPrefixes, err = json.Marshal(hfPrefixes); err != nil {
+		return nil, err
+	}
+
+	uh := generateURLHash(pURL)
+
+	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
+		Key:     providers.CacheProviderPrefix + ProviderName + "_" + uh,
+		Value:   mHfPrefixes,
+		Version: "-",
+		Created: time.Now(),
+	}, CacheTTL); err != nil {
+		return nil, err
+	}
+
+	return hfPrefixes, nil
+}
+
+func (c *ProviderClient) loadProviderURLDataFromCache(pURL string) ([]netip.Prefix, error) {
+	cacheKey := providers.CacheProviderPrefix + ProviderName + "_" + generateURLHash(pURL)
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
-		var uErr error
-		doc, uErr = unmarshalProviderData(item.Value)
+		prefixes, uErr := unmarshalProviderData(item.Value)
 		if uErr != nil {
 			defer func() {
 				_ = cache.Delete(c.Logger, c.Cache, cacheKey)
@@ -220,25 +221,40 @@ func (c *ProviderClient) loadProviderDataFromCache() (*StoredPrefixes, error) {
 
 			return nil, fmt.Errorf("error unmarshalling cached ipurl provider doc: %w", err)
 		}
-	} else if err != nil {
+
+		return prefixes, nil
+	} else {
 		return nil, fmt.Errorf("error reading ipurl provider cache: %w", err)
+	}
+}
+
+func (c *ProviderClient) loadProviderDataFromCache(pwp map[netip.Prefix][]string) error {
+	for _, u := range c.Providers.IPURL.URLs {
+		prefixes, err := c.loadProviderURLDataFromCache(u)
+		if err != nil {
+			return err
+		}
+
+		for _, prefix := range prefixes {
+			pwp[prefix] = append(pwp[prefix], u)
+		}
 	}
 
 	c.Stats.Mu.Lock()
 	c.Stats.FindHostUsedCache[ProviderName] = true
 	c.Stats.Mu.Unlock()
 
-	return doc, nil
+	return nil
 }
 
-func unmarshalProviderData(rBody []byte) (*StoredPrefixes, error) {
-	var res *StoredPrefixes
+func unmarshalProviderData(rBody []byte) ([]netip.Prefix, error) {
+	var prefixes []netip.Prefix
 
-	if err := json.Unmarshal(rBody, &res); err != nil {
-		return nil, err
+	if err := json.Unmarshal(rBody, &prefixes); err != nil {
+		return nil, fmt.Errorf("error unmarshalling ipurl api response: %w", err)
 	}
 
-	return res, nil
+	return prefixes, nil
 }
 
 type HostSearchResult map[netip.Prefix][]string
@@ -284,9 +300,6 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("IP URLs | Host: %s", c.Host.String())
-	// if c.UseTestData {
-	// 	tw.SetTitle("IP URLs | Host: %s", result.IP)
-	// }
 
 	return &tw, nil
 }

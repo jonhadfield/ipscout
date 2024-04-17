@@ -8,6 +8,17 @@ import (
 	"testing"
 )
 
+func TestNew(t *testing.T) {
+	conf := New()
+	require.NotNil(t, conf)
+	require.NotNil(t, conf.Stats)
+	require.NotNil(t, conf.Stats.InitialiseDuration)
+	require.NotNil(t, conf.Stats.InitialiseUsedCache)
+	require.NotNil(t, conf.Stats.FindHostDuration)
+	require.NotNil(t, conf.Stats.FindHostUsedCache)
+	require.NotNil(t, conf.Stats.CreateTableDuration)
+}
+
 func TestUnmarshalConfig(t *testing.T) {
 	t.Run("ValidConfig", func(t *testing.T) {
 		data := []byte(defaultConfig)
