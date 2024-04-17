@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/dgraph-io/badger/v4"
-	"github.com/jonhadfield/ipscout/config"
-	"github.com/jonhadfield/ipscout/providers"
-	"github.com/mitchellh/go-homedir"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/dgraph-io/badger/v4"
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/providers"
+	"github.com/mitchellh/go-homedir"
 )
 
 type Item struct {
@@ -95,7 +96,6 @@ func Create(logger *slog.Logger, path string) (*badger.DB, error) {
 
 func Upsert(logger *slog.Logger, db *badger.DB, item Item) error {
 	mItem, err := json.Marshal(item)
-
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,6 @@ func Upsert(logger *slog.Logger, db *badger.DB, item Item) error {
 
 func UpsertWithTTL(logger *slog.Logger, db *badger.DB, item Item, ttl time.Duration) error {
 	mItem, err := json.Marshal(item)
-
 	if err != nil {
 		return err
 	}

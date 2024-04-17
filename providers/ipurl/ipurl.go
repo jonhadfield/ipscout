@@ -5,16 +5,17 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/netip"
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
 	ipfetcherURL "github.com/jonhadfield/ip-fetcher/providers/url"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/config"
 	"github.com/jonhadfield/ipscout/providers"
-	"net/netip"
-	"sort"
-	"strings"
-	"time"
 )
 
 const (

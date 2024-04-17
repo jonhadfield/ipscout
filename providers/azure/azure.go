@@ -221,7 +221,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/azure_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0644); err != nil {
+			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o644); err != nil {
 			panic(err)
 		}
 		c.Logger.Info("backed up azure response", "host", c.Host.String())

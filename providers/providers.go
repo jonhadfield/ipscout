@@ -3,11 +3,12 @@ package providers
 import (
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/config"
 	"log/slog"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/config"
 )
 
 var (
@@ -243,7 +244,7 @@ func isTransport(in any) bool {
 func DashIfEmpty(value interface{}) string {
 	switch v := value.(type) {
 	case time.Time:
-		if v.IsZero() || v == time.Date(0001, time.January, 1, 0, 0, 0, 0, time.UTC) {
+		if v.IsZero() || v == time.Date(0o001, time.January, 1, 0, 0, 0, 0, time.UTC) {
 			return "-"
 		}
 

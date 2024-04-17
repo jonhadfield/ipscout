@@ -3,10 +3,6 @@ package config
 import (
 	_ "embed"
 	"fmt"
-	"github.com/dgraph-io/badger/v4"
-	"github.com/hashicorp/go-retryablehttp"
-	"github.com/mitchellh/go-homedir"
-	"gopkg.in/yaml.v2"
 	"log/slog"
 	"net/netip"
 	"os"
@@ -14,6 +10,11 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/dgraph-io/badger/v4"
+	"github.com/hashicorp/go-retryablehttp"
+	"github.com/mitchellh/go-homedir"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -131,12 +132,12 @@ func CreateDefaultConfigIfMissing(path string) error {
 
 		// create dir specified in path argument if missing
 		if _, err = os.Stat(path); os.IsNotExist(err) {
-			if err = os.MkdirAll(path, 0700); err != nil {
+			if err = os.MkdirAll(path, 0o700); err != nil {
 				return fmt.Errorf("failed to create config directory: %w", err)
 			}
 		}
 
-		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(defaultConfig), 0700); err != nil {
+		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(defaultConfig), 0o700); err != nil {
 			return fmt.Errorf("failed to write default config: %w", err)
 		}
 	case err != nil:
@@ -161,7 +162,7 @@ func CreateConfigPathStructure(configRoot string) error {
 		_, err = os.Stat(path.Join(configRoot, dir))
 		if err != nil {
 			if os.IsNotExist(err) {
-				mErr := os.MkdirAll(path.Join(configRoot, dir), 0700)
+				mErr := os.MkdirAll(path.Join(configRoot, dir), 0o700)
 				if mErr != nil {
 					return fmt.Errorf("failed to create %s directory: %v", dir, mErr)
 				}

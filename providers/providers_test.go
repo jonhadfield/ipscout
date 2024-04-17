@@ -1,9 +1,10 @@
 package providers
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 // portAgeCheck returns true if the port is within the max age

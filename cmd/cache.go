@@ -3,9 +3,10 @@ package cmd
 import (
 	_ "embed"
 	"fmt"
+	"os"
+
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 func newCacheCommand() *cobra.Command {
@@ -43,7 +44,6 @@ func newCacheCommand() *cobra.Command {
 	cacheCmd.AddCommand(newCacheListCommand())
 
 	return cacheCmd
-
 }
 
 func newCacheListCommand() *cobra.Command {
@@ -93,5 +93,4 @@ func newCacheListCommand() *cobra.Command {
 	// cacheCmd.AddCommand(versionCmd)
 
 	return cacheListCmd
-
 }

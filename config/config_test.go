@@ -1,11 +1,12 @@
 package config
 
 import (
-	"github.com/mitchellh/go-homedir"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/mitchellh/go-homedir"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNew(t *testing.T) {
@@ -58,7 +59,6 @@ func TestCreateDefaultConfig(t *testing.T) {
 }
 
 func TestCreateCachePathIfNotExist(t *testing.T) {
-
 	t.Run("PathExists", func(t *testing.T) {
 		tempDir := t.TempDir()
 

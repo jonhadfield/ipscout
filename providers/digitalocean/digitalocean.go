@@ -3,15 +3,16 @@ package digitalocean
 import (
 	"encoding/json"
 	"fmt"
+	"net/netip"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ip-fetcher/providers/digitalocean"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/config"
 	"github.com/jonhadfield/ipscout/providers"
-	"net/netip"
-	"os"
-	"strings"
-	"time"
 )
 
 const (
@@ -225,7 +226,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		c.Logger.Debug("backing up digitalocean host report")
 
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/digitalocean_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0644); err != nil {
+			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o644); err != nil {
 			panic(err)
 		}
 	}

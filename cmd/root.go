@@ -3,15 +3,16 @@ package cmd
 import (
 	_ "embed"
 	"fmt"
+	"log/slog"
+	"net/netip"
+	"os"
+	"strings"
+
 	"github.com/jonhadfield/ipscout/config"
 	"github.com/jonhadfield/ipscout/process"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"log/slog"
-	"net/netip"
-	"os"
-	"strings"
 )
 
 const (
@@ -70,7 +71,6 @@ func newRootCommand() *cobra.Command {
 	rootCmd.AddCommand(versionCmd)
 
 	return rootCmd
-
 }
 
 func Execute() {
@@ -95,7 +95,6 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 				fmt.Printf("error setting flag %s: %v\n", flg.Name, err)
 			}
 		}
-
 	})
 }
 

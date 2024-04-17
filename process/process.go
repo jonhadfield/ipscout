@@ -2,6 +2,12 @@ package process
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/briandowns/spinner"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
@@ -16,11 +22,6 @@ import (
 	"github.com/jonhadfield/ipscout/providers/shodan"
 	"github.com/mitchellh/go-homedir"
 	"golang.org/x/sync/errgroup"
-	"os"
-	"path/filepath"
-	"strings"
-	"sync"
-	"time"
 )
 
 type ProviderClient interface {

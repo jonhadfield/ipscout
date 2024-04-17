@@ -104,7 +104,7 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/criminalip_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(conf.Host.String(), ".", "_")), rBody, 0600); err != nil {
+			strings.ReplaceAll(conf.Host.String(), ".", "_")), rBody, 0o600); err != nil {
 			panic(err)
 		}
 		// c.Logger.Debug("backed up shodan response", "host", c.Host.String())
@@ -413,20 +413,18 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 }
 
 type HostSearchResultData struct {
-	Hash int `json:"hash"`
-	Opts struct {
-	} `json:"opts,omitempty"`
-	Timestamp  string `json:"timestamp"`
-	Isp        string `json:"isp"`
-	Data       string `json:"data"`
+	Hash       int      `json:"hash"`
+	Opts       struct{} `json:"opts,omitempty"`
+	Timestamp  string   `json:"timestamp"`
+	Isp        string   `json:"isp"`
+	Data       string   `json:"data"`
 	CriminalIP struct {
-		Region  string `json:"region"`
-		Module  string `json:"module"`
-		Ptr     bool   `json:"ptr"`
-		Options struct {
-		} `json:"options"`
-		ID      string `json:"id"`
-		Crawler string `json:"crawler"`
+		Region  string   `json:"region"`
+		Module  string   `json:"module"`
+		Ptr     bool     `json:"ptr"`
+		Options struct{} `json:"options"`
+		ID      string   `json:"id"`
+		Crawler string   `json:"crawler"`
 	} `json:"_criminalip,omitempty"`
 	Port      int      `json:"port"`
 	Hostnames []string `json:"hostnames"`
@@ -463,15 +461,14 @@ type HostSearchResultData struct {
 			Data     string `json:"data"`
 			Location string `json:"location"`
 		} `json:"favicon"`
-		HeadersHash int    `json:"headers_hash"`
-		Host        string `json:"host"`
-		HTML        string `json:"html"`
-		Location    string `json:"location"`
-		Components  struct {
-		} `json:"components"`
-		Server          string `json:"server"`
-		Sitemap         string `json:"sitemap"`
-		SecurityTxtHash string `json:"securitytxt_hash"`
+		HeadersHash     int      `json:"headers_hash"`
+		Host            string   `json:"host"`
+		HTML            string   `json:"html"`
+		Location        string   `json:"location"`
+		Components      struct{} `json:"components"`
+		Server          string   `json:"server"`
+		Sitemap         string   `json:"sitemap"`
+		SecurityTxtHash string   `json:"securitytxt_hash"`
 	} `json:"http,omitempty"`
 	IP        string   `json:"ip"`
 	Domains   []string `json:"domains"`
@@ -532,8 +529,7 @@ type HostSearchResultData struct {
 		} `json:"trust"`
 		HandshakeStates []string `json:"handshake_states"`
 		Alpn            []any    `json:"alpn"`
-		Ocsp            struct {
-		} `json:"ocsp"`
+		Ocsp            struct{} `json:"ocsp"`
 	} `json:"ssl,omitempty"`
 }
 
@@ -685,11 +681,10 @@ type HostSearchResult struct {
 	IPCategory struct {
 		Count int `json:"count"`
 		Data  []struct {
-			DetectSource string `json:"detect_source"`
-			Type         string `json:"type"`
-			DetectInfo   struct {
-			} `json:"detect_info,omitempty"`
-			ConfirmedTime string `json:"confirmed_time"`
+			DetectSource  string   `json:"detect_source"`
+			Type          string   `json:"type"`
+			DetectInfo    struct{} `json:"detect_info,omitempty"`
+			ConfirmedTime string   `json:"confirmed_time"`
 			DetectInfo0   struct {
 				Md5    string `json:"md5"`
 				Domain string `json:"domain"`

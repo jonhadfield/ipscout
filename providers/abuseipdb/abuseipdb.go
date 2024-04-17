@@ -4,12 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/hashicorp/go-retryablehttp"
-	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jonhadfield/ipscout/cache"
-	"github.com/jonhadfield/ipscout/config"
-	"github.com/jonhadfield/ipscout/providers"
 	"io"
 	"net/http"
 	"net/netip"
@@ -17,6 +11,13 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
+	"github.com/hashicorp/go-retryablehttp"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jonhadfield/ipscout/cache"
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/providers"
 )
 
 const (
@@ -225,7 +226,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/abuseipdb_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0644); err != nil {
+			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0o644); err != nil {
 			panic(err)
 		}
 		c.Logger.Debug("backed up abuseipdb response", "host", c.Host.String())
@@ -258,7 +259,6 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening abuseipdb file: %w", err)
-
 	}
 
 	defer jf.Close()

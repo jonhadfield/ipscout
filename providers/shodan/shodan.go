@@ -4,12 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/hashicorp/go-retryablehttp"
-	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jonhadfield/ipscout/cache"
-	"github.com/jonhadfield/ipscout/config"
-	"github.com/jonhadfield/ipscout/providers"
 	"io"
 	"net/http"
 	"net/netip"
@@ -17,6 +11,13 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
+	"github.com/hashicorp/go-retryablehttp"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jonhadfield/ipscout/cache"
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/providers"
 )
 
 const (
@@ -100,7 +101,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/shodan_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0644); err != nil {
+			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0o644); err != nil {
 			panic(err)
 		}
 		c.Logger.Debug("backed up shodan response", "host", c.Host.String())
@@ -133,7 +134,6 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening shodan file: %w", err)
-
 	}
 
 	defer jf.Close()
@@ -329,8 +329,10 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 			rows = append(rows, table.Row{"", color.CyanString("%d/%s", dr.Port, dr.Transport)})
 			if len(dr.Domains) > 0 {
-				rows = append(rows, table.Row{"",
-					fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
+				rows = append(rows, table.Row{
+					"",
+					fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", ")),
+				})
 			}
 
 			if dr.Timestamp != "" {
@@ -343,60 +345,88 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 			if dr.SSH.Type != "" {
 				rows = append(rows, table.Row{"", fmt.Sprintf("%s  SSH", IndentPipeHyphens)})
-				rows = append(rows, table.Row{"",
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sType: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.SSH.Type)})
-				rows = append(rows, table.Row{"",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.SSH.Type),
+				})
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sCipher: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.SSH.Cipher)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.SSH.Cipher),
+				})
 			}
 
 			if dr.HTTP.Status != 0 {
 				rows = append(rows, table.Row{"", fmt.Sprintf("%s  HTTP", IndentPipeHyphens)})
-				rows = append(rows, table.Row{"",
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sStatus: %d",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Status)})
-				rows = append(rows, table.Row{"",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Status),
+				})
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sTitle: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Title)})
-				rows = append(rows, table.Row{"",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Title),
+				})
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sServer: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Server)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.HTTP.Server),
+				})
 			}
 
 			if len(dr.Ssl.Versions) > 0 {
-				rows = append(rows, table.Row{"",
-					fmt.Sprintf("%s  SSL", IndentPipeHyphens)})
-				rows = append(rows, table.Row{"",
+				rows = append(rows, table.Row{
+					"",
+					fmt.Sprintf("%s  SSL", IndentPipeHyphens),
+				})
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sIssuer: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Issuer.Cn)})
-				rows = append(rows, table.Row{"",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Issuer.Cn),
+				})
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sSubject: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Subject.Cn)})
-				rows = append(rows, table.Row{"",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Subject.Cn),
+				})
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sVersions: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), strings.Join(dr.Ssl.Versions, ", "))})
-				rows = append(rows, table.Row{"",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), strings.Join(dr.Ssl.Versions, ", ")),
+				})
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sExpires: %s",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Expires)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Expires),
+				})
 			}
 			if dr.DNS.ResolverHostname != nil {
-				rows = append(rows, table.Row{"",
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s  DNS",
-						IndentPipeHyphens)})
+						IndentPipeHyphens),
+				})
 				if dr.DNS.ResolverHostname != "" {
-					rows = append(rows, table.Row{"",
+					rows = append(rows, table.Row{
+						"",
 						fmt.Sprintf("%s%sResolver Hostname: %s",
-							IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.ResolverHostname)})
+							IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.ResolverHostname),
+					})
 				}
 				if dr.DNS.Software != nil {
-					rows = append(rows, table.Row{"",
+					rows = append(rows, table.Row{
+						"",
 						fmt.Sprintf("%s%sResolver Software: %s",
-							IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.Software)})
+							IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.Software),
+					})
 				}
-				rows = append(rows, table.Row{"",
+				rows = append(rows, table.Row{
+					"",
 					fmt.Sprintf("%s%sRecursive: %t",
-						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.Recursive)})
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.Recursive),
+				})
 			}
 
 		}
@@ -443,20 +473,18 @@ func (c *Client) GetData() (result *HostSearchResult, err error) {
 }
 
 type HostSearchResultData struct {
-	Hash int `json:"hash"`
-	Opts struct {
-	} `json:"opts,omitempty"`
-	Timestamp string `json:"timestamp"`
-	Isp       string `json:"isp"`
-	Data      string `json:"data"`
+	Hash      int      `json:"hash"`
+	Opts      struct{} `json:"opts,omitempty"`
+	Timestamp string   `json:"timestamp"`
+	Isp       string   `json:"isp"`
+	Data      string   `json:"data"`
 	Shodan    struct {
-		Region  string `json:"region"`
-		Module  string `json:"module"`
-		Ptr     bool   `json:"ptr"`
-		Options struct {
-		} `json:"options"`
-		ID      string `json:"id"`
-		Crawler string `json:"crawler"`
+		Region  string   `json:"region"`
+		Module  string   `json:"module"`
+		Ptr     bool     `json:"ptr"`
+		Options struct{} `json:"options"`
+		ID      string   `json:"id"`
+		Crawler string   `json:"crawler"`
 	} `json:"_shodan,omitempty"`
 	Port      int      `json:"port"`
 	Hostnames []string `json:"hostnames"`
@@ -511,15 +539,14 @@ type HostSearchResultData struct {
 			Data     string `json:"data"`
 			Location string `json:"location"`
 		} `json:"favicon"`
-		HeadersHash int    `json:"headers_hash"`
-		Host        string `json:"host"`
-		HTML        string `json:"html"`
-		Location    string `json:"location"`
-		Components  struct {
-		} `json:"components"`
-		Server          string `json:"server"`
-		Sitemap         string `json:"sitemap"`
-		SecurityTxtHash int    `json:"securitytxt_hash"`
+		HeadersHash     int      `json:"headers_hash"`
+		Host            string   `json:"host"`
+		HTML            string   `json:"html"`
+		Location        string   `json:"location"`
+		Components      struct{} `json:"components"`
+		Server          string   `json:"server"`
+		Sitemap         string   `json:"sitemap"`
+		SecurityTxtHash int      `json:"securitytxt_hash"`
 	} `json:"http,omitempty"`
 	IP        int      `json:"ip"`
 	Domains   []string `json:"domains"`
@@ -580,8 +607,7 @@ type HostSearchResultData struct {
 		} `json:"trust"`
 		HandshakeStates []string `json:"handshake_states"`
 		Alpn            []any    `json:"alpn"`
-		Ocsp            struct {
-		} `json:"ocsp"`
+		Ocsp            struct{} `json:"ocsp"`
 	} `json:"ssl,omitempty"`
 }
 
