@@ -3,6 +3,7 @@ package process
 import (
 	"fmt"
 	"github.com/jonhadfield/ipscout/providers/annotated"
+	"github.com/jonhadfield/ipscout/providers/azure"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,7 +17,6 @@ import (
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
 	"github.com/jonhadfield/ipscout/providers/aws"
-	"github.com/jonhadfield/ipscout/providers/azure"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
 	"github.com/jonhadfield/ipscout/providers/digitalocean"
 	"github.com/jonhadfield/ipscout/providers/ipurl"
@@ -36,14 +36,6 @@ type ProviderClient interface {
 func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 	runners := make(map[string]ProviderClient)
 	c.Logger.Info("creating provider clients")
-	if c.Providers.Shodan.APIKey != "" || c.Providers.Shodan.Enabled || c.UseTestData {
-		shodanClient, err := shodan.NewProviderClient(c)
-		if err != nil {
-			return nil, fmt.Errorf("error creating shodan client: %w", err)
-		}
-
-		runners[shodan.ProviderName] = shodanClient
-	}
 
 	if c.Providers.AbuseIPDB.APIKey != "" || c.Providers.AbuseIPDB.Enabled || c.UseTestData {
 		AbuseIPDBClient, err := abuseipdb.NewProviderClient(c)
@@ -64,6 +56,17 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 
 		if AnnotatedClient != nil {
 			runners[abuseipdb.ProviderName] = AnnotatedClient
+		}
+	}
+
+	if c.Providers.AWS.Enabled || c.UseTestData {
+		awsIPClient, err := aws.NewProviderClient(c)
+		if err != nil {
+			return nil, fmt.Errorf("error creating aws client: %w", err)
+		}
+
+		if awsIPClient != nil {
+			runners[aws.ProviderName] = awsIPClient
 		}
 	}
 
@@ -89,17 +92,6 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 		}
 	}
 
-	if c.Providers.AWS.Enabled || c.UseTestData {
-		awsIPClient, err := aws.NewProviderClient(c)
-		if err != nil {
-			return nil, fmt.Errorf("error creating aws client: %w", err)
-		}
-
-		if awsIPClient != nil {
-			runners[aws.ProviderName] = awsIPClient
-		}
-	}
-
 	if c.Providers.DigitalOcean.Enabled || c.UseTestData {
 		digitaloceanIPClient, err := digitalocean.NewProviderClient(c)
 		if err != nil {
@@ -120,6 +112,15 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 		if IPURLClient != nil {
 			runners[ipurl.ProviderName] = IPURLClient
 		}
+	}
+
+	if c.Providers.Shodan.APIKey != "" || c.Providers.Shodan.Enabled || c.UseTestData {
+		shodanClient, err := shodan.NewProviderClient(c)
+		if err != nil {
+			return nil, fmt.Errorf("error creating shodan client: %w", err)
+		}
+
+		runners[shodan.ProviderName] = shodanClient
 	}
 
 	return runners, nil
