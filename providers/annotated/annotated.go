@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/jonhadfield/ipq/common"
 	"gopkg.in/yaml.v3"
+	"log/slog"
 	"sort"
 
 	"github.com/araddon/dateparse"
@@ -17,7 +17,6 @@ import (
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/config"
 	"github.com/jonhadfield/ipscout/providers"
-	"github.com/sirupsen/logrus"
 	_ "io/fs"
 	"io/ioutil"
 	"net/netip"
@@ -90,12 +89,10 @@ type YamlPrefixAnnotationsRecords struct {
 	Annotations []yamlAnnotation `yaml:"annotations"`
 }
 
-func ReadAnnotatedPrefixesFromFile(path string, prefixesWithAnnotations map[netip.Prefix][]annotation) error {
+func ReadAnnotatedPrefixesFromFile(l *slog.Logger, path string, prefixesWithAnnotations map[netip.Prefix][]annotation) error {
 	file, err := os.ReadFile(path)
 	if err != nil {
-		logrus.Error(err)
-
-		return err
+		return fmt.Errorf("error reading file: %w", err)
 	}
 
 	var pwars []YamlPrefixAnnotationsRecords
@@ -109,12 +106,15 @@ func ReadAnnotatedPrefixesFromFile(path string, prefixesWithAnnotations map[neti
 		// parse and repack annotations
 		annotationSource := path
 
-		annotations := parseAndRepackYAMLAnnotations(annotationSource, pwar.Annotations)
+		annotations := parseAndRepackYAMLAnnotations(nil, annotationSource, pwar.Annotations)
 
 		for _, p := range pwar.Prefixes {
-			parsedPrefix, err := netip.ParsePrefix(p)
+			var parsedPrefix netip.Prefix
+
+			parsedPrefix, err = netip.ParsePrefix(p)
 			if err != nil {
-				logrus.Warnf("failed to parse prefix: %s", parsedPrefix)
+				l.Debug("failed to parse", "prefix", parsedPrefix)
+
 				continue
 			}
 
@@ -125,11 +125,12 @@ func ReadAnnotatedPrefixesFromFile(path string, prefixesWithAnnotations map[neti
 	return err
 }
 
-func parseAndRepackYAMLAnnotations(source string, yas []yamlAnnotation) (pyas []annotation) {
+func parseAndRepackYAMLAnnotations(l *slog.Logger, source string, yas []yamlAnnotation) (pyas []annotation) {
 	for _, ya := range yas {
 		pDate, err := dateparse.ParseAny(ya.Date, dateparse.PreferMonthFirst(false))
+
 		if err != nil {
-			logrus.Warnf("%s | failed to parse date %s, so zeroing", common.GetFunctionName(), pDate)
+			l.Debug("failed to parse date,so zeroing", "date", pDate)
 		}
 
 		pyas = append(pyas, annotation{
@@ -244,8 +245,11 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			if len(anno.Notes) == 0 {
 				tw.AppendRow(table.Row{"Notes", "-"})
 			} else {
-				tw.AppendRow(table.Row{"Notes", ""})
 				for x := range anno.Notes {
+					if x == 0 {
+						tw.AppendRow(table.Row{"Notes", anno.Notes[x]})
+						continue
+					}
 					tw.AppendRow(table.Row{"", anno.Notes[x]})
 				}
 			}
@@ -367,10 +371,10 @@ type Repository struct {
 	Patterns    []string `toml:"patterns"`
 }
 
-func getValidFilePathsFromDir(dir string) (paths []os.FileInfo) {
+func getValidFilePathsFromDir(l *slog.Logger, dir string) (paths []os.FileInfo) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
-		logrus.Errorf("%s - %s", dir, err)
+		l.Warn("failed to read", "dir", dir, "error", err.Error())
 	}
 
 	suffixesToIgnore := strings.Split(ipFileSuffixesToIgnore, ",")
@@ -406,8 +410,7 @@ func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotation
 	pathIsDir := info.IsDir()
 	if pathIsDir {
 		// if directory, then retrieve all files within
-		logrus.Debugf("calling getValidFilePathsFromDir with path: %s", path)
-		files = getValidFilePathsFromDir(path)
+		files = getValidFilePathsFromDir(nil, path)
 	} else {
 		files = []os.FileInfo{info}
 	}
@@ -421,9 +424,7 @@ func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotation
 		}
 
 		// Get annotations from file
-		logrus.Infof("loading %s", fPath)
-
-		err = ReadAnnotatedPrefixesFromFile(fPath, prefixesWithAnnotations)
+		err = ReadAnnotatedPrefixesFromFile(nil, fPath, prefixesWithAnnotations)
 		if err != nil {
 			return err
 		}

@@ -16,7 +16,7 @@ import (
 
 func TestReadAnnotatedPrefixesFromFile(t *testing.T) {
 	prefixesWithAnnotations := make(map[netip.Prefix][]annotation)
-	require.NoError(t, ReadAnnotatedPrefixesFromFile(filepath.Join("testdata", "small", "small.yml"), prefixesWithAnnotations))
+	require.NoError(t, ReadAnnotatedPrefixesFromFile(nil, filepath.Join("testdata", "small", "small.yml"), prefixesWithAnnotations))
 	require.Len(t, prefixesWithAnnotations, 2)
 	require.Equal(t, time.Date(2024, time.April, 19, 18, 58, 0, 0, time.UTC), prefixesWithAnnotations[netip.MustParsePrefix("8.8.8.8/32")][0].Date)
 	require.Equal(t, time.Date(2024, time.April, 19, 19, 0, 0, 0, time.UTC), prefixesWithAnnotations[netip.MustParsePrefix("9.9.9.0/24")][0].Date)
