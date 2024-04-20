@@ -1,31 +1,35 @@
 ---
 global:
-    indent_spaces: 2
-    max_value_chars: 300
-    max_age: 90d
-    max_reports: 5
-    # ports: [80]
+  indent_spaces: 2
+  max_value_chars: 300
+  max_age: 90d
+  max_reports: 5
+  # ports: [80]
 
 providers:
-    aws:
-        enabled: true
-    azure:
-        enabled: true
-    criminalip:
-        enabled: false
-        max_ports: 10
-    digitalocean:
-        enabled: true
-    shodan:
-        enabled: false
-        max_ports: 10
-    ipurl:
-        enabled: true
-        urls:
-            - "https://iplists.firehol.org/files/firehol_level1.netset"
-            - "https://iplists.firehol.org/files/firehol_level2.netset"
-            - "https://iplists.firehol.org/files/firehol_anonymous.netset"
-            - "https://iplists.firehol.org/files/blocklist_de.ipset"
-            - "https://iplists.firehol.org/files/socks_proxy_7d.ipset"
-            - "https://iplists.firehol.org/files/sslproxies_7d.ipset"
-            - "https://iplists.firehol.org/files/tor_exits_7d.ipset"
+  annotated:
+    enabled: false
+    paths:
+  #      - <path to yaml file>
+  aws:
+    enabled: true
+  azure:
+    enabled: true
+  criminalip:
+    enabled: false
+    max_ports: 10
+  digitalocean:
+    enabled: true
+  ipurl:
+    enabled: true
+    urls:
+      - "https://iplists.firehol.org/files/firehol_level1.netset"
+      - "https://iplists.firehol.org/files/firehol_level2.netset"
+      - "https://iplists.firehol.org/files/firehol_anonymous.netset"
+      - "https://iplists.firehol.org/files/blocklist_de.ipset"
+      - "https://iplists.firehol.org/files/socks_proxy_7d.ipset"
+      - "https://iplists.firehol.org/files/sslproxies_7d.ipset"
+      - "https://iplists.firehol.org/files/tor_exits_7d.ipset"
+  shodan:
+    enabled: false
+    max_ports: 10
