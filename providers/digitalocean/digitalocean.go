@@ -2,6 +2,7 @@ package digitalocean
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/netip"
 	"os"
@@ -103,6 +104,10 @@ const (
 )
 
 func (c *ProviderClient) Initialise() error {
+	if c.Cache == nil {
+		return errors.New("cache not set")
+	}
+
 	start := time.Now()
 	defer func() {
 		c.Stats.Mu.Lock()

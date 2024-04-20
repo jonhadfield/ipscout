@@ -80,7 +80,7 @@ func (c *ProviderClient) loadProviderDataFromSource() error {
 
 	doc, etag, err := azureClient.Fetch()
 	if err != nil {
-		return err
+		return fmt.Errorf("%s %w", err.Error(), providers.ErrFailedToFetchData)
 	}
 
 	c.Logger.Debug("fetched azure data from source", "size", len(doc.Values), "etag", etag)
@@ -101,6 +101,10 @@ func (c *ProviderClient) loadProviderDataFromSource() error {
 }
 
 func (c *ProviderClient) Initialise() error {
+	if c.Cache == nil {
+		return errors.New("cache not set")
+	}
+
 	start := time.Now()
 	defer func() {
 		c.Stats.Mu.Lock()

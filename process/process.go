@@ -2,6 +2,7 @@ package process
 
 import (
 	"fmt"
+	"github.com/jonhadfield/ipscout/providers/annotated"
 	"os"
 	"path/filepath"
 	"strings"
@@ -52,6 +53,17 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 
 		if AbuseIPDBClient != nil {
 			runners[abuseipdb.ProviderName] = AbuseIPDBClient
+		}
+	}
+
+	if len(c.Providers.Annotated.Paths) > 0 || c.Providers.Annotated.Enabled || c.UseTestData {
+		AnnotatedClient, err := annotated.NewProviderClient(c)
+		if err != nil {
+			return nil, fmt.Errorf("error creating abuseipdb client: %w", err)
+		}
+
+		if AnnotatedClient != nil {
+			runners[abuseipdb.ProviderName] = AnnotatedClient
 		}
 	}
 
@@ -246,7 +258,6 @@ func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) e
 		g.Go(func() error {
 			iErr := runner.Initialise()
 			if iErr != nil {
-				fmt.Fprintln(os.Stderr, iErr)
 				return iErr
 			}
 

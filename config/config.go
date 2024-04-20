@@ -37,16 +37,33 @@ type Stats struct {
 	CreateTableDuration map[string]time.Duration
 }
 
+func CreateStats() *Stats {
+	return &Stats{
+		InitialiseDuration:  make(map[string]time.Duration),
+		InitialiseUsedCache: make(map[string]bool),
+		FindHostDuration:    make(map[string]time.Duration),
+		FindHostUsedCache:   make(map[string]bool),
+		CreateTableDuration: make(map[string]time.Duration),
+	}
+}
+
 func New() *Config {
 	return &Config{
-		Stats: &Stats{
-			InitialiseDuration:  make(map[string]time.Duration),
-			InitialiseUsedCache: make(map[string]bool),
-			FindHostDuration:    make(map[string]time.Duration),
-			FindHostUsedCache:   make(map[string]bool),
-			CreateTableDuration: make(map[string]time.Duration),
-		},
+		Stats: CreateStats(),
 	}
+}
+
+func (c *Config) Validate() error {
+	switch {
+	case c.Logger == nil:
+		return fmt.Errorf("logger not set")
+	case c.Stats == nil:
+		return fmt.Errorf("stats not set")
+	case c.Cache == nil:
+		return fmt.Errorf("cache not set")
+	}
+
+	return nil
 }
 
 type Config struct {
@@ -90,6 +107,10 @@ type Providers struct {
 		APIKey  string `mapstructure:"api-key"`
 		MaxAge  int    `mapstructure:"max-age"`
 	} `mapstructure:"abuseipdb"`
+	Annotated struct {
+		Enabled bool     `mapstructure:"enabled"`
+		Paths   []string `mapstructure:"paths"`
+	} `mapstructure:"annotated"`
 	Azure struct {
 		Enabled bool `mapstructure:"enabled"`
 	} `mapstructure:"azure"`

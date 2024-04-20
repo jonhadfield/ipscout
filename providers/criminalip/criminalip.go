@@ -3,6 +3,7 @@ package criminalip
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -107,7 +108,7 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 			strings.ReplaceAll(conf.Host.String(), ".", "_")), rBody, 0o600); err != nil {
 			panic(err)
 		}
-		// c.Logger.Debug("backed up shodan response", "host", c.Host.String())
+		// c.Logger.Debug("backed up criminalip response", "host", c.Host.String())
 	}
 
 	defer resp.Body.Close()
@@ -221,6 +222,10 @@ func getDomains(domain HostSearchResultDomain) []string {
 }
 
 func (c *ProviderClient) Initialise() error {
+	if c.Cache == nil {
+		return errors.New("cache not set")
+	}
+
 	start := time.Now()
 	defer func() {
 		c.Stats.Mu.Lock()

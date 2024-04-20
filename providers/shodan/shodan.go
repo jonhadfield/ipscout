@@ -3,6 +3,7 @@ package shodan
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -216,6 +217,10 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 }
 
 func (c *ProviderClient) Initialise() error {
+	if c.Cache == nil {
+		return errors.New("cache not set")
+	}
+
 	start := time.Now()
 	defer func() {
 		c.Stats.Mu.Lock()

@@ -84,6 +84,10 @@ func (c *ProviderClient) loadProviderData() error {
 }
 
 func (c *ProviderClient) Initialise() error {
+	if c.Cache == nil {
+		return errors.New("cache not set")
+	}
+	
 	start := time.Now()
 	defer func() {
 		c.Stats.Mu.Lock()
