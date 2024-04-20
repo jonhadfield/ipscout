@@ -354,6 +354,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		tw.AppendRow(table.Row{"Ports", len(result.Port.Data)})
 	}
 
+	var portsDisplayed int
 	for x, port := range portDataForTable.entries {
 		if !port.AgeMatch || !port.NetworkMatch {
 			continue
@@ -383,6 +384,14 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		if x+1 < len(result.Port.Data) {
 			// add a blank row between ports
 			tw.AppendRow(table.Row{"", ""})
+		}
+
+		portsDisplayed++
+
+		if portsDisplayed == c.Global.MaxReports {
+			tw.AppendRow(table.Row{"", color.YellowString("--- Max reports reached ---")})
+
+			break
 		}
 	}
 
