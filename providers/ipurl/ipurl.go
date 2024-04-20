@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/netip"
 	"sort"
@@ -53,11 +54,14 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, err
 	}
 
-	matches := make(map[netip.Prefix][]string)
+	var matches map[netip.Prefix][]string
 
 	for prefix, urls := range pwp {
 		if prefix.Contains(c.Host) {
 			c.Logger.Info("ipurl match found", "host", c.Host.String(), "urls", urls)
+			if matches == nil {
+				matches = make(map[netip.Prefix][]string)
+			}
 
 			matches[prefix] = urls
 		}
@@ -91,6 +95,10 @@ type ProviderClient struct {
 }
 
 func (c *ProviderClient) Initialise() error {
+	if c.Cache == nil {
+		return errors.New("cache not set")
+	}
+
 	start := time.Now()
 	defer func() {
 		c.Stats.Mu.Lock()
@@ -125,6 +133,14 @@ func (c *ProviderClient) refreshURLCache() error {
 		"urls", len(c.Providers.IPURL.URLs),
 		"fresh", len(c.Providers.IPURL.URLs)-len(refreshList),
 		"not in cache", len(refreshList))
+
+	if len(refreshList) == 0 {
+		c.Stats.Mu.Lock()
+		c.Stats.InitialiseUsedCache[ProviderName] = true
+		c.Stats.Mu.Unlock()
+
+		return nil
+	}
 
 	if err := c.loadProviderURLsFromSource(refreshList); err != nil {
 		return err
@@ -280,7 +296,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	result, err := unmarshalResponse(data)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling criminalip api response: %w", err)
+		return nil, fmt.Errorf("error unmarshalling stored ipurl data: %w", err)
 	}
 
 	if result == nil {
