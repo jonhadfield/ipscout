@@ -341,7 +341,6 @@ func (c *ProviderClient) loadProviderDataFromCache() (map[netip.Prefix][]annotat
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		if item.Value != nil && len(item.Value) > 0 {
 			var result map[netip.Prefix][]annotation
-			fmt.Println("item.Value: ", string(item.Value))
 			result, err = unmarshalResponse(item.Value)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached annotated response: %w", err)
