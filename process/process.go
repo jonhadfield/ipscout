@@ -246,19 +246,24 @@ func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) e
 
 	var g errgroup.Group
 
+	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+
 	if !hideProgress {
-		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
 		s.Start() // Start the spinner
 		// time.Sleep(4 * time.Second) // Run for some time to simulate work
 		s.Suffix = " initialising providers..."
 
-		defer s.Stop()
+		defer func() {
+			stopSpinnerIfActive(s)
+		}()
 	}
 	for name, runner := range runners {
 		_, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
 		g.Go(func() error {
 			iErr := runner.Initialise()
 			if iErr != nil {
+				stopSpinnerIfActive(s)
+
 				return iErr
 			}
 
@@ -267,12 +272,20 @@ func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) e
 	}
 
 	if err = g.Wait(); err != nil {
+		stopSpinnerIfActive(s)
+
 		return nil
 	}
 	// allow time to output spinner
 	time.Sleep(50 * time.Millisecond)
 
 	return nil
+}
+
+func stopSpinnerIfActive(s *spinner.Spinner) {
+	if s != nil && s.Active() {
+		s.Stop()
+	}
 }
 
 type findHostsResults struct {
