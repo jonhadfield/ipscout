@@ -1,7 +1,6 @@
 package annotated
 
 import (
-	"fmt"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/config"
 	"github.com/jonhadfield/ipscout/providers"
@@ -45,7 +44,6 @@ func TestInitialise(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotEqual(t, "null", string(res))
-	fmt.Println(string(res))
 }
 
 func initialiseSetup(homeDir string) (*ProviderClient, error) {

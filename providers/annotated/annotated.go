@@ -288,7 +288,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	c.Logger.Info("annotated match found", "host", c.Host.String())
 
 	var raw []byte
@@ -310,7 +309,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	return raw, nil
 }
 
-func matchIPToDoc(ip netip.Addr, doc map[netip.Prefix][]annotation) (HostSearchResult, error) {
+func matchIPToDoc(ip netip.Addr, doc map[netip.Prefix][]annotation) (*HostSearchResult, error) {
 	var result HostSearchResult
 
 	for prefix, annotations := range doc {
@@ -323,7 +322,11 @@ func matchIPToDoc(ip netip.Addr, doc map[netip.Prefix][]annotation) (HostSearchR
 		}
 	}
 
-	return result, nil
+	if result == nil {
+		return nil, providers.ErrNoMatchFound
+	}
+
+	return &result, nil
 
 }
 
