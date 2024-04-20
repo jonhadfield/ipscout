@@ -138,12 +138,15 @@ func initConfig(cmd *cobra.Command) error {
 
 	conf.Output = os.Stdout
 
-	conf.Providers.AWS.Enabled = v.GetBool("providers.aws.enabled")
 	conf.Providers.AbuseIPDB.Enabled = v.GetBool("providers.abuseipdb.enabled")
 	conf.Providers.AbuseIPDB.MaxAge = v.GetInt("providers.abuseipdb.max_age")
+	conf.Providers.Annotated.Enabled = v.GetBool("providers.annotated.enabled")
+	conf.Providers.Annotated.Paths = v.GetStringSlice("providers.annotated.paths")
+	conf.Providers.AWS.Enabled = v.GetBool("providers.aws.enabled")
+
 	conf.Providers.Azure.Enabled = v.GetBool("providers.azure.enabled")
-	conf.Providers.DigitalOcean.Enabled = v.GetBool("providers.digitalocean.enabled")
 	conf.Providers.CriminalIP.Enabled = v.GetBool("providers.criminalip.enabled")
+	conf.Providers.DigitalOcean.Enabled = v.GetBool("providers.digitalocean.enabled")
 	conf.Providers.IPURL.Enabled = v.GetBool("providers.ipurl.enabled")
 	conf.Providers.IPURL.URLs = v.GetStringSlice("providers.ipurl.urls")
 	conf.Providers.Shodan.Enabled = v.GetBool("providers.shodan.enabled")

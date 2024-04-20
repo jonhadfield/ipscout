@@ -30,9 +30,10 @@ import (
 )
 
 const (
-	ProviderName   = "annotated"
-	CacheTTL       = time.Duration(10 * time.Minute)
-	MaxColumnWidth = 120
+	ProviderName           = "annotated"
+	CacheTTL               = 5 * time.Minute
+	MaxColumnWidth         = 120
+	ipFileSuffixesToIgnore = "sh,conf"
 )
 
 type Annotated struct {
@@ -239,7 +240,16 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		for _, anno := range annotations {
 			tw.AppendRow(table.Row{"Date", anno.Date})
 			tw.AppendRow(table.Row{"Author", anno.Author})
-			tw.AppendRow(table.Row{"Notes", strings.Join(anno.Notes, ", ")})
+
+			if len(anno.Notes) == 0 {
+				tw.AppendRow(table.Row{"Notes", "-"})
+			} else {
+				tw.AppendRow(table.Row{"Notes", ""})
+				for x := range anno.Notes {
+					tw.AppendRow(table.Row{"", anno.Notes[x]})
+				}
+			}
+
 			tw.AppendRow(table.Row{"Source", anno.Source})
 		}
 
@@ -263,8 +273,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		c.Stats.Mu.Unlock()
 	}()
 
-	//var out []byte
-
 	var err error
 
 	doc, err := c.loadProviderDataFromCache()
@@ -279,16 +287,12 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	c.Logger.Info("annotated match found", "host", c.Host.String())
 
-	// match.ETag = item.Version
-
 	var raw []byte
 
 	raw, err = json.Marshal(match)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
 	}
-
-	// match.Raw = raw
 
 	// TODO: remove before release
 	//if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
@@ -307,6 +311,10 @@ func matchIPToDoc(ip netip.Addr, doc map[netip.Prefix][]annotation) (HostSearchR
 
 	for prefix, annotations := range doc {
 		if prefix.Contains(ip) {
+			if result == nil {
+				result = make(HostSearchResult)
+			}
+
 			result[prefix] = annotations
 		}
 	}
@@ -359,79 +367,6 @@ type Repository struct {
 	Paths       []string `toml:"paths"`
 	Patterns    []string `toml:"patterns"`
 }
-
-//
-//func GetListPaths(root string, repo Repository) (paths []string, err error) {
-//	if len(repo.Patterns) == 0 {
-//		logrus.Warnf("%s | no patterns provided for repos", funcName)
-//	}
-//
-//	// compile regex patterns
-//	var regexes []*regexp.Regexp
-//
-//	// compile provided patterns into regexes
-//	for _, p := range repo.Patterns {
-//		var regex *regexp.Regexp
-//
-//		regex, err = regexp.Compile(p)
-//		if err != nil {
-//			return
-//		}
-//
-//		regexes = append(regexes, regex)
-//	}
-//
-//	var sourcePaths []string
-//	// if no paths provided then default to root
-//	if len(repo.Paths) == 0 {
-//		parts := strings.Split(repo.Url, "/")
-//		name := parts[len(parts)-1]
-//		sourcePaths = []string{filepath.Join(root, name)}
-//	}
-//
-//	// loop through source paths
-//	for _, sp := range sourcePaths {
-//		// loop through files and apply patterns
-//		var files []fs.DirEntry
-//
-//		files, err = os.ReadDir(sp)
-//		if err != nil {
-//			logrus.Errorf("%s | %s", funcName, err.Error())
-//			return
-//		}
-//
-//		for _, file := range files {
-//			if !file.IsDir() {
-//				for _, r := range regexes {
-//					fPath := filepath.Join(sp, file.Name())
-//
-//					if r.MatchString(fPath) {
-//						paths = append(paths, fPath)
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	return paths, err
-//}
-
-// LoadAnnotatedIPPrefixesFromPaths accepts a file Path or directory and then generates a fully qualified Path
-// in order to call a function to load the ips from each fully qualified file Path
-//func LoadAnnotatedIPPrefixesFromPaths(root string, paths []string, prefixesWithAnnotations PrefixesWithAnnotations) error {
-//	for _, path := range paths {
-//		if err := LoadFilePrefixesWithAnnotationsFromPath(root, path, prefixesWithAnnotations); err != nil {
-//			return err
-//		}
-//	}
-//
-//	return nil
-//}
-
-const (
-	ipFileSuffixesToIgnore  = "sh,conf"
-	cacheFreshnessThreshold = 5
-)
 
 func getValidFilePathsFromDir(dir string) (paths []os.FileInfo) {
 	files, err := ioutil.ReadDir(dir)
@@ -502,74 +437,11 @@ func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotation
 
 type PrefixesWithAnnotations map[netip.Prefix][]annotation
 
-// ProcessRepositories clones the list repositories and then updates the db with the content
-//func ProcessRepositories(sess *session.IPQSession) error {
-//	funcName := common.GetFunctionName()
-//
-//	var err error
-//
-//	// clone/update existing repositories defined in configuration
-//
-//	// produce list of cloned paths to read ip lists from
-//	paths, err := getRepositoryPaths(config.Annotated)
-//	if err != nil {
-//		return err
-//	}
-//	// prefixesWithPaths will create a map of Prefix + Annotations it features in for each path provided
-//	prefixesWithAnnotations := make(PrefixesWithAnnotations)
-//
-//	err = LoadAnnotatedIPPrefixesFromPaths(config.Annotated.Root, paths, prefixesWithAnnotations)
-//	if err != nil {
-//		return err
-//	}
-//
-//	vad := VersionedAnnotatedDoc{
-//		LastFetchedFromSource: time.Now(),
-//		Doc:                   prefixesWithAnnotations,
-//	}
-//
-//	logrus.Infof("%s | setting update lock to '%s'", funcName, model.ReasonRecentlyUpdated)
-//
-//	if err = model.SetUpdateLockInDB(sess.DBConnPool, identifier, model.ReasonRecentlyUpdated, time.Now().UTC()); err != nil {
-//		logrus.Errorf("%s | failed to set update lock for '%s': %s", funcName, model.ReasonRecentlyUpdated, err.Error())
-//		return err
-//	}
-//
-//	return nil
-//}
-
-func marshallVersionedAnnotatedDoc(doc VersionedAnnotatedDoc) (versionedAnnotatedDocJSON string, err error) {
-	funcName := common.GetFunctionName()
-
-	logrus.Tracef(fmt.Sprintf("%s | marshalling doc", funcName))
-
-	b, err := json.Marshal(doc)
-	if err != nil {
-		return
-	}
-
-	return string(b), nil
-}
-
 type VersionedAnnotatedDoc struct {
 	LastFetchedFromSource time.Time
 	LastFetchededFromDB   time.Time
 	Doc                   PrefixesWithAnnotations
 }
-
-//func LoadFromSource(sess *session.IPQSession) (err error) {
-//	config := sess.Config.(*session.LoaderConfig)
-//
-//	if len(config.Annotated.Repositories) > 0 {
-//		if err = ProcessRepositories(sess); err != nil {
-//			return err
-//		}
-//	}
-//
-//	logrus.Debugf("%s | completed annotated load successfully", common.GetFunctionName())
-//
-//	return
-//}
 
 type annotation struct {
 	Date   time.Time `yaml:"date"`
