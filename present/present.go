@@ -2,6 +2,8 @@ package present
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -20,6 +22,32 @@ func Tables(c *config.Config, tws []*table.Writer) error {
 	return nil
 }
 
+func DashIfEmpty(value interface{}) string {
+	switch v := value.(type) {
+	case time.Time:
+		if v.IsZero() || v == time.Date(0o001, time.January, 1, 0, 0, 0, 0, time.UTC) {
+			return "-"
+		}
+
+		return v.Format(time.DateTime)
+	case string:
+		trimmed := strings.TrimSpace(v)
+		if len(trimmed) == 0 {
+			return "-"
+		}
+		return v
+	case *string:
+		if v == nil || len(strings.TrimSpace(*v)) == 0 {
+			return "-"
+		}
+		return *v
+	case int:
+		return fmt.Sprintf("%d", v)
+	default:
+		return "-"
+	}
+}
+
 type CombinedData struct {
 	Shodan     shodan.HostSearchResult
 	CriminalIP criminalip.HostSearchResult
@@ -31,7 +59,7 @@ func outputTables(c *config.Config, tws []*table.Writer) {
 	myOuterStyle := table.StyleColoredDark
 	myOuterStyle.Title.Align = text.AlignCenter
 	myOuterStyle.Title.Colors = text.Colors{text.FgRed, text.BgBlack}
-	twOuter.SetTitle("IP Scout v0.0.1")
+	twOuter.SetTitle("IP SCOUT v0.0.1")
 	twOuter.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMin: 60},
 	})

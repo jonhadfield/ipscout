@@ -3,16 +3,11 @@ package cache
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log/slog"
-	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/dgraph-io/badger/v4"
-	"github.com/jonhadfield/ipscout/config"
-	"github.com/jonhadfield/ipscout/providers"
-	"github.com/mitchellh/go-homedir"
 )
 
 type Item struct {
@@ -29,59 +24,6 @@ var (
 	ErrCreateKeyFailed   = errors.New("create key failed")
 	ErrDeleteKeyFailed   = errors.New("delete key failed")
 )
-
-type Client struct {
-	Config *config.Config
-}
-
-func NewClient(config *config.Config) (Client, error) {
-	p := Client{
-		Config: config,
-	}
-
-	return p, nil
-}
-
-func (client *Client) List() error {
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		client.Config.Logger.Error("failed to get home directory", "error", err)
-
-		os.Exit(1)
-	}
-
-	db, err := Create(client.Config.Logger, filepath.Join(homeDir, ".config", "ipscout"))
-	if err != nil {
-		client.Config.Logger.Error("failed to create cache", "error", err)
-
-		os.Exit(1)
-	}
-
-	client.Config.Cache = db
-
-	defer db.Close()
-
-	db.View(func(txn *badger.Txn) error {
-		it := txn.NewIterator(badger.DefaultIteratorOptions)
-		defer it.Close()
-		prefix := []byte(providers.CacheProviderPrefix)
-		// prefix := []byte(providers.CacheProviderPrefix)
-		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
-			item := it.Item()
-			k := item.Key()
-			err := item.Value(func(v []byte) error {
-				fmt.Printf("key=%s, value=%s\n", k, v[:200])
-				return nil
-			})
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-
-	return nil
-}
 
 func Create(logger *slog.Logger, path string) (*badger.DB, error) {
 	logger.Info("creating cache", "path", filepath.Join(path, "cache"))
