@@ -35,7 +35,32 @@ func newCacheListCommand() *cobra.Command {
 	cacheListCmd := &cobra.Command{
 		Use:   "list",
 		Short: "ls",
-		Long:  `cache stuff.`,
+		Long:  `list cache items.`,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return initConfig(cmd)
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			mgr, err := manager.NewClient(conf)
+			if err != nil {
+				os.Exit(1)
+			}
+
+			if err = mgr.List(); err != nil {
+				return err
+			}
+
+			return nil
+		},
+	}
+
+	return cacheListCmd
+}
+
+func newCacheDelCommand() *cobra.Command {
+	cacheListCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "del",
+		Long:  `delete cache item.`,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return initConfig(cmd)
 		},

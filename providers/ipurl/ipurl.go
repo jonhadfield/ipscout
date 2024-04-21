@@ -155,7 +155,7 @@ func generateURLHash(us string) string {
 	h.Write([]byte(us))
 	r := hex.EncodeToString(h.Sum(nil))
 
-	return r[:8]
+	return r[:providers.CacheKeySHALen]
 }
 
 func generateURLsHash(urls []string) string {
@@ -165,7 +165,7 @@ func generateURLsHash(urls []string) string {
 	h := sha1.New()
 	h.Write([]byte(s))
 
-	return hex.EncodeToString(h.Sum(nil))[:8]
+	return hex.EncodeToString(h.Sum(nil))[:providers.CacheKeySHALen]
 }
 
 type StoredPrefixes struct {

@@ -67,6 +67,10 @@ func (c *Config) Validate() error {
 }
 
 type Config struct {
+	App struct {
+		Version string
+		SemVer  string
+	}
 	Logger *slog.Logger
 	Stats  *Stats
 	Output *os.File

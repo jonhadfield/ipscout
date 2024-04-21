@@ -103,6 +103,8 @@ func initConfig(cmd *cobra.Command) error {
 
 	conf = config.New()
 	configRoot := config.GetConfigRoot("", AppName)
+	conf.App.Version = version
+	conf.App.SemVer = semver
 	if err := config.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		fmt.Printf("can't create default config: %v\n", err)
 

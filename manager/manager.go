@@ -2,6 +2,7 @@ package manager
 
 import (
 	"github.com/dgraph-io/badger/v4"
+	"github.com/dustin/go-humanize"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/config"
@@ -19,11 +20,13 @@ type Client struct {
 	Config *config.Config
 }
 
+var timeFormat = "2006-01-02 15:04:05 MST"
+
 func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, error) {
 	tw := table.NewWriter()
 	tw.AppendHeader(table.Row{"Key", "Expires", "Size"})
 	for _, x := range info {
-		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(time.DateTime), x.EstimatedSize})
+		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(timeFormat), humanize.Bytes(uint64(x.EstimatedSize))})
 	}
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 20},

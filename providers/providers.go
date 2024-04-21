@@ -17,7 +17,7 @@ var (
 	ErrNoMatchFound        = errors.New("no match found")
 	ErrForbiddenByProvider = errors.New("forbidden by provider")
 	CacheProviderPrefix    = "provider_"
-	CacheHostPrefix        = "host_"
+	CacheKeySHALen         = 16
 )
 
 func AgeToHours(age string) (int64, error) {

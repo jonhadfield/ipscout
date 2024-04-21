@@ -9,6 +9,7 @@ require (
 	github.com/fatih/color v1.16.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
 	github.com/jedib0t/go-pretty/v6 v6.5.8
+	github.com/jfrog/build-info-go v1.9.26
 	github.com/jonhadfield/ip-fetcher v0.0.0-20240420162704-0096667b934f
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.8.0
@@ -25,7 +26,11 @@ require (
 //require github.com/jonhadfield/ip-fetcher v0.0.0-00010101000000-000000000000
 
 require (
+	github.com/BurntSushi/toml v1.3.2 // indirect
+	github.com/CycloneDX/cyclonedx-go v0.8.0 // indirect
+	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -39,18 +44,22 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/jfrog/gofrog v1.7.1 // indirect
 	github.com/jszwec/csvutil v1.10.0 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
+	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
@@ -58,6 +67,8 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/urfave/cli/v2 v2.27.1 // indirect
+	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240409090435-93d18d7e34b8 // indirect

@@ -204,7 +204,7 @@ func generateURLsHash(urls []string) string {
 	h := sha1.New()
 	h.Write([]byte(s))
 
-	return hex.EncodeToString(h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))[:providers.CacheKeySHALen]
 }
 
 type HostSearchResult map[netip.Prefix][]annotation
