@@ -9,6 +9,7 @@ import (
 	"net/netip"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/fatih/color"
@@ -182,14 +183,23 @@ func (c *ProviderClient) loadProviderURLsFromSource(providerUrls []string) error
 	ic := ipfetcherURL.New(ipfetcherURL.WithHttpClient(c.HttpClient))
 	ic.HttpClient = c.HttpClient
 
+	var wg sync.WaitGroup
+
 	// create a hash from the slice of urls
 	// this will identify the data we cache based of this input
 	for _, iu := range providerUrls {
-		_, err := c.loadProviderURLFromSource(iu)
-		if err != nil {
-			c.Logger.Error("error loading provider url", "url", iu, "error", err)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			_, err := c.loadProviderURLFromSource(iu)
+			if err != nil {
+				c.Logger.Error("error loading provider url", "url", iu, "error", err)
+			}
+		}()
 	}
+
+	wg.Wait()
 
 	return nil
 }
