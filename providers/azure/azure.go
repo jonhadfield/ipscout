@@ -308,9 +308,9 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
 	})
 	tw.SetAutoIndex(false)
-	tw.SetTitle("Azure IP | Host: %s", c.Host.String())
+	tw.SetTitle("AZURE | Host: %s", c.Host.String())
 	if c.UseTestData {
-		tw.SetTitle("Azure IP | Host: %s", result.Prefix.String())
+		tw.SetTitle("AZURE | Host: %s", result.Prefix.String())
 	}
 
 	return &tw, nil

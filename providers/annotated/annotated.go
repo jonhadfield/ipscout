@@ -6,26 +6,29 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log/slog"
+	"net/netip"
+	"os"
+	"path/filepath"
+	"slices"
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/go-retryablehttp"
 	"gopkg.in/yaml.v3"
-	"log/slog"
-	"sort"
 
 	"github.com/araddon/dateparse"
+
+	_ "io/fs"
+
+	_ "regexp"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/config"
 	"github.com/jonhadfield/ipscout/providers"
-	_ "io/fs"
-	"io/ioutil"
-	"net/netip"
-	"os"
-	"path/filepath"
-	_ "regexp"
-	"slices"
-	"strings"
-	"time"
 )
 
 const (
@@ -128,7 +131,6 @@ func ReadAnnotatedPrefixesFromFile(l *slog.Logger, path string, prefixesWithAnno
 func parseAndRepackYAMLAnnotations(l *slog.Logger, source string, yas []yamlAnnotation) (pyas []annotation) {
 	for _, ya := range yas {
 		pDate, err := dateparse.ParseAny(ya.Date, dateparse.PreferMonthFirst(false))
-
 		if err != nil {
 			l.Debug("failed to parse date,so zeroing", "date", pDate)
 		}
@@ -182,7 +184,6 @@ func (c *ProviderClient) Initialise() error {
 	mPWAs, err := json.Marshal(prefixesWithAnnotations)
 	if err != nil {
 		return fmt.Errorf("error marshalling annotated prefixes: %w", err)
-
 	}
 
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
@@ -327,7 +328,6 @@ func matchIPToDoc(ip netip.Addr, doc map[netip.Prefix][]annotation) (*HostSearch
 	}
 
 	return &result, nil
-
 }
 
 func unmarshalResponse(data []byte) (HostSearchResult, error) {

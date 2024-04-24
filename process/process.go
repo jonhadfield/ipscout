@@ -2,13 +2,15 @@ package process
 
 import (
 	"fmt"
-	"github.com/jonhadfield/ipscout/providers/annotated"
-	"github.com/jonhadfield/ipscout/providers/azure"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jonhadfield/ipscout/providers/annotated"
+	"github.com/jonhadfield/ipscout/providers/azure"
+	"github.com/jonhadfield/ipscout/providers/ptr"
 
 	"github.com/briandowns/spinner"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -121,6 +123,15 @@ func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 		}
 
 		runners[shodan.ProviderName] = shodanClient
+	}
+
+	if c.Providers.PTR.Enabled {
+		ptrClient, err := ptr.NewProviderClient(c)
+		if err != nil {
+			return nil, fmt.Errorf("error creating ptr client: %w", err)
+		}
+
+		runners[ptr.ProviderName] = ptrClient
 	}
 
 	return runners, nil

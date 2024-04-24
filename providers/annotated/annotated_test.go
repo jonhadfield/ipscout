@@ -1,16 +1,17 @@
 package annotated
 
 import (
-	"github.com/jonhadfield/ipscout/cache"
-	"github.com/jonhadfield/ipscout/config"
-	"github.com/jonhadfield/ipscout/providers"
-	"github.com/stretchr/testify/require"
 	"log/slog"
 	"net/netip"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/jonhadfield/ipscout/cache"
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/providers"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadAnnotatedPrefixesFromFile(t *testing.T) {

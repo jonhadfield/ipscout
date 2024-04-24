@@ -1,6 +1,10 @@
 package manager
 
 import (
+	"os"
+	"path/filepath"
+	"time"
+
 	"github.com/dgraph-io/badger/v4"
 	"github.com/dustin/go-humanize"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -9,9 +13,6 @@ import (
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/mitchellh/go-homedir"
-	"os"
-	"path/filepath"
-	"time"
 )
 
 const MaxColumnWidth = 60
@@ -72,7 +73,6 @@ func (c *Client) List() error {
 	tables, err := c.CreateItemsInfoTable(cacheItemsInfo)
 	if err != nil {
 		return err
-
 	}
 
 	present.Tables(c.Config, []*table.Writer{tables})

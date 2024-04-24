@@ -2,8 +2,9 @@ package cmd
 
 import (
 	_ "embed"
-	"github.com/jonhadfield/ipscout/manager"
 	"os"
+
+	"github.com/jonhadfield/ipscout/manager"
 
 	"github.com/spf13/cobra"
 )

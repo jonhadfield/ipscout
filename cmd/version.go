@@ -2,11 +2,14 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
-var version string
-var semver string
+var (
+	version string
+	semver  string
+)
 
 var versionCmd = &cobra.Command{
 	Use:   "version",

@@ -93,19 +93,6 @@ type Config struct {
 }
 
 type Providers struct {
-	Shodan struct {
-		APIKey  string   `mapstructure:"api-key"`
-		Enabled bool     `mapstructure:"enabled"`
-		Ports   []string `mapstructure:"ports"`
-	} `mapstructure:"shodan"`
-	CriminalIP struct {
-		APIKey  string   `mapstructure:"api-key"`
-		Enabled bool     `mapstructure:"enabled"`
-		Ports   []string `mapstructure:"ports"`
-	} `mapstructure:"criminalip"`
-	AWS struct {
-		Enabled bool `mapstructure:"enabled"`
-	} `mapstructure:"aws"`
 	AbuseIPDB struct {
 		Enabled bool   `mapstructure:"enabled"`
 		APIKey  string `mapstructure:"api-key"`
@@ -115,9 +102,17 @@ type Providers struct {
 		Enabled bool     `mapstructure:"enabled"`
 		Paths   []string `mapstructure:"paths"`
 	} `mapstructure:"annotated"`
+	AWS struct {
+		Enabled bool `mapstructure:"enabled"`
+	} `mapstructure:"aws"`
 	Azure struct {
 		Enabled bool `mapstructure:"enabled"`
 	} `mapstructure:"azure"`
+	CriminalIP struct {
+		APIKey  string   `mapstructure:"api-key"`
+		Enabled bool     `mapstructure:"enabled"`
+		Ports   []string `mapstructure:"ports"`
+	} `mapstructure:"criminalip"`
 	DigitalOcean struct {
 		Enabled bool `mapstructure:"enabled"`
 	} `mapstructure:"digitalocean"`
@@ -125,6 +120,14 @@ type Providers struct {
 		Enabled bool     `mapstructure:"enabled"`
 		URLs    []string `mapstructure:"urls"`
 	} `mapstructure:"ipurl"`
+	Shodan struct {
+		APIKey  string   `mapstructure:"api-key"`
+		Enabled bool     `mapstructure:"enabled"`
+		Ports   []string `mapstructure:"ports"`
+	} `mapstructure:"shodan"`
+	PTR struct {
+		Enabled bool `mapstructure:"enabled"`
+	} `mapstructure:"ptr"`
 }
 
 func unmarshalConfig(data []byte) (*Config, error) {

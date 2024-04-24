@@ -152,6 +152,7 @@ func initConfig(cmd *cobra.Command) error {
 	conf.Providers.IPURL.Enabled = v.GetBool("providers.ipurl.enabled")
 	conf.Providers.IPURL.URLs = v.GetStringSlice("providers.ipurl.urls")
 	conf.Providers.Shodan.Enabled = v.GetBool("providers.shodan.enabled")
+	conf.Providers.PTR.Enabled = v.GetBool("providers.ptr.enabled")
 	conf.Global.Ports = v.GetStringSlice("global.ports")
 	conf.Global.MaxValueChars = v.GetInt32("global.max_value_chars")
 	conf.Global.MaxAge = v.GetString("global.max_age")

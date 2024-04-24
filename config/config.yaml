@@ -17,7 +17,6 @@ providers:
     enabled: true
   criminalip:
     enabled: false
-    max_ports: 10
   digitalocean:
     enabled: true
   ipurl:
@@ -30,6 +29,8 @@ providers:
       - "https://iplists.firehol.org/files/socks_proxy_7d.ipset"
       - "https://iplists.firehol.org/files/sslproxies_7d.ipset"
       - "https://iplists.firehol.org/files/tor_exits_7d.ipset"
+  ptr:
+    enabled: false # leave disabled as WIP.
   shodan:
     enabled: false
     max_ports: 10
