@@ -157,7 +157,6 @@ func loadResponse(c config.Config, nameserver string) (res *HostSearchResult, er
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(arpa)
 
 	dc := dns.Client{}
 	m := dns.Msg{}
