@@ -80,7 +80,7 @@ func (c *ProviderClient) loadProviderDataFromSource() error {
 
 	if c.Providers.Azure.URL != "" {
 		azureClient.DownloadURL = c.Providers.Azure.URL
-		c.Logger.Debug("using custom azure URL", "url", azureClient.DownloadURL)
+		c.Logger.Debug("overriding azure source", "url", azureClient.DownloadURL)
 	}
 
 	doc, etag, err := azureClient.Fetch()

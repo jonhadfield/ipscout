@@ -66,7 +66,7 @@ func (c *ProviderClient) loadProviderData() error {
 	awsClient.Client = c.HttpClient
 	if c.Providers.AWS.URL != "" {
 		awsClient.DownloadURL = c.Providers.AWS.URL
-		c.Logger.Debug("using custom aws URL", "url", aws.DownloadURL)
+		c.Logger.Debug("overriding aws source", "url", aws.DownloadURL)
 	}
 
 	doc, etag, err := awsClient.Fetch()
