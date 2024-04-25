@@ -75,6 +75,10 @@ func unmarshalProviderData(data []byte) (*digitalocean.Doc, error) {
 func (c *ProviderClient) loadProviderData() error {
 	digitaloceanClient := digitalocean.New()
 	digitaloceanClient.Client = c.HttpClient
+	if c.Providers.DigitalOcean.URL != "" {
+		digitaloceanClient.DownloadURL = c.Providers.DigitalOcean.URL
+		c.Logger.Debug("using custom digitalocean URL", "url", digitaloceanClient.DownloadURL)
+	}
 
 	doc, err := digitaloceanClient.Fetch()
 	if err != nil {

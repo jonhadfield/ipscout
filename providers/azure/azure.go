@@ -78,6 +78,11 @@ func (c *ProviderClient) loadProviderDataFromSource() error {
 	azureClient := azure.New()
 	azureClient.Client = c.HttpClient
 
+	if c.Providers.Azure.URL != "" {
+		azureClient.DownloadURL = c.Providers.Azure.URL
+		c.Logger.Debug("using custom azure URL", "url", azureClient.DownloadURL)
+	}
+
 	doc, etag, err := azureClient.Fetch()
 	if err != nil {
 		return fmt.Errorf("%s %w", err.Error(), providers.ErrFailedToFetchData)

@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.5
 	github.com/jedib0t/go-pretty/v6 v6.5.8
 	github.com/jfrog/build-info-go v1.9.26
-	github.com/jonhadfield/ip-fetcher v0.0.0-20240420162704-0096667b934f
+	github.com/jonhadfield/ip-fetcher v0.0.0-20240425080718-0e781903ca1e
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5

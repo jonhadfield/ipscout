@@ -64,6 +64,10 @@ func unmarshalProviderData(rBody []byte) (*aws.Doc, error) {
 func (c *ProviderClient) loadProviderData() error {
 	awsClient := aws.New()
 	awsClient.Client = c.HttpClient
+	if c.Providers.AWS.URL != "" {
+		awsClient.DownloadURL = c.Providers.AWS.URL
+		c.Logger.Debug("using custom aws URL", "url", aws.DownloadURL)
+	}
 
 	doc, etag, err := awsClient.Fetch()
 	if err != nil {
@@ -173,7 +177,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	if c.UseTestData {
 		var loadErr error
 		out, loadErr = loadTestData(c)
-		if err != nil {
+		if loadErr != nil {
 			return nil, loadErr
 		}
 
