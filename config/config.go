@@ -103,27 +103,28 @@ type Providers struct {
 		Paths   []string `mapstructure:"paths"`
 	} `mapstructure:"annotated"`
 	AWS struct {
-		Enabled bool `mapstructure:"enabled"`
+		Enabled bool   `mapstructure:"enabled"`
+		URL     string `mapstructure:"url"`
 	} `mapstructure:"aws"`
 	Azure struct {
-		Enabled bool `mapstructure:"enabled"`
+		Enabled bool   `mapstructure:"enabled"`
+		URL     string `mapstructure:"url"`
 	} `mapstructure:"azure"`
 	CriminalIP struct {
-		APIKey  string   `mapstructure:"api-key"`
-		Enabled bool     `mapstructure:"enabled"`
-		Ports   []string `mapstructure:"ports"`
+		APIKey  string `mapstructure:"api-key"`
+		Enabled bool   `mapstructure:"enabled"`
 	} `mapstructure:"criminalip"`
 	DigitalOcean struct {
 		Enabled bool `mapstructure:"enabled"`
+		URL     string
 	} `mapstructure:"digitalocean"`
 	IPURL struct {
 		Enabled bool     `mapstructure:"enabled"`
 		URLs    []string `mapstructure:"urls"`
 	} `mapstructure:"ipurl"`
 	Shodan struct {
-		APIKey  string   `mapstructure:"api-key"`
-		Enabled bool     `mapstructure:"enabled"`
-		Ports   []string `mapstructure:"ports"`
+		APIKey  string `mapstructure:"api-key"`
+		Enabled bool   `mapstructure:"enabled"`
 	} `mapstructure:"shodan"`
 	PTR struct {
 		Enabled bool `mapstructure:"enabled"`

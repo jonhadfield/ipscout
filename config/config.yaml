@@ -13,12 +13,15 @@ providers:
   #      - <path to yaml file>
   aws:
     enabled: true
+    # url: override the default URL
   azure:
     enabled: true
+    # url: override the default URL
   criminalip:
     enabled: false
   digitalocean:
     enabled: true
+    # url: override the default URL
   ipurl:
     enabled: true
     urls:
