@@ -121,3 +121,15 @@ func Delete(logger *slog.Logger, db *badger.DB, key string) error {
 		return txn.Delete([]byte(key))
 	})
 }
+
+func DeleteMultiple(logger *slog.Logger, db *badger.DB, keys []string) error {
+	logger.Info("deleting cache items", "keys", keys)
+
+	for _, key := range keys {
+		if err := Delete(logger, db, key); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

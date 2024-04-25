@@ -80,6 +80,32 @@ func (c *Client) List() error {
 	return nil
 }
 
+func (c *Client) Delete(keys []string) error {
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		c.Config.Logger.Error("failed to get home directory", "error", err)
+
+		os.Exit(1)
+	}
+
+	db, err := cache.Create(c.Config.Logger, filepath.Join(homeDir, ".config", "ipscout"))
+	if err != nil {
+		c.Config.Logger.Error("failed to create cache", "error", err)
+
+		os.Exit(1)
+	}
+
+	c.Config.Cache = db
+
+	defer db.Close()
+
+	if err = cache.DeleteMultiple(c.Config.Logger, db, keys); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type CacheItemInfo struct {
 	Key           string
 	Value         []byte

@@ -34,14 +34,17 @@ func newRootCommand() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "ipscout",
 		Short: "ipscout",
-		Long:  `ipscout is a CLI application that does stuff.`,
-		Args:  cobra.ExactArgs(1),
+		Long:  `IP Scout is a CLI application to prod to an IP address.`,
+		Args:  cobra.MinimumNArgs(0),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			// You can bind cobra and viper in a few locations, but PersistencePreRunE on the root command works well
 			return initConfig(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// out := cmd.OutOrStdout()
+
+			if len(args) == 0 {
+				_ = cmd.Help()
+				os.Exit(0)
+			}
 
 			var err error
 
