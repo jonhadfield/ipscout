@@ -3,6 +3,7 @@ package cache
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"path/filepath"
 	"time"
@@ -125,11 +126,28 @@ func Delete(logger *slog.Logger, db *badger.DB, key string) error {
 func DeleteMultiple(logger *slog.Logger, db *badger.DB, keys []string) error {
 	logger.Info("deleting cache items", "keys", keys)
 
+	var deleted int
+	var notfound int
+
 	for _, key := range keys {
-		if err := Delete(logger, db, key); err != nil {
+		found, err := CheckExists(logger, db, key)
+		if err != nil {
 			return err
 		}
+
+		if !found {
+			notfound++
+			continue
+		}
+
+		if err = Delete(logger, db, key); err != nil {
+			return err
+		}
+
+		deleted++
 	}
+
+	fmt.Printf("cache items deleted: %d not found: %d\n", deleted, notfound)
 
 	return nil
 }

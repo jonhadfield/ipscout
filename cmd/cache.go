@@ -14,10 +14,6 @@ func newCacheCommand() *cobra.Command {
 		Use:   "cache",
 		Short: "manage cached data",
 		Long:  `manage cached data.`,
-		//PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		//	// You can bind cobra and viper in a few locations, but PersistencePreRunE on the root command works well
-		//	return initConfig(cmd)
-		//},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				_ = cmd.Help()
@@ -35,13 +31,13 @@ func newCacheCommand() *cobra.Command {
 }
 
 func newCacheListCommand() *cobra.Command {
-	cacheListCmd := &cobra.Command{
+	return &cobra.Command{
 		Use:   "list",
 		Short: "list cached items",
 		Long:  `list outputs all of the currently cached items.`,
-		//PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		//	return initConfig(cmd)
-		//},
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return initConfig(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			mgr, err := manager.NewClient(conf)
 			if err != nil {
@@ -55,20 +51,16 @@ func newCacheListCommand() *cobra.Command {
 			return nil
 		},
 	}
-
-	return cacheListCmd
 }
 
 func newCacheDelCommand() *cobra.Command {
-	var keys []string
-
-	cacheListCmd := &cobra.Command{
+	return &cobra.Command{
 		Use:   "delete",
 		Short: "delete items from cache",
 		Long:  `delete one or more items from cache by specifying their keys.`,
-		//PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		//	return initConfig(cmd)
-		//},
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return initConfig(cmd)
+		},
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			mgr, err := manager.NewClient(conf)
@@ -76,15 +68,11 @@ func newCacheDelCommand() *cobra.Command {
 				os.Exit(1)
 			}
 
-			if err = mgr.Delete(keys); err != nil {
+			if err = mgr.Delete(args); err != nil {
 				return err
 			}
 
 			return nil
 		},
 	}
-
-	cacheListCmd.PersistentFlags().StringSliceVarP(&keys, "keys", "k", nil, "cache keys to delete")
-
-	return cacheListCmd
 }

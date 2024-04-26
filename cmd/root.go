@@ -40,7 +40,6 @@ func newRootCommand() *cobra.Command {
 			return initConfig(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			if len(args) == 0 {
 				_ = cmd.Help()
 				os.Exit(0)
@@ -70,7 +69,8 @@ func newRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", nil, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
 
-	rootCmd.AddCommand(newCacheCommand())
+	cacheCommand := newCacheCommand()
+	rootCmd.AddCommand(cacheCommand)
 	rootCmd.AddCommand(versionCmd)
 
 	return rootCmd
@@ -86,11 +86,7 @@ func Execute() {
 
 func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().VisitAll(func(flg *pflag.Flag) {
-		// Determine the naming convention of the flags when represented in the config file
-		// configName := strings.ReplaceAll(flg.Name, "-", "_")
 		configName := flg.Name
-		// configName = strings.ReplaceAll(configName, "-", "_")
-		// Apply the viper config value to the flag when the flag is not set and viper has a value
 		v.Set(configName, flg.Value)
 		if !flg.Changed && v.IsSet(configName) {
 			val := v.Get(configName)
@@ -115,7 +111,6 @@ func initConfig(cmd *cobra.Command) error {
 	}
 
 	v.AddConfigPath(configRoot)
-	// v.AddConfigPath(".")
 	v.SetConfigName("config")
 
 	if err := v.ReadInConfig(); err != nil {
@@ -123,11 +118,7 @@ func initConfig(cmd *cobra.Command) error {
 		os.Exit(1)
 	}
 
-	// v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
-
-	// Bind the current command's flags to viper
-	// fmt.Println("cmd.loglevel", cmd.Flags())
 
 	if err := config.CreateConfigPathStructure(configRoot); err != nil {
 		fmt.Printf("can't create cache directory: %v\n", err)
@@ -135,7 +126,6 @@ func initConfig(cmd *cobra.Command) error {
 		os.Exit(1)
 	}
 
-	// read provider auth keys
 	readProviderAuthKeys(v)
 
 	// set cmd flags to those learned by viper if cmd flag is not set and viper's is
