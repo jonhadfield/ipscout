@@ -132,14 +132,26 @@ func (c *Client) Get(key string, raw bool) error {
 		return err
 	}
 
-	//var out []byte
 	if raw {
 		fmt.Printf("%s\n", item.Value)
 
 		return nil
 	}
 
-	out, err := json.MarshalIndent(*item, "", "  ")
+	type PresentationItem struct {
+		Key     string
+		Value   json.RawMessage
+		Version string
+		Created string
+	}
+
+	var pItem PresentationItem
+	pItem.Key = item.Key
+	pItem.Version = item.Version
+	pItem.Created = item.Created.Format(timeFormat)
+	pItem.Value = item.Value
+
+	out, err := json.MarshalIndent(&pItem, "", "  ")
 	if err != nil {
 		return err
 	}
