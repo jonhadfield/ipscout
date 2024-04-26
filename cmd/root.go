@@ -29,6 +29,7 @@ func newRootCommand() *cobra.Command {
 		maxAge        string
 		maxReports    int
 		logLevel      string
+		disableCache  bool
 	)
 
 	rootCmd := &cobra.Command{
@@ -66,9 +67,9 @@ func newRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().StringVar(&maxAge, "max-age", "", "max age of data to consider")
 	rootCmd.PersistentFlags().IntVar(&maxReports, "max-reports", config.DefaultMaxReports, "max reports to output for each provider")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
+	rootCmd.PersistentFlags().BoolVar(&disableCache, "disable-cache", false, "disable cache")
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", nil, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
-
 	cacheCommand := newCacheCommand()
 	rootCmd.AddCommand(cacheCommand)
 	rootCmd.AddCommand(versionCmd)
@@ -191,6 +192,11 @@ func initConfig(cmd *cobra.Command) error {
 		conf.Global.MaxAge = maxAge
 	}
 
+	disableCache, _ := cmd.Flags().GetBool("disable-cache")
+	if disableCache {
+		conf.Global.DisableCache = disableCache
+	}
+
 	maxValueChars, _ := cmd.Flags().GetInt32("max-value-chars")
 	if maxValueChars > 0 {
 		conf.Global.MaxValueChars = maxValueChars
@@ -200,6 +206,8 @@ func initConfig(cmd *cobra.Command) error {
 
 	return nil
 }
+
+var ProgramLevel = new(slog.LevelVar) // Info by default
 
 func initLogging(cmd *cobra.Command) {
 	hOptions := slog.HandlerOptions{AddSource: false}
@@ -215,18 +223,20 @@ func initLogging(cmd *cobra.Command) {
 	// set log level
 	switch strings.ToUpper(ll) {
 	case "ERROR":
-		hOptions.Level = slog.LevelError
+		ProgramLevel.Set(slog.LevelError)
 		conf.HideProgress = false
 	case "WARN":
-		hOptions.Level = slog.LevelWarn
+		ProgramLevel.Set(slog.LevelWarn)
 		conf.HideProgress = false
 	case "INFO":
-		hOptions.Level = slog.LevelInfo
+		ProgramLevel.Set(slog.LevelInfo)
 		conf.HideProgress = true
 	case "DEBUG":
-		hOptions.Level = slog.LevelDebug
+		ProgramLevel.Set(slog.LevelDebug)
 		conf.HideProgress = true
 	}
+
+	hOptions.Level = ProgramLevel
 
 	conf.Logger = slog.New(slog.NewTextHandler(os.Stdout, &hOptions))
 }

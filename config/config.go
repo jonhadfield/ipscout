@@ -82,6 +82,7 @@ type Config struct {
 		MaxValueChars int32    `mapstructure:"max-value-chars"`
 		MaxAge        string   `mapstructure:"max-age"`
 		MaxReports    int      `mapstructure:"max-reports"`
+		DisableCache  bool     `mapstructure:"disable-cache"`
 	} `mapstructure:"global"`
 	HttpClient   *retryablehttp.Client
 	Host         netip.Addr
