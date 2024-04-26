@@ -120,6 +120,12 @@ func (c *ProviderClient) refreshURLCache() error {
 	// refresh list
 	var refreshList []string
 	for _, u := range c.Providers.IPURL.URLs {
+		if c.Global.DisableCache {
+			c.Logger.Debug("cache disabled, refreshing all ipurl urls")
+			refreshList = append(refreshList, u)
+			continue
+		}
+
 		if ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName+"_"+generateURLHash(u)); err != nil {
 			return err
 		} else if !ok {
@@ -182,7 +188,7 @@ func (c *ProviderClient) loadProviderURLsFromSource(providerUrls []string) error
 
 			_, err := c.loadProviderURLFromSource(iu)
 			if err != nil {
-				c.Logger.Error("error loading provider url", "url", iu, "error", err)
+				c.Logger.Error("error loading provider", "url", iu, "error", err)
 			}
 		}()
 	}
@@ -197,7 +203,10 @@ func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix,
 	hf := ipfetcherURL.HttpFile{
 		Client: c.HttpClient,
 		Url:    pURL,
-		Debug:  false,
+	}
+
+	if c.Global.LogLevel == "debug" {
+		hf.Debug = true
 	}
 
 	hfPrefixes, err := hf.FetchPrefixes()
