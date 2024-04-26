@@ -7,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"net/netip"
-	"sort"
-	"strings"
 	"sync"
 	"time"
 
@@ -157,16 +155,6 @@ func generateURLHash(us string) string {
 	r := hex.EncodeToString(h.Sum(nil))
 
 	return r[:providers.CacheKeySHALen]
-}
-
-func generateURLsHash(urls []string) string {
-	sort.Strings(urls)
-
-	s := strings.Join(urls, "")
-	h := sha1.New()
-	h.Write([]byte(s))
-
-	return hex.EncodeToString(h.Sum(nil))[:providers.CacheKeySHALen]
 }
 
 type StoredPrefixes struct {
