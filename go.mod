@@ -22,7 +22,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-replace github.com/jonhadfield/ip-fetcher => ../ip-fetcher
+//replace github.com/jonhadfield/ip-fetcher => ../ip-fetcher
 
 //replace github.com/likexian/whois-parser => ../whois-parser
 

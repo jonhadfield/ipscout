@@ -82,6 +82,8 @@ github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jedib0t/go-pretty/v6 v6.5.8 h1:8BCzJdSvUbaDuRba4YVh+SKMGcAAKdkcF3SVFbrHAtQ=
 github.com/jedib0t/go-pretty/v6 v6.5.8/go.mod h1:zbn98qrYlh95FIhwwsbIip0LYpwSG8SUOScs+v9/t0E=
+github.com/jonhadfield/ip-fetcher v0.0.0-20240425080718-0e781903ca1e h1:bxTJ8DOGL2ILbCXS5SY9MyLm2XVdsfohDSrkPPDbksI=
+github.com/jonhadfield/ip-fetcher v0.0.0-20240425080718-0e781903ca1e/go.mod h1:M6scHYU83suJVqeqdp6OqiTMHrLxoo+lU7FZbzG7hFo=
 github.com/jszwec/csvutil v1.10.0 h1:upMDUxhQKqZ5ZDCs/wy+8Kib8rZR8I8lOR34yJkdqhI=
 github.com/jszwec/csvutil v1.10.0/go.mod h1:/E4ONrmGkwmWsk9ae9jpXnv9QT8pLHEPcCirMFhxG9I=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
