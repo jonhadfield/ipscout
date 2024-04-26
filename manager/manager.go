@@ -1,6 +1,8 @@
 package manager
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -102,6 +104,47 @@ func (c *Client) Delete(keys []string) error {
 	if err = cache.DeleteMultiple(c.Config.Logger, db, keys); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (c *Client) Get(key string, raw bool) error {
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		c.Config.Logger.Error("failed to get home directory", "error", err)
+
+		os.Exit(1)
+	}
+
+	db, err := cache.Create(c.Config.Logger, filepath.Join(homeDir, ".config", "ipscout"))
+	if err != nil {
+		c.Config.Logger.Error("failed to create cache", "error", err)
+
+		os.Exit(1)
+	}
+
+	c.Config.Cache = db
+
+	defer db.Close()
+
+	item, err := cache.Read(c.Config.Logger, db, key)
+	if err != nil {
+		return err
+	}
+
+	//var out []byte
+	if raw {
+		fmt.Printf("%s\n", item.Value)
+
+		return nil
+	}
+
+	out, err := json.MarshalIndent(*item, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", out)
 
 	return nil
 }

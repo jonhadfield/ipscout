@@ -25,6 +25,7 @@ func newCacheCommand() *cobra.Command {
 	}
 
 	cacheCmd.AddCommand(newCacheDelCommand())
+	cacheCmd.AddCommand(newCacheGetCommand())
 	cacheCmd.AddCommand(newCacheListCommand())
 
 	return cacheCmd
@@ -75,4 +76,36 @@ func newCacheDelCommand() *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func newCacheGetCommand() *cobra.Command {
+	var (
+		raw bool
+	)
+
+	cmd := &cobra.Command{
+		Use:   "get",
+		Short: "get item from cache",
+		Long:  `get a cached item by providing its key.`,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return initConfig(cmd)
+		},
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			mgr, err := manager.NewClient(conf)
+			if err != nil {
+				os.Exit(1)
+			}
+
+			if err = mgr.Get(args[0], raw); err != nil {
+				return err
+			}
+
+			return nil
+		},
+	}
+
+	cmd.PersistentFlags().BoolVar(&raw, "raw", false, "raw data only")
+
+	return cmd
 }
