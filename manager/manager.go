@@ -27,9 +27,9 @@ var timeFormat = "2006-01-02 15:04:05 MST"
 
 func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, error) {
 	tw := table.NewWriter()
-	tw.AppendHeader(table.Row{"Key", "Expires", "Size"})
+	tw.AppendHeader(table.Row{"Key", "Expires", "Size", "App Version"})
 	for _, x := range info {
-		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(timeFormat), humanize.Bytes(uint64(x.EstimatedSize))})
+		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(timeFormat), humanize.Bytes(uint64(x.EstimatedSize)), present.DashIfEmpty(x.AppVersion)})
 	}
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 20},
@@ -139,14 +139,16 @@ func (c *Client) Get(key string, raw bool) error {
 	}
 
 	type PresentationItem struct {
-		Key     string
-		Value   json.RawMessage
-		Version string
-		Created string
+		AppVersion string
+		Key        string
+		Value      json.RawMessage
+		Version    string
+		Created    string
 	}
 
 	var pItem PresentationItem
 	pItem.Key = item.Key
+	pItem.AppVersion = item.AppVersion
 	pItem.Version = item.Version
 	pItem.Created = item.Created.Format(timeFormat)
 	pItem.Value = item.Value
@@ -162,6 +164,7 @@ func (c *Client) Get(key string, raw bool) error {
 }
 
 type CacheItemInfo struct {
+	AppVersion    string
 	Key           string
 	Value         []byte
 	ExpiresAt     time.Time

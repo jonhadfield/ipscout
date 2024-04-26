@@ -91,10 +91,11 @@ func (c *ProviderClient) loadProviderData() error {
 	}
 
 	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-		Key:     providers.CacheProviderPrefix + ProviderName,
-		Value:   data,
-		Version: doc.ETag,
-		Created: time.Now(),
+		AppVersion: c.App.Version,
+		Key:        providers.CacheProviderPrefix + ProviderName,
+		Value:      data,
+		Version:    doc.ETag,
+		Created:    time.Now(),
 	}, DocTTL)
 	if err != nil {
 		return err

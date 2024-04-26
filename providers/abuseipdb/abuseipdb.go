@@ -326,9 +326,10 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 	}
 
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-		Key:     cacheKey,
-		Value:   result.Raw,
-		Created: time.Now(),
+		AppVersion: c.App.Version,
+		Key:        cacheKey,
+		Value:      result.Raw,
+		Created:    time.Now(),
 	}, ResultTTL); err != nil {
 		return nil, err
 	}

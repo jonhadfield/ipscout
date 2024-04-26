@@ -226,10 +226,11 @@ func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix,
 	uh := generateURLHash(pURL)
 
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-		Key:     providers.CacheProviderPrefix + ProviderName + "_" + uh,
-		Value:   mHfPrefixes,
-		Version: "-",
-		Created: time.Now(),
+		AppVersion: c.App.Version,
+		Key:        providers.CacheProviderPrefix + ProviderName + "_" + uh,
+		Value:      mHfPrefixes,
+		Version:    "-",
+		Created:    time.Now(),
 	}, CacheTTL); err != nil {
 		return nil, err
 	}

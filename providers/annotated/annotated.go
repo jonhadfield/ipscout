@@ -187,10 +187,11 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-		Key:     providers.CacheProviderPrefix + ProviderName + "_" + uh,
-		Value:   mPWAs,
-		Version: "-",
-		Created: time.Now(),
+		AppVersion: c.App.Version,
+		Key:        providers.CacheProviderPrefix + ProviderName + "_" + uh,
+		Value:      mPWAs,
+		Version:    "-",
+		Created:    time.Now(),
 	}, CacheTTL); err != nil {
 		return err
 	}

@@ -79,9 +79,7 @@ func newCacheDelCommand() *cobra.Command {
 }
 
 func newCacheGetCommand() *cobra.Command {
-	var (
-		raw bool
-	)
+	var raw bool
 
 	cmd := &cobra.Command{
 		Use:   "get",
