@@ -13,7 +13,7 @@ ENV GOPROXY=https://proxy.golang.org
 RUN --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go mod download
 
-FROM --platform=linux/amd64 base AS builder
+FROM base AS builder
 
 ENV CGO_ENABLED=0
 ARG VERSION_VAR
@@ -24,7 +24,7 @@ WORKDIR /app
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -X \"main.version=${VERSION_VAR}\"" -o /out/ipscout -- cmd/*.go \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -X \"main.version=${VERSION_VAR}\"" -o /out/ipscout \
     && chmod +x /out/ipscout
 
 FROM --platform=linux/amd64 gcr.io/distroless/static-debian12:nonroot-amd64
