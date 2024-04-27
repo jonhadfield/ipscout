@@ -66,7 +66,7 @@ IMG    := ${NAME}:${TAG}
 LATEST := ${NAME}:latest
 
 build-docker:
-	docker build --platform=linux/amd64 --build-arg VERSION_VAR="[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -t ${IMG} .
+	docker build --platform=linux/amd64 --build-arg BUILD_TAG="$(BUILD_TAG)" --build-arg BUILD_SHA="$(BUILD_SHA)" --build-arg BUILD_DATE="$(BUILD_DATE) UTC" -t ${IMG} .
 	docker tag ${IMG} ${LATEST}
 	docker tag ${LATEST} ipscout:latest
 	docker tag ${LATEST} docker.io/jonhadfield/ipscout:latest
