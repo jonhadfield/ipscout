@@ -3,11 +3,17 @@ FROM --platform=linux/amd64 golang:1.22-bookworm AS base
 WORKDIR /src
 
 COPY ./  .
+
+RUN apt-get update && \
+    apt-get install -y git coreutils && \
+    apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV GOPROXY=https://proxy.golang.org
 RUN --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go mod download
 
-FROM base AS builder
+FROM --platform=linux/amd64 base AS builder
 
 ENV CGO_ENABLED=0
 ARG VERSION_VAR

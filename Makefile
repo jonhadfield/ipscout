@@ -57,6 +57,20 @@ install: build
 find-updates:
 	go list -u -m -json all | go-mod-outdated -update -direct
 
+NAME   := ghcr.io/jonhadfield/ipscout
+TAG    := $(shell git rev-parse --short HEAD)
+IMG    := ${NAME}:${TAG}
+LATEST := ${NAME}:latest
+
+build-docker:
+	docker build --platform=linux/x86_64 --build-arg VERSION_VAR="[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -t ${IMG} .
+	docker tag ${IMG} ${LATEST}
+	docker tag ${LATEST} ipscout:latest
+	docker tag ${LATEST} docker.io/jonhadfield/ipscout:latest
+
+scan-image:
+	trivy image ipscout:latest
+
 pull-image:
 	docker pull jonhadfield/ipscout:latest
 
