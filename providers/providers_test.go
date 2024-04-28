@@ -133,6 +133,7 @@ func TestPortMatchFilterWithPortMatchOnly(t *testing.T) {
 
 func TestPortNetworkMatchWithoutPortsSpecified(t *testing.T) {
 	var ports []string
+
 	require.True(t, PortNetworkMatch("80", ports))
 	require.True(t, PortNetworkMatch("80/udp", ports))
 }

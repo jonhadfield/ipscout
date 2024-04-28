@@ -125,9 +125,11 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
+
 	for x, ptr := range findHostData.PTR {
 		tw.AppendRow(table.Row{fmt.Sprintf("RR[%d]", x+1), ptr})
 	}
+
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: true},
 	})
@@ -180,7 +182,7 @@ func loadResponse(c config.Config, nameserver string) (res *HostSearchResult, er
 
 	rd, err := json.Marshal(res.Data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error marshalling ptr data: %w", err)
 	}
 
 	res.Raw = rd
@@ -215,7 +217,7 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	err = decoder.Decode(&res)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("error decoding ptr file: %w", err)
 	}
 
 	return res, nil
@@ -243,6 +245,7 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 
 	// load data from cache
 	cacheKey := fmt.Sprintf("ptr_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
+
 	var item *cache.Item
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		if item.Value != nil && len(item.Value) > 0 {
@@ -274,7 +277,7 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 		Value:      result.Raw,
 		Created:    time.Now(),
 	}, ResultTTL); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error caching ptr response: %w", err)
 	}
 
 	return result, nil

@@ -96,6 +96,7 @@ func (c *ProviderClient) Initialise() error {
 	}()
 
 	c.Logger.Debug("initialising abuseipdb client")
+
 	if c.Providers.AbuseIPDB.APIKey == "" && !c.UseTestData {
 		return fmt.Errorf("abuseipdb provider api key not set")
 	}
@@ -171,6 +172,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true
 	tw.SetTitle("AbuseIPDB | Host: %s", c.Host.String())
+
 	if c.UseTestData {
 		tw.SetTitle("AbuseIPDB | Host: %s", result.Data.IPAddress)
 	}
@@ -235,6 +237,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0o600); err != nil {
 			panic(err)
 		}
+
 		c.Logger.Debug("backed up abuseipdb response", "host", c.Host.String())
 	}
 
@@ -257,7 +260,9 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, err
 	}
+
 	res.Raw = data
+
 	return &res, nil
 }
 
@@ -273,7 +278,7 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	err = decoder.Decode(&res)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("error decoding abuseipdb file: %w", err)
 	}
 
 	return res, nil
@@ -301,7 +306,9 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 
 	// load data from cache
 	cacheKey := fmt.Sprintf("abuseipdb_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
+
 	var item *cache.Item
+
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		if item.Value != nil && len(item.Value) > 0 {
 			result, err = unmarshalResponse(item.Value)

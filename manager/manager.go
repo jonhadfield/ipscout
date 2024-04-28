@@ -106,7 +106,7 @@ func (c *Client) Delete(keys []string) error {
 	defer db.Close()
 
 	if err = cache.DeleteMultiple(c.Config.Logger, db, keys); err != nil {
-		return err
+		return fmt.Errorf("error deleting cache items: %w", err)
 	}
 
 	return nil
@@ -133,7 +133,7 @@ func (c *Client) Get(key string, raw bool) error {
 
 	item, err := cache.Read(c.Config.Logger, db, key)
 	if err != nil {
-		return err
+		return fmt.Errorf("error reading cache: %w", err)
 	}
 
 	if raw {
@@ -183,6 +183,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 	err := db.View(func(txn *badger.Txn) error {
 		it := txn.NewIterator(badger.DefaultIteratorOptions)
 		defer it.Close()
+
 		prefix := []byte(providers.CacheProviderPrefix)
 		// prefix := []byte(providers.CacheProviderPrefix)
 		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
@@ -197,6 +198,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 				ExpiresAt:     time.Unix(int64(item.ExpiresAt()), 0),
 			})
 		}
+
 		return nil
 	})
 	if err != nil {

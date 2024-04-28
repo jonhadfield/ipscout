@@ -55,7 +55,7 @@ func unmarshalProviderData(rBody []byte) (*aws.Doc, error) {
 	var res *aws.Doc
 
 	if err := json.Unmarshal(rBody, &res); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling aws provider doc: %w", err)
 	}
 
 	return res, nil
@@ -64,6 +64,7 @@ func unmarshalProviderData(rBody []byte) (*aws.Doc, error) {
 func (c *ProviderClient) loadProviderData() error {
 	awsClient := aws.New()
 	awsClient.Client = c.HttpClient
+
 	if c.Providers.AWS.URL != "" {
 		awsClient.DownloadURL = c.Providers.AWS.URL
 		c.Logger.Debug("overriding aws source", "url", aws.DownloadURL)
@@ -71,7 +72,7 @@ func (c *ProviderClient) loadProviderData() error {
 
 	doc, etag, err := awsClient.Fetch()
 	if err != nil {
-		return err
+		return fmt.Errorf("error fetching aws provider data: %w", err)
 	}
 
 	data, err := json.Marshal(doc)
@@ -79,13 +80,18 @@ func (c *ProviderClient) loadProviderData() error {
 		return fmt.Errorf("error marshalling aws provider doc: %w", err)
 	}
 
-	return cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
+	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.Version,
 		Key:        providers.CacheProviderPrefix + ProviderName,
 		Value:      data,
 		Version:    etag,
 		Created:    time.Now(),
 	}, DocTTL)
+	if err != nil {
+		return fmt.Errorf("error caching aws provider data: %w", err)
+	}
+
+	return nil
 }
 
 func (c *ProviderClient) Initialise() error {
@@ -140,9 +146,12 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 
 func (c *ProviderClient) loadProviderDataFromCache() (*aws.Doc, error) {
 	cacheKey := providers.CacheProviderPrefix + ProviderName
+
 	var doc *aws.Doc
+
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		var uErr error
+
 		doc, uErr = unmarshalProviderData(item.Value)
 		if uErr != nil {
 			defer func() {
@@ -223,6 +232,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o600); err != nil {
 			panic(err)
 		}
+
 		c.Logger.Info("backed up aws response", "host", c.Host.String())
 	}
 
@@ -298,7 +308,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		case errors.Is(err, providers.ErrNoDataFound):
 			return nil, fmt.Errorf("data not loaded: %w", err)
 		case errors.Is(err, providers.ErrFailedToFetchData):
-			return nil, err
+			return nil, fmt.Errorf("error fetching aws data: %w", err)
 		case errors.Is(err, providers.ErrNoMatchFound):
 			// reset the error as no longer useful for table creation
 			return nil, nil
@@ -313,6 +323,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix.IPPrefix.String())})
 	tw.AppendRow(table.Row{"Service", dashIfEmpty(result.Prefix.Service)})
 	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Prefix.Region)})
+
 	if !result.CreateDate.IsZero() {
 		tw.AppendRow(table.Row{"Source Update", dashIfEmpty(result.CreateDate.String())})
 	}
@@ -350,7 +361,7 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	err = decoder.Decode(&res)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("error decoding json: %w", err)
 	}
 
 	return res, nil
@@ -371,11 +382,13 @@ func dashIfEmpty(value interface{}) string {
 		if len(v) == 0 {
 			return "-"
 		}
+
 		return v
 	case *string:
 		if v == nil || len(*v) == 0 {
 			return "-"
 		}
+
 		return *v
 	case int:
 		return fmt.Sprintf("%d", v)

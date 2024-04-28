@@ -54,7 +54,7 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	var res *HostSearchResult
 
 	if err := json.Unmarshal(rBody, &res); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
 
 	res.Raw = rBody
@@ -66,7 +66,7 @@ func unmarshalProviderData(data []byte) (*digitalocean.Doc, error) {
 	var res *digitalocean.Doc
 
 	if err := json.Unmarshal(data, &res); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling digitalocean data: %w", err)
 	}
 
 	return res, nil
@@ -75,6 +75,7 @@ func unmarshalProviderData(data []byte) (*digitalocean.Doc, error) {
 func (c *ProviderClient) loadProviderData() error {
 	digitaloceanClient := digitalocean.New()
 	digitaloceanClient.Client = c.HttpClient
+
 	if c.Providers.DigitalOcean.URL != "" {
 		digitaloceanClient.DownloadURL = c.Providers.DigitalOcean.URL
 		c.Logger.Debug("overriding digitalocean source", "url", digitaloceanClient.DownloadURL)
@@ -87,7 +88,7 @@ func (c *ProviderClient) loadProviderData() error {
 
 	data, err := json.Marshal(doc)
 	if err != nil {
-		return err
+		return fmt.Errorf("error marshalling digitalocean provider doc: %w", err)
 	}
 
 	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
@@ -98,7 +99,7 @@ func (c *ProviderClient) loadProviderData() error {
 		Created:    time.Now(),
 	}, DocTTL)
 	if err != nil {
-		return err
+		return fmt.Errorf("error upserting digitalocean data: %w", err)
 	}
 
 	return nil
@@ -257,6 +258,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
+
 	var rows []table.Row
 
 	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Record.NetworkText)})
@@ -264,6 +266,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{"City Name", dashIfEmpty(result.Record.CityName)})
 	tw.AppendRow(table.Row{"City Code", dashIfEmpty(result.Record.CityCode)})
 	tw.AppendRow(table.Row{"Zip Code", dashIfEmpty(result.Record.ZipCode)})
+
 	if !result.LastModified.IsZero() {
 		tw.AppendRow(table.Row{"Source Update", dashIfEmpty(result.LastModified.String())})
 	}
@@ -278,6 +281,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("DigitalOcean IP | Host: %s", c.Host.String())
+
 	if c.UseTestData {
 		tw.SetTitle("DigitalOcean IP | Host: %s", result.Record.NetworkText)
 	}

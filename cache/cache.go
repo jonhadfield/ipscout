@@ -32,7 +32,7 @@ func Create(logger *slog.Logger, path string) (*badger.DB, error) {
 
 	db, err := badger.Open(badger.DefaultOptions(filepath.Join(path, "cache")).WithLogger(nil))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating cache: %w", err)
 	}
 
 	return db, nil
@@ -41,7 +41,7 @@ func Create(logger *slog.Logger, path string) (*badger.DB, error) {
 func UpsertWithTTL(logger *slog.Logger, db *badger.DB, item Item, ttl time.Duration) error {
 	mItem, err := json.Marshal(item)
 	if err != nil {
-		return err
+		return fmt.Errorf("error marshalling cache item: %w", err)
 	}
 
 	logger.Info("upserting item", "key", item.Key, "value len", len(mItem), "ttl", ttl.String())
@@ -66,7 +66,7 @@ func Read(logger *slog.Logger, db *badger.DB, key string) (*Item, error) {
 			logger.Debug("read cache item", "key", key, "value len", len(val))
 
 			if uErr := json.Unmarshal(val, &item); uErr != nil {
-				return uErr
+				return fmt.Errorf("error unmarshalling cache item: %w", uErr)
 			}
 
 			return nil
@@ -83,6 +83,7 @@ func CheckExists(logger *slog.Logger, db *badger.DB, key string) (bool, error) {
 	logger.Debug("checking cache item exists", "key", key)
 
 	var found bool
+
 	err := db.View(func(txn *badger.Txn) error {
 		_, tErr := txn.Get([]byte(key))
 		if tErr != nil {
@@ -98,7 +99,7 @@ func CheckExists(logger *slog.Logger, db *badger.DB, key string) (bool, error) {
 		return nil
 	})
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("error checking cache item exists: %w", err)
 	}
 
 	return found, nil
@@ -116,6 +117,7 @@ func DeleteMultiple(logger *slog.Logger, db *badger.DB, keys []string) error {
 	logger.Info("deleting cache items", "keys", keys)
 
 	var deleted int
+
 	var notfound int
 
 	for _, key := range keys {

@@ -107,6 +107,7 @@ func portAgeCheck(portConfirmedTime string, timeFormat string, maxAge string) (b
 	}
 
 	var confirmedTime time.Time
+
 	var err error
 
 	maxAgeHours, err := AgeToHours(maxAge)
@@ -116,11 +117,11 @@ func portAgeCheck(portConfirmedTime string, timeFormat string, maxAge string) (b
 
 	confirmedTime, err = time.Parse(timeFormat, portConfirmedTime)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("error parsing confirmed time: %w", err)
 	}
 
 	if confirmedTime.After(time.Now().Add(-time.Duration(maxAgeHours) * time.Hour)) {
-		return true, err
+		return true, nil
 	}
 
 	return false, nil
@@ -253,11 +254,13 @@ func DashIfEmpty(value interface{}) string {
 		if len(trimmed) == 0 {
 			return "-"
 		}
+
 		return v
 	case *string:
 		if v == nil || len(strings.TrimSpace(*v)) == 0 {
 			return "-"
 		}
+
 		return *v
 	case int:
 		return fmt.Sprintf("%d", v)

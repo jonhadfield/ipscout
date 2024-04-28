@@ -69,7 +69,9 @@ func newRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVar(&disableCache, "disable-cache", false, "disable cache")
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", nil, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
+
 	cacheCommand := newCacheCommand()
+
 	rootCmd.AddCommand(cacheCommand)
 	rootCmd.AddCommand(versionCmd)
 
@@ -88,6 +90,7 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().VisitAll(func(flg *pflag.Flag) {
 		configName := flg.Name
 		v.Set(configName, flg.Value)
+
 		if !flg.Changed && v.IsSet(configName) {
 			val := v.Get(configName)
 			if err := cmd.Flags().Set(flg.Name, fmt.Sprintf("%v", val)); err != nil {

@@ -112,7 +112,7 @@ func (c *ProviderClient) Initialise() error {
 
 	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
 	if err != nil {
-		return err
+		return fmt.Errorf("error checking cache for azure provider data: %w", err)
 	}
 
 	if ok {
@@ -154,6 +154,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (*azure.Doc, error) {
 
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		var uErr error
+
 		doc, uErr = unmarshalProviderData(item.Value)
 		if uErr != nil {
 			defer func() {
@@ -162,7 +163,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (*azure.Doc, error) {
 
 			return nil, fmt.Errorf("error unmarshalling cached azure provider doc: %w", uErr)
 		}
-	} else if err != nil {
+	} else {
 		return nil, fmt.Errorf("error reading azure provider data from cache: %w", err)
 	}
 
@@ -188,6 +189,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	// load test results data
 	if c.UseTestData {
 		var loadErr error
+
 		out, loadErr = loadTestData(c)
 		if err != nil {
 			return nil, loadErr
@@ -225,6 +227,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o600); err != nil {
 			panic(err)
 		}
+
 		c.Logger.Info("backed up azure response", "host", c.Host.String())
 	}
 
@@ -240,7 +243,7 @@ func matchIPToDoc(host netip.Addr, doc *azure.Doc) (*HostSearchResult, error) {
 		for _, prefix := range props.AddressPrefixes {
 			p, err := netip.ParsePrefix(prefix)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("error parsing prefix: %w", err)
 			}
 
 			if p.Contains(host) {
@@ -271,24 +274,26 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}()
 
 	var err error
+
 	var result HostSearchResult
+
 	if err = json.Unmarshal(data, &result); err != nil {
 		return nil, fmt.Errorf("error unmarshalling azure data: %w", err)
 	}
 
-	if err != nil {
-		switch {
-		case errors.Is(err, providers.ErrNoDataFound):
-			return nil, fmt.Errorf("data not loaded: %w", err)
-		case errors.Is(err, providers.ErrFailedToFetchData):
-			return nil, err
-		case errors.Is(err, providers.ErrNoMatchFound):
-			// reset the error as no longer useful for table creation
-			return nil, nil
-		default:
-			return nil, fmt.Errorf("error loading azure api response: %w", err)
-		}
-	}
+	//if err != nil {
+	//	switch {
+	//	case errors.Is(err, providers.ErrNoDataFound):
+	//		return nil, fmt.Errorf("data not loaded: %w", err)
+	//	case errors.Is(err, providers.ErrFailedToFetchData):
+	//		return nil, err
+	//	case errors.Is(err, providers.ErrNoMatchFound):
+	//		// reset the error as no longer useful for table creation
+	//		return nil, nil
+	//	default:
+	//		return nil, fmt.Errorf("error loading azure api response: %w", err)
+	//	}
+	//}
 
 	tw := table.NewWriter()
 
@@ -308,6 +313,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("AZURE | Host: %s", c.Host.String())
+
 	if c.UseTestData {
 		tw.SetTitle("AZURE | Host: %s", result.Prefix.String())
 	}
@@ -327,7 +333,7 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	err = decoder.Decode(&res)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("error decoding file: %w", err)
 	}
 
 	return res, nil
@@ -349,11 +355,13 @@ func dashIfEmpty(value interface{}) string {
 		if len(v) == 0 {
 			return "-"
 		}
+
 		return v
 	case *string:
 		if v == nil || len(*v) == 0 {
 			return "-"
 		}
+
 		return *v
 	case int:
 		return fmt.Sprintf("%d", v)

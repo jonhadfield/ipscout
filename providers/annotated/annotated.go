@@ -120,7 +120,7 @@ func ReadAnnotatedPrefixesFromFile(l *slog.Logger, path string, prefixesWithAnno
 		}
 	}
 
-	return err
+	return fmt.Errorf("error parsing prefixes: %w", err)
 }
 
 func parseAndRepackYAMLAnnotations(l *slog.Logger, source string, yas []yamlAnnotation) (pyas []annotation) {
@@ -160,7 +160,7 @@ func (c *ProviderClient) Initialise() error {
 
 	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName+"_"+uh)
 	if err != nil {
-		return err
+		return fmt.Errorf("error checking cache for annotated provider data: %w", err)
 	}
 
 	if ok {
@@ -171,6 +171,7 @@ func (c *ProviderClient) Initialise() error {
 
 	// load data from source and store in cache
 	prefixesWithAnnotations := make(map[netip.Prefix][]annotation)
+
 	err = LoadAnnotatedIPPrefixesFromPaths(c.Providers.Annotated.Paths, prefixesWithAnnotations)
 	if err != nil {
 		return fmt.Errorf("loading annotated files: %w", err)
@@ -188,7 +189,7 @@ func (c *ProviderClient) Initialise() error {
 		Version:    "-",
 		Created:    time.Now(),
 	}, CacheTTL); err != nil {
-		return err
+		return fmt.Errorf("error caching annotated prefixes: %w", err)
 	}
 
 	return nil
@@ -215,7 +216,9 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}()
 
 	var err error
+
 	var result HostSearchResult
+
 	if err = json.Unmarshal(data, &result); err != nil {
 		switch {
 		case errors.Is(err, providers.ErrNoDataFound):
@@ -231,6 +234,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
+
 	var rows []table.Row
 
 	for prefix, annotations := range result {
@@ -248,6 +252,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 						tw.AppendRow(table.Row{"Notes", anno.Notes[x]})
 						continue
 					}
+
 					tw.AppendRow(table.Row{"", anno.Notes[x]})
 				}
 			}
@@ -285,6 +290,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	c.Logger.Info("annotated match found", "host", c.Host.String())
 
 	var raw []byte
@@ -395,7 +401,7 @@ func getValidFilePathsFromDir(l *slog.Logger, dir string) (paths []os.DirEntry) 
 func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotations map[netip.Prefix][]annotation) error {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		return err
+		return fmt.Errorf("file does not exist: %w", err)
 	}
 
 	path, err = filepath.Abs(path)

@@ -105,6 +105,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0o600); err != nil {
 			panic(err)
 		}
+
 		c.Logger.Debug("backed up shodan response", "host", c.Host.String())
 	}
 
@@ -125,9 +126,11 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	var res HostSearchResult
 
 	if err := json.Unmarshal(data, &res); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling shodan data: %w", err)
 	}
+
 	res.Raw = data
+
 	return &res, nil
 }
 
@@ -143,7 +146,7 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	err = decoder.Decode(&res)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("error decoding shodan file: %w", err)
 	}
 
 	return res, nil
@@ -180,7 +183,9 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 
 	// load data from cache
 	cacheKey := fmt.Sprintf("shodan_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
+
 	var item *cache.Item
+
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		if item.Value != nil && len(item.Value) > 0 {
 			result, err = unmarshalResponse(item.Value)
@@ -211,7 +216,7 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 		Value:      result.Raw,
 		Created:    time.Now(),
 	}, ResultTTL); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error caching shodan response: %w", err)
 	}
 
 	return result, nil
@@ -415,6 +420,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 					fmt.Sprintf("%s  DNS",
 						IndentPipeHyphens),
 				})
+
 				if dr.DNS.ResolverHostname != "" {
 					rows = append(rows, table.Row{
 						"",
@@ -422,6 +428,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 							IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.DNS.ResolverHostname),
 					})
 				}
+
 				if dr.DNS.Software != nil {
 					rows = append(rows, table.Row{
 						"",
@@ -443,10 +450,12 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
 		})
 	}
+
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true
 	tw.SetTitle("SHODAN | Host: %s", c.Host.String())
+
 	if c.UseTestData {
 		tw.SetTitle("SHODAN | Host: %s", result.Data[0].IPStr)
 	}

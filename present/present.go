@@ -66,6 +66,7 @@ func outputTables(c *config.Config, tws []*table.Writer) {
 	twOuter.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMin: 60},
 	})
+
 	myOuterStyle.Box = table.StyleBoxRounded
 	myOuterStyle.Options.SeparateRows = true
 	myOuterStyle.Options.DrawBorder = true

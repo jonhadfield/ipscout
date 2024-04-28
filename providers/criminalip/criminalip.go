@@ -62,7 +62,7 @@ type Config struct {
 func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (res *HostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error joining criminal ip api url: %w", err)
 	}
 
 	sURL, err := url.Parse(urlPath)
@@ -81,9 +81,11 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 	if err != nil {
 		panic(err)
 	}
+
 	conf.HttpClient.HTTPClient.Timeout = 30 * time.Second
 
 	req.Header.Add("x-api-key", apiKey)
+
 	resp, err := conf.HttpClient.Do(req)
 	if err != nil {
 		panic(err)
@@ -132,7 +134,7 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	var res *HostSearchResult
 
 	if err := json.Unmarshal(rBody, &res); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling criminal ip response: %w", err)
 	}
 
 	return res, nil
@@ -285,6 +287,7 @@ func (c *ProviderClient) GenPortDataForTable(in []PortDataEntry) (GeneratePortDa
 			ConfirmedDateFormat: time.DateTime,
 			MaxAge:              c.Global.MaxAge,
 		})
+
 		if err != nil {
 			return GeneratePortDataForTableOutput{}, fmt.Errorf("error checking port match filter: %w", err)
 		}
@@ -304,7 +307,7 @@ func (c *ProviderClient) GenPortDataForTable(in []PortDataEntry) (GeneratePortDa
 		}
 	}
 
-	return out, err
+	return out, fmt.Errorf("error generating port data for table: %w", err)
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
@@ -415,7 +418,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error opening file: %w", err)
 	}
 
 	defer jf.Close()

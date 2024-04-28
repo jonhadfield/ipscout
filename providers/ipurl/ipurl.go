@@ -58,6 +58,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	for prefix, urls := range pwp {
 		if prefix.Contains(c.Host) {
 			c.Logger.Info("ipurl match found", "host", c.Host.String(), "urls", urls)
+
 			if matches == nil {
 				matches = make(map[netip.Prefix][]string)
 			}
@@ -130,7 +131,7 @@ func (c *ProviderClient) refreshURLCache() error {
 		}
 
 		if ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName+"_"+generateURLHash(u)); err != nil {
-			return err
+			return fmt.Errorf("error checking cache for ipurl provider data: %w", err)
 		} else if !ok {
 			// add to refresh list
 			refreshList = append(refreshList, u)
@@ -222,7 +223,7 @@ func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix,
 	var mHfPrefixes []byte
 
 	if mHfPrefixes, err = json.Marshal(hfPrefixes); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error marshalling ipurl provider doc: %w", err)
 	}
 
 	uh := generateURLHash(pURL)
@@ -234,7 +235,7 @@ func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix,
 		Version:    "-",
 		Created:    time.Now(),
 	}, CacheTTL); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error upserting ipurl provider data: %w", err)
 	}
 
 	return hfPrefixes, nil
@@ -293,7 +294,7 @@ func unmarshalResponse(rBody []byte) (HostSearchResult, error) {
 	var res HostSearchResult
 
 	if err := json.Unmarshal(rBody, &res); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling ipurl api response: %w", err)
 	}
 
 	return res, nil
