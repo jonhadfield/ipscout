@@ -258,7 +258,7 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	var res HostSearchResult
 
 	if err := json.Unmarshal(data, &res); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling abuseipdb response: %w", err)
 	}
 
 	res.Raw = data

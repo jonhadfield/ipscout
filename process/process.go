@@ -231,6 +231,7 @@ func (p *Processor) Run() {
 	results.RUnlock()
 
 	p.Config.Logger.Info("host matching results", "providers queried", len(providerClients), "matching results", matchingResults)
+
 	if matchingResults == 0 {
 		p.Config.Logger.Warn("no results found", "host", p.Config.Host.String(), "providers checked", strings.Join(enabledProviders, ", "))
 

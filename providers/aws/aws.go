@@ -186,6 +186,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	// load test results data
 	if c.UseTestData {
 		var loadErr error
+
 		out, loadErr = loadTestData(c)
 		if loadErr != nil {
 			return nil, loadErr
@@ -318,6 +319,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
+
 	var rows []table.Row
 
 	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix.IPPrefix.String())})
@@ -342,6 +344,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("AWS IP | Host: %s", c.Host.String())
+
 	if c.UseTestData {
 		tw.SetTitle("AWS IP | Host: %s", result.Prefix.IPPrefix.String())
 	}

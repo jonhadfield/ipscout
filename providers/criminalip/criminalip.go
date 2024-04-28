@@ -387,6 +387,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 		// always include if detected as vulnerability
 		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Is Vulnerability: %t", IndentPipeHyphens, port.IsVulnerability)})
+
 		if x+1 < len(result.Port.Data) {
 			// add a blank row between ports
 			tw.AppendRow(table.Row{"", ""})

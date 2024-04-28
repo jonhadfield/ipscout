@@ -224,6 +224,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	}
 
 	var raw []byte
+
 	raw, err = json.Marshal(result)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)

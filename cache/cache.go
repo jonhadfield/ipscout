@@ -45,10 +45,16 @@ func UpsertWithTTL(logger *slog.Logger, db *badger.DB, item Item, ttl time.Durat
 	}
 
 	logger.Info("upserting item", "key", item.Key, "value len", len(mItem), "ttl", ttl.String())
-	return db.Update(func(txn *badger.Txn) error {
+
+	err = db.Update(func(txn *badger.Txn) error {
 		e := badger.NewEntry([]byte(item.Key), mItem).WithTTL(ttl)
 		return txn.SetEntry(e)
 	})
+	if err != nil {
+		return fmt.Errorf("error upserting cache item: %w", err)
+	}
+
+	return nil
 }
 
 func Read(logger *slog.Logger, db *badger.DB, key string) (*Item, error) {

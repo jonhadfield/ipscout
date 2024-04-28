@@ -50,6 +50,7 @@ func AgeToHours(age string) (int64, error) {
 	}
 
 	var ageNum int64
+
 	ageNum, err := strconv.ParseInt(age, 10, 64)
 	if err != nil {
 		return 0, fmt.Errorf("error parsing age: %w", err)

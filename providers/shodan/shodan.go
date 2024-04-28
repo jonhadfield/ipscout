@@ -414,6 +414,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 						IndentPipeHyphens, strings.Repeat(" ", 2*c.Global.IndentSpaces), dr.Ssl.Cert.Expires),
 				})
 			}
+
 			if dr.DNS.ResolverHostname != nil {
 				rows = append(rows, table.Row{
 					"",
