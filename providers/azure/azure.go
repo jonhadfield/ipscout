@@ -130,7 +130,7 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	tdf, err := loadResultsFile("providers/azure/testdata/azure_18_164_52_75_report.json")
+	tdf, err := loadResultsFile("providers/azure/testdata/azure_40_126_12_192_report.json")
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		var loadErr error
 
 		out, loadErr = loadTestData(c)
-		if err != nil {
+		if loadErr != nil {
 			return nil, loadErr
 		}
 
@@ -218,8 +218,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
 	}
-
-	// match.Raw = raw
 
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
@@ -315,7 +313,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetTitle("AZURE | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("AZURE | Host: %s", result.Prefix.String())
+		tw.SetTitle("AZURE | Host: 40.126.12.192")
 	}
 
 	return &tw, nil

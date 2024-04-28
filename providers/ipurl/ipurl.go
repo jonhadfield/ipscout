@@ -372,6 +372,10 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetAutoIndex(false)
 	tw.SetTitle("IP URLs | Host: %s", c.Host.String())
 
+	if c.UseTestData {
+		tw.SetTitle("IP URLs | Host: 5.105.62.60")
+	}
+
 	return &tw, nil
 }
 

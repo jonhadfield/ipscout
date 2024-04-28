@@ -140,18 +140,23 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	return res, nil
 }
 
-func fetchData(client config.Config) (*HostSearchResult, error) {
-	if client.UseTestData {
-		result, err := loadResultsFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
-		if err != nil {
-			return nil, err
-		}
-
-		client.Logger.Info("loaded criminal ip test data", "host", client.Host.String())
-
-		return result, nil
+func loadTestData(c *ProviderClient) ([]byte, error) {
+	tdf, err := loadResultsFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
+	if err != nil {
+		return nil, err
 	}
 
+	c.Logger.Info("criminalip match returned from test data", "host", "9.9.9.9")
+
+	out, err := json.Marshal(tdf)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling test data: %w", err)
+	}
+
+	return out, nil
+}
+
+func fetchData(client config.Config) (*HostSearchResult, error) {
 	cacheKey := fmt.Sprintf("criminalip_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
 	if item, err := cache.Read(client.Logger, client.Cache, cacheKey); err == nil {
 		if item != nil {
@@ -248,6 +253,10 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
 		c.Stats.Mu.Unlock()
 	}()
+
+	if c.UseTestData {
+		return loadTestData(c)
+	}
 
 	if c.Host.Is6() {
 		return nil, fmt.Errorf("ipv6 not supported by criminalip: %w", providers.ErrNoMatchFound)

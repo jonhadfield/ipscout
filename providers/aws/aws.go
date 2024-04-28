@@ -340,7 +340,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetTitle("AWS IP | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("AWS IP | Host: %s", result.Prefix.IPPrefix.String())
+		tw.SetTitle("AWS IP | Host: 18.164.100.99")
 	}
 
 	return &tw, nil
