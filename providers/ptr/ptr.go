@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jonhadfield/ipscout/providers"
 	"log"
 	"net/netip"
 	"os"
@@ -165,7 +166,7 @@ func loadResponse(c config.Config, nameserver string) (res *HostSearchResult, er
 		log.Fatal(err)
 	}
 	if len(r.Answer) == 0 {
-		log.Fatal("no results")
+		return nil, providers.ErrNoDataFound
 	}
 
 	for _, ans := range r.Answer {
