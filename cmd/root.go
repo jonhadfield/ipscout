@@ -35,7 +35,7 @@ func newRootCommand() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "ipscout",
 		Short: "ipscout",
-		Long:  `IP Scout is a CLI application to prod to an IP address.`,
+		Long:  `IPScout is a CLI application to prod to an IP address.`,
 		Args:  cobra.MinimumNArgs(0),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return initConfig(cmd)
