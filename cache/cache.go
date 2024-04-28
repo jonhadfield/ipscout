@@ -38,18 +38,6 @@ func Create(logger *slog.Logger, path string) (*badger.DB, error) {
 	return db, nil
 }
 
-func Upsert(logger *slog.Logger, db *badger.DB, item Item) error {
-	mItem, err := json.Marshal(item)
-	if err != nil {
-		return err
-	}
-
-	logger.Info("upserting item", "key", item.Key, "value len", len(mItem))
-	return db.Update(func(txn *badger.Txn) error {
-		return txn.Set([]byte(item.Key), mItem)
-	})
-}
-
 func UpsertWithTTL(logger *slog.Logger, db *badger.DB, item Item, ttl time.Duration) error {
 	mItem, err := json.Marshal(item)
 	if err != nil {
@@ -71,7 +59,7 @@ func Read(logger *slog.Logger, db *badger.DB, key string) (*Item, error) {
 	err := db.View(func(txn *badger.Txn) error {
 		itemFound, tErr := txn.Get([]byte(key))
 		if tErr != nil {
-			return tErr
+			return fmt.Errorf("error getting cache item: %w", tErr)
 		}
 
 		return itemFound.Value(func(val []byte) error {
@@ -85,7 +73,7 @@ func Read(logger *slog.Logger, db *badger.DB, key string) (*Item, error) {
 		})
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error reading cache item: %w", err)
 	}
 
 	return item, nil

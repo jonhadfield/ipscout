@@ -119,10 +119,13 @@ func (c *ProviderClient) Initialise() error {
 func (c *ProviderClient) refreshURLCache() error {
 	// refresh list
 	var refreshList []string
+
 	for _, u := range c.Providers.IPURL.URLs {
 		if c.Global.DisableCache {
 			c.Logger.Debug("cache disabled, refreshing all ipurl urls")
+
 			refreshList = append(refreshList, u)
+
 			continue
 		}
 
@@ -183,6 +186,7 @@ func (c *ProviderClient) loadProviderURLsFromSource(providerUrls []string) error
 	// this will identify the data we cache based of this input
 	for _, iu := range providerUrls {
 		wg.Add(1)
+
 		go func() {
 			defer wg.Done()
 
@@ -216,6 +220,7 @@ func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix,
 
 	// cache the prefixes for this url
 	var mHfPrefixes []byte
+
 	if mHfPrefixes, err = json.Marshal(hfPrefixes); err != nil {
 		return nil, err
 	}
@@ -313,6 +318,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw := table.NewWriter()
 	tw.AppendRow(table.Row{color.HiWhiteString("Prefixes")})
+
 	for prefix, urls := range result {
 		tw.AppendRow(table.Row{"", color.CyanString(prefix.String())})
 		for _, url := range urls {

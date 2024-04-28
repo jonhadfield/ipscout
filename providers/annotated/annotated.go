@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log/slog"
 	"net/netip"
 	"os"
@@ -20,8 +19,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/araddon/dateparse"
-
-	_ "io/fs"
 
 	_ "regexp"
 
@@ -258,7 +255,6 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 			tw.AppendRow(table.Row{"Source", anno.Source})
 		}
-
 	}
 
 	tw.AppendRows(rows)
@@ -302,7 +298,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	// TODO: remove before release
 	//if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 	//	if err = os.WriteFile(fmt.Sprintf("%s/backups/annotated_%s_report.json", config.GetConfigRoot("", config.AppName),
-	//		strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o644); err != nil {
+	//		strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o600); err != nil {
 	//		panic(err)
 	//	}
 	//	c.Logger.Info("backed up annotated response", "host", c.Host.String())
@@ -375,8 +371,8 @@ type Repository struct {
 	Patterns    []string `toml:"patterns"`
 }
 
-func getValidFilePathsFromDir(l *slog.Logger, dir string) (paths []os.FileInfo) {
-	files, err := ioutil.ReadDir(dir)
+func getValidFilePathsFromDir(l *slog.Logger, dir string) (paths []os.DirEntry) {
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		l.Warn("failed to read", "dir", dir, "error", err.Error())
 	}
@@ -409,25 +405,31 @@ func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotation
 
 	var fileCount int64
 
-	var files []os.FileInfo
+	var fileNames []string
 
 	pathIsDir := info.IsDir()
 	if pathIsDir {
-		// if directory, then retrieve all files within
-		files = getValidFilePathsFromDir(nil, path)
+		// if directory, then retrieve all dirEntries within
+		dirEntries := getValidFilePathsFromDir(nil, path)
+		for _, file := range dirEntries {
+			// only read up to one level deep
+			if !file.IsDir() {
+				fileNames = append(fileNames, file.Name())
+			}
+		}
 	} else {
-		files = []os.FileInfo{info}
+		fileNames = []string{info.Name()}
 	}
 
-	for _, file := range files {
-		// set the file to read to the path
+	for _, fileName := range fileNames {
+		// set the entry to read to the path
 		fPath := path
 		// prefix with path if it was a directory
 		if pathIsDir {
-			fPath = filepath.Join(path, file.Name())
+			fPath = filepath.Join(path, fileName)
 		}
 
-		// Get annotations from file
+		// Get annotations from entry
 		err = ReadAnnotatedPrefixesFromFile(nil, fPath, prefixesWithAnnotations)
 		if err != nil {
 			return err

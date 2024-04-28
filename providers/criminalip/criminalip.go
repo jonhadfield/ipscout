@@ -82,6 +82,7 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 		panic(err)
 	}
 	conf.HttpClient.HTTPClient.Timeout = 30 * time.Second
+
 	req.Header.Add("x-api-key", apiKey)
 	resp, err := conf.HttpClient.Do(req)
 	if err != nil {
@@ -108,7 +109,6 @@ func loadAPIResponse(ctx context.Context, conf *config.Config, apiKey string) (r
 			strings.ReplaceAll(conf.Host.String(), ".", "_")), rBody, 0o600); err != nil {
 			panic(err)
 		}
-		// c.Logger.Debug("backed up criminalip response", "host", c.Host.String())
 	}
 
 	defer resp.Body.Close()
@@ -327,6 +327,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw := table.NewWriter()
 	// tw.SetStyle(myInnerStyle)
 	var rows []table.Row
+
 	if result.Whois.Count > 0 {
 		for _, whois := range result.Whois.Data {
 			tw.AppendRow(table.Row{"WHOIS", providers.DashIfEmpty(whois.ConfirmedTime)})

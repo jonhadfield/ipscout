@@ -93,6 +93,7 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 
 		err := CreateConfigPathStructure(configRoot)
 		require.NoError(t, err)
+
 		for _, dir := range []string{"backups", "cache"} {
 			_, err = os.Stat(filepath.Join(configRoot, dir))
 			require.NoError(t, err)

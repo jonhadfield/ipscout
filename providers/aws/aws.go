@@ -220,7 +220,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/aws_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o644); err != nil {
+			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o600); err != nil {
 			panic(err)
 		}
 		c.Logger.Info("backed up aws response", "host", c.Host.String())
@@ -255,6 +255,7 @@ func matchIPv6ToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
 					Service:  prefix.Service,
 				},
 			}
+
 			return match, nil
 		}
 	}
@@ -339,7 +340,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error opening file: %w", err)
 	}
 
 	defer jf.Close()

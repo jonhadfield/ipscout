@@ -1,6 +1,7 @@
 package annotated
 
 import (
+	"fmt"
 	"log/slog"
 	"net/netip"
 	"os"
@@ -66,7 +67,7 @@ func initialiseSetup(homeDir string) (*ProviderClient, error) {
 	}
 
 	if err = c.Validate(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error validating config: %w", err)
 	}
 
 	// set paths

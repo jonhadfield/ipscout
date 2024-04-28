@@ -167,7 +167,7 @@ func CreateDefaultConfigIfMissing(path string) error {
 			}
 		}
 
-		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(defaultConfig), 0o700); err != nil {
+		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(defaultConfig), 0o600); err != nil {
 			return fmt.Errorf("failed to write default config: %w", err)
 		}
 	case err != nil:

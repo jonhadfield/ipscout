@@ -47,7 +47,6 @@ func AgeToHours(age string) (int64, error) {
 		age = strings.TrimSuffix(age, "m")
 		multipler = 24 * 365
 	default:
-
 	}
 
 	var ageNum int64

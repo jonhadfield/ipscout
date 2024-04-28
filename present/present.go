@@ -35,11 +35,13 @@ func DashIfEmpty(value interface{}) string {
 		if len(trimmed) == 0 {
 			return "-"
 		}
+
 		return v
 	case *string:
 		if v == nil || len(strings.TrimSpace(*v)) == 0 {
 			return "-"
 		}
+
 		return *v
 	case int:
 		return fmt.Sprintf("%d", v)
@@ -59,6 +61,7 @@ func outputTables(c *config.Config, tws []*table.Writer) {
 	myOuterStyle := table.StyleColoredDark
 	myOuterStyle.Title.Align = text.AlignCenter
 	myOuterStyle.Title.Colors = text.Colors{text.FgRed, text.BgBlack}
+
 	twOuter.SetTitle("IPScout [v" + c.App.SemVer + "]")
 	twOuter.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMin: 60},

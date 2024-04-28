@@ -224,15 +224,19 @@ func initLogging(cmd *cobra.Command) {
 	switch strings.ToUpper(ll) {
 	case "ERROR":
 		ProgramLevel.Set(slog.LevelError)
+
 		conf.HideProgress = false
 	case "WARN":
 		ProgramLevel.Set(slog.LevelWarn)
+
 		conf.HideProgress = false
 	case "INFO":
 		ProgramLevel.Set(slog.LevelInfo)
+
 		conf.HideProgress = true
 	case "DEBUG":
 		ProgramLevel.Set(slog.LevelDebug)
+
 		conf.HideProgress = true
 	}
 

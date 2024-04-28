@@ -161,6 +161,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (*azure.Doc, error) {
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 
 	var doc *azure.Doc
+
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		var uErr error
 		doc, uErr = unmarshalProviderData(item.Value)
@@ -231,7 +232,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/azure_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o644); err != nil {
+			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o600); err != nil {
 			panic(err)
 		}
 		c.Logger.Info("backed up azure response", "host", c.Host.String())
@@ -300,7 +301,9 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
+
 	var rows []table.Row
+
 	tw.AppendRow(table.Row{"Name", dashIfEmpty(result.Name)})
 	tw.AppendRow(table.Row{"ID", dashIfEmpty(result.ID)})
 	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Properties.Region)})

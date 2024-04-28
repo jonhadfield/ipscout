@@ -28,6 +28,7 @@ var timeFormat = "2006-01-02 15:04:05 MST"
 func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, error) {
 	tw := table.NewWriter()
 	tw.AppendHeader(table.Row{"Key", "Expires", "Size", "App Version"})
+
 	for _, x := range info {
 		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(timeFormat), humanize.Bytes(uint64(x.EstimatedSize)), present.DashIfEmpty(x.AppVersion)})
 	}
@@ -77,7 +78,9 @@ func (c *Client) List() error {
 		return err
 	}
 
-	present.Tables(c.Config, []*table.Writer{tables})
+	if err = present.Tables(c.Config, []*table.Writer{tables}); err != nil {
+		return fmt.Errorf("error presenting tables: %w", err)
+	}
 
 	return nil
 }
@@ -155,7 +158,7 @@ func (c *Client) Get(key string, raw bool) error {
 
 	out, err := json.MarshalIndent(&pItem, "", "  ")
 	if err != nil {
-		return err
+		return fmt.Errorf("error marshalling item: %w", err)
 	}
 
 	fmt.Printf("%s\n", out)

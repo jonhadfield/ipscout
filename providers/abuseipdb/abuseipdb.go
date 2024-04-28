@@ -208,6 +208,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
+
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, providers.ErrNoMatchFound
 	}
@@ -231,7 +232,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/abuseipdb_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0o644); err != nil {
+			strings.ReplaceAll(c.Host.String(), ".", "_")), rBody, 0o600); err != nil {
 			panic(err)
 		}
 		c.Logger.Debug("backed up abuseipdb response", "host", c.Host.String())

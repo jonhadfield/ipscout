@@ -150,6 +150,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (*digitalocean.Doc, error) 
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 
 	var doc *digitalocean.Doc
+
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		var uErr error
 
@@ -161,8 +162,6 @@ func (c *ProviderClient) loadProviderDataFromCache() (*digitalocean.Doc, error) 
 
 			return nil, fmt.Errorf("error unmarshalling cached digitalocean provider doc: %w", uErr)
 		}
-
-		// c.Logger.Info("digitalocean provider data found in cache")
 	} else {
 		return nil, fmt.Errorf("error reading digitalocean cache: %w", err)
 	}
@@ -236,7 +235,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		c.Logger.Debug("backing up digitalocean host report")
 
 		if err = os.WriteFile(fmt.Sprintf("%s/backups/digitalocean_%s_report.json", config.GetConfigRoot("", config.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o644); err != nil {
+			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o600); err != nil {
 			panic(err)
 		}
 	}

@@ -37,6 +37,7 @@ type ProviderClient interface {
 
 func getProviderClients(c config.Config) (map[string]ProviderClient, error) {
 	runners := make(map[string]ProviderClient)
+
 	c.Logger.Info("creating provider clients")
 
 	if c.Providers.AbuseIPDB.APIKey != "" || c.Providers.AbuseIPDB.Enabled || c.UseTestData {
@@ -141,6 +142,7 @@ func getEnabledProviders(runners map[string]ProviderClient) []string {
 	keys := make([]string, len(runners))
 
 	i := 0
+
 	for k := range runners {
 		keys[i] = k
 		i++
@@ -183,6 +185,9 @@ func (p *Processor) Run() {
 	providerClients, err := getProviderClients(*p.Config)
 	if err != nil {
 		p.Config.Logger.Error("failed to generate provider clients", "error", err)
+
+		// close here as exit prevents defer from running
+		_ = db.Close()
 
 		os.Exit(1)
 	}
@@ -270,12 +275,13 @@ func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) e
 	}
 	for name, runner := range runners {
 		_, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
+
 		g.Go(func() error {
 			iErr := runner.Initialise()
 			if iErr != nil {
 				stopSpinnerIfActive(s)
 
-				return iErr
+				return fmt.Errorf("error initialising %s: %w", name, iErr)
 			}
 
 			return nil
@@ -327,13 +333,15 @@ func findHosts(runners map[string]ProviderClient, hideProgress bool) (*findHosts
 	}
 
 	for name, runner := range runners {
-		name, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
 		w.Add(1)
+
 		go func() {
 			defer w.Done()
+
 			result, err := runner.FindHost()
 			if err != nil {
 				runner.GetConfig().Logger.Debug(err.Error())
+
 				return
 			}
 
@@ -356,6 +364,7 @@ func generateTables(conf *config.Config, runners map[string]ProviderClient, resu
 	var tables generateTablesResults
 
 	var w sync.WaitGroup
+
 	if !conf.HideProgress {
 		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriterFile(conf.Output))
 		s.Start() // Start the spinner
@@ -367,7 +376,9 @@ func generateTables(conf *config.Config, runners map[string]ProviderClient, resu
 
 	for name, runner := range runners {
 		name, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
+
 		w.Add(1)
+
 		go func() {
 			defer w.Done()
 			results.RLock()
