@@ -174,6 +174,22 @@ func (c *ProviderClient) loadProviderDataFromCache() (*digitalocean.Doc, error) 
 	return doc, nil
 }
 
+func loadTestData(c *ProviderClient) ([]byte, error) {
+	tdf, err := loadResultsFile("providers/digitalocean/testdata/digitalocean_165_232_46_239_report.json")
+	if err != nil {
+		return nil, err
+	}
+
+	c.Logger.Info("criminalip match returned from test data", "host", "9.9.9.9")
+
+	out, err := json.Marshal(tdf)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling test data: %w", err)
+	}
+
+	return out, nil
+}
+
 // FindHost searches for the host in the digitalocean data
 func (c *ProviderClient) FindHost() ([]byte, error) {
 	start := time.Now()
@@ -189,14 +205,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	// return cached report if test data is enabled
 	if c.UseTestData {
-		result, err = loadResultsFile("providers/digitalocean/testdata/digitalocean_165_232_46_239_report.json")
-		if err != nil {
-			return nil, err
-		}
-
-		c.Logger.Info("digitalocean host match test data loaded")
-
-		return result.Raw, nil
+		return loadTestData(c)
 	}
 
 	doc, err := c.loadProviderDataFromCache()
@@ -284,7 +293,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetTitle("DigitalOcean IP | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("DigitalOcean IP | Host: %s", result.Record.NetworkText)
+		tw.SetTitle("DigitalOcean IP | Host: %s", "165.232.46.239")
 	}
 
 	return &tw, nil
