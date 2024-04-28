@@ -189,7 +189,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	// return cached report if test data is enabled
 	if c.UseTestData {
-		result, err = loadResultsFile("providers/digitalocean/testdata/digitalocean_18_164_52_75_report.json")
+		result, err = loadResultsFile("providers/digitalocean/testdata/digitalocean_165_232_46_239_report.json")
 		if err != nil {
 			return nil, err
 		}

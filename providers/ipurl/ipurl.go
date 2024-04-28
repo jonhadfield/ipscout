@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/netip"
+	"os"
 	"sync"
 	"time"
 
@@ -38,6 +39,38 @@ func (c *ProviderClient) GetConfig() *config.Config {
 	return &c.Config
 }
 
+func loadTestData(c *ProviderClient) ([]byte, error) {
+	tdf, err := loadResultsFile("providers/ipurl/testdata/ipurl_5_105_62_0_report.json")
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := json.Marshal(tdf)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling test data: %w", err)
+	}
+
+	return out, nil
+}
+
+func loadResultsFile(path string) (res *HostSearchResult, err error) {
+	jf, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("error opening file: %w", err)
+	}
+
+	defer jf.Close()
+
+	decoder := json.NewDecoder(jf)
+
+	err = decoder.Decode(&res)
+	if err != nil {
+		return res, fmt.Errorf("error decoding json: %w", err)
+	}
+
+	return res, nil
+}
+
 func (c *ProviderClient) FindHost() ([]byte, error) {
 	start := time.Now()
 	defer func() {
@@ -45,6 +78,10 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
 		c.Stats.Mu.Unlock()
 	}()
+
+	if c.UseTestData {
+		return loadTestData(c)
+	}
 
 	pwp := make(map[netip.Prefix][]string)
 

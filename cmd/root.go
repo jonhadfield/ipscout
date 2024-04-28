@@ -172,7 +172,6 @@ func initConfig(cmd *cobra.Command) error {
 
 	utd, err := cmd.Flags().GetBool("use-test-data")
 	if err != nil {
-		fmt.Println("error getting use-test-data value:", err)
 		os.Exit(1)
 	}
 

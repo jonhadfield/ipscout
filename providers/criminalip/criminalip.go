@@ -307,7 +307,7 @@ func (c *ProviderClient) GenPortDataForTable(in []PortDataEntry) (GeneratePortDa
 		}
 	}
 
-	return out, fmt.Errorf("error generating port data for table: %w", err)
+	return out, nil
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {

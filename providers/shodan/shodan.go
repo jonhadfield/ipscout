@@ -115,6 +115,7 @@ func loadAPIResponse(ctx context.Context, c config.Config, apiKey string) (res *
 	}
 
 	res.Raw = rBody
+
 	if res.Raw == nil {
 		return nil, fmt.Errorf("shodan: %w", providers.ErrNoMatchFound)
 	}
@@ -135,6 +136,13 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 }
 
 func loadResultsFile(path string) (res *HostSearchResult, err error) {
+	// get raw data
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("error reading shodan file: %w", err)
+	}
+
+	// unmarshal data
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening shodan file: %w", err)
@@ -148,6 +156,8 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	if err != nil {
 		return res, fmt.Errorf("error decoding shodan file: %w", err)
 	}
+
+	res.Raw = raw
 
 	return res, nil
 }

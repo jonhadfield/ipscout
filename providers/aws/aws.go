@@ -139,8 +139,6 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 		return nil, fmt.Errorf("error marshalling test data: %w", err)
 	}
 
-	c.Logger.Info("aws match returned from test data", "host", c.Host.String())
-
 	return out, nil
 }
 
@@ -216,16 +214,12 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, fmt.Errorf("error parsing create date: %w", err)
 	}
 
-	// match.ETag = item.Version
-
 	var raw []byte
 
 	raw, err = json.Marshal(match)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
 	}
-
-	// match.Raw = raw
 
 	// TODO: remove before release
 	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {

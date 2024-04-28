@@ -1,0 +1,16 @@
+{
+  "Raw": null,
+  "prefix": {
+    "ip_prefix": "18.164.0.0/15",
+    "region": "GLOBAL",
+    "service": "AMAZON"
+  },
+  "ipv6Prefix": {
+    "ipv6_prefix": "",
+    "region": "",
+    "service": ""
+  },
+  "etag": "",
+  "syncToken": "",
+  "createDate": "0001-01-01T00:00:00Z"
+}

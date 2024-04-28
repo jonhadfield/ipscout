@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/netip"
 	"os"
 	"strings"
@@ -202,6 +203,9 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	res.Raw = data
 	res.Data = uData
 
+	d, _ := json.MarshalIndent(res, "", "  ")
+	fmt.Println(string(d))
+
 	return &res, nil
 }
 
@@ -229,13 +233,24 @@ func (ssr *HostSearchResult) CreateTable() *table.Writer {
 	return &tw
 }
 
+func loadTestData(l *slog.Logger) (*HostSearchResult, error) {
+	tdf, err := loadResultsFile("providers/ptr/testdata/ptr_8_8_8_8_report.json")
+	if err != nil {
+		return nil, err
+	}
+
+	l.Info("ptr match returned from test data", "host", "8.8.8.8")
+
+	return tdf, nil
+}
+
 func fetchData(c config.Config) (*HostSearchResult, error) {
 	var result *HostSearchResult
 
 	var err error
 
 	if c.UseTestData {
-		result, err = loadResultsFile("providers/ptr/testdata/ptr_google_dns_resp.json")
+		result, err = loadTestData(c.Logger)
 		if err != nil {
 			return nil, fmt.Errorf("error loading ptr test data: %w", err)
 		}
