@@ -1,7 +1,7 @@
 package ipurl
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -20,7 +20,7 @@ import (
 
 const (
 	ProviderName = "ipurl"
-	CacheTTL     = time.Duration(3 * time.Hour)
+	CacheTTL     = 3 * time.Hour
 )
 
 type Config struct {
@@ -159,7 +159,7 @@ func (c *ProviderClient) refreshURLCache() error {
 
 // generateURLHash concatenates the provider name and the url string and returns a hash
 func generateURLHash(us string) string {
-	h := sha1.New()
+	h := sha256.New()
 	h.Write([]byte(us))
 	r := hex.EncodeToString(h.Sum(nil))
 
@@ -215,7 +215,7 @@ func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix,
 
 	hfPrefixes, err := hf.FetchPrefixes()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching ipurl data: %w", err)
 	}
 
 	// cache the prefixes for this url
@@ -321,6 +321,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	for prefix, urls := range result {
 		tw.AppendRow(table.Row{"", color.CyanString(prefix.String())})
+
 		for _, url := range urls {
 			tw.AppendRow(table.Row{"", fmt.Sprintf("%s %s", IndentPipeHyphens, url)})
 		}

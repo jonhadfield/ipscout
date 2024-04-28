@@ -28,16 +28,6 @@ type Config struct {
 	APIKey string
 }
 
-func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
-	var res *HostSearchResult
-
-	if err := json.Unmarshal(rBody, &res); err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
 func unmarshalProviderData(rBody []byte) (*azure.Doc, error) {
 	var res *azure.Doc
 
@@ -328,7 +318,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error opening file: %w", err)
 	}
 
 	defer jf.Close()

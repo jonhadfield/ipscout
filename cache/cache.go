@@ -90,7 +90,7 @@ func CheckExists(logger *slog.Logger, db *badger.DB, key string) (bool, error) {
 				return nil
 			}
 
-			return tErr
+			return fmt.Errorf("error getting cache item: %w", tErr)
 		}
 
 		found = true

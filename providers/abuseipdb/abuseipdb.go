@@ -332,7 +332,7 @@ func fetchData(c config.Config) (*HostSearchResult, error) {
 		Value:      result.Raw,
 		Created:    time.Now(),
 	}, ResultTTL); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error caching abuseipdb response: %w", err)
 	}
 
 	return result, nil

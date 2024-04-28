@@ -32,6 +32,7 @@ func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, erro
 	for _, x := range info {
 		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(timeFormat), humanize.Bytes(uint64(x.EstimatedSize)), present.DashIfEmpty(x.AppVersion)})
 	}
+
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 20},
 	})
@@ -199,7 +200,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error reading cache: %w", err)
 	}
 
 	return cacheItemsInfo, nil

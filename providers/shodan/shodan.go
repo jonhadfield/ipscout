@@ -230,6 +230,7 @@ func (c *ProviderClient) Initialise() error {
 	}()
 
 	c.Logger.Debug("initialising shodan client")
+
 	if c.Providers.Shodan.APIKey == "" && !c.UseTestData {
 		return fmt.Errorf("shodan provider api key not set")
 	}

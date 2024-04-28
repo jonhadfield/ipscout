@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/providers"
 	"log"
 	"net/netip"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/providers"
 
 	"github.com/miekg/dns"
 
@@ -161,10 +162,12 @@ func loadResponse(c config.Config, nameserver string) (res *HostSearchResult, er
 	dc := dns.Client{}
 	m := dns.Msg{}
 	m.SetQuestion(arpa, dns.TypePTR)
+
 	r, _, err := dc.Exchange(&m, nameserver+":53")
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("error querying nameserver: %w", err)
 	}
+
 	if len(r.Answer) == 0 {
 		return nil, providers.ErrNoDataFound
 	}
@@ -193,8 +196,10 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	if err := json.Unmarshal(data, &uData); err != nil {
 		return nil, err
 	}
+
 	res.Raw = data
 	res.Data = uData
+
 	return &res, nil
 }
 

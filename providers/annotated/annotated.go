@@ -1,7 +1,7 @@
 package annotated
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -19,8 +19,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/araddon/dateparse"
-
-	_ "regexp"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
@@ -99,7 +97,7 @@ func ReadAnnotatedPrefixesFromFile(l *slog.Logger, path string, prefixesWithAnno
 
 	err = yaml.Unmarshal(file, &pwars)
 	if err != nil {
-		return err
+		return fmt.Errorf("error unmarshalling yaml: %w", err)
 	}
 
 	for _, pwar := range pwars {
@@ -200,7 +198,7 @@ func generateURLsHash(urls []string) string {
 	sort.Strings(urls)
 
 	s := strings.Join(urls, "")
-	h := sha1.New()
+	h := sha256.New()
 	h.Write([]byte(s))
 
 	return hex.EncodeToString(h.Sum(nil))[:providers.CacheKeySHALen]
@@ -237,6 +235,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	for prefix, annotations := range result {
 		tw.AppendRow(table.Row{"Prefix", dashIfEmpty(prefix.String())})
+
 		for _, anno := range annotations {
 			tw.AppendRow(table.Row{"Date", anno.Date})
 			tw.AppendRow(table.Row{"Author", anno.Author})
@@ -345,6 +344,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (map[netip.Prefix][]annotat
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		if item.Value != nil && len(item.Value) > 0 {
 			var result map[netip.Prefix][]annotation
+
 			result, err = unmarshalResponse(item.Value)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached annotated response: %w", err)
@@ -400,7 +400,7 @@ func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotation
 
 	path, err = filepath.Abs(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("error getting absolute path: %w", err)
 	}
 
 	var fileCount int64
@@ -469,11 +469,13 @@ func dashIfEmpty(value interface{}) string {
 		if len(v) == 0 {
 			return "-"
 		}
+
 		return v
 	case *string:
 		if v == nil || len(*v) == 0 {
 			return "-"
 		}
+
 		return *v
 	case int:
 		return fmt.Sprintf("%d", v)

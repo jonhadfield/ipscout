@@ -125,7 +125,7 @@ func (c *ProviderClient) Initialise() error {
 	// load provider data into cache if not already present and fresh
 	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
 	if err != nil {
-		return err
+		return fmt.Errorf("checking digitalocean cache: %w", err)
 	}
 
 	if ok {
@@ -258,6 +258,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw := table.NewWriter()
 	var rows []table.Row
+
 	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Record.NetworkText)})
 	tw.AppendRow(table.Row{"Country Code", dashIfEmpty(result.Record.CountryCode)})
 	tw.AppendRow(table.Row{"City Name", dashIfEmpty(result.Record.CityName)})
@@ -287,7 +288,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	jf, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error opening file: %w", err)
 	}
 
 	defer jf.Close()
@@ -315,11 +316,13 @@ func dashIfEmpty(value interface{}) string {
 		if len(v) == 0 {
 			return "-"
 		}
+
 		return v
 	case *string:
 		if v == nil || len(*v) == 0 {
 			return "-"
 		}
+
 		return *v
 	case int:
 		return fmt.Sprintf("%d", v)

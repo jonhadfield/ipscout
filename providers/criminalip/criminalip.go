@@ -181,7 +181,7 @@ func fetchData(client config.Config) (*HostSearchResult, error) {
 		Value:      result.Raw,
 		Created:    time.Now(),
 	}, ResultTTL); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error caching criminal ip response: %w", err)
 	}
 
 	return result, nil
@@ -357,6 +357,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	var portsDisplayed int
+
 	for x, port := range portDataForTable.entries {
 		if !port.AgeMatch || !port.NetworkMatch {
 			continue
@@ -403,6 +404,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("CRIMINAL IP | Host: %s", c.Host.String())
+
 	if c.UseTestData {
 		tw.SetTitle("CRIMINAL IP | Host: %s", result.IP)
 	}
@@ -422,7 +424,7 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	err = decoder.Decode(&res)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("error decoding criminalip data: %w", err)
 	}
 
 	return res, nil

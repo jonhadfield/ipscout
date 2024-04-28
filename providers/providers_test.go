@@ -139,6 +139,7 @@ func TestPortNetworkMatchWithoutPortsSpecified(t *testing.T) {
 
 func TestPortNetworkMatch(t *testing.T) {
 	ports := []string{"80", "tcp", "80/tcp"}
+
 	require.True(t, PortNetworkMatch("80", []string{}))
 	require.True(t, PortNetworkMatch("80", ports))
 	require.False(t, PortNetworkMatch("800", ports))
@@ -150,6 +151,7 @@ func TestPortNetworkMatch(t *testing.T) {
 
 func TestPortNetworkMatchNonWideTransport(t *testing.T) {
 	ports := []string{"80", "80/tcp"}
+
 	require.False(t, PortNetworkMatch("50/tcp", ports))
 	require.True(t, PortNetworkMatch("80", []string{}))
 	require.True(t, PortNetworkMatch("80", ports))

@@ -76,7 +76,7 @@ func (c *ProviderClient) loadProviderData() error {
 
 	data, err := json.Marshal(doc)
 	if err != nil {
-		return err
+		return fmt.Errorf("error marshalling aws provider doc: %w", err)
 	}
 
 	return cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
@@ -104,7 +104,7 @@ func (c *ProviderClient) Initialise() error {
 
 	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
 	if err != nil {
-		return err
+		return fmt.Errorf("error checking cache for aws provider data: %w", err)
 	}
 
 	if ok {
@@ -291,9 +291,9 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		c.Stats.Mu.Unlock()
 	}()
 
-	var err error
 	var result HostSearchResult
-	if err = json.Unmarshal(data, &result); err != nil {
+
+	if err := json.Unmarshal(data, &result); err != nil {
 		switch {
 		case errors.Is(err, providers.ErrNoDataFound):
 			return nil, fmt.Errorf("data not loaded: %w", err)
@@ -309,6 +309,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw := table.NewWriter()
 	var rows []table.Row
+
 	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix.IPPrefix.String())})
 	tw.AppendRow(table.Row{"Service", dashIfEmpty(result.Prefix.Service)})
 	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Prefix.Region)})

@@ -273,6 +273,7 @@ func initialiseProviders(runners map[string]ProviderClient, hideProgress bool) e
 			stopSpinnerIfActive(s)
 		}()
 	}
+
 	for name, runner := range runners {
 		_, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
 
@@ -317,6 +318,7 @@ type generateTablesResults struct {
 
 func findHosts(runners map[string]ProviderClient, hideProgress bool) (*findHostsResults, error) {
 	var results findHostsResults
+
 	results.Lock()
 	results.m = make(map[string][]byte)
 	results.Unlock()

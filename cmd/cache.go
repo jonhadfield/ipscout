@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	_ "embed"
+	"fmt"
 	"os"
 
 	"github.com/jonhadfield/ipscout/manager"
@@ -46,7 +46,7 @@ func newCacheListCommand() *cobra.Command {
 			}
 
 			if err = mgr.List(); err != nil {
-				return err
+				return fmt.Errorf("error listing cache items: %w", err)
 			}
 
 			return nil
@@ -70,7 +70,7 @@ func newCacheDelCommand() *cobra.Command {
 			}
 
 			if err = mgr.Delete(args); err != nil {
-				return err
+				return fmt.Errorf("error deleting item from cache: %w", err)
 			}
 
 			return nil
@@ -96,7 +96,7 @@ func newCacheGetCommand() *cobra.Command {
 			}
 
 			if err = mgr.Get(args[0], raw); err != nil {
-				return err
+				return fmt.Errorf("error getting item from cache: %w", err)
 			}
 
 			return nil

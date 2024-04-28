@@ -53,7 +53,7 @@ func initialiseSetup(homeDir string) (*ProviderClient, error) {
 
 	db, err := cache.Create(lg, filepath.Join(homeDir, ".config", "ipscout"))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating cache: %w", err)
 	}
 
 	c, err := NewProviderClient(config.Config{
