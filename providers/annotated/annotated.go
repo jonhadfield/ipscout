@@ -270,7 +270,12 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
 	})
 	tw.SetAutoIndex(false)
+
 	tw.SetTitle("ANNOTATED | Host: %s", c.Host.String())
+
+	if c.UseTestData {
+		tw.SetTitle("ANNOTATED | Host: 20.20.20.20")
+	}
 
 	return &tw, nil
 }
