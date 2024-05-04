@@ -275,6 +275,38 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	return &tw, nil
 }
 
+func loadTestData() ([]byte, error) {
+	tdf, err := loadResultsFile("providers/annotated/testdata/annotated_20_20_20_20_report.json")
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := json.Marshal(tdf)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling test data: %w", err)
+	}
+
+	return out, nil
+}
+
+func loadResultsFile(path string) (res *HostSearchResult, err error) {
+	jf, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("error opening file: %w", err)
+	}
+
+	defer jf.Close()
+
+	decoder := json.NewDecoder(jf)
+
+	err = decoder.Decode(&res)
+	if err != nil {
+		return res, fmt.Errorf("error decoding json: %w", err)
+	}
+
+	return res, nil
+}
+
 func (c *ProviderClient) FindHost() ([]byte, error) {
 	start := time.Now()
 	defer func() {
@@ -284,6 +316,18 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	}()
 
 	var err error
+
+	// load test results data
+	if c.UseTestData {
+		out, loadErr := loadTestData()
+		if loadErr != nil {
+			return nil, loadErr
+		}
+
+		c.Logger.Info("annotated match returned from test data", "host", c.Host.String())
+
+		return out, nil
+	}
 
 	doc, err := c.loadProviderDataFromCache()
 	if err != nil {
@@ -297,21 +341,10 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	c.Logger.Info("annotated match found", "host", c.Host.String())
 
-	var raw []byte
-
-	raw, err = json.Marshal(match)
+	raw, err := json.Marshal(match)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
 	}
-
-	// TODO: remove before release
-	// if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-	//	if err = os.WriteFile(fmt.Sprintf("%s/backups/annotated_%s_report.json", session.GetConfigRoot("", session.AppName),
-	//		strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o600); err != nil {
-	//		panic(err)
-	//	}
-	//	c.Logger.Info("backed up annotated response", "host", c.Host.String())
-	//}
 
 	return raw, nil
 }
@@ -342,7 +375,7 @@ func unmarshalResponse(data []byte) (HostSearchResult, error) {
 	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, fmt.Errorf("error unmarshalling annotated response: %w", err)
 	}
-	// res.Raw = data
+
 	return res, nil
 }
 
