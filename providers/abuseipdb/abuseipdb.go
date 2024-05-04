@@ -48,15 +48,6 @@ func NewClient(c session.Session) (providers.ProviderClient, error) {
 	return &tc, nil
 }
 
-func (c *Client) GetData() (result *HostSearchResult, err error) {
-	result, err = loadResultsFile("abuseipdb/testdata/abuseipdb_google_dns_resp.json")
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
 type Provider interface {
 	LoadData() ([]byte, error)
 	CreateTable([]byte) (*table.Writer, error)
@@ -287,10 +278,14 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	var err error
 
 	if c.UseTestData {
-		result, err = loadResultsFile("providers/abuseipdb/testdata/abuseipdb_google_dns_resp.json")
+		result, err = loadResultsFile("providers/abuseipdb/testdata/abuseipdb_194_169_175_35_report.json")
 		if err != nil {
 			return nil, fmt.Errorf("error loading abuseipdb test data: %w", err)
 		}
+
+		raw, _ := json.Marshal(result)
+
+		result.Raw = raw
 
 		return result, nil
 	}
@@ -337,7 +332,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 }
 
 type HostSearchResult struct {
-	Raw  []byte `json:"raw"`
+	Raw  json.RawMessage `json:"raw"`
 	Data struct {
 		IPAddress            string    `json:"ipAddress,omitempty"`
 		IsPublic             bool      `json:"isPublic,omitempty"`
