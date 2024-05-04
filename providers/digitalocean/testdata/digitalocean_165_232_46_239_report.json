@@ -1,0 +1,13 @@
+{
+  "Raw": null,
+  "prefix": {
+    "Network": "165.232.32.0/20",
+    "NetworkText": "165.232.32.0/20",
+    "CountryCode": "GB",
+    "CityCode": "GB-SLG",
+    "CityName": "London",
+    "ZipCode": "SL1 4AX"
+  },
+  "etag": "\"662bc170-e030\"",
+  "last_modified": "2024-04-26T16:00:00+01:00"
+}

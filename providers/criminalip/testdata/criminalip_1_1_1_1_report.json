@@ -1,0 +1,264 @@
+{
+  "ip": "1.1.1.1",
+  "issues": {
+    "is_vpn": false,
+    "is_cloud": false,
+    "is_tor": false,
+    "is_proxy": false,
+    "is_hosting": true,
+    "is_mobile": false,
+    "is_darkweb": false,
+    "is_scanner": false,
+    "is_snort": true,
+    "is_anonymous_vpn": true
+  },
+  "score": {
+    "inbound": "Critical",
+    "outbound": "Moderate"
+  },
+  "user_search_count": 2,
+  "protected_ip": {
+    "count": 1,
+    "data": [
+      {
+        "ip_address": "1.1.1.1",
+        "confirmed_time": "2022-12-07 03:09:46"
+      }
+    ]
+  },
+  "domain": {
+    "count": 1057,
+    "data": [
+      {
+        "domain": "xyhaidy.shop",
+        "ip_type": "Unknown",
+        "registrar": "Namecheap, Inc.",
+        "create_date": "2023-06-15 00:00:00",
+        "confirmed_time": "2023-06-18 19:19:36",
+        "email": "abuse@namecheap.com"
+      }
+    ]
+  },
+  "whois": {
+    "count": 1,
+    "data": [
+      {
+        "as_name": "MICROSOFT-CORP-MSN-AS-BLOCK",
+        "as_no": 8075,
+        "city": "San Jose",
+        "region": "California",
+        "org_name": "MICROSOFT-CORP-MSN-AS-BLOCK",
+        "postal_code": "",
+        "longitude": -121.8916,
+        "latitude": 37.3388,
+        "org_country_code": "us",
+        "confirmed_time": "2022-04-04 00:00:00"
+      }
+    ]
+  },
+  "hostname": {
+    "count": 1,
+    "data": [
+      {
+        "domain_name_rep": "cmk.ru",
+        "domain_name_full": "ip-195-182-143-57.clients.cmk.ru",
+        "confirmed_time": "2021-09-03 19:27:44"
+      }
+    ]
+  },
+  "ids": {
+    "count": 1,
+    "data": [
+      {
+        "classification": "botcc",
+        "url": "doc.emergingthreats.net/bin/view/Main/BotCC",
+        "message": "ET CNC Feodo Tracker Reported CnC Server UDP group 3",
+        "confirmed_time": "2022-01-28 00:12:16",
+        "source_system": "./snort-2.9.0 9949"
+      }
+    ]
+  },
+  "vpn": {
+    "count": 1,
+    "data": [
+      {
+        "vpn_name": "vpngate",
+        "vpn_url": "vpn369337084.opengw.net",
+        "vpn_source_url": "https://www.vpngate.net",
+        "socket_type": "tcp",
+        "confirmed_time": "2022-04-18 14:02:25"
+      }
+    ]
+  },
+  "anonymous_vpn": {
+    "count": 1,
+    "data": [
+      {
+        "vpn_name": "piavpn",
+        "vpn_url": "179.61.228.2",
+        "vpn_source_url": "https://www.privateinternetaccess.com",
+        "socket_type": "tcp",
+        "confirmed_time": "2022-12-10 00:16:59"
+      }
+    ]
+  },
+  "webcam": {
+    "count": 1,
+    "data": [
+      {
+        "image_path": "https://s3.us-west-1.amazonaws.com/cip-web-screenshot-new/cctv/151.192.67.27_8081_cctv.jpg",
+        "cam_url": "http://151.192.67.27:8081/webcapture.jpg?command=snap&channel=1?COUNTER",
+        "country": "Singapore",
+        "city": "Singapore",
+        "open_port_no": 8081,
+        "manufacturer": "Hi3516",
+        "confirmed_time": "2022-03-02 09:53:15"
+      }
+    ]
+  },
+  "honeypot": {
+    "count": 1,
+    "data": [
+      {
+        "ip_address": "64.62.197.76",
+        "log_date": "2023-06-15",
+        "dst_port": 22,
+        "message": "[15/Jun/2023:00:00:10] SSH-2.0-Go",
+        "user_agent": "-",
+        "protocol_type": "tcp",
+        "confirmed_time": "2023-06-15"
+      }
+    ]
+  },
+  "ip_category": {
+    "count": 2,
+    "data": [
+      {
+        "detect_source": "",
+        "type": "cloud service",
+        "detect_info": {},
+        "confirmed_time": "2021-05-07 14:56:27"
+      },
+      {
+        "detect_source": "",
+        "type": "MISP",
+        "detect_info": {
+          "md5": "460fb928925cb1fe4ae49dd208d43647",
+          "domain": "ab88be2e175710350.bitcoin.com"
+        },
+        "confirmed_time": "2020-09-10 03:40:06"
+      }
+    ]
+  },
+  "port": {
+    "count": 39,
+    "data": [
+      {
+        "app_name": "ms-wbt-server",
+        "confirmed_time": "2022-03-10 13:53:06",
+        "banner": "HTTP header: HTTP/1.1 403 Forbidden\nServer: nginx/1.14.0 (Ubuntu)\nDate: Thu, 10 Mar 2022 09:45:57 GMT\nContent-Type: text/html\nContent-Length: 178\nConnection: keep-alive\n  html: \n<html>\n<head><title>403 Forbidden</title></head>\n<body bgcolor=\"white\">\n<center><h1>403 Forbidden</h1></center>\n<hr><center>nginx/1.14.0 (Ubuntu)</center>\n</body>\n</html>",
+        "app_version": "Unknown",
+        "open_port_no": 3389,
+        "port_status": "open",
+        "protocol": "RDP",
+        "socket": "tcp",
+        "tags": [
+          "Data Leak"
+        ],
+        "dns_names": "*.cloudflare-dns.com,one.one.one.one",
+        "sdn_common_name": "cloudflare-dns.com",
+        "jarm_hash": "27d3ed3ed0003ed1dc42d43d00041d6183ff1bfae51ebd88d70384363d525c",
+        "ssl_info_raw": "TLS Certificate\nVersion: 3\nSerial Number: 4997145087721625482890198484998041183\n",
+        "technologies": [
+          {
+            "tech_name": "jQuery",
+            "tech_version": "2.2.4",
+            "tech_logo_url": "https://cip-live-image.s3.us-west-1.amazonaws.com/tech/jQuery.svg"
+          }
+        ],
+        "is_vulnerability": false
+      }
+    ]
+  },
+  "vulnerability": {
+    "count": 9,
+    "data": [
+      {
+        "cve_id": "CVE-2021-23017",
+        "cve_description": "A security issue in nginx resolver was identified, which might allow an attacker who is able to forge UDP packets from the DNS server to cause 1-byte memory overwrite, resulting in worker process crash or potential other impact.",
+        "cvssv2_vector": "NETWORK",
+        "cvssv2_score": 6.8,
+        "cvssv3_vector": "NETWORK",
+        "cvssv3_score": 9.4,
+        "list_cwe": [
+          {
+            "cve_id": "CVE-2021-23017",
+            "cwe_id": 193,
+            "cwe_name": "Off-by-one Error",
+            "cwe_description": "A product calculates or uses an incorrect maximum or minimum value that is 1 more, or 1 less, than the correct value."
+          }
+        ],
+        "list_edb": [
+          {
+            "cve_id": "CVE-2021-44790",
+            "edb_id": 51193,
+            "type": "WEBAPPS",
+            "platform": "MULTIPLE",
+            "verify_code": 0,
+            "title": "Apache 2.4.x - Buffer Overflow",
+            "confirmed_time": "2023-04-01"
+          }
+        ],
+        "app_name": "nginx",
+        "app_version": "1.14.0",
+        "open_port_no_list": {
+          "TCP": [
+            514
+          ],
+          "UDP": []
+        },
+        "have_more_ports": false,
+        "open_port_no": [
+          {
+            "port": 514,
+            "socket": "tcp"
+          }
+        ],
+        "list_child": [
+          {
+            "app_name": "nginx",
+            "app_version": "1.14.0",
+            "vendor": "nginx",
+            "type": "a",
+            "is_vuln": "True",
+            "target_hw": "iphone_os",
+            "target_sw": "ipad",
+            "update": "sp6a",
+            "edition": "workstation"
+          }
+        ],
+        "vendor": "nginx",
+        "type": "a",
+        "is_vuln": "True",
+        "target_hw": "iphone_os",
+        "target_sw": "ipad",
+        "update": "sp6a",
+        "edition": "workstation"
+      }
+    ]
+  },
+  "mobile": {
+    "count": 2,
+    "data": [
+      {
+        "broadband": "3G",
+        "organization": "SKT"
+      },
+      {
+        "broadband": "LTE",
+        "organization": "SKT"
+      }
+    ]
+  },
+  "status": 200
+}

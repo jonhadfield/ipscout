@@ -1,0 +1,8 @@
+{
+  "Raw": "eyJSYXciOm51bGwsInByZWZpeCI6IjM0LjEyOC42Mi4wLzIzIiwic2VydmljZSI6Ikdvb2dsZSBDbG91ZCIsInNjb3BlIjoidXMtd2VzdDgiLCJzeW5jdG9rZW4iOiIxNzE0NTcyMjk5OTU1IiwiY3JlYXRpb25fdGltZSI6IjIwMjQtMDUtMDFUMDc6MDQ6NTkuOTU1OTQ1WiJ9",
+  "prefix": "34.128.62.0/23",
+  "service": "Google Cloud",
+  "scope": "us-west8",
+  "synctoken": "1714572299955",
+  "creation_time": "2024-05-01T07:04:59.955945Z"
+}
