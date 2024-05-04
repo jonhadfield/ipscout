@@ -290,8 +290,8 @@ type Data struct {
 }
 
 type HostSearchResult struct {
-	Raw  []byte `json:"raw,omitempty"`
-	Data Data   `json:"data,omitempty"`
+	Raw  json.RawMessage `json:"raw,omitempty"`
+	Data Data            `json:"data,omitempty"`
 }
 
 func (data Data) MarshalJSON() ([]byte, error) {
