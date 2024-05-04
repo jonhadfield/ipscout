@@ -1,0 +1,21 @@
+---
+- prefixes: ["8.8.8.8/32"]
+  annotations:
+    - date: 2024/04/19 18:58
+      author: jon hadfield <jon@lessknown.co.uk>
+      notes:
+        - My First Annotation
+        - My Second Annotation
+- prefixes: ["9.9.9.0/24"]
+  annotations:
+    - date: 2024/04/19 19:00
+      author: jon hadfield <jon@lessknown.co.uk>
+      notes:
+        - My Third Annotation
+        - My Fourth Annotation
+- prefixes: ["179.43.180.108/32"]
+  annotations:
+    - date: 2024/04/20 18:00
+      author: jon hadfield <jon@lessknown.co.uk>
+      notes:
+        - My fifth Annotation

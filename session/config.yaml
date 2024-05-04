@@ -1,0 +1,48 @@
+---
+global:
+  indent_spaces: 2
+  max_value_chars: 300
+  max_age: 90d
+  max_reports: 5
+  output: table
+  # ports: [80]
+
+providers:
+  annotated:
+    enabled: false
+    paths:
+  #      - <path to yaml file>
+  aws:
+    enabled: true
+    # url: override the default URL
+  azure:
+    enabled: true
+    # url: override the default URL
+  criminalip:
+    enabled: false
+  digitalocean:
+    enabled: true
+    # url: override the default URL
+  gcp:
+    enabled: true
+  ipurl:
+    enabled: true
+    urls:
+      - "https://iplists.firehol.org/files/firehol_level1.netset"
+      - "https://iplists.firehol.org/files/firehol_level2.netset"
+      - "https://iplists.firehol.org/files/firehol_anonymous.netset"
+      - "https://iplists.firehol.org/files/blocklist_de.ipset"
+      - "https://iplists.firehol.org/files/socks_proxy_7d.ipset"
+      - "https://iplists.firehol.org/files/sslproxies_7d.ipset"
+      - "https://iplists.firehol.org/files/tor_exits_7d.ipset"
+  icloudpr:
+    enabled: true
+    # url: override the default URL
+  linode:
+    enabled: true
+    # url: override the default URL
+  ptr:
+    enabled: true
+  shodan:
+    enabled: false
+    max_ports: 10
