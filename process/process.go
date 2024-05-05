@@ -244,7 +244,6 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	if !hideProgress {
 		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
 		s.Start() // Start the spinner
-		// time.Sleep(4 * time.Second) // Run for some time to simulate work
 		s.Suffix = " searching providers..."
 
 		defer s.Stop()
