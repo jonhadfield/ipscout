@@ -106,12 +106,12 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		c.Session.Stats.Mu.Unlock()
 	}()
 
-	var findHostData *Data
+	var findHostData Data
 	if err := json.Unmarshal(data, &findHostData); err != nil {
 		return nil, fmt.Errorf("error unmarshalling ptr data: %w", err)
 	}
 
-	if findHostData == nil {
+	if len(findHostData.RR) == 0 {
 		return nil, errors.New("no ptr data")
 	}
 
@@ -166,11 +166,24 @@ func loadResponse(c session.Session, nameserver string) (res *HostSearchResult, 
 
 	for _, ans := range r.Answer {
 		if ans != nil {
-			res.Data.RR = append(res.Data.RR, ans.(*dns.PTR))
+			rRes := ans.(*dns.PTR)
+
+			var newPtr ptr
+
+			newPtr.Ptr = rRes.Ptr
+			rHeader := rRes.Header()
+			newPtr.Header = Header{
+				Name:     rHeader.Name,
+				Ttl:      rHeader.Ttl,
+				Rdlength: rHeader.Rdlength,
+				Class:    rHeader.Class,
+				Rrtype:   rHeader.Rrtype,
+			}
+			res.Data.RR = append(res.Data.RR, &newPtr)
 		}
 	}
 
-	rd, err := json.Marshal(res.Data)
+	rd, err := json.Marshal(res)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling ptr data: %w", err)
 	}
@@ -183,7 +196,7 @@ func loadResponse(c session.Session, nameserver string) (res *HostSearchResult, 
 func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	var res HostSearchResult
 
-	uData := Data{}
+	uData := myData{}
 	if err := json.Unmarshal(data, &uData); err != nil {
 		return nil, fmt.Errorf("error unmarshalling ptr data: %w", err)
 	}
@@ -212,17 +225,18 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 	return res, nil
 }
 
-func (ssr *HostSearchResult) CreateTable() *table.Writer {
-	tw := table.NewWriter()
-
-	return &tw
-}
-
 func loadTestData(l *slog.Logger) (*HostSearchResult, error) {
 	tdf, err := loadResultsFile("providers/ptr/testdata/ptr_8_8_8_8_report.json")
 	if err != nil {
 		return nil, err
 	}
+
+	raw, err := json.Marshal(tdf.Data)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling ptr test data: %w", err)
+	}
+
+	tdf.Raw = raw
 
 	l.Info("ptr match returned from test data", "host", "8.8.8.8")
 
@@ -291,28 +305,28 @@ type Data struct {
 
 type HostSearchResult struct {
 	Raw  json.RawMessage `json:"raw,omitempty"`
-	Data Data            `json:"data,omitempty"`
+	Data myData          `json:"data,omitempty"`
+}
+
+type Header struct {
+	Name     string `dns:"cdomain-name"`
+	Rrtype   uint16 `json:"rrtype,omitempty"`
+	Class    uint16 `json:"class,omitempty"`
+	Ttl      uint32 `json:"ttl,omitempty"` // nolint:revive
+	Rdlength uint16 `json:"rdlength,omitempty"`
+}
+
+type ptr struct {
+	Header Header `json:"header,omitempty"`
+	Ptr    string `json:"ptr,omitempty"`
+}
+
+type myData struct {
+	Name string `json:"name,omitempty"`
+	RR   []*ptr `json:"rr,omitempty"`
 }
 
 func (data Data) MarshalJSON() ([]byte, error) {
-	type Header struct {
-		Name     string `dns:"cdomain-name"`
-		Rrtype   uint16 `json:"rrtype,omitempty"`
-		Class    uint16 `json:"class,omitempty"`
-		Ttl      uint32 `json:"ttl,omitempty"` // nolint:revive
-		Rdlength uint16 `json:"rdlength,omitempty"`
-	}
-
-	type ptr struct {
-		Header Header `json:"header,omitempty"`
-		Ptr    string `json:"ptr,omitempty"`
-	}
-
-	type myData struct {
-		Name string `json:"name,omitempty"`
-		RR   []*ptr `json:"rr,omitempty"`
-	}
-
 	var res myData
 
 	res.Name = data.Name
