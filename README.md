@@ -35,7 +35,12 @@ page.
 
 ```
 $ brew tap jonhadfield/ipscout
+
+# x86 macs
 $ brew install ipscout
+
+# arm/silicon macs
+$ arch -arm64 brew install ipscout 
 ```
 
 ### other distributions
