@@ -149,7 +149,8 @@ type Providers struct {
 		Enabled bool   `mapstructure:"enabled"`
 	} `mapstructure:"shodan"`
 	PTR struct {
-		Enabled bool `mapstructure:"enabled"`
+		Enabled     bool     `mapstructure:"enabled"`
+		Nameservers []string `mapstructure:"nameservers"`
 	} `mapstructure:"ptr"`
 }
 

@@ -25,8 +25,8 @@ const (
 	MaxColumnWidth         = 120
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05+07:00"
-	ResultTTL              = time.Duration(30 * time.Minute)
-	DefaultNameserver      = "9.9.9.9"
+	ResultTTL              = 30 * time.Minute
+	DefaultNameserver      = "1.1.1.1:53"
 )
 
 type Client struct {
@@ -138,14 +138,10 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadResponse(c session.Session, nameserver string) (res *HostSearchResult, err error) {
+func loadResponse(c session.Session) (res *HostSearchResult, err error) {
 	res = &HostSearchResult{}
 
 	target := c.Host.String()
-
-	if nameserver == "" {
-		nameserver = DefaultNameserver
-	}
 
 	arpa, err := dns.ReverseAddr(target)
 	if err != nil {
@@ -156,40 +152,54 @@ func loadResponse(c session.Session, nameserver string) (res *HostSearchResult, 
 	m := dns.Msg{}
 	m.SetQuestion(arpa, dns.TypePTR)
 
-	r, _, err := dc.Exchange(&m, nameserver+":53")
-	if err != nil {
-		return nil, fmt.Errorf("error querying nameserver: %w", err)
+	if len(c.Providers.PTR.Nameservers) == 0 {
+		c.Providers.PTR.Nameservers = append(c.Providers.PTR.Nameservers, DefaultNameserver)
 	}
 
-	if len(r.Answer) == 0 {
-		return nil, providers.ErrNoDataFound
-	}
-
-	for _, ans := range r.Answer {
-		if ans != nil {
-			rRes := ans.(*dns.PTR)
-
-			var newPtr Ptr
-
-			newPtr.Ptr = rRes.Ptr
-			rHeader := rRes.Header()
-			newPtr.Header = Header{
-				Name:     rHeader.Name,
-				Ttl:      rHeader.Ttl,
-				Rdlength: rHeader.Rdlength,
-				Class:    rHeader.Class,
-				Rrtype:   rHeader.Rrtype,
-			}
-			res.RR = append(res.RR, &newPtr)
+	for _, nameserver := range c.Providers.PTR.Nameservers {
+		if !strings.Contains(nameserver, ":") {
+			nameserver += ":53"
 		}
-	}
 
-	rd, err := json.Marshal(res)
-	if err != nil {
-		return nil, fmt.Errorf("error marshalling ptr data: %w", err)
-	}
+		var r *dns.Msg
 
-	res.Raw = rd
+		r, _, err = dc.Exchange(&m, nameserver)
+		if err != nil {
+			c.Logger.Info("ptr query failure", "nameserver", nameserver, "error", err)
+
+			continue
+		}
+
+		if len(r.Answer) == 0 {
+			return nil, providers.ErrNoDataFound
+		}
+
+		for _, ans := range r.Answer {
+			if ans != nil {
+				rRes := ans.(*dns.PTR)
+
+				var newPtr Ptr
+
+				newPtr.Ptr = rRes.Ptr
+				rHeader := rRes.Header()
+				newPtr.Header = Header{
+					Name:     rHeader.Name,
+					Ttl:      rHeader.Ttl,
+					Rdlength: rHeader.Rdlength,
+					Class:    rHeader.Class,
+					Rrtype:   rHeader.Rrtype,
+				}
+				res.RR = append(res.RR, &newPtr)
+			}
+		}
+
+		rd, err := json.Marshal(res)
+		if err != nil {
+			return nil, fmt.Errorf("error marshalling ptr data: %w", err)
+		}
+
+		res.Raw = rd
+	}
 
 	return res, nil
 }
@@ -267,7 +277,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 		}
 	}
 
-	result, err = loadResponse(c, "")
+	result, err = loadResponse(c)
 	if err != nil {
 		return nil, fmt.Errorf("loading ptr api response: %w", err)
 	}

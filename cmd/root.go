@@ -166,6 +166,7 @@ func initConfig(cmd *cobra.Command) error {
 	sess.Providers.Linode.URL = v.GetString("providers.linode.url")
 	sess.Providers.Shodan.Enabled = v.GetBool("providers.shodan.enabled")
 	sess.Providers.PTR.Enabled = v.GetBool("providers.ptr.enabled")
+	sess.Providers.PTR.Nameservers = v.GetStringSlice("providers.ptr.nameservers")
 	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
 	sess.Config.Global.MaxValueChars = v.GetInt32("global.max_value_chars")
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
