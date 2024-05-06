@@ -1,1 +1,1 @@
-{"data":{"rr":[{"header":{"Name":"8.8.8.8.in-addr.arpa.","rrtype":12,"class":1,"ttl":9917,"rdlength":12},"ptr":"dns.google."}]}}
+{"rr":[{"header":{"Name":"8.8.8.8.in-addr.arpa.","rrtype":12,"class":1,"ttl":5468,"rdlength":12},"ptr":"dns.google."}],"msg":{"Id":0,"Response":false,"Opcode":0,"Authoritative":false,"Truncated":false,"RecursionDesired":false,"RecursionAvailable":false,"Zero":false,"AuthenticatedData":false,"CheckingDisabled":false,"Rcode":0,"Question":null,"Answer":null,"Ns":null,"Extra":null}}

@@ -106,7 +106,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		c.Session.Stats.Mu.Unlock()
 	}()
 
-	var findHostData myData
+	var findHostData HostSearchResult
 	if err := json.Unmarshal(data, &findHostData); err != nil {
 		return nil, fmt.Errorf("error unmarshalling ptr data: %w", err)
 	}
@@ -169,7 +169,7 @@ func loadResponse(c session.Session, nameserver string) (res *HostSearchResult, 
 		if ans != nil {
 			rRes := ans.(*dns.PTR)
 
-			var newPtr ptr
+			var newPtr Ptr
 
 			newPtr.Ptr = rRes.Ptr
 			rHeader := rRes.Header()
@@ -180,7 +180,7 @@ func loadResponse(c session.Session, nameserver string) (res *HostSearchResult, 
 				Class:    rHeader.Class,
 				Rrtype:   rHeader.Rrtype,
 			}
-			res.Data.RR = append(res.Data.RR, &newPtr)
+			res.RR = append(res.RR, &newPtr)
 		}
 	}
 
@@ -192,20 +192,6 @@ func loadResponse(c session.Session, nameserver string) (res *HostSearchResult, 
 	res.Raw = rd
 
 	return res, nil
-}
-
-func unmarshalResponse(data []byte) (*HostSearchResult, error) {
-	var res HostSearchResult
-
-	uData := myData{}
-	if err := json.Unmarshal(data, &uData); err != nil {
-		return nil, fmt.Errorf("error unmarshalling ptr data: %w", err)
-	}
-
-	res.Raw = data
-	res.Data = uData
-
-	return &res, nil
 }
 
 func loadResultsFile(path string) (res *HostSearchResult, err error) {
@@ -232,7 +218,7 @@ func loadTestData(l *slog.Logger) (*HostSearchResult, error) {
 		return nil, err
 	}
 
-	raw, err := json.Marshal(tdf.Data)
+	raw, err := json.Marshal(tdf)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling ptr test data: %w", err)
 	}
@@ -264,7 +250,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	var item *cache.Item
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		if item.Value != nil && len(item.Value) > 0 {
-			result, err = unmarshalResponse(item.Value)
+			err = json.Unmarshal(item.Value, &result)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached ptr response: %w", err)
 			}
@@ -298,15 +284,15 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	return result, nil
 }
 
-type Data struct {
-	Name string     `json:"name,omitempty"`
-	RR   []*dns.PTR `json:"rr,omitempty"`
-	Msg  dns.Msg    `json:"msg,omitempty"`
+type HostSearchResult struct {
+	Raw json.RawMessage `json:"raw,omitempty"`
+	RR  []*Ptr          `json:"rr,omitempty"`
+	Msg dns.Msg         `json:"msg,omitempty"`
 }
 
-type HostSearchResult struct {
-	Raw  json.RawMessage `json:"raw,omitempty"`
-	Data myData          `json:"data,omitempty"`
+type Ptr struct {
+	Header Header `json:"header,omitempty"`
+	Ptr    string `json:"ptr,omitempty"`
 }
 
 type Header struct {
@@ -315,39 +301,4 @@ type Header struct {
 	Class    uint16 `json:"class,omitempty"`
 	Ttl      uint32 `json:"ttl,omitempty"` // nolint:revive
 	Rdlength uint16 `json:"rdlength,omitempty"`
-}
-
-type ptr struct {
-	Header Header `json:"header,omitempty"`
-	Ptr    string `json:"ptr,omitempty"`
-}
-
-type myData struct {
-	Name string `json:"name,omitempty"`
-	RR   []*ptr `json:"rr,omitempty"`
-}
-
-func (data Data) MarshalJSON() ([]byte, error) {
-	var res myData
-
-	res.Name = data.Name
-	for _, r := range data.RR {
-		res.RR = append(res.RR, &ptr{
-			Header: Header{
-				Name:     r.Header().Name,
-				Rrtype:   r.Header().Rrtype,
-				Class:    r.Header().Class,
-				Ttl:      r.Header().Ttl,
-				Rdlength: r.Header().Rdlength,
-			},
-			Ptr: r.Ptr,
-		})
-	}
-
-	out, err := json.Marshal(res)
-	if err != nil {
-		return nil, fmt.Errorf("error marshalling ptr data: %w", err)
-	}
-
-	return out, nil
 }
