@@ -13,6 +13,8 @@ import (
 	"github.com/jonhadfield/ipscout/session"
 )
 
+const DefaultUA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:125.0) Gecko/20100101 Firefox/125."
+
 var (
 	ErrFailedToFetchData   = errors.New("failed to fetch data")
 	ErrNoDataFound         = errors.New("no data found")

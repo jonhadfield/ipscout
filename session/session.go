@@ -136,6 +136,9 @@ type Providers struct {
 		Enabled bool   `mapstructure:"enabled"`
 		URL     string `mapstructure:"url"`
 	} `mapstructure:"icloudpr"`
+	IPAPI struct {
+		Enabled bool `mapstructure:"enabled"`
+	} `mapstructure:"ipapi"`
 	IPURL struct {
 		Enabled bool     `mapstructure:"enabled"`
 		URLs    []string `mapstructure:"urls"`

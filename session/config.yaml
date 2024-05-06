@@ -25,6 +25,8 @@ providers:
     # url: override the default URL
   gcp:
     enabled: true
+  ipapi:
+    enabled: true
   ipurl:
     enabled: true
     urls:

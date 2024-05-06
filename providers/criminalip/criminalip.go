@@ -270,8 +270,7 @@ func (c *Client) FindHost() ([]byte, error) {
 	return result.Raw, nil
 }
 
-type GeneratePortDataForTableInput struct {
-}
+type GeneratePortDataForTableInput struct{}
 
 type GeneratePortDataForTableOutput struct {
 	entries []WrappedPortDataEntry
@@ -645,7 +644,7 @@ type HostSearchResult struct {
 			OrgCountryCode string  `json:"org_country_code"`
 			ConfirmedTime  string  `json:"confirmed_time"`
 		} `json:"data"`
-	} `json:"whois"`
+	} `json:"ipapi"`
 	Hostname struct {
 		Count int `json:"count"`
 		Data  []struct {
