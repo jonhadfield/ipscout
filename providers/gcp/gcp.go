@@ -252,7 +252,8 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	}
 
 	if result == nil {
-		c.Logger.Debug("no gcp host match found")
+		c.Logger.Debug("find host result", ProviderName, "no match found")
+
 		return nil, providers.ErrNoDataFound
 	}
 
