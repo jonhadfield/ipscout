@@ -171,6 +171,16 @@ See:
 - https://en.wikipedia.org/wiki/Reverse_DNS_lookup
 - https://www.cloudflare.com/en-gb/learning/dns/dns-records/dns-ptr-record/
 
+Custom nameservers can be specified in the `config.yaml` file with port defaulting to 53 if not specified.
+```yaml
+  ptr:
+    enabled: true
+    nameservers:
+      - 1.1.1.1:53
+      - 8.8.8.8
+      - 8.8.4.4:53
+```
+
 ### Shodan
 
 Query the [Shodan](https://www.shodan.io/) API for information on an IP address, with open ports, and services.
