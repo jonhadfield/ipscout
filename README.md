@@ -21,6 +21,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
 | [IPURL](#IPURL)                                           |  User Provided   |           -           |
+| [IPAPI](#IPAPI)                                           |  IP Geolocation  |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
@@ -153,10 +154,15 @@ that [publishes](https://www.digitalocean.com/geo/google.csv) network prefixes u
 that [publishes](https://cloud.google.com/compute/docs/faq#find_ip_range) network prefixes used by their
 services.
 
+### IPAPI
+
+Query the [ipapi](https://ipapi.co/) API for geolocation data.
+The API is free for up 30,000 requests per day.
+
 ### IPURL
 
 IPURL retrieves lists of IP prefixes from user provided URLs and checks the target IP address against them.
-Documents are expected to contains a list of prefixes in CIDR format, one per line.
+Documents are expected to contain a list of prefixes in CIDR format, one per line.
 
 Example configuration:
 ```yaml
