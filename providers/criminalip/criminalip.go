@@ -105,14 +105,6 @@ func loadAPIResponse(ctx context.Context, conf *session.Session, apiKey string) 
 		panic(err)
 	}
 
-	// TODO: remove before release
-	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("%s/backups/criminalip_%s_report.json", session.GetConfigRoot("", session.AppName),
-			strings.ReplaceAll(conf.Host.String(), ".", "_")), rBody, 0o600); err != nil {
-			panic(err)
-		}
-	}
-
 	defer resp.Body.Close()
 
 	res, err = unmarshalResponse(rBody)

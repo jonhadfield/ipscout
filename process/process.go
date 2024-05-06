@@ -3,13 +3,14 @@ package process
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jonhadfield/ipscout/providers/ipapi"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jonhadfield/ipscout/providers/ipapi"
 
 	"github.com/jonhadfield/ipscout/providers/icloudpr"
 

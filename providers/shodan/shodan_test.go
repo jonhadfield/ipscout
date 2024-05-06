@@ -137,7 +137,7 @@ func TestShodanHostDNSQuery(t *testing.T) {
 	require.Equal(t, "/", sr.Data[2].HTTP.Location)
 	require.Equal(t, "", sr.Data[2].HTTP.SecurityTxt)
 	require.Equal(t, "Google Public DNS", sr.Data[2].HTTP.Title)
-	require.Equal(t, "", sr.Data[2].HTTP.SitemapHash)
+	require.Equal(t, 0, sr.Data[2].HTTP.SitemapHash)
 	require.Equal(t, -82718941, sr.Data[2].HTTP.HTMLHash)
 	require.Empty(t, sr.Data[2].HTTP.Robots)
 	require.Equal(t, 56641965, sr.Data[2].HTTP.Favicon.Hash)

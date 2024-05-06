@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/netip"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -219,16 +218,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	raw, err = json.Marshal(match)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
-	}
-
-	// TODO: remove before release
-	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("%s/backups/aws_%s_report.json", session.GetConfigRoot("", session.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o600); err != nil {
-			panic(err)
-		}
-
-		c.Logger.Info("backed up aws response", "host", c.Host.String())
 	}
 
 	return raw, nil

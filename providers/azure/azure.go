@@ -223,16 +223,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
 	}
 
-	// TODO: remove before release
-	if os.Getenv("CCI_BACKUP_RESPONSES") == "true" {
-		if err = os.WriteFile(fmt.Sprintf("%s/backups/azure_%s_report.json", session.GetConfigRoot("", session.AppName),
-			strings.ReplaceAll(c.Host.String(), ".", "_")), raw, 0o600); err != nil {
-			panic(err)
-		}
-
-		c.Logger.Info("backed up azure response", "host", c.Host.String())
-	}
-
 	return raw, nil
 }
 
