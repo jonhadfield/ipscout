@@ -252,9 +252,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	}
 
 	if result == nil {
-		c.Logger.Debug("find host result", ProviderName, "no match found")
-
-		return nil, providers.ErrNoDataFound
+		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
 	var raw []byte

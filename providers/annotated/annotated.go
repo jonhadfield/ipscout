@@ -368,7 +368,7 @@ func matchIPToDoc(ip netip.Addr, doc map[netip.Prefix][]annotation) (*HostSearch
 	}
 
 	if result == nil {
-		return nil, providers.ErrNoMatchFound
+		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
 	return &result, nil

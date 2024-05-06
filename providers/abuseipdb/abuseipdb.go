@@ -194,7 +194,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, providers.ErrNoMatchFound
+		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -230,7 +230,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 
 	res.Raw = rBody
 	if res.Raw == nil {
-		return nil, fmt.Errorf("abuseipdb: %w", providers.ErrNoMatchFound)
+		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
 	return res, nil

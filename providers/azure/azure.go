@@ -264,7 +264,7 @@ func matchIPToDoc(host netip.Addr, doc *azure.Doc) (*HostSearchResult, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("azure: %w", providers.ErrNoMatchFound)
+	return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {

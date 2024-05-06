@@ -105,7 +105,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	}
 
 	if matches == nil {
-		return nil, fmt.Errorf("ip urls: %w", providers.ErrNoMatchFound)
+		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
 	var raw []byte

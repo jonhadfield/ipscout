@@ -92,11 +92,11 @@ func loadAPIResponse(ctx context.Context, conf *session.Session, apiKey string) 
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("criminal ip: %w", providers.ErrNoMatchFound)
+		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("criminal api request failed: %s", resp.Status)
+		return nil, fmt.Errorf("%s request failed: %s", ProviderName, resp.Status)
 	}
 
 	// read response body
