@@ -118,6 +118,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	tw := table.NewWriter()
 
 	tw.AppendHeader(table.Row{" ", "PTR", "Name", "TTL", "Rdlength", "Class", "Rrtype"})
+
 	for x, ptr := range findHostData.RR {
 		tw.AppendRow(table.Row{fmt.Sprintf("RR[%d]", x+1), ptr.Ptr, ptr.Header.Name, ptr.Header.Ttl, ptr.Header.Rdlength, ptr.Header.Class, ptr.Header.Rrtype})
 	}

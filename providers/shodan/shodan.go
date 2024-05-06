@@ -292,6 +292,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{" - City", providers.DashIfEmpty(result.City)})
 
 	var filteredPorts int
+
 	var portsDisplayed int
 
 	for _, dr := range result.Data {
@@ -341,6 +342,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			}
 
 			tw.AppendRow(table.Row{"", color.CyanString("%d/%s", dr.Port, dr.Transport)})
+
 			if len(dr.Domains) > 0 {
 				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
 			}
