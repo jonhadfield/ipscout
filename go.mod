@@ -9,8 +9,8 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.16.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
-	github.com/jedib0t/go-pretty/v6 v6.5.8
-	github.com/jonhadfield/ip-fetcher v0.0.0-20240503180217-558f6741c36f
+	github.com/jedib0t/go-pretty/v6 v6.5.9
+	github.com/jonhadfield/ip-fetcher v0.0.0-20240506070010-1122a63c5fee
 	github.com/miekg/dns v1.1.59
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.8.0

@@ -82,8 +82,12 @@ github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jedib0t/go-pretty/v6 v6.5.8 h1:8BCzJdSvUbaDuRba4YVh+SKMGcAAKdkcF3SVFbrHAtQ=
 github.com/jedib0t/go-pretty/v6 v6.5.8/go.mod h1:zbn98qrYlh95FIhwwsbIip0LYpwSG8SUOScs+v9/t0E=
+github.com/jedib0t/go-pretty/v6 v6.5.9 h1:ACteMBRrrmm1gMsXe9PSTOClQ63IXDUt03H5U+UV8OU=
+github.com/jedib0t/go-pretty/v6 v6.5.9/go.mod h1:zbn98qrYlh95FIhwwsbIip0LYpwSG8SUOScs+v9/t0E=
 github.com/jonhadfield/ip-fetcher v0.0.0-20240503180217-558f6741c36f h1:HxE19TTjhpHylMfgeoply4qrztj/seduEAO+Q/pQcJA=
 github.com/jonhadfield/ip-fetcher v0.0.0-20240503180217-558f6741c36f/go.mod h1:xckxqrzpzUyfNGSRKc+Ugp47f5iwogDYQB4iUUxfXHg=
+github.com/jonhadfield/ip-fetcher v0.0.0-20240506070010-1122a63c5fee h1:ITMrFZihhr2Iodo8XFBAhLq/LW841acLNIZli6doaTI=
+github.com/jonhadfield/ip-fetcher v0.0.0-20240506070010-1122a63c5fee/go.mod h1:xckxqrzpzUyfNGSRKc+Ugp47f5iwogDYQB4iUUxfXHg=
 github.com/jszwec/csvutil v1.10.0 h1:upMDUxhQKqZ5ZDCs/wy+8Kib8rZR8I8lOR34yJkdqhI=
 github.com/jszwec/csvutil v1.10.0/go.mod h1:/E4ONrmGkwmWsk9ae9jpXnv9QT8pLHEPcCirMFhxG9I=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
