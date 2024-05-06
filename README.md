@@ -38,6 +38,10 @@ $ brew tap jonhadfield/ipscout
 $ brew install ipscout
 ```
 
+### other distributions
+
+Download the latest release from the [releases](https://github.com/jonhadfield/ipscout/releases) page.
+
 ## Configuration
 
 A default configuration is created
@@ -54,7 +58,7 @@ providers:
 
 ## Providers
 
-Providers are configured in the `config.yaml` file.
+Providers are configured in the `config.yaml` file.  
 A number of providers are enabled by default, but can be disabled by setting `enabled: false`.
 
 ### AbuseIPDB
