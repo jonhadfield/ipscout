@@ -1,8 +1,7 @@
 # Overview
 
-IPScout is a command line tool useful for network administrators and security analysts to quickly identify the origin
-and threat of
-an IP address.
+IPScout is a command line tool for network administrators and security analysts to quickly identify the origin
+and threat of an IP address.
 
 ## Providers
 
@@ -42,18 +41,31 @@ $ brew install ipscout
 
 Download the latest release from the [releases](https://github.com/jonhadfield/ipscout/releases) page.
 
+## Usage
+
+```shell
+$ ipscout <ip address>
+```
+
 ## Configuration
 
 A default configuration is created
 on first run and located at: `$HOME/.config/ipscout/config.yaml`.
 
+Some configuration can be overridden on the command line, see `ipscout --help`.
+
 ```yaml
 ---
 global:
-# common settings for output and caching
+  indent_spaces: 2      # number of spaces to indent output
+  max_value_chars: 300  # limit the number of characters output in results
+  max_age: 90d          # maximum age of reports to consider
+  max_reports: 5        # maximum number of reports to display
+  output: table         # output format: table or json
+  ports: []             # filter results by port [tcp,udp,443/tcp,...]
 
 providers:
-# list of providers with their configurations
+# list of providers with their configurations below...
 ```
 
 ## Providers

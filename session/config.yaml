@@ -30,7 +30,6 @@ providers:
     urls:
       - "https://iplists.firehol.org/files/firehol_level1.netset"
       - "https://iplists.firehol.org/files/firehol_level2.netset"
-      - "https://iplists.firehol.org/files/firehol_anonymous.netset"
       - "https://iplists.firehol.org/files/blocklist_de.ipset"
       - "https://iplists.firehol.org/files/socks_proxy_7d.ipset"
       - "https://iplists.firehol.org/files/sslproxies_7d.ipset"
