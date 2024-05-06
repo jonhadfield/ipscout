@@ -11,7 +11,7 @@ providers:
   annotated:
     enabled: false
     paths:
-  #      - <path to yaml file>
+    #  - <path to yaml file>
   aws:
     enabled: true
     # url: override the default URL
