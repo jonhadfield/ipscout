@@ -35,12 +35,7 @@ page.
 
 ```
 $ brew tap jonhadfield/ipscout
-
-# x86 macs
-$ brew install ipscout
-
-# arm/silicon macs
-$ arch -arm64 brew install ipscout 
+$ brew install ipscout 
 ```
 
 ### other distributions
@@ -158,6 +153,10 @@ that [publishes](https://www.digitalocean.com/geo/google.csv) network prefixes u
 [GCP](https://cloud.google.com/) is a hosting provider
 that [publishes](https://cloud.google.com/compute/docs/faq#find_ip_range) network prefixes used by their
 services.
+
+### Googlebot
+[Googlebot](https://developers.google.com/search/docs/crawling-indexing/googlebot) is a web crawler and [publishes](https://developers.google.com/static/search/apis/ipranges/googlebot.json) network prefixes used by their
+bots.
 
 ### IPAPI
 

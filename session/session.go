@@ -132,6 +132,10 @@ type Providers struct {
 		Enabled bool `mapstructure:"enabled"`
 		URL     string
 	} `mapstructure:"gcp"`
+	Googlebot struct {
+		Enabled bool `mapstructure:"enabled"`
+		URL     string
+	} `mapstructure:"googlebot"`
 	ICloudPR struct {
 		Enabled bool   `mapstructure:"enabled"`
 		URL     string `mapstructure:"url"`

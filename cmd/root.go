@@ -158,6 +158,7 @@ func initConfig(cmd *cobra.Command) error {
 	sess.Providers.DigitalOcean.URL = v.GetString("providers.digitalocean.url")
 	sess.Providers.GCP.Enabled = v.GetBool("providers.gcp.enabled")
 	sess.Providers.GCP.URL = v.GetString("providers.gcp.url")
+	sess.Providers.Googlebot.Enabled = v.GetBool("providers.googlebot.enabled")
 	sess.Providers.ICloudPR.Enabled = v.GetBool("providers.icloudpr.enabled")
 	sess.Providers.ICloudPR.URL = v.GetString("providers.icloudpr.url")
 	sess.Providers.IPURL.Enabled = v.GetBool("providers.ipurl.enabled")
