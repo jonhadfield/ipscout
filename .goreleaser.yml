@@ -11,65 +11,12 @@ before:
     - go mod tidy
 builds:
   -
-    id: macos-ipscout
-    binary: ipscout
-    goos:
-      - darwin
-    goarch:
-      - amd64
-      - arm64
-    flags:
-      - -trimpath
-    ldflags:
-      - "-s -w -X main.version={{ .Version }} -X main.sha={{ .ShortCommit }} -X main.buildDate={{ .Date }} -X main.tag={{ .Tag }}"
-    hooks:
-      post:
-        - |
-          sh -c '
-          cat > /tmp/ipscout_gon_arm64.hcl << EOF
-          source = ["./dist/macos-ipscout_darwin_arm64/ipscout"]
-          bundle_id = "uk.co.lessknown.ipscout"
-          apple_id {
-            username = "jon@lessknown.co.uk"
-            provider = "VBZY8FBYR5"
-          }
-          sign {
-            application_identity = "Developer ID Application: Jonathan Hadfield (VBZY8FBYR5)"
-          }
-          zip {
-            output_path = "./dist/ipscout_darwin_arm64.zip"
-          }
-          EOF
-          gon -log-level=info -log-json /tmp/ipscout_gon_arm64.hcl
-          echo $?
-          '
-          echo $?
-        - |
-          sh -c '
-          cat > /tmp/ipscout_gon_amd64.hcl << EOF
-          source = ["./dist/macos-ipscout_darwin_amd64_v1/ipscout"]
-          bundle_id = "uk.co.lessknown.ipscout"
-          apple_id {
-            username = "jon@lessknown.co.uk"
-            provider = "VBZY8FBYR5"
-          }
-          sign {
-            application_identity = "Developer ID Application: Jonathan Hadfield (VBZY8FBYR5)"
-          }
-          zip {
-            output_path = "./dist/ipscout_darwin_amd64_v1.zip"
-          }
-          EOF
-          echo $?
-          gon -log-level=info -log-json /tmp/ipscout_gon_amd64.hcl
-          echo $?
-          '
-  -
     id: ipscout
     binary: ipscout
     env:
       - CGO_ENABLED=0
     goos:
+      - darwin
       - linux
       - windows
       - freebsd
@@ -86,7 +33,7 @@ brews:
   -
     name: ipscout
     homepage: 'https://github.com/jonhadfield/ipscout'
-    description: 'A command line tool useful for network administrators and security analysts to quickly identify the origin and threat of an IP address.'
+    description: 'A command line tool for network administrators and security analysts to quickly identify the origin and threat of an IP address.'
     repository:
       owner: jonhadfield
       name: homebrew-ipscout
@@ -94,7 +41,6 @@ brews:
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     builds:
-      - macos-ipscout
       - ipscout
     format: tar.gz
     format_overrides:
@@ -128,21 +74,3 @@ changelog:
 
 checksum:
   name_template: 'checksums.txt'
-#
-#universal_binaries:
-#  -
-#    id: ipscout
-#    replace: true
-
-#notarize:
-#  macos:
-#    - enabled: '{{ isEnvSet "MACOS_SIGN_P12" }}'
-#      ids:
-#        - ipscout
-#      sign:
-#        certificate: "{{.Env.MACOS_SIGN_P12}}"
-#        password: "{{.Env.MACOS_SIGN_PASSWORD}}"
-#      notarize:
-#        issuer_id: "{{.Env.MACOS_NOTARY_ISSUER_ID}}"
-#        key_id: "{{.Env.MACOS_NOTARY_KEY_ID}}"
-#        key: "{{.Env.MACOS_NOTARY_KEY}}"
