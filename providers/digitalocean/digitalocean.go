@@ -42,7 +42,11 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	return c.Session.Providers.DigitalOcean.Enabled
+	if c.Session.Providers.DigitalOcean.Enabled != nil && *c.Session.Providers.DigitalOcean.Enabled {
+		return true
+	}
+
+	return false
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

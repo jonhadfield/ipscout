@@ -32,7 +32,11 @@ type Config struct {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	return c.Session.Providers.IPURL.Enabled
+	if c.Session.Providers.IPURL.Enabled != nil && *c.Session.Providers.IPURL.Enabled {
+		return true
+	}
+
+	return false
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

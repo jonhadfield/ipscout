@@ -43,7 +43,11 @@ type ProviderClient struct {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	return c.Session.Providers.Annotated.Enabled
+	if c.Session.Providers.Annotated.Enabled != nil && *c.Session.Providers.Annotated.Enabled {
+		return true
+	}
+
+	return false
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

@@ -8,6 +8,8 @@ global:
   # ports: [80]
 
 providers:
+  abuseipdb:
+    enabled: true
   annotated:
     enabled: false
     paths:

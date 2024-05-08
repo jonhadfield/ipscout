@@ -56,7 +56,11 @@ type Provider interface {
 }
 
 func (c *Client) Enabled() bool {
-	return c.Session.Providers.PTR.Enabled
+	if c.Session.Providers.PTR.Enabled != nil && *c.Session.Providers.PTR.Enabled {
+		return true
+	}
+
+	return false
 }
 
 func (c *Client) GetConfig() *session.Session {

@@ -108,6 +108,10 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 	})
 }
 
+func ToPtr[T any](v T) *T {
+	return &v
+}
+
 func initConfig(cmd *cobra.Command) error {
 	v := viper.New()
 
@@ -145,44 +149,83 @@ func initConfig(cmd *cobra.Command) error {
 
 	sess.Target = os.Stderr
 
-	sess.Providers.AbuseIPDB.Enabled = v.GetBool("providers.abuseipdb.enabled")
+	if v.IsSet("providers.abuseipdb.enabled") {
+		sess.Providers.AbuseIPDB.Enabled = ToPtr(v.GetBool("providers.abuseipdb.enabled"))
+	}
 	sess.Providers.AbuseIPDB.MaxAge = v.GetInt("providers.abuseipdb.max_age")
 	sess.Providers.AbuseIPDB.ResultCacheTTL = v.GetInt64("providers.abuseipdb.result_cache_ttl")
-	sess.Providers.Annotated.Enabled = v.GetBool("providers.annotated.enabled")
+	if v.IsSet("providers.annotated.enabled") {
+		sess.Providers.Annotated.Enabled = ToPtr(v.GetBool("providers.annotated.enabled"))
+	}
 	sess.Providers.Annotated.Paths = v.GetStringSlice("providers.annotated.paths")
 	sess.Providers.Annotated.DocumentCacheTTL = v.GetInt64("providers.annotated.document_cache_ttl")
-	sess.Providers.AWS.Enabled = v.GetBool("providers.aws.enabled")
+
+	if v.IsSet("providers.aws.enabled") {
+		sess.Providers.AWS.Enabled = ToPtr(v.GetBool("providers.aws.enabled"))
+	}
 	sess.Providers.AWS.URL = v.GetString("providers.aws.url")
 	sess.Providers.AWS.DocumentCacheTTL = v.GetInt64("providers.aws.document_cache_ttl")
-	sess.Providers.Azure.Enabled = v.GetBool("providers.azure.enabled")
+
+	if v.IsSet("providers.azure.enabled") {
+		sess.Providers.Azure.Enabled = ToPtr(v.GetBool("providers.azure.enabled"))
+	}
+
 	sess.Providers.Azure.URL = v.GetString("providers.azure.url")
 	sess.Providers.Azure.DocumentCacheTTL = v.GetInt64("providers.azure.document_cache_ttl")
-	sess.Providers.CriminalIP.Enabled = v.GetBool("providers.criminalip.enabled")
+	if v.IsSet("providers.criminalip.enabled") {
+		sess.Providers.CriminalIP.Enabled = ToPtr(v.GetBool("providers.criminalip.enabled"))
+	}
+
 	sess.Providers.CriminalIP.ResultCacheTTL = v.GetInt64("providers.criminalip.result_cache_ttl")
-	sess.Providers.DigitalOcean.Enabled = v.GetBool("providers.digitalocean.enabled")
+	if v.IsSet("providers.digitalocean.enabled") {
+		sess.Providers.DigitalOcean.Enabled = ToPtr(v.GetBool("providers.digitalocean.enabled"))
+	}
 	sess.Providers.DigitalOcean.URL = v.GetString("providers.digitalocean.url")
 	sess.Providers.DigitalOcean.DocumentCacheTTL = v.GetInt64("providers.digitalocean.document_cache_ttl")
-	sess.Providers.GCP.Enabled = v.GetBool("providers.gcp.enabled")
+	if v.IsSet("providers.gcp.enabled") {
+		sess.Providers.GCP.Enabled = ToPtr(v.GetBool("providers.gcp.enabled"))
+	}
+
 	sess.Providers.GCP.URL = v.GetString("providers.gcp.url")
 	sess.Providers.GCP.DocumentCacheTTL = v.GetInt64("providers.gcp.document_cache_ttl")
-	sess.Providers.Googlebot.Enabled = v.GetBool("providers.googlebot.enabled")
+	if v.IsSet("providers.googlebot.enabled") {
+		sess.Providers.Googlebot.Enabled = ToPtr(v.GetBool("providers.googlebot.enabled"))
+	}
 	sess.Providers.Googlebot.URL = v.GetString("providers.googlebot.url")
-	sess.Providers.ICloudPR.Enabled = v.GetBool("providers.icloudpr.enabled")
+
+	if v.IsSet("providers.icloudpr.enabled") {
+		sess.Providers.ICloudPR.Enabled = ToPtr(v.GetBool("providers.icloudpr.enabled"))
+	}
 	sess.Providers.ICloudPR.URL = v.GetString("providers.icloudpr.url")
 	sess.Providers.ICloudPR.DocumentCacheTTL = v.GetInt64("providers.icloudpr.document_cache_ttl")
-	sess.Providers.IPURL.Enabled = v.GetBool("providers.ipurl.enabled")
+	if v.IsSet("providers.ipurl.enabled") {
+		sess.Providers.IPURL.Enabled = ToPtr(v.GetBool("providers.ipurl.enabled"))
+	}
 	sess.Providers.IPURL.URLs = v.GetStringSlice("providers.ipurl.urls")
 	sess.Providers.IPURL.DocumentCacheTTL = v.GetInt64("providers.ipurl.document_cache_ttl")
-	sess.Providers.Linode.Enabled = v.GetBool("providers.linode.enabled")
+
+	if v.IsSet("providers.linode.enabled") {
+		sess.Providers.Linode.Enabled = ToPtr(v.GetBool("providers.linode.enabled"))
+	}
 	sess.Providers.Linode.DocumentCacheTTL = v.GetInt64("providers.linode.document_cache_ttl")
 	sess.Providers.Linode.URL = v.GetString("providers.linode.url")
-	sess.Providers.Shodan.APIKey = v.GetString("providers.shodan.api_key")
 	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
-	sess.Providers.Shodan.Enabled = v.GetBool("providers.shodan.enabled")
-	sess.Providers.PTR.Enabled = v.GetBool("providers.ptr.enabled")
+	if v.IsSet("providers.shodan.enabled") {
+		sess.Providers.Shodan.Enabled = ToPtr(v.GetBool("providers.shodan.enabled"))
+	}
+	if v.IsSet("providers.shodan.api_key") {
+		sess.Providers.Shodan.APIKey = v.GetString("providers.shodan.api_key")
+	}
+
+	if v.IsSet("providers.ptr.enabled") {
+		sess.Providers.PTR.Enabled = ToPtr(v.GetBool("providers.ptr.enabled"))
+	}
 	sess.Providers.PTR.ResultCacheTTL = v.GetInt64("providers.ptr.result_cache_ttl")
 	sess.Providers.PTR.Nameservers = v.GetStringSlice("providers.ptr.nameservers")
-	sess.Providers.IPAPI.Enabled = v.GetBool("providers.ipapi.enabled")
+
+	if v.IsSet("providers.ipapi.enabled") {
+		sess.Providers.IPAPI.Enabled = ToPtr(v.GetBool("providers.ipapi.enabled"))
+	}
 	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")
 	sess.Config.Global.Ports = v.GetStringSlice("global.ports")

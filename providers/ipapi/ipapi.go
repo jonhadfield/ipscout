@@ -55,7 +55,11 @@ type Provider interface {
 }
 
 func (c *Client) Enabled() bool {
-	return c.Session.Providers.IPAPI.Enabled
+	if c.Session.Providers.IPAPI.Enabled != nil && *c.Session.Providers.IPAPI.Enabled {
+		return true
+	}
+
+	return false
 }
 
 func (c *Client) GetConfig() *session.Session {

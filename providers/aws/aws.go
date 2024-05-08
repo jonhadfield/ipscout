@@ -43,7 +43,11 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	return c.Session.Providers.AWS.Enabled
+	if c.Session.Providers.AWS.Enabled != nil && *c.Session.Providers.AWS.Enabled {
+		return true
+	}
+
+	return false
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

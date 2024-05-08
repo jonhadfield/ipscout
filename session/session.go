@@ -105,72 +105,72 @@ type Session struct {
 type Providers struct {
 	AbuseIPDB struct {
 		APIKey         string
-		Enabled        bool  `mapstructure:"enabled"`
+		Enabled        *bool `mapstructure:"enabled"`
 		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
 		MaxAge         int   `mapstructure:"max-age"`
 	} `mapstructure:"abuseipdb"`
 	Annotated struct {
-		Enabled          bool     `mapstructure:"enabled"`
+		Enabled          *bool    `mapstructure:"enabled"`
 		DocumentCacheTTL int64    `mapstructure:"document_cache_ttl"`
 		Paths            []string `mapstructure:"paths"`
 	} `mapstructure:"annotated"`
 	AWS struct {
-		Enabled          bool   `mapstructure:"enabled"`
+		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		URL              string `mapstructure:"url"`
 	} `mapstructure:"aws"`
 	Azure struct {
-		Enabled          bool   `mapstructure:"enabled"`
+		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		URL              string `mapstructure:"url"`
 	} `mapstructure:"azure"`
 	CriminalIP struct {
 		APIKey         string
 		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
-		Enabled        bool  `mapstructure:"enabled"`
+		Enabled        *bool `mapstructure:"enabled"`
 	} `mapstructure:"criminalip"`
 	DigitalOcean struct {
-		Enabled          bool  `mapstructure:"enabled"`
+		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
 	} `mapstructure:"digitalocean"`
 	GCP struct {
-		Enabled          bool  `mapstructure:"enabled"`
+		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
 	} `mapstructure:"gcp"`
 	Googlebot struct {
-		Enabled          bool  `mapstructure:"enabled"`
+		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
 	} `mapstructure:"googlebot"`
 	ICloudPR struct {
-		Enabled          bool   `mapstructure:"enabled"`
+		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		URL              string `mapstructure:"url"`
 	} `mapstructure:"icloudpr"`
 	IPAPI struct {
 		APIKey         string
-		Enabled        bool  `mapstructure:"enabled"`
+		Enabled        *bool `mapstructure:"enabled"`
 		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
 	} `mapstructure:"ipapi"`
 	IPURL struct {
-		Enabled          bool     `mapstructure:"enabled"`
+		Enabled          *bool    `mapstructure:"enabled"`
 		DocumentCacheTTL int64    `mapstructure:"document_cache_ttl"`
 		URLs             []string `mapstructure:"urls"`
 	} `mapstructure:"ipurl"`
 	Linode struct {
-		Enabled          bool  `mapstructure:"enabled"`
+		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
 	} `mapstructure:"linode"`
 	Shodan struct {
 		APIKey         string
 		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
-		Enabled        bool  `mapstructure:"enabled"`
+		Enabled        *bool `mapstructure:"enabled"`
 	} `mapstructure:"shodan"`
 	PTR struct {
-		Enabled        bool     `mapstructure:"enabled"`
+		Enabled        *bool    `mapstructure:"enabled"`
 		ResultCacheTTL int64    `mapstructure:"result_cache_ttl"`
 		Nameservers    []string `mapstructure:"nameservers"`
 	} `mapstructure:"ptr"`

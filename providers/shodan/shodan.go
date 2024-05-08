@@ -48,7 +48,11 @@ type ProviderClient struct {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	return c.Session.Providers.Shodan.Enabled
+	if c.Session.Providers.Shodan.Enabled != nil && *c.Session.Providers.Shodan.Enabled {
+		return true
+	}
+
+	return false
 }
 
 func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res *HostSearchResult, err error) {

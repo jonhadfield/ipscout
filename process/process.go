@@ -41,7 +41,7 @@ import (
 
 type Provider struct {
 	Name      string
-	Enabled   bool
+	Enabled   *bool
 	APIKey    string
 	NewClient func(c session.Session) (providers.ProviderClient, error)
 }
@@ -67,7 +67,13 @@ func getProviderClients(sess session.Session) (map[string]providers.ProviderClie
 	}
 
 	for _, provider := range pros {
-		if provider.Enabled || sess.UseTestData || provider.APIKey != "" {
+		if provider.Enabled == nil {
+			sess.Logger.Debug("provider undefined", "name", provider.Name)
+
+			continue
+		}
+
+		if *provider.Enabled == true || sess.UseTestData || provider.APIKey != "" {
 			client, err := provider.NewClient(sess)
 			if err != nil {
 				return nil, fmt.Errorf("error creating %s client: %w", provider.Name, err)

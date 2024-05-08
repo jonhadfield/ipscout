@@ -49,7 +49,11 @@ func (c *Client) GetConfig() *session.Session {
 }
 
 func (c *Client) Enabled() bool {
-	return c.Session.Providers.CriminalIP.Enabled
+	if c.Session.Providers.CriminalIP.Enabled != nil && *c.Session.Providers.CriminalIP.Enabled {
+		return true
+	}
+
+	return false
 }
 
 type Config struct {
