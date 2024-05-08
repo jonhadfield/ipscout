@@ -151,67 +151,119 @@ func initConfig(cmd *cobra.Command) error {
 
 	if v.IsSet("providers.abuseipdb.enabled") {
 		sess.Providers.AbuseIPDB.Enabled = ToPtr(v.GetBool("providers.abuseipdb.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "AbuseIPDB provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
+
 	sess.Providers.AbuseIPDB.MaxAge = v.GetInt("providers.abuseipdb.max_age")
 	sess.Providers.AbuseIPDB.ResultCacheTTL = v.GetInt64("providers.abuseipdb.result_cache_ttl")
 	if v.IsSet("providers.annotated.enabled") {
 		sess.Providers.Annotated.Enabled = ToPtr(v.GetBool("providers.annotated.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Annotated provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
+
 	sess.Providers.Annotated.Paths = v.GetStringSlice("providers.annotated.paths")
 	sess.Providers.Annotated.DocumentCacheTTL = v.GetInt64("providers.annotated.document_cache_ttl")
 
 	if v.IsSet("providers.aws.enabled") {
 		sess.Providers.AWS.Enabled = ToPtr(v.GetBool("providers.aws.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "AWS provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
+
 	sess.Providers.AWS.URL = v.GetString("providers.aws.url")
 	sess.Providers.AWS.DocumentCacheTTL = v.GetInt64("providers.aws.document_cache_ttl")
 
 	if v.IsSet("providers.azure.enabled") {
 		sess.Providers.Azure.Enabled = ToPtr(v.GetBool("providers.azure.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Azure provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 
 	sess.Providers.Azure.URL = v.GetString("providers.azure.url")
+
 	sess.Providers.Azure.DocumentCacheTTL = v.GetInt64("providers.azure.document_cache_ttl")
 	if v.IsSet("providers.criminalip.enabled") {
 		sess.Providers.CriminalIP.Enabled = ToPtr(v.GetBool("providers.criminalip.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Criminal IP provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 
 	sess.Providers.CriminalIP.ResultCacheTTL = v.GetInt64("providers.criminalip.result_cache_ttl")
 	if v.IsSet("providers.digitalocean.enabled") {
 		sess.Providers.DigitalOcean.Enabled = ToPtr(v.GetBool("providers.digitalocean.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "DigitalOcean provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 	sess.Providers.DigitalOcean.URL = v.GetString("providers.digitalocean.url")
 	sess.Providers.DigitalOcean.DocumentCacheTTL = v.GetInt64("providers.digitalocean.document_cache_ttl")
 	if v.IsSet("providers.gcp.enabled") {
 		sess.Providers.GCP.Enabled = ToPtr(v.GetBool("providers.gcp.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "GCP provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 
 	sess.Providers.GCP.URL = v.GetString("providers.gcp.url")
 	sess.Providers.GCP.DocumentCacheTTL = v.GetInt64("providers.gcp.document_cache_ttl")
 	if v.IsSet("providers.googlebot.enabled") {
 		sess.Providers.Googlebot.Enabled = ToPtr(v.GetBool("providers.googlebot.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Googlebot provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 	sess.Providers.Googlebot.URL = v.GetString("providers.googlebot.url")
 
 	if v.IsSet("providers.icloudpr.enabled") {
 		sess.Providers.ICloudPR.Enabled = ToPtr(v.GetBool("providers.icloudpr.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "iCloud Private Relay provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 	sess.Providers.ICloudPR.URL = v.GetString("providers.icloudpr.url")
 	sess.Providers.ICloudPR.DocumentCacheTTL = v.GetInt64("providers.icloudpr.document_cache_ttl")
 	if v.IsSet("providers.ipurl.enabled") {
 		sess.Providers.IPURL.Enabled = ToPtr(v.GetBool("providers.ipurl.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "IP URL provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 	sess.Providers.IPURL.URLs = v.GetStringSlice("providers.ipurl.urls")
 	sess.Providers.IPURL.DocumentCacheTTL = v.GetInt64("providers.ipurl.document_cache_ttl")
 
 	if v.IsSet("providers.linode.enabled") {
 		sess.Providers.Linode.Enabled = ToPtr(v.GetBool("providers.linode.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Linode provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 	sess.Providers.Linode.DocumentCacheTTL = v.GetInt64("providers.linode.document_cache_ttl")
 	sess.Providers.Linode.URL = v.GetString("providers.linode.url")
 	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
 	if v.IsSet("providers.shodan.enabled") {
 		sess.Providers.Shodan.Enabled = ToPtr(v.GetBool("providers.shodan.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Shodan provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 	if v.IsSet("providers.shodan.api_key") {
 		sess.Providers.Shodan.APIKey = v.GetString("providers.shodan.api_key")
@@ -219,12 +271,20 @@ func initConfig(cmd *cobra.Command) error {
 
 	if v.IsSet("providers.ptr.enabled") {
 		sess.Providers.PTR.Enabled = ToPtr(v.GetBool("providers.ptr.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "PTR provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 	sess.Providers.PTR.ResultCacheTTL = v.GetInt64("providers.ptr.result_cache_ttl")
 	sess.Providers.PTR.Nameservers = v.GetStringSlice("providers.ptr.nameservers")
 
 	if v.IsSet("providers.ipapi.enabled") {
 		sess.Providers.IPAPI.Enabled = ToPtr(v.GetBool("providers.ipapi.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "IPAPI provider not defined in config")
+		sess.Messages.Mu.Unlock()
 	}
 	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")

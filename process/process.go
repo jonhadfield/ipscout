@@ -3,6 +3,7 @@ package process
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -302,6 +303,8 @@ func output(sess *session.Session, runners map[string]providers.ProviderClient, 
 		}
 
 		present.Tables(sess, tables)
+
+		outputMessages(sess)
 	case "json":
 		jo, err := generateJSON(results)
 		if err != nil {
@@ -311,11 +314,25 @@ func output(sess *session.Session, runners map[string]providers.ProviderClient, 
 		if err = present.JSON(&jo); err != nil {
 			return fmt.Errorf("error outputting JSON: %w", err)
 		}
+
+		outputMessages(sess)
 	default:
 		return fmt.Errorf("unsupported output format: %s", sess.Config.Global.Output)
 	}
 
 	return nil
+}
+
+func outputMessages(sess *session.Session) {
+	for x := range sess.Messages.Error {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgRed.Sprint("[ERROR]"), sess.Messages.Info[x])
+	}
+	for x := range sess.Messages.Warning {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgYellow.Sprint("[WARN]"), sess.Messages.Warning[x])
+	}
+	for x := range sess.Messages.Info {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgGreen.Sprint("[INFO]"), sess.Messages.Info[x])
+	}
 }
 
 func generateTables(conf *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) []*table.Writer {

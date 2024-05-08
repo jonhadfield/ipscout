@@ -47,6 +47,13 @@ func CreateStats() *Stats {
 	}
 }
 
+type Messages struct {
+	Mu      sync.Mutex
+	Info    []string
+	Warning []string
+	Error   []string
+}
+
 func New() *Session {
 	return &Session{
 		Stats: CreateStats(),
@@ -86,12 +93,13 @@ type Session struct {
 		Version string
 		SemVer  string
 	}
-	Logger *slog.Logger
-	Stats  *Stats
-	Target *os.File
-	Output string
-	Cache  *badger.DB
-	Config Config
+	Logger   *slog.Logger
+	Stats    *Stats
+	Target   *os.File
+	Output   string
+	Messages Messages
+	Cache    *badger.DB
+	Config   Config
 
 	HTTPClient   *retryablehttp.Client
 	Host         netip.Addr
