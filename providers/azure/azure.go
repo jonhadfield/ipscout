@@ -87,13 +87,18 @@ func (c *ProviderClient) loadProviderDataFromSource() error {
 
 	c.Logger.Debug("writing azure provider data to cache", "size", len(data), "etag", etag)
 
+	docCacheTTL := DocTTL
+	if c.Providers.Azure.DocumentCacheTTL != 0 {
+		docCacheTTL = time.Minute * time.Duration(c.Providers.Azure.DocumentCacheTTL)
+	}
+
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.Version,
 		Key:        providers.CacheProviderPrefix + ProviderName,
 		Value:      data,
 		Version:    etag,
 		Created:    time.Now(),
-	}, DocTTL); err != nil {
+	}, docCacheTTL); err != nil {
 		return fmt.Errorf("error writing azure provider data to cache: %w", err)
 	}
 

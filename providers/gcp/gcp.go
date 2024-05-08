@@ -90,13 +90,18 @@ func (c *ProviderClient) loadProviderData() error {
 		return fmt.Errorf("error marshalling gcp provider doc: %w", err)
 	}
 
+	docCacheTTL := DocTTL
+	if c.Providers.GCP.DocumentCacheTTL != 0 {
+		docCacheTTL = time.Minute * time.Duration(c.Providers.GCP.DocumentCacheTTL)
+	}
+
 	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.Version,
 		Key:        providers.CacheProviderPrefix + ProviderName,
 		Value:      data,
 		Version:    doc.SyncToken,
 		Created:    time.Now(),
-	}, DocTTL)
+	}, docCacheTTL)
 	if err != nil {
 		return fmt.Errorf("error upserting gcp data: %w", err)
 	}

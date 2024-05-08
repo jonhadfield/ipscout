@@ -283,12 +283,17 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 		return nil, fmt.Errorf("loading ptr api response: %w", err)
 	}
 
+	resultTTL := ResultTTL
+	if c.Providers.PTR.ResultCacheTTL != 0 {
+		resultTTL = time.Minute * time.Duration(c.Providers.PTR.ResultCacheTTL)
+	}
+
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.Version,
 		Key:        cacheKey,
 		Value:      result.Raw,
 		Created:    time.Now(),
-	}, ResultTTL); err != nil {
+	}, resultTTL); err != nil {
 		return nil, fmt.Errorf("error caching ptr response: %w", err)
 	}
 

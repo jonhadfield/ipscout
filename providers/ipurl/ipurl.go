@@ -266,13 +266,18 @@ func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix,
 
 	uh := generateURLHash(pURL)
 
+	docCacheTTL := CacheTTL
+	if c.Providers.IPURL.DocumentCacheTTL != 0 {
+		docCacheTTL = time.Minute * time.Duration(c.Providers.IPURL.DocumentCacheTTL)
+	}
+
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.Version,
 		Key:        providers.CacheProviderPrefix + ProviderName + "_" + uh,
 		Value:      mHfPrefixes,
 		Version:    "-",
 		Created:    time.Now(),
-	}, CacheTTL); err != nil {
+	}, docCacheTTL); err != nil {
 		return nil, fmt.Errorf("error upserting ipurl provider data: %w", err)
 	}
 

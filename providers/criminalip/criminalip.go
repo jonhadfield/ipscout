@@ -27,7 +27,7 @@ const (
 	APIURL            = "https://api.criminalip.io"
 	HostIPPath        = "/v1/asset/ip/report"
 	IndentPipeHyphens = " |-----"
-	ResultTTL         = time.Duration(24 * time.Hour)
+	ResultTTL         = 24 * time.Hour
 )
 
 type Client struct {
@@ -174,12 +174,19 @@ func fetchData(client session.Session) (*HostSearchResult, error) {
 		return nil, fmt.Errorf("error loading criminal ip api response: %w", err)
 	}
 
+	resultTTL := ResultTTL
+	if client.Providers.CriminalIP.ResultCacheTTL != 0 {
+		resultTTL = time.Minute * time.Duration(client.Providers.CriminalIP.ResultCacheTTL)
+	}
+
+	client.Logger.Debug("caching criminal ip response", "duration", resultTTL.String())
+
 	if err = cache.UpsertWithTTL(client.Logger, client.Cache, cache.Item{
 		AppVersion: client.App.Version,
 		Key:        cacheKey,
 		Value:      result.Raw,
 		Created:    time.Now(),
-	}, ResultTTL); err != nil {
+	}, resultTTL); err != nil {
 		return nil, fmt.Errorf("error caching criminal ip response: %w", err)
 	}
 

@@ -210,12 +210,19 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 		return nil, fmt.Errorf("loading shodan api response: %w", err)
 	}
 
+	resultTTL := ResultTTL
+	if c.Providers.Shodan.ResultCacheTTL != 0 {
+		resultTTL = time.Minute * time.Duration(c.Providers.Shodan.ResultCacheTTL)
+	}
+
+	c.Logger.Debug("caching shodan response", "duration", resultTTL.String())
+
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.Version,
 		Key:        cacheKey,
 		Value:      result.Raw,
 		Created:    time.Now(),
-	}, ResultTTL); err != nil {
+	}, resultTTL); err != nil {
 		return nil, fmt.Errorf("error caching shodan response: %w", err)
 	}
 

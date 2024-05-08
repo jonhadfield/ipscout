@@ -90,13 +90,18 @@ func (c *ProviderClient) loadProviderData() error {
 		return fmt.Errorf("error marshalling icloudpr provider doc: %w", err)
 	}
 
+	docCacheTTL := DocTTL
+	if c.Providers.ICloudPR.DocumentCacheTTL != 0 {
+		docCacheTTL = time.Minute * time.Duration(c.Providers.ICloudPR.DocumentCacheTTL)
+	}
+
 	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.Version,
 		Key:        providers.CacheProviderPrefix + ProviderName,
 		Value:      data,
 		Version:    doc.ETag,
 		Created:    time.Now(),
-	}, DocTTL)
+	}, docCacheTTL)
 	if err != nil {
 		return fmt.Errorf("error upserting icloudpr data: %w", err)
 	}

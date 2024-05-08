@@ -90,13 +90,18 @@ func (c *ProviderClient) loadProviderData() error {
 		return fmt.Errorf("error marshalling linode provider doc: %w", err)
 	}
 
+	docCacheTTL := DocTTL
+	if c.Providers.Linode.DocumentCacheTTL != 0 {
+		docCacheTTL = time.Minute * time.Duration(c.Providers.Linode.DocumentCacheTTL)
+	}
+
 	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.Version,
 		Key:        providers.CacheProviderPrefix + ProviderName,
 		Value:      data,
 		Version:    doc.ETag,
 		Created:    time.Now(),
-	}, DocTTL)
+	}, docCacheTTL)
 	if err != nil {
 		return fmt.Errorf("error upserting linode data: %w", err)
 	}

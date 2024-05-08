@@ -186,13 +186,18 @@ func (c *ProviderClient) Initialise() error {
 		return fmt.Errorf("error marshalling annotated prefixes: %w", err)
 	}
 
+	docCacheTTL := CacheTTL
+	if c.Providers.Annotated.DocumentCacheTTL != 0 {
+		docCacheTTL = time.Minute * time.Duration(c.Providers.Annotated.DocumentCacheTTL)
+	}
+
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.Version,
 		Key:        providers.CacheProviderPrefix + ProviderName + "_" + uh,
 		Value:      mPWAs,
 		Version:    "-",
 		Created:    time.Now(),
-	}, CacheTTL); err != nil {
+	}, docCacheTTL); err != nil {
 		return fmt.Errorf("error caching annotated prefixes: %w", err)
 	}
 
