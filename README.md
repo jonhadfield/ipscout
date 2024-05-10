@@ -3,8 +3,10 @@
 IPScout is a command line tool for network administrators and security analysts to quickly identify the origin
 and threat of an IP address.
 
-[![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout)
+[![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout)  
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/df6b2974f0844444af617a1c0b0e2cfb)](https://app.codacy.com/gh/jonhadfield/ipscout/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)  
 [![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
+
 ## Providers
 
 IPScout supports multiple well known sources. You can also provide custom sources
@@ -22,8 +24,9 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
-| [IPURL](#IPURL)                                           |  User Provided   |           -           |
+| [Googlebot](#Googlebot)                                   |   Web crawler    |           -           |
 | [IPAPI](#IPAPI)                                           |  IP Geolocation  |           -           |
+| [IPURL](#IPURL)                                           |  User Provided   |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
@@ -65,7 +68,7 @@ global:
   max_age: 90d          # maximum age of reports to consider
   max_reports: 5        # maximum number of reports to display
   output: table         # output format: table or json
-  ports: []             # filter results by port [tcp,udp,443/tcp,...]
+  ports: [ ]             # filter results by port [tcp,udp,443/tcp,...]
 
 providers:
 # list of providers with their configurations below...
@@ -152,12 +155,15 @@ Environment variable `CRIMINAL_IP_API_KEY` must be set with your API key.
 that [publishes](https://www.digitalocean.com/geo/google.csv) network prefixes used by their services.
 
 ### Google Cloud Platform
+
 [GCP](https://cloud.google.com/) is a hosting provider
 that [publishes](https://cloud.google.com/compute/docs/faq#find_ip_range) network prefixes used by their
 services.
 
 ### Googlebot
-[Googlebot](https://developers.google.com/search/docs/crawling-indexing/googlebot) is a web crawler and [publishes](https://developers.google.com/static/search/apis/ipranges/googlebot.json) network prefixes used by their
+
+[Googlebot](https://developers.google.com/search/docs/crawling-indexing/googlebot) is a web crawler
+and [publishes](https://developers.google.com/static/search/apis/ipranges/googlebot.json) network prefixes used by their
 bots.
 
 ### IPAPI
@@ -171,6 +177,7 @@ IPURL retrieves lists of IP prefixes from user provided URLs and checks the targ
 Documents are expected to contain a list of prefixes in CIDR format, one per line.
 
 Example configuration:
+
 ```yaml
   ipurl:
     enabled: true
@@ -179,7 +186,9 @@ Example configuration:
       - "https://iplists.firehol.org/files/firehol_level2.netset"
       - "https://iplists.firehol.org/files/blocklist_de.ipset"
 ```
+
 A match for target IP 3.68.116.6 in two of the above may return:
+
 ```
 Prefixes                                                                     
   3.68.116.0/28                                                    
@@ -196,10 +205,12 @@ that [publishes](https://geoip.linode.com/) network prefixes used by their servi
 
 The PTR provider does a reverse lookup for the target IP.  
 See:
+
 - https://en.wikipedia.org/wiki/Reverse_DNS_lookup
 - https://www.cloudflare.com/en-gb/learning/dns/dns-records/dns-ptr-record/
 
 Custom nameservers can be specified in the `config.yaml` file with port defaulting to 53 if not specified.
+
 ```yaml
   ptr:
     enabled: true
