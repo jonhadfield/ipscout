@@ -380,7 +380,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			}
 
 			if len(dr.Ssl.Versions) > 0 {
-				tw.AppendRow(table.Row{"", "SSL"})
+				tw.AppendRow(table.Row{"", color.CyanString("SSL")})
 				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sIssuer: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.Ssl.Cert.Issuer.Cn)})
 				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sSubject: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.Ssl.Cert.Subject.Cn)})
 				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sVersions: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), strings.Join(dr.Ssl.Versions, ", "))})
