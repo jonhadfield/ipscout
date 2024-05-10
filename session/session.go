@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/netip"
 	"os"
-	"path"
 	"path/filepath"
 	"sync"
 	"time"
@@ -241,15 +240,15 @@ func CreateConfigPathStructure(configRoot string) error {
 	}
 
 	for _, dir := range []string{"backups", "cache"} {
-		_, err = os.Stat(path.Join(configRoot, dir))
+		_, err = os.Stat(filepath.Join(configRoot, dir))
 		if err != nil {
 			if os.IsNotExist(err) {
-				mErr := os.MkdirAll(path.Join(configRoot, dir), 0o700)
+				mErr := os.MkdirAll(filepath.Join(configRoot, dir), 0o700)
 				if mErr != nil {
-					return fmt.Errorf("failed to create %s directory: %v", dir, mErr)
+					return fmt.Errorf("failed to create %s directory: %w", dir, mErr)
 				}
 			} else {
-				return fmt.Errorf("failed to stat %s directory: %v", dir, err)
+				return fmt.Errorf("failed to stat %s directory: %w", dir, err)
 			}
 		}
 	}
@@ -262,7 +261,7 @@ func CreateConfigPathStructure(configRoot string) error {
 func GetConfigRoot(root string, appName string) string {
 	// if root specified then use that
 	if root != "" {
-		return path.Join(root, ".config", appName)
+		return filepath.Join(root, ".config", appName)
 	}
 
 	// otherwise, use the user's home directory
@@ -271,5 +270,5 @@ func GetConfigRoot(root string, appName string) string {
 		os.Exit(1)
 	}
 
-	return path.Join(home, ".config", appName)
+	return filepath.Join(home, ".config", appName)
 }
