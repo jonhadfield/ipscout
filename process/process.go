@@ -3,13 +3,14 @@ package process
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jedib0t/go-pretty/v6/text"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jedib0t/go-pretty/v6/text"
 
 	"github.com/jonhadfield/ipscout/providers/googlebot"
 
@@ -327,13 +328,15 @@ func outputMessages(sess *session.Session) {
 	if sess.Messages == nil {
 		return
 	}
-	
+
 	for x := range sess.Messages.Error {
 		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgRed.Sprint("[ERROR]"), sess.Messages.Info[x])
 	}
+
 	for x := range sess.Messages.Warning {
 		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgYellow.Sprint("[WARN]"), sess.Messages.Warning[x])
 	}
+
 	for x := range sess.Messages.Info {
 		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgGreen.Sprint("[INFO]"), sess.Messages.Info[x])
 	}
