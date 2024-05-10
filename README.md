@@ -3,6 +3,8 @@
 IPScout is a command line tool for network administrators and security analysts to quickly identify the origin
 and threat of an IP address.
 
+[![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
 ## Providers
 
 IPScout supports multiple well known sources. You can also provide custom sources
