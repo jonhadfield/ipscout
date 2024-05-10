@@ -374,9 +374,19 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 			if dr.HTTP.Status != 0 {
 				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  HTTP", IndentPipeHyphens)})
+				if dr.HTTP.Location != "" {
+					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sLocation: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Location)})
+				}
 				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sStatus: %d", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Status)})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sTitle: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Title)})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sServer: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Server)})
+				if dr.HTTP.Title != "" {
+					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sTitle: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Title)})
+				}
+				if dr.HTTP.Server != "" {
+					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sServer: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Server)})
+				}
+				if dr.HTTP.HTML != "" {
+					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sHTML: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.HTML)})
+				}
 			}
 
 			if len(dr.Ssl.Versions) > 0 {
