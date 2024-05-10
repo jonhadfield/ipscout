@@ -324,6 +324,10 @@ func output(sess *session.Session, runners map[string]providers.ProviderClient, 
 }
 
 func outputMessages(sess *session.Session) {
+	if sess.Messages == nil {
+		return
+	}
+	
 	for x := range sess.Messages.Error {
 		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgRed.Sprint("[ERROR]"), sess.Messages.Info[x])
 	}

@@ -97,7 +97,7 @@ type Session struct {
 	Stats    *Stats
 	Target   *os.File
 	Output   string
-	Messages Messages
+	Messages *Messages
 	Cache    *badger.DB
 	Config   Config
 
