@@ -74,7 +74,7 @@ func getProviderClients(sess session.Session) (map[string]providers.ProviderClie
 			continue
 		}
 
-		if *provider.Enabled == true || sess.UseTestData || provider.APIKey != "" {
+		if *provider.Enabled || sess.UseTestData || provider.APIKey != "" {
 			client, err := provider.NewClient(sess)
 			if err != nil {
 				return nil, fmt.Errorf("error creating %s client: %w", provider.Name, err)
