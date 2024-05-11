@@ -390,6 +390,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 				}
 
 				if dr.HTTP.HTML != "" {
+					dr.HTTP.HTML = strings.TrimSuffix(dr.HTTP.HTML, "\n")
 					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sHTML: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.HTML)})
 				}
 			}
