@@ -97,7 +97,7 @@ func (c *ProviderClient) loadProviderDataFromSource() error {
 	}
 
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-		AppVersion: c.App.Version,
+		AppVersion: c.App.SemVer,
 		Key:        providers.CacheProviderPrefix + ProviderName,
 		Value:      data,
 		Version:    etag,

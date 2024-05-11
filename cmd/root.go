@@ -37,7 +37,7 @@ func newRootCommand() *cobra.Command {
 		Short: "ipscout [command]",
 		Long:  `IPScout searches providers for info on IP addresses`,
 		Args:  cobra.MinimumNArgs(0),
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
 			return initConfig(cmd)
 		}, // nolint:revive
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -81,6 +81,7 @@ func newRootCommand() *cobra.Command {
 
 		if len(args) == 0 {
 			_ = cmd.Help()
+
 			os.Exit(0)
 		}
 
@@ -94,6 +95,7 @@ func newRootCommand() *cobra.Command {
 		if err != nil {
 			os.Exit(1)
 		}
+
 		processor.Run()
 
 		return nil

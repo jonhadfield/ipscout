@@ -8,11 +8,12 @@ import (
 	"time"
 
 	"github.com/dgraph-io/badger/v4"
+	"github.com/jonhadfield/ipscout/providers"
+
 	"github.com/dustin/go-humanize"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/present"
-	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/mitchellh/go-homedir"
 )
@@ -187,6 +188,12 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
 			item := it.Item()
 			k := item.Key()
+
+			ci, err := cache.Read(c.Config.Logger, db, string(k))
+			if err != nil {
+				return fmt.Errorf("error reading cache item: %w", err)
+			}
+
 			item.ExpiresAt()
 			item.EstimatedSize()
 
@@ -194,6 +201,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 				Key:           string(k),
 				EstimatedSize: item.EstimatedSize(),
 				ExpiresAt:     time.Unix(int64(item.ExpiresAt()), 0),
+				AppVersion:    ci.AppVersion,
 			})
 		}
 

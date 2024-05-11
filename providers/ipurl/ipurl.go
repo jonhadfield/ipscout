@@ -276,7 +276,7 @@ func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix,
 	}
 
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-		AppVersion: c.App.Version,
+		AppVersion: c.App.SemVer,
 		Key:        providers.CacheProviderPrefix + ProviderName + "_" + uh,
 		Value:      mHfPrefixes,
 		Version:    "-",

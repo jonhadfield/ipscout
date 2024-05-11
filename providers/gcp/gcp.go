@@ -100,7 +100,7 @@ func (c *ProviderClient) loadProviderData() error {
 	}
 
 	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-		AppVersion: c.App.Version,
+		AppVersion: c.App.SemVer,
 		Key:        providers.CacheProviderPrefix + ProviderName,
 		Value:      data,
 		Version:    doc.SyncToken,

@@ -294,7 +294,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	c.Logger.Debug("caching ipapi response", "duration", resultTTL.String())
 
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
-		AppVersion: c.App.Version,
+		AppVersion: c.App.SemVer,
 		Key:        cacheKey,
 		Value:      result.Raw,
 		Created:    time.Now(),
