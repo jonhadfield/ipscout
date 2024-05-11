@@ -33,13 +33,13 @@ func newRootCommand() *cobra.Command {
 	)
 
 	rootCmd := &cobra.Command{
-		Use:   "ipscout",
-		Short: "ipscout",
-		Long:  `IPScout is a CLI application to prod to an IP address.`,
+		Use:   "ipscout [options] <ip address>",
+		Short: "ipscout [command]",
+		Long:  `IPScout searches providers for info on IP addresses`,
 		Args:  cobra.MinimumNArgs(0),
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return initConfig(cmd)
-		},
+		}, // nolint:revive
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// using test data doesn't require a host be provided
 			// but command does so use placeholder
@@ -68,6 +68,37 @@ func newRootCommand() *cobra.Command {
 		},
 	}
 
+	cacheCommand := newCacheCommand()
+
+	rootCmd.AddCommand(cacheCommand)
+	rootCmd.AddCommand(versionCmd)
+	rootCmd.RunE = func(cmd *cobra.Command, args []string) error {
+		// using test data doesn't require a host be provided
+		// but command does so use placeholder
+		if useTestData {
+			args = []string{"8.8.8.8"}
+		}
+
+		if len(args) == 0 {
+			_ = cmd.Help()
+			os.Exit(0)
+		}
+
+		var err error
+
+		if sess.Host, err = netip.ParseAddr(args[0]); err != nil {
+			return fmt.Errorf("invalid host: %w", err)
+		}
+
+		processor, err := process.New(sess)
+		if err != nil {
+			os.Exit(1)
+		}
+		processor.Run()
+
+		return nil
+	}
+
 	// Define cobra flags, the default value has the lowest (least significant) precedence
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "WARN", "set log level as: ERROR, WARN, INFO, DEBUG")
 	rootCmd.PersistentFlags().StringVar(&output, "output", "table", "output format: table, json")
@@ -77,11 +108,6 @@ func newRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVar(&disableCache, "disable-cache", false, "disable cache")
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", nil, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
-
-	cacheCommand := newCacheCommand()
-
-	rootCmd.AddCommand(cacheCommand)
-	rootCmd.AddCommand(versionCmd)
 
 	return rootCmd
 }
