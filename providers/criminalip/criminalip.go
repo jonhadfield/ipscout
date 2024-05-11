@@ -175,7 +175,7 @@ func fetchData(client session.Session) (*HostSearchResult, error) {
 
 	result, err := loadAPIResponse(context.Background(), &client, client.Providers.CriminalIP.APIKey)
 	if err != nil {
-		return nil, fmt.Errorf("error loading criminal ip api response: %w", err)
+		return nil, err
 	}
 
 	resultTTL := ResultTTL
@@ -267,7 +267,7 @@ func (c *Client) FindHost() ([]byte, error) {
 
 	result, err := fetchData(c.Session)
 	if err != nil {
-		return nil, fmt.Errorf("error loading criminalip api response: %w", err)
+		return nil, err
 	}
 
 	return result.Raw, nil
