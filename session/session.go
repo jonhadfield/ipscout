@@ -53,9 +53,28 @@ type Messages struct {
 	Error   []string
 }
 
+func (m *Messages) AddInfo(msg string) {
+	m.Mu.Lock()
+	defer m.Mu.Unlock()
+	m.Info = append(m.Info, msg)
+}
+
+func (m *Messages) AddWarn(msg string) {
+	m.Mu.Lock()
+	defer m.Mu.Unlock()
+	m.Warning = append(m.Warning, msg)
+}
+
+func (m *Messages) AddError(msg string) {
+	m.Mu.Lock()
+	defer m.Mu.Unlock()
+	m.Error = append(m.Error, msg)
+}
+
 func New() *Session {
 	return &Session{
-		Stats: CreateStats(),
+		Stats:    CreateStats(),
+		Messages: &Messages{},
 	}
 }
 

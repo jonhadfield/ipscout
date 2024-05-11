@@ -180,10 +180,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.abuseipdb.enabled") {
 		sess.Providers.AbuseIPDB.Enabled = ToPtr(v.GetBool("providers.abuseipdb.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "AbuseIPDB provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -195,10 +191,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.annotated.enabled") {
 		sess.Providers.Annotated.Enabled = ToPtr(v.GetBool("providers.annotated.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "Annotated provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -210,10 +202,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.aws.enabled") {
 		sess.Providers.AWS.Enabled = ToPtr(v.GetBool("providers.aws.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "AWS provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -225,10 +213,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.azure.enabled") {
 		sess.Providers.Azure.Enabled = ToPtr(v.GetBool("providers.azure.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "Azure provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -240,10 +224,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.criminalip.enabled") {
 		sess.Providers.CriminalIP.Enabled = ToPtr(v.GetBool("providers.criminalip.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "Criminal IP provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -253,10 +233,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.digitalocean.enabled") {
 		sess.Providers.DigitalOcean.Enabled = ToPtr(v.GetBool("providers.digitalocean.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "DigitalOcean provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -268,10 +244,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.gcp.enabled") {
 		sess.Providers.GCP.Enabled = ToPtr(v.GetBool("providers.gcp.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "GCP provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -283,10 +255,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.googlebot.enabled") {
 		sess.Providers.Googlebot.Enabled = ToPtr(v.GetBool("providers.googlebot.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "Googlebot provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -297,10 +265,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.icloudpr.enabled") {
 		sess.Providers.ICloudPR.Enabled = ToPtr(v.GetBool("providers.icloudpr.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "iCloud Private Relay provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -312,10 +276,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.ipurl.enabled") {
 		sess.Providers.IPURL.Enabled = ToPtr(v.GetBool("providers.ipurl.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "IP URL provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -327,10 +287,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.linode.enabled") {
 		sess.Providers.Linode.Enabled = ToPtr(v.GetBool("providers.linode.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "Linode provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -343,10 +299,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.shodan.enabled") {
 		sess.Providers.Shodan.Enabled = ToPtr(v.GetBool("providers.shodan.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "Shodan provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -359,10 +311,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.ptr.enabled") {
 		sess.Providers.PTR.Enabled = ToPtr(v.GetBool("providers.ptr.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "PTR provider not defined in config")
 		sess.Messages.Mu.Unlock()
@@ -374,10 +322,6 @@ func initConfig(cmd *cobra.Command) error {
 	if v.IsSet("providers.ipapi.enabled") {
 		sess.Providers.IPAPI.Enabled = ToPtr(v.GetBool("providers.ipapi.enabled"))
 	} else {
-		if sess.Messages == nil {
-			sess.Messages = &session.Messages{}
-		}
-
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "IPAPI provider not defined in config")
 		sess.Messages.Mu.Unlock()

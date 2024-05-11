@@ -175,6 +175,8 @@ func fetchData(client session.Session) (*HostSearchResult, error) {
 
 	result, err := loadAPIResponse(context.Background(), &client, client.Providers.CriminalIP.APIKey)
 	if err != nil {
+		client.Messages.AddError(err.Error())
+
 		return nil, err
 	}
 
