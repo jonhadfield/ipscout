@@ -28,6 +28,14 @@ var timeFormat = "2006-01-02 15:04:05 MST"
 
 func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, error) {
 	tw := table.NewWriter()
+
+	if len(info) == 0 {
+		tw.AppendRow(table.Row{"No cache items found"})
+		tw.SetAutoIndex(false)
+
+		return &tw, nil
+	}
+
 	tw.AppendHeader(table.Row{"Key", "Expires", "Size", "App Version"})
 
 	for _, x := range info {
