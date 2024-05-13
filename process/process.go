@@ -90,13 +90,20 @@ func getProviderClients(sess session.Session) (map[string]providers.ProviderClie
 	return runners, nil
 }
 
-func getEnabledProviders(runners map[string]providers.ProviderClient) []string {
-	keys := make([]string, 0, len(runners))
+func getEnabledProviders(runners map[string]providers.ProviderClient) map[string]providers.ProviderClient {
+	var res map[string]providers.ProviderClient
+
 	for k := range runners {
-		keys = append(keys, k)
+		if runners[k].Enabled() {
+			if res == nil {
+				res = make(map[string]providers.ProviderClient)
+			}
+
+			res[k] = runners[k]
+		}
 	}
 
-	return keys
+	return res
 }
 
 type Config struct {
@@ -143,7 +150,7 @@ func (p *Processor) Run() {
 	enabledProviders := getEnabledProviders(providerClients)
 
 	// initialise providers
-	initialiseProviders(p.Session.Logger, providerClients, p.Session.HideProgress)
+	initialiseProviders(p.Session.Logger, enabledProviders, p.Session.HideProgress)
 
 	if strings.EqualFold(p.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range p.Session.Stats.InitialiseDuration {
@@ -152,7 +159,7 @@ func (p *Processor) Run() {
 	}
 
 	// find hosts
-	results := findHosts(providerClients, p.Session.HideProgress)
+	results := findHosts(enabledProviders, p.Session.HideProgress)
 
 	if strings.EqualFold(p.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range p.Session.Stats.FindHostDuration {
@@ -168,10 +175,10 @@ func (p *Processor) Run() {
 	matchingResults := len(results.m)
 	results.RUnlock()
 
-	p.Session.Logger.Info("host matching results", "providers queried", len(providerClients), "matching results", matchingResults)
+	p.Session.Logger.Info("host matching results", "providers queried", len(enabledProviders), "matching results", matchingResults)
 
 	if matchingResults == 0 {
-		p.Session.Logger.Warn("no results found", "host", p.Session.Host.String(), "providers checked", strings.Join(enabledProviders, ", "))
+		p.Session.Logger.Warn("no results found", "host", p.Session.Host.String(), "providers checked", strings.Join(mapsKeys(enabledProviders), ", "))
 
 		return
 	}
@@ -182,6 +189,17 @@ func (p *Processor) Run() {
 
 		os.Exit(1)
 	}
+}
+
+func mapsKeys[K comparable, V any](m map[K]V) []K {
+	keys := make([]K, 0, len(m))
+
+	for key := range m {
+		keys = append(keys, key)
+	}
+
+	return keys
+
 }
 
 func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderClient, hideProgress bool) {
