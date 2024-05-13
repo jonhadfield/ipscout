@@ -148,7 +148,7 @@ func initConfig(cmd *cobra.Command) error {
 	sess.App.Version = version
 	sess.App.SemVer = semver
 
-	if err := session.CreateDefaultConfigIfMissing(configRoot); err != nil {
+	if _, err := session.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		fmt.Printf("can't create default session: %v\n", err)
 
 		os.Exit(1)

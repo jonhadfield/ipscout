@@ -423,9 +423,9 @@ func generateJSON(results *findHostsResults) (json.RawMessage, error) {
 	return out, nil
 }
 
-func New(config *session.Session) (Processor, error) {
+func New(sess *session.Session) (Processor, error) {
 	p := Processor{
-		Session: config,
+		Session: sess,
 	}
 
 	return p, nil

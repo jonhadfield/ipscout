@@ -39,22 +39,25 @@ func TestUnmarshalConfig(t *testing.T) {
 func TestCreateDefaultConfig(t *testing.T) {
 	t.Run("PathExists", func(t *testing.T) {
 		path := "/tmp"
-		err := CreateDefaultConfigIfMissing(path)
+		created, err := CreateDefaultConfigIfMissing(path)
 		require.NoError(t, err)
+		require.False(t, created)
 	})
 
 	t.Run("PathDoesNotExist", func(t *testing.T) {
-		path := "/tmp/nonexistent"
-		err := CreateDefaultConfigIfMissing(path)
+		path := t.TempDir()
+		created, err := CreateDefaultConfigIfMissing(path)
 		require.NoError(t, err)
+		require.True(t, created)
 		_, err = os.Stat(path)
 		require.NoError(t, err)
 	})
 
 	t.Run("InvalidPath", func(t *testing.T) {
 		path := ""
-		err := CreateDefaultConfigIfMissing(path)
+		created, err := CreateDefaultConfigIfMissing(path)
 		require.Error(t, err)
+		require.False(t, created)
 	})
 }
 
@@ -65,10 +68,12 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 		configRoot := GetConfigRoot(tempDir, AppName)
 
 		// create session root (required for cache path)
-		require.NoError(t, CreateDefaultConfigIfMissing(configRoot))
+		created, err := CreateDefaultConfigIfMissing(configRoot)
+		require.NoError(t, err)
+		require.True(t, created)
 
 		// check session root exists
-		_, err := os.Stat(configRoot)
+		_, err = os.Stat(configRoot)
 		require.NoError(t, err)
 
 		// check cache path does not exist
@@ -89,9 +94,11 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 		configRoot := GetConfigRoot(tempDir, AppName)
 
 		// create session root (required for cache path)
-		require.NoError(t, CreateDefaultConfigIfMissing(configRoot))
+		created, err := CreateDefaultConfigIfMissing(configRoot)
+		require.NoError(t, err)
+		require.True(t, created)
 
-		err := CreateConfigPathStructure(configRoot)
+		err = CreateConfigPathStructure(configRoot)
 		require.NoError(t, err)
 
 		for _, dir := range []string{"backups", "cache"} {

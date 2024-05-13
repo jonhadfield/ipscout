@@ -211,40 +211,39 @@ func unmarshalConfig(data []byte) (*Session, error) {
 	return &conf, nil
 }
 
-func CreateDefaultConfigIfMissing(path string) error {
+// CreateDefaultConfigIfMissing creates a default session configuration file if it does not exist
+// and returns true if it was created, or false if it already exists
+func CreateDefaultConfigIfMissing(path string) (bool, error) {
 	if path == "" {
-		return fmt.Errorf("session path not specified")
+		return false, fmt.Errorf("session path not specified")
 	}
 
-	var err error
-
 	// check if session already exists
-	_, err = os.Stat(filepath.Join(path, DefaultConfigFileName))
-
+	_, err := os.Stat(filepath.Join(path, DefaultConfigFileName))
 	switch {
 	case err == nil:
-		return nil
+		return false, nil
 	case os.IsNotExist(err):
 		// check default session is valid
 		if _, err = unmarshalConfig([]byte(defaultConfig)); err != nil {
-			return fmt.Errorf("default session invalid: %w", err)
+			return false, fmt.Errorf("default session invalid: %w", err)
 		}
 
 		// create dir specified in path argument if missing
 		if _, err = os.Stat(path); os.IsNotExist(err) {
 			if err = os.MkdirAll(path, 0o700); err != nil {
-				return fmt.Errorf("failed to create session directory: %w", err)
+				return false, fmt.Errorf("failed to create session directory: %w", err)
 			}
 		}
 
 		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(defaultConfig), 0o600); err != nil {
-			return fmt.Errorf("failed to write default session: %w", err)
+			return false, fmt.Errorf("failed to write default session: %w", err)
 		}
 	case err != nil:
-		return fmt.Errorf("failed to stat session directory: %w", err)
+		return false, fmt.Errorf("failed to stat session directory: %w", err)
 	}
 
-	return nil
+	return true, nil
 }
 
 // CreateConfigPathStructure creates all the necessary paths under session root if they don't exist
