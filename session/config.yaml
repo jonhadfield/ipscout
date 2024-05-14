@@ -27,6 +27,8 @@ providers:
     # url: override the default URL
   gcp:
     enabled: true
+  google:
+    enabled: true
   googlebot:
     enabled: true
   ipapi:

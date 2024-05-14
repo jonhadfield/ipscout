@@ -3,6 +3,7 @@ package process
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jonhadfield/ipscout/providers/google"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -59,6 +60,7 @@ func getProviderClients(sess session.Session) (map[string]providers.ProviderClie
 		{Name: criminalip.ProviderName, Enabled: sess.Providers.CriminalIP.Enabled, APIKey: sess.Providers.CriminalIP.APIKey, NewClient: criminalip.NewProviderClient},
 		{Name: digitalocean.ProviderName, Enabled: sess.Providers.DigitalOcean.Enabled, APIKey: "", NewClient: digitalocean.NewProviderClient},
 		{Name: gcp.ProviderName, Enabled: sess.Providers.GCP.Enabled, APIKey: "", NewClient: gcp.NewProviderClient},
+		{Name: google.ProviderName, Enabled: sess.Providers.Google.Enabled, APIKey: "", NewClient: google.NewProviderClient},
 		{Name: googlebot.ProviderName, Enabled: sess.Providers.Googlebot.Enabled, APIKey: "", NewClient: googlebot.NewProviderClient},
 		{Name: ipapi.ProviderName, Enabled: sess.Providers.IPAPI.Enabled, APIKey: "", NewClient: ipapi.NewProviderClient},
 		{Name: ipurl.ProviderName, Enabled: sess.Providers.IPURL.Enabled, APIKey: "", NewClient: ipurl.NewProviderClient},
@@ -70,7 +72,7 @@ func getProviderClients(sess session.Session) (map[string]providers.ProviderClie
 
 	for _, provider := range pros {
 		if provider.Enabled == nil {
-			sess.Logger.Debug("provider undefined", "name", provider.Name)
+			sess.Logger.Debug("provider not in configuration", "name", provider.Name)
 
 			continue
 		}

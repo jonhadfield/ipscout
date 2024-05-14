@@ -158,6 +158,11 @@ that [publishes](https://www.digitalocean.com/geo/google.csv) network prefixes u
 that [publishes](https://cloud.google.com/compute/docs/faq#find_ip_range) network prefixes used by their
 services.
 
+### Google
+
+[Google](https://support.google.com/a/answer/10026322?hl=en-GB) provides a list of IP addresses used by customers of their services
+ and publishes them [here](https://www.gstatic.com/ipranges/goog.json).
+
 ### Googlebot
 
 [Googlebot](https://developers.google.com/search/docs/crawling-indexing/googlebot) is a web crawler

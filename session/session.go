@@ -165,6 +165,11 @@ type Providers struct {
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
 	} `mapstructure:"gcp"`
+	Google struct {
+		Enabled          *bool `mapstructure:"enabled"`
+		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
+		URL              string
+	} `mapstructure:"google"`
 	Googlebot struct {
 		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`

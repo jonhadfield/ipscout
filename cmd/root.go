@@ -252,6 +252,14 @@ func initConfig(cmd *cobra.Command) error {
 	sess.Providers.GCP.URL = v.GetString("providers.gcp.url")
 	sess.Providers.GCP.DocumentCacheTTL = v.GetInt64("providers.gcp.document_cache_ttl")
 
+	if v.IsSet("providers.google.enabled") {
+		sess.Providers.Google.Enabled = ToPtr(v.GetBool("providers.google.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Google provider not defined in config")
+		sess.Messages.Mu.Unlock()
+	}
+
 	if v.IsSet("providers.googlebot.enabled") {
 		sess.Providers.Googlebot.Enabled = ToPtr(v.GetBool("providers.googlebot.enabled"))
 	} else {
