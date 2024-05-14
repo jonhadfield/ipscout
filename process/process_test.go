@@ -1,9 +1,10 @@
 package process
 
 import (
+	"testing"
+
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestNew(t *testing.T) {
@@ -12,5 +13,4 @@ func TestNew(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, n)
 	})
-
 }

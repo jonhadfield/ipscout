@@ -3,13 +3,14 @@ package process
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jonhadfield/ipscout/providers/google"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jonhadfield/ipscout/providers/google"
 
 	"github.com/jedib0t/go-pretty/v6/text"
 
@@ -201,7 +202,6 @@ func mapsKeys[K comparable, V any](m map[K]V) []K {
 	}
 
 	return keys
-
 }
 
 func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderClient, hideProgress bool) {

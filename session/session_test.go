@@ -49,6 +49,7 @@ func TestCreateDefaultConfig(t *testing.T) {
 		created, err := CreateDefaultConfigIfMissing(path)
 		require.NoError(t, err)
 		require.True(t, created)
+
 		_, err = os.Stat(path)
 		require.NoError(t, err)
 	})

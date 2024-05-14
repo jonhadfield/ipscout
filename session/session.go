@@ -225,6 +225,7 @@ func CreateDefaultConfigIfMissing(path string) (bool, error) {
 
 	// check if session already exists
 	_, err := os.Stat(filepath.Join(path, DefaultConfigFileName))
+
 	switch {
 	case err == nil:
 		return false, nil
