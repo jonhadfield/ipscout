@@ -109,9 +109,18 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		c.Session.Stats.Mu.Unlock()
 	}()
 
+	if data == nil {
+		return nil, nil
+	}
+
 	var findHostData HostSearchResult
 	if err := json.Unmarshal(data, &findHostData); err != nil {
 		return nil, fmt.Errorf("error unmarshalling ipapi data: %w", err)
+	}
+
+	// don't render if no data found
+	if findHostData.Region == "" && findHostData.Longitude == 0 && findHostData.Latitude == 0 {
+		return nil, nil
 	}
 
 	tw := table.NewWriter()
