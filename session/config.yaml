@@ -56,3 +56,9 @@ providers:
   shodan:
     enabled: false
     max_ports: 10
+  virustotal:
+    enabled: false
+    show_providers: true
+    show_unrated: true
+    show_harmless: true
+    show_clean: true

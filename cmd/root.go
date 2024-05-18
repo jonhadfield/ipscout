@@ -335,6 +335,19 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.virustotal.enabled") {
+		sess.Providers.VirusTotal.Enabled = ToPtr(v.GetBool("providers.virustotal.enabled"))
+		sess.Providers.VirusTotal.ResultCacheTTL = v.GetInt64("providers.virustotal.result_cache_ttl")
+		sess.Providers.VirusTotal.ShowProviders = ToPtr(v.GetBool("providers.virustotal.show_providers"))
+		sess.Providers.VirusTotal.ShowUnrated = ToPtr(v.GetBool("providers.virustotal.show_unrated"))
+		sess.Providers.VirusTotal.ShowHarmless = ToPtr(v.GetBool("providers.virustotal.show_harmless"))
+		sess.Providers.VirusTotal.ShowClean = ToPtr(v.GetBool("providers.virustotal.show_clean"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "VirusTotal provider not defined in config")
+		sess.Messages.Mu.Unlock()
+	}
+
 	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")
 	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
@@ -449,5 +462,9 @@ func readProviderAuthKeys(v *viper.Viper) {
 
 	if sess.Providers.CriminalIP.APIKey == "" {
 		sess.Providers.CriminalIP.APIKey = v.GetString("criminal_ip_api_key")
+	}
+
+	if sess.Providers.VirusTotal.APIKey == "" {
+		sess.Providers.VirusTotal.APIKey = v.GetString("virustotal_api_key")
 	}
 }

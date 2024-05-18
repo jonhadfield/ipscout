@@ -205,6 +205,15 @@ type Providers struct {
 		ResultCacheTTL int64    `mapstructure:"result_cache_ttl"`
 		Nameservers    []string `mapstructure:"nameservers"`
 	} `mapstructure:"ptr"`
+	VirusTotal struct {
+		APIKey         string
+		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
+		ShowProviders  *bool `mapstructure:"show_providers"`
+		ShowUnrated    *bool `mapstructure:"show_unrated"`
+		ShowHarmless   *bool `mapstructure:"show_harmless"`
+		ShowClean      *bool `mapstructure:"show_clean"`
+		Enabled        *bool `mapstructure:"enabled"`
+	} `mapstructure:"virustotal"`
 }
 
 func unmarshalConfig(data []byte) (*Session, error) {

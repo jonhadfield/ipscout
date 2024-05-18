@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+//nolint:funlen
 func TestShodanHostDNSQuery(t *testing.T) {
 	t.Parallel()
 
@@ -106,7 +107,6 @@ func TestShodanHostDNSQuery(t *testing.T) {
 	require.Equal(t, "AS15169", sr.Data[1].Asn)
 	require.Equal(t, "udp", sr.Data[1].Transport)
 	require.Equal(t, "8.8.8.8", sr.Data[1].IPStr)
-	// ///
 	require.Equal(t, -1020052518, sr.Data[2].Hash)
 	require.Empty(t, sr.Data[2].Opts)
 	require.Equal(t, "2024-04-28T09:25:24.474444", sr.Data[2].Timestamp)
