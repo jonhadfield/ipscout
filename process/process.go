@@ -52,7 +52,7 @@ type Provider struct {
 	NewClient func(c session.Session) (providers.ProviderClient, error)
 }
 
-func getProviderClients(sess session.Session) (map[string]providers.ProviderClient, error) {
+func getEnabledProviderClients(sess session.Session) (map[string]providers.ProviderClient, error) {
 	runners := make(map[string]providers.ProviderClient)
 
 	pros := []Provider{
@@ -75,21 +75,13 @@ func getProviderClients(sess session.Session) (map[string]providers.ProviderClie
 	}
 
 	for _, provider := range pros {
-		if provider.Enabled == nil {
-			sess.Logger.Debug("provider not in configuration", "name", provider.Name)
-
-			continue
+		client, err := provider.NewClient(sess)
+		if err != nil {
+			return nil, fmt.Errorf("error creating %s client: %w", provider.Name, err)
 		}
 
-		if *provider.Enabled || sess.UseTestData || provider.APIKey != "" {
-			client, err := provider.NewClient(sess)
-			if err != nil {
-				return nil, fmt.Errorf("error creating %s client: %w", provider.Name, err)
-			}
-
-			if client != nil {
-				runners[provider.Name] = client
-			}
+		if client != nil && client.Enabled() || sess.UseTestData {
+			runners[provider.Name] = client
 		}
 	}
 
@@ -143,7 +135,7 @@ func (p *Processor) Run() {
 	defer db.Close()
 
 	// get provider clients
-	providerClients, err := getProviderClients(*p.Session)
+	providerClients, err := getEnabledProviderClients(*p.Session)
 	if err != nil {
 		p.Session.Logger.Error("failed to generate provider clients", "error", err)
 

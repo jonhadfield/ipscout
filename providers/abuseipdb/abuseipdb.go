@@ -83,10 +83,6 @@ func (c *Client) Initialise() error {
 
 	c.Logger.Debug("initialising abuseipdb client")
 
-	if c.Providers.AbuseIPDB.APIKey == "" && !c.UseTestData {
-		return fmt.Errorf("abuseipdb provider api key not set")
-	}
-
 	return nil
 }
 

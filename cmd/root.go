@@ -456,15 +456,31 @@ func readProviderAuthKeys(v *viper.Viper) {
 		sess.Providers.AbuseIPDB.APIKey = v.GetString("abuseipdb_api_key")
 	}
 
+	if sess.Providers.AbuseIPDB.APIKey == "" {
+		sess.Providers.AbuseIPDB.Enabled = ToPtr(false)
+	}
+
 	if sess.Providers.Shodan.APIKey == "" {
 		sess.Providers.Shodan.APIKey = v.GetString("shodan_api_key")
+	}
+
+	if sess.Providers.Shodan.APIKey == "" {
+		sess.Providers.Shodan.Enabled = ToPtr(false)
 	}
 
 	if sess.Providers.CriminalIP.APIKey == "" {
 		sess.Providers.CriminalIP.APIKey = v.GetString("criminal_ip_api_key")
 	}
 
+	if sess.Providers.CriminalIP.APIKey == "" {
+		sess.Providers.CriminalIP.Enabled = ToPtr(false)
+	}
+
 	if sess.Providers.VirusTotal.APIKey == "" {
 		sess.Providers.VirusTotal.APIKey = v.GetString("virustotal_api_key")
+	}
+
+	if sess.Providers.VirusTotal.APIKey == "" {
+		sess.Providers.VirusTotal.Enabled = ToPtr(false)
 	}
 }
