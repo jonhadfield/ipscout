@@ -30,7 +30,7 @@ func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, erro
 	tw := table.NewWriter()
 
 	if len(info) == 0 {
-		tw.AppendRow(table.Row{"No cache items found"})
+		tw.AppendRow(table.Row{"no cache items found"})
 		tw.SetAutoIndex(false)
 
 		return &tw, nil
