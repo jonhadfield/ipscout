@@ -11,7 +11,7 @@ providers:
   abuseipdb:
     enabled: true
   annotated:
-    enabled: false
+    enabled: true
     paths:
     #  - <path to yaml file>
   aws:
@@ -21,7 +21,7 @@ providers:
     enabled: true
     # url: override the default URL
   criminalip:
-    enabled: false
+    enabled: true
   digitalocean:
     enabled: true
     # url: override the default URL
@@ -54,10 +54,10 @@ providers:
       - 1.1.1.1
       - 9.9.9.9
   shodan:
-    enabled: false
+    enabled: true
     max_ports: 10
   virustotal:
-    enabled: false
+    enabled: true
     show_providers: true
     show_unrated: true
     show_harmless: true
