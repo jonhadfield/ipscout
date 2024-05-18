@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/jonhadfield/ipscout/config"
 	"os"
+
+	"github.com/jonhadfield/ipscout/config"
+	"github.com/jonhadfield/ipscout/session"
 
 	"github.com/spf13/cobra"
 )
@@ -23,6 +25,7 @@ func newConfigCommand() *cobra.Command {
 	}
 
 	cacheCmd.AddCommand(newShowConfigCommand())
+	cacheCmd.AddCommand(newDefaultConfigCommand())
 
 	return cacheCmd
 }
@@ -44,6 +47,22 @@ func newShowConfigCommand() *cobra.Command {
 			if err = client.Show(); err != nil {
 				return fmt.Errorf("error listing cache items: %w", err)
 			}
+
+			return nil
+		},
+	}
+}
+
+func newDefaultConfigCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "default",
+		Short: "output default configuration",
+		Long:  `output default configuration.`,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+			return initConfig(cmd)
+		},
+		RunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+			fmt.Println(session.DefaultConfig)
 
 			return nil
 		},

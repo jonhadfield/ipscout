@@ -22,7 +22,7 @@ func TestNew(t *testing.T) {
 
 func TestUnmarshalConfig(t *testing.T) {
 	t.Run("ValidConfig", func(t *testing.T) {
-		data := []byte(defaultConfig)
+		data := []byte(DefaultConfig)
 		conf, err := unmarshalConfig(data)
 		require.NoError(t, err)
 		require.NotNil(t, conf)

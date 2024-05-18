@@ -3,11 +3,12 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/jonhadfield/ipscout/providers"
@@ -44,6 +45,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.AbuseIPDB.Enabled != nil {
 		abuseipdbEnabled = *c.Sess.Providers.AbuseIPDB.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), abuseipdbEnabled})
 
 	// annotated
@@ -54,14 +56,18 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.Annotated.Enabled != nil {
 		annotatedEnabled = *c.Sess.Providers.Annotated.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), annotatedEnabled})
+
 	for x, path := range c.Sess.Providers.Annotated.Paths {
 		var pathsTitle string
 		if x == 0 {
 			pathsTitle = "paths"
 		}
+
 		tw.AppendRow(table.Row{color.WhiteString("%s%s", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces), pathsTitle), path})
 	}
+
 	// aws
 	tw.AppendRow(table.Row{color.HiCyanString("%sAWS", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
 
@@ -69,6 +75,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.AWS.Enabled != nil {
 		awsEnabled = *c.Sess.Providers.AWS.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), awsEnabled})
 
 	// azure
@@ -78,6 +85,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.Azure.Enabled != nil {
 		azureEnabled = *c.Sess.Providers.Azure.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), azureEnabled})
 
 	// criminalip
@@ -87,6 +95,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.CriminalIP.Enabled != nil {
 		criminalipEnabled = *c.Sess.Providers.CriminalIP.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), criminalipEnabled})
 
 	// digitalocean
@@ -96,6 +105,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.DigitalOcean.Enabled != nil {
 		digitaloceanEnabled = *c.Sess.Providers.DigitalOcean.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), digitaloceanEnabled})
 
 	// gcp
@@ -105,6 +115,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.GCP.Enabled != nil {
 		gcpEnabled = *c.Sess.Providers.GCP.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), gcpEnabled})
 
 	// google
@@ -114,6 +125,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.Google.Enabled != nil {
 		googleEnabled = *c.Sess.Providers.Google.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), googleEnabled})
 
 	// googlebot
@@ -123,6 +135,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.Googlebot.Enabled != nil {
 		googlebotEnabled = *c.Sess.Providers.Googlebot.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), googlebotEnabled})
 
 	// iCloud Private Relay
@@ -132,6 +145,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.ICloudPR.Enabled != nil {
 		icloudPREnabled = *c.Sess.Providers.ICloudPR.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), icloudPREnabled})
 
 	// ipapi
@@ -141,6 +155,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.IPAPI.Enabled != nil {
 		ipapiEnabled = *c.Sess.Providers.IPAPI.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), ipapiEnabled})
 
 	// IPURL
@@ -150,12 +165,16 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.IPURL.Enabled != nil {
 		ipurlEnabled = *c.Sess.Providers.IPURL.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), ipurlEnabled})
+
 	for x, url := range c.Sess.Providers.IPURL.URLs {
 		var urlsTitle string
+
 		if x == 0 {
 			urlsTitle = "urls"
 		}
+
 		tw.AppendRow(table.Row{color.WhiteString("%s%s", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces), urlsTitle), url})
 	}
 
@@ -163,9 +182,11 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	tw.AppendRow(table.Row{color.HiCyanString("%sLinode", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
 
 	linodeEnabled := false
+
 	if c.Sess.Providers.Linode.Enabled != nil {
 		linodeEnabled = *c.Sess.Providers.Linode.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), linodeEnabled})
 
 	// ptr
@@ -175,6 +196,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.PTR.Enabled != nil {
 		ptrEnabled = *c.Sess.Providers.PTR.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), ptrEnabled})
 
 	// shodan
@@ -184,6 +206,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.Shodan.Enabled != nil {
 		shodanEnabled = *c.Sess.Providers.Shodan.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), shodanEnabled})
 
 	// virustotal
@@ -193,12 +216,14 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	if c.Sess.Providers.VirusTotal.Enabled != nil {
 		virustotalEnabled = *c.Sess.Providers.VirusTotal.Enabled
 	}
+
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", 2*c.Sess.Config.Global.IndentSpaces)), virustotalEnabled})
 
 	// end
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 20},
 	})
+
 	tw.SetAutoIndex(false)
 	tw.SetTitle("CONFIG")
 

@@ -25,7 +25,7 @@ const (
 )
 
 //go:embed config.yaml
-var defaultConfig string
+var DefaultConfig string
 
 type Stats struct {
 	Mu                  sync.Mutex
@@ -240,7 +240,7 @@ func CreateDefaultConfigIfMissing(path string) (bool, error) {
 		return false, nil
 	case os.IsNotExist(err):
 		// check default session is valid
-		if _, err = unmarshalConfig([]byte(defaultConfig)); err != nil {
+		if _, err = unmarshalConfig([]byte(DefaultConfig)); err != nil {
 			return false, fmt.Errorf("default session invalid: %w", err)
 		}
 
@@ -251,7 +251,7 @@ func CreateDefaultConfigIfMissing(path string) (bool, error) {
 			}
 		}
 
-		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(defaultConfig), 0o600); err != nil {
+		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(DefaultConfig), 0o600); err != nil {
 			return false, fmt.Errorf("failed to write default session: %w", err)
 		}
 	case err != nil:
