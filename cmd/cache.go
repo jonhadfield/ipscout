@@ -12,8 +12,6 @@ import (
 func newCacheCommand() *cobra.Command {
 	cacheCmd := &cobra.Command{
 		Use: "cache",
-		// Short: "ipscout [command]",
-		// Long:  `IPScout checks providers for info on IP addresses`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				_ = cmd.Help()

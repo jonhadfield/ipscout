@@ -20,6 +20,7 @@ const (
 
 var sess *session.Session
 
+//nolint:funlen
 func newRootCommand() *cobra.Command {
 	var (
 		useTestData   bool
@@ -69,8 +70,10 @@ func newRootCommand() *cobra.Command {
 	}
 
 	cacheCommand := newCacheCommand()
+	configCommand := newConfigCommand()
 
 	rootCmd.AddCommand(cacheCommand)
+	rootCmd.AddCommand(configCommand)
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.RunE = func(cmd *cobra.Command, args []string) error {
 		// using test data doesn't require a host be provided
