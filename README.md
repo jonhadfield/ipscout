@@ -28,6 +28,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
+| [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
 
 ## Installation
 
@@ -128,11 +129,6 @@ providers:
 that [publishes](https://docs.aws.amazon.com/vpc/latest/userguide/aws-ip-ranges.html#aws-ip-download) network prefixes
 used by their services.
 
-### Apple iCloud Private Relay
-
-[iCloud Private Relay](https://support.apple.com/en-us/102602) is an anonymising service provided by Apple. They publish
-their network prefixes [here](https://mask-api.icloud.com/egress-ip-ranges.csv).
-
 ### Azure
 
 [Azure](https://azure.microsoft.com/) is a hosting provider
@@ -168,6 +164,11 @@ services.
 [Googlebot](https://developers.google.com/search/docs/crawling-indexing/googlebot) is a web crawler
 and [publishes](https://developers.google.com/static/search/apis/ipranges/googlebot.json) network prefixes used by their
 bots.
+
+### iCloud Private Relay
+
+[iCloud Private Relay](https://support.apple.com/en-us/102602) is an anonymising service provided by Apple. They publish
+their network prefixes [here](https://mask-api.icloud.com/egress-ip-ranges.csv).
 
 ### IPAPI
 
@@ -228,4 +229,10 @@ Custom nameservers can be specified in the `config.yaml` file with port defaulti
 Query the [Shodan](https://www.shodan.io/) API for information on an IP address, with open ports, and services.
 
 Set environment variable `SHODAN_API_KEY` with your API key.
+
+### VirusTotal
+
+Query the [VirusTotal](https://www.virustotal.com) API for information from various providers on an IP address.
+
+Set environment variable `VIRUSTOTAL_API_KEY` with your API key.
 
