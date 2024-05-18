@@ -38,7 +38,7 @@ func TestUnmarshalConfig(t *testing.T) {
 
 func TestCreateDefaultConfig(t *testing.T) {
 	t.Run("PathExists", func(t *testing.T) {
-		path := "/tmp"
+		path := os.TempDir()
 		created, err := CreateDefaultConfigIfMissing(path)
 		require.NoError(t, err)
 		require.False(t, created)
