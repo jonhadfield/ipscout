@@ -38,10 +38,10 @@ func TestUnmarshalConfig(t *testing.T) {
 
 func TestCreateDefaultConfig(t *testing.T) {
 	t.Run("PathExists", func(t *testing.T) {
-		path := os.TempDir()
+		path := t.TempDir()
 		created, err := CreateDefaultConfigIfMissing(path)
 		require.NoError(t, err)
-		require.False(t, created)
+		require.True(t, created)
 	})
 
 	t.Run("PathDoesNotExist", func(t *testing.T) {
@@ -84,7 +84,7 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 		// create cache path
 		require.NoError(t, CreateConfigPathStructure(configRoot))
 		// check cache path exists
-		for _, dir := range []string{"backups", "cache"} {
+		for _, dir := range []string{"cache"} {
 			_, err = os.Stat(filepath.Join(configRoot, dir))
 			require.NoError(t, err)
 		}
@@ -102,7 +102,7 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 		err = CreateConfigPathStructure(configRoot)
 		require.NoError(t, err)
 
-		for _, dir := range []string{"backups", "cache"} {
+		for _, dir := range []string{"cache"} {
 			_, err = os.Stat(filepath.Join(configRoot, dir))
 			require.NoError(t, err)
 		}

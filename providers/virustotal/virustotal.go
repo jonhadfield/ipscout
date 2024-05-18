@@ -308,14 +308,17 @@ func (ard AnalysisResultData) ShouldOutput(sess *session.Session) bool {
 		if sess.Providers.VirusTotal.ShowClean != nil && *sess.Providers.VirusTotal.ShowClean {
 			return true
 		}
+
 	case "unrated":
 		if sess.Providers.VirusTotal.ShowUnrated != nil && *sess.Providers.VirusTotal.ShowUnrated {
 			return true
 		}
+
 	case "harmless":
 		if sess.Providers.VirusTotal.ShowHarmless != nil && *sess.Providers.VirusTotal.ShowHarmless {
 			return true
 		}
+
 	case "suspicous":
 		return true
 	case "malicious":

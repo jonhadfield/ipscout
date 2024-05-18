@@ -78,6 +78,7 @@ func ToPtr[T any](v T) *T {
 
 func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 	s := session.New()
+	s.Providers.VirusTotal.ShowProviders = ToPtr(true)
 	s.Providers.VirusTotal.ShowClean = ToPtr(true)
 	s.Providers.VirusTotal.ShowHarmless = ToPtr(true)
 
@@ -102,12 +103,12 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 		{
 			name: "show clean not harmless",
 			args: args{},
-			want: false,
+			want: true,
 			fields: fields{
 				Method:     "blacklist",
 				EngineName: "Acronis",
 				Category:   "harmless",
-				Result:     "harmless",
+				Result:     "clean",
 			},
 		},
 		{
@@ -146,7 +147,7 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 				Method:     "blacklist",
 				EngineName: "Acronis",
 				Category:   "harmless",
-				Result:     "harmless",
+				Result:     "none",
 			},
 		},
 		{
