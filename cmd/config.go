@@ -35,10 +35,10 @@ func newShowConfigCommand() *cobra.Command {
 		Use:   "show",
 		Short: "show configuration",
 		Long:  `show configuration.`,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},
-		RunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			client, err := config.NewClient(sess)
 			if err != nil {
 				os.Exit(1)
@@ -58,10 +58,10 @@ func newDefaultConfigCommand() *cobra.Command {
 		Use:   "default",
 		Short: "output default configuration",
 		Long:  `output default configuration.`,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},
-		RunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			fmt.Println(session.DefaultConfig)
 
 			return nil

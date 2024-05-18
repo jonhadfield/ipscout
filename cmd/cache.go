@@ -35,10 +35,10 @@ func newCacheListCommand() *cobra.Command {
 		Use:   "list",
 		Short: "list cached items",
 		Long:  `list outputs all of the currently cached items.`,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},
-		RunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			mgr, err := manager.NewClient(sess)
 			if err != nil {
 				os.Exit(1)
@@ -58,11 +58,11 @@ func newCacheDelCommand() *cobra.Command {
 		Use:   "delete",
 		Short: "delete items from cache",
 		Long:  `delete one or more items from cache by specifying their keys.`,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},
 		Args: cobra.MinimumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			mgr, err := manager.NewClient(sess)
 			if err != nil {
 				os.Exit(1)
@@ -84,11 +84,11 @@ func newCacheGetCommand() *cobra.Command {
 		Use:   "get",
 		Short: "get item from cache",
 		Long:  `get a cached item by providing its key.`,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},
 		Args: cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			mgr, err := manager.NewClient(sess)
 			if err != nil {
 				os.Exit(1)

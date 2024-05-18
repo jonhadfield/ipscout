@@ -17,7 +17,7 @@ import (
 
 const (
 	ProviderName   = "aws"
-	DocTTL         = time.Duration(24 * time.Hour)
+	DocTTL         = 24 * time.Hour
 	MaxColumnWidth = 120
 )
 

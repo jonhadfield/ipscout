@@ -268,7 +268,7 @@ func CreateConfigPathStructure(configRoot string) error {
 	_, err := os.Stat(configRoot)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("session root does not exist: %v", err)
+			return fmt.Errorf("session root does not exist: %w", err)
 		}
 	}
 

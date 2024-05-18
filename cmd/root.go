@@ -38,9 +38,9 @@ func newRootCommand() *cobra.Command {
 		Short: "ipscout [command]",
 		Long:  `IPScout searches providers for info on IP addresses`,
 		Args:  cobra.MinimumNArgs(0),
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // nolint:revive
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
-		}, // nolint:revive
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// using test data doesn't require a host be provided
 			// but command does so use placeholder

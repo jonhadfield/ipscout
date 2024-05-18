@@ -29,7 +29,7 @@ const (
 	MaxColumnWidth         = 120
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
-	ResultTTL              = time.Duration(12 * time.Hour)
+	ResultTTL              = 12 * time.Hour
 )
 
 type Config struct {
@@ -76,7 +76,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("x-apikey", apiKey)
+	req.Header.Set("x-apikey", apiKey) //nolint:canonicalheader
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {

@@ -28,7 +28,7 @@ const (
 	MaxColumnWidth         = 120
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
-	ResultTTL              = time.Duration(12 * time.Hour)
+	ResultTTL              = 12 * time.Hour
 )
 
 type Config struct {
@@ -329,7 +329,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		tw.AppendRow(table.Row{"Ports", len(result.Data)})
 	}
 
-	if len(result.Data) > 0 {
+	if len(result.Data) > 0 { //nolint:nestif
 		for _, dr := range result.Data {
 			_, ok, err := providers.PortMatchFilter(providers.PortMatchFilterInput{
 				IncomingPort:        fmt.Sprintf("%d/%s", dr.Port, dr.Transport),

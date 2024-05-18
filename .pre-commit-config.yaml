@@ -1,0 +1,8 @@
+repos:
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.58.1
+    hooks:
+      - id: golangci-lint
+#        args: ["run", "--config", ".golangci.yml"]
+        stages: [commit]
+        files: '\.go$'

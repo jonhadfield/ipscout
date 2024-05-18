@@ -265,6 +265,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 				for x := range anno.Notes {
 					if x == 0 {
 						tw.AppendRow(table.Row{"Notes", anno.Notes[x]})
+
 						continue
 					}
 
@@ -454,7 +455,7 @@ func getValidFilePathsFromDir(l *slog.Logger, dir string) (paths []os.DirEntry) 
 func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotations map[netip.Prefix][]annotation) error {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		return err // nolint: wrapcheck
+		return err //nolint: wrapcheck
 	}
 
 	path, err = filepath.Abs(path)

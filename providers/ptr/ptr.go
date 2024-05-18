@@ -319,6 +319,6 @@ type Header struct {
 	Name     string `dns:"cdomain-name"`
 	Rrtype   uint16 `json:"rrtype,omitempty"`
 	Class    uint16 `json:"class,omitempty"`
-	Ttl      uint32 `json:"ttl,omitempty"` // nolint:revive
+	Ttl      uint32 `json:"ttl,omitempty"` //nolint:stylecheck
 	Rdlength uint16 `json:"rdlength,omitempty"`
 }

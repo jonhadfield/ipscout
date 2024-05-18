@@ -17,7 +17,7 @@ import (
 
 const (
 	ProviderName = "gcp"
-	DocTTL       = time.Duration(24 * time.Hour)
+	DocTTL       = 24 * time.Hour
 )
 
 type Config struct {

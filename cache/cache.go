@@ -52,6 +52,7 @@ func UpsertWithTTL(logger *slog.Logger, db *badger.DB, item Item, ttl time.Durat
 
 	err = db.Update(func(txn *badger.Txn) error {
 		e := badger.NewEntry([]byte(item.Key), mItem).WithTTL(ttl)
+
 		return txn.SetEntry(e)
 	})
 	if err != nil {
@@ -142,6 +143,7 @@ func DeleteMultiple(logger *slog.Logger, db *badger.DB, keys []string) error {
 
 		if !found {
 			notfound++
+
 			continue
 		}
 

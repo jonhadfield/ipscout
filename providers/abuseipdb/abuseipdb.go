@@ -28,7 +28,7 @@ const (
 	MaxColumnWidth         = 120
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05+07:00"
-	ResultTTL              = time.Duration(12 * time.Hour)
+	ResultTTL              = 12 * time.Hour
 )
 
 type Config struct {
@@ -273,7 +273,12 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 			return nil, fmt.Errorf("error loading abuseipdb test data: %w", err)
 		}
 
-		raw, _ := json.Marshal(result)
+		var raw json.RawMessage
+
+		raw, err = json.Marshal(result)
+		if err != nil {
+			return nil, fmt.Errorf("error marshalling abuseipdb test data: %w", err)
+		}
 
 		result.Raw = raw
 

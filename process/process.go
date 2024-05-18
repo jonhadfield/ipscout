@@ -142,7 +142,7 @@ func (p *Processor) Run() {
 		// close here as exit prevents defer from running
 		_ = db.Close()
 
-		os.Exit(1) // nolint:gocritic
+		os.Exit(1) //nolint:gocritic
 	}
 
 	enabledProviders := getEnabledProviders(providerClients)
@@ -217,8 +217,6 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 	}
 
 	for name, runner := range runners {
-		_, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
-
 		g.Go(func() error {
 			name := name
 
@@ -368,8 +366,6 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 	}
 
 	for name, runner := range runners {
-		name, runner := name, runner // https://golang.org/doc/faq#closures_and_goroutines
-
 		w.Add(1)
 
 		go func() {
@@ -385,6 +381,7 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 			tbl, err := runner.CreateTable(createTableData)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
+
 				return
 			}
 

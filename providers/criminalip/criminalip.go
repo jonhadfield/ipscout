@@ -89,7 +89,7 @@ func loadAPIResponse(ctx context.Context, conf *session.Session, apiKey string) 
 
 	conf.HTTPClient.HTTPClient.Timeout = 30 * time.Second
 
-	req.Header.Add("x-api-key", apiKey)
+	req.Header.Add("x-api-key", apiKey) //nolint:canonicalheader
 
 	resp, err := conf.HTTPClient.Do(req)
 	if err != nil {
@@ -293,6 +293,7 @@ func (c *Client) GenPortDataForTable(in []PortDataEntry) (GeneratePortDataForTab
 
 	for _, entry := range in {
 		var ageMatch, netMatch bool
+
 		ageMatch, netMatch, err = providers.PortMatchFilter(providers.PortMatchFilterInput{
 			IncomingPort:        fmt.Sprintf("%d/%s", entry.OpenPortNo, entry.Socket),
 			MatchPorts:          c.Config.Global.Ports,
@@ -300,7 +301,6 @@ func (c *Client) GenPortDataForTable(in []PortDataEntry) (GeneratePortDataForTab
 			ConfirmedDateFormat: time.DateTime,
 			MaxAge:              c.Config.Global.MaxAge,
 		})
-
 		if err != nil {
 			return GeneratePortDataForTableOutput{}, fmt.Errorf("error checking port match filter: %w", err)
 		}
@@ -720,7 +720,7 @@ type HostSearchResult struct {
 			Type          string   `json:"type"`
 			DetectInfo    struct{} `json:"detect_info,omitempty"`
 			ConfirmedTime string   `json:"confirmed_time"`
-			DetectInfo0   struct { // nolint:govet
+			DetectInfo0   struct { //nolint:govet
 				Md5    string `json:"md5"`
 				Domain string `json:"domain"`
 			} `json:"detect_info,omitempty"`
