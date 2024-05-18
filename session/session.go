@@ -272,7 +272,7 @@ func CreateConfigPathStructure(configRoot string) error {
 		}
 	}
 
-	for _, dir := range []string{"backups", "cache"} {
+	for _, dir := range []string{"cache"} {
 		_, err = os.Stat(filepath.Join(configRoot, dir))
 		if err != nil {
 			if os.IsNotExist(err) {
