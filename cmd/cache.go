@@ -11,7 +11,8 @@ import (
 
 func newCacheCommand() *cobra.Command {
 	cacheCmd := &cobra.Command{
-		Use: "cache",
+		Use:   "cache",
+		Short: "manage cached items",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				_ = cmd.Help()

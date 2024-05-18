@@ -10,7 +10,8 @@ import (
 
 func newConfigCommand() *cobra.Command {
 	cacheCmd := &cobra.Command{
-		Use: "config",
+		Use:   "config",
+		Short: "manage configuration",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				_ = cmd.Help()
