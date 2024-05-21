@@ -88,7 +88,8 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("shodan api request failed: %s", resp.Status)
+		return nil,
+			fmt.Errorf("shodan api request failed: %s", resp.Status)
 	}
 
 	// read response body
@@ -294,7 +295,11 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRow(table.Row{"WHOIS", providers.FormatTimeOrDash(result.LastUpdate, portLastModifiedFormat)})
 	tw.AppendRow(table.Row{" - Org", providers.DashIfEmpty(result.Org)})
-	tw.AppendRow(table.Row{" - Country", fmt.Sprintf("%s (%s)", providers.DashIfEmpty(result.CountryName), providers.DashIfEmpty(strings.ToUpper(result.CountryCode)))})
+	tw.AppendRow(table.Row{
+		" - Country",
+		fmt.Sprintf("%s (%s)", providers.DashIfEmpty(result.CountryName),
+			providers.DashIfEmpty(strings.ToUpper(result.CountryCode))),
+	})
 	tw.AppendRow(table.Row{" - Region", providers.DashIfEmpty(result.RegionCode)})
 	tw.AppendRow(table.Row{" - City", providers.DashIfEmpty(result.City)})
 
@@ -351,66 +356,152 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			tw.AppendRow(table.Row{"", color.CyanString("%d/%s", dr.Port, dr.Transport)})
 
 			if len(dr.Domains) > 0 {
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Domains: %s", IndentPipeHyphens, strings.Join(dr.Domains, ", "))})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s  Domains: %s",
+						IndentPipeHyphens, strings.Join(dr.Domains, ", ")),
+				})
 			}
 
 			if dr.Timestamp != "" {
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Timestamp: %s", IndentPipeHyphens, providers.FormatTimeOrDash(dr.Timestamp, portLastModifiedFormat))})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s  Timestamp: %s",
+						IndentPipeHyphens, providers.FormatTimeOrDash(dr.Timestamp, portLastModifiedFormat)),
+				})
 			}
 
 			if len(dr.Hostnames) > 0 {
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  HostNames: %s", IndentPipeHyphens, strings.Join(dr.Hostnames, ", "))})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s  HostNames: %s",
+						IndentPipeHyphens, strings.Join(dr.Hostnames, ", ")),
+				})
 			}
 
 			if dr.SSH.Type != "" {
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  SSH", IndentPipeHyphens)})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sType: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.SSH.Type)})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sCipher: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.SSH.Cipher)})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s  SSH",
+						IndentPipeHyphens),
+				})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s%sType: %s",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.SSH.Type),
+				})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s%sCipher: %s",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.SSH.Cipher),
+				})
 			}
 
 			if dr.HTTP.Status != 0 {
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  HTTP", IndentPipeHyphens)})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s  HTTP",
+						IndentPipeHyphens),
+				})
 
 				if dr.HTTP.Location != "" {
-					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sLocation: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Location)})
+					tw.AppendRow(table.Row{
+						"",
+						fmt.Sprintf("%s%sLocation: %s",
+							IndentPipeHyphens,
+							strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Location),
+					})
 				}
 
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sStatus: %d", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Status)})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s%sStatus: %d",
+						IndentPipeHyphens,
+						strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Status),
+				})
 
 				if dr.HTTP.Title != "" {
-					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sTitle: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Title)})
+					tw.AppendRow(table.Row{
+						"",
+						fmt.Sprintf("%s%sTitle: %s",
+							IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Title),
+					})
 				}
 
 				if dr.HTTP.Server != "" {
-					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sServer: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Server)})
+					tw.AppendRow(table.Row{
+						"",
+						fmt.Sprintf("%s%sServer: %s",
+							IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.Server),
+					})
 				}
 
 				if dr.HTTP.HTML != "" {
 					dr.HTTP.HTML = strings.TrimSuffix(dr.HTTP.HTML, "\n")
-					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sHTML: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.HTTP.HTML)})
+					tw.AppendRow(table.Row{
+						"",
+						fmt.Sprintf("%s%sHTML: %s",
+							IndentPipeHyphens,
+							strings.Repeat(" ", 2*c.Config.Global.IndentSpaces),
+							providers.PreProcessValueOutput(&c.Session, dr.HTTP.HTML)),
+					})
 				}
 			}
 
 			if len(dr.Ssl.Versions) > 0 {
 				tw.AppendRow(table.Row{"", color.CyanString("SSL")})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sIssuer: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.Ssl.Cert.Issuer.Cn)})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sSubject: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.Ssl.Cert.Subject.Cn)})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sVersions: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), strings.Join(dr.Ssl.Versions, ", "))})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sExpires: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.Ssl.Cert.Expires)})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s%sIssuer: %s", IndentPipeHyphens,
+						strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.Ssl.Cert.Issuer.Cn),
+				})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s%sSubject: %s",
+						IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces),
+						dr.Ssl.Cert.Subject.Cn),
+				})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s%sVersions: %s",
+						IndentPipeHyphens, strings.Repeat(" ",
+							2*c.Config.Global.IndentSpaces), strings.Join(dr.Ssl.Versions, ", ")),
+				})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s%sExpires: %s",
+						IndentPipeHyphens,
+						strings.Repeat(" ", 2*c.Config.Global.IndentSpaces),
+						dr.Ssl.Cert.Expires),
+				})
 			}
 
 			if dr.DNS.ResolverHostname != nil {
 				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  DNS", IndentPipeHyphens)})
 
 				if dr.DNS.ResolverHostname != "" {
-					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sResolver Hostname: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.DNS.ResolverHostname)})
+					tw.AppendRow(table.Row{
+						"",
+						fmt.Sprintf("%s%sResolver Hostname: %s",
+							IndentPipeHyphens,
+							strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.DNS.ResolverHostname),
+					})
 				}
 
 				if dr.DNS.Software != nil {
-					tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sResolver Software: %s", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.DNS.Software)})
+					tw.AppendRow(table.Row{
+						"",
+						fmt.Sprintf("%s%sResolver Software: %s",
+							IndentPipeHyphens,
+							strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.DNS.Software),
+					})
 				}
 
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s%sRecursive: %t", IndentPipeHyphens, strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.DNS.Recursive)})
+				tw.AppendRow(table.Row{
+					"",
+					fmt.Sprintf("%s%sRecursive: %t", IndentPipeHyphens,
+						strings.Repeat(" ", 2*c.Config.Global.IndentSpaces), dr.DNS.Recursive),
+				})
 			}
 
 			portsDisplayed++
