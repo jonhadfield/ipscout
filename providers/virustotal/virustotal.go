@@ -465,13 +465,14 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var rows []table.Row
 
+	tm := time.Unix(int64(result.Data.Attributes.LastAnalysisDate), 0)
+
 	rda := result.Data.Attributes
 	tw.AppendRow(table.Row{"Network", result.Data.Attributes.Network})
 	tw.AppendRow(table.Row{"Country", result.Data.Attributes.Country})
 	tw.AppendRow(table.Row{"Reputation", result.Data.Attributes.Reputation})
 	tw.AppendRow(table.Row{"Total Votes", fmt.Sprintf("Malicious %d Harmless %d", result.Data.Attributes.TotalVotes.Malicious, result.Data.Attributes.TotalVotes.Harmless)})
-	tw.AppendRow(table.Row{"Last Analysis", ""})
-	tw.AppendRow(table.Row{"", color.CyanString("Date: %d", result.Data.Attributes.LastAnalysisDate)})
+	tw.AppendRow(table.Row{"Last Analysis", color.CyanString(tm.UTC().Format(providers.TimeFormat))})
 	tw.AppendRow(table.Row{"", fmt.Sprintf("%s Malicious: %d", IndentPipeHyphens, rda.LastAnalysisStats.Malicious)})
 	tw.AppendRow(table.Row{"", fmt.Sprintf("%s Suspicious: %d", IndentPipeHyphens, rda.LastAnalysisStats.Suspicious)})
 	tw.AppendRow(table.Row{"", fmt.Sprintf("%s Harmless: %d", IndentPipeHyphens, rda.LastAnalysisStats.Harmless)})

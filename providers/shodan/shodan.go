@@ -292,7 +292,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var rows []table.Row
 
-	tw.AppendRow(table.Row{"WHOIS", providers.DashIfEmpty(result.LastUpdate)})
+	tw.AppendRow(table.Row{"WHOIS", providers.FormatTimeOrDash(result.LastUpdate, portLastModifiedFormat)})
 	tw.AppendRow(table.Row{" - Org", providers.DashIfEmpty(result.Org)})
 	tw.AppendRow(table.Row{" - Country", fmt.Sprintf("%s (%s)", providers.DashIfEmpty(result.CountryName), providers.DashIfEmpty(strings.ToUpper(result.CountryCode)))})
 	tw.AppendRow(table.Row{" - Region", providers.DashIfEmpty(result.RegionCode)})
@@ -355,7 +355,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			}
 
 			if dr.Timestamp != "" {
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Timestamp: %s", IndentPipeHyphens, dr.Timestamp)})
+				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Timestamp: %s", IndentPipeHyphens, providers.FormatTimeOrDash(dr.Timestamp, portLastModifiedFormat))})
 			}
 
 			if len(dr.Hostnames) > 0 {

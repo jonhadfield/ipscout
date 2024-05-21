@@ -140,7 +140,7 @@ func TestDashIfEmptyWithInt(t *testing.T) {
 
 func TestDashIfEmptyWithTime(t *testing.T) {
 	require.Equal(t, "-", DashIfEmpty(time.Time{}))
-	require.Equal(t, "2024-04-19 19:00:00", DashIfEmpty(time.Date(2024, time.April, 19, 19, 0, 0, 0, time.UTC)))
+	require.Equal(t, "2024-04-19 19:00:00 UTC", DashIfEmpty(time.Date(2024, time.April, 19, 19, 0, 0, 0, time.UTC)))
 }
 
 func TestPreProcessValueOutput(t *testing.T) {

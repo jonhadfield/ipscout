@@ -126,7 +126,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		{Number: 1, AutoMerge: true},
 	})
 
-	tw.AppendRow(table.Row{"Last Reported", providers.DashIfEmpty(result.Data.LastReportedAt)})
+	tw.AppendRow(table.Row{"Last Reported", result.Data.LastReportedAt.UTC().Format(providers.TimeFormat)})
 	tw.AppendRow(table.Row{"Abuse Confidence Score", providers.DashIfEmpty(result.Data.AbuseConfidenceScore)})
 	tw.AppendRow(table.Row{"Public", result.Data.IsPublic})
 	tw.AppendRow(table.Row{"Domain", providers.DashIfEmpty(result.Data.Domain)})
@@ -139,7 +139,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		result.Data.TotalReports, c.Providers.AbuseIPDB.MaxAge, result.Data.NumDistinctUsers)})
 
 	for x, dr := range result.Data.Reports {
-		tw.AppendRow(table.Row{"", color.CyanString("%s", dr.ReportedAt.Format(time.DateTime))})
+		tw.AppendRow(table.Row{"", color.CyanString("%s", dr.ReportedAt.UTC().Format(providers.TimeFormat))})
 		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Comment: %s", IndentPipeHyphens, dr.Comment)})
 
 		if x == c.Config.Global.MaxReports {

@@ -13,7 +13,10 @@ import (
 	"github.com/jonhadfield/ipscout/session"
 )
 
-const DefaultUA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:125.0) Gecko/20100101 Firefox/125."
+const (
+	DefaultUA  = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:125.0) Gecko/20100101 Firefox/125."
+	TimeFormat = "2006-01-02 15:04:05 MST"
+)
 
 var (
 	ErrFailedToFetchData   = errors.New("failed to fetch data")
@@ -248,7 +251,7 @@ func DashIfEmpty(value interface{}) string {
 			return "-"
 		}
 
-		return v.Format(time.DateTime)
+		return v.Format(TimeFormat)
 	case string:
 		trimmed := strings.TrimSpace(v)
 		if len(trimmed) == 0 {
@@ -275,4 +278,21 @@ type ProviderClient interface {
 	Initialise() error
 	FindHost() ([]byte, error)
 	CreateTable([]byte) (*table.Writer, error)
+}
+
+func FormatTimeOrDash(s string, format string) string {
+	if s == "" || format == "" {
+		return "-"
+	}
+
+	result, err := time.Parse(format, s)
+	if err != nil {
+		return "-"
+	}
+
+	if result.IsZero() {
+		return "-"
+	}
+
+	return result.UTC().Format(TimeFormat)
 }

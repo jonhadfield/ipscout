@@ -289,7 +289,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix.String())})
 
 	if !result.CreationTime.IsZero() {
-		tw.AppendRow(table.Row{"Creation Time", dashIfEmpty(result.CreationTime.String())})
+		tw.AppendRow(table.Row{"Creation Time", dashIfEmpty(result.CreationTime.UTC().Format(providers.TimeFormat))})
 	}
 
 	tw.AppendRows(rows)

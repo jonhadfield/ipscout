@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jonhadfield/ipscout/providers"
+
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
@@ -41,7 +43,7 @@ func DashIfEmpty(value interface{}) string {
 			return "-"
 		}
 
-		return v.Format(time.DateTime)
+		return v.Format(providers.TimeFormat)
 	case string:
 		trimmed := strings.TrimSpace(v)
 		if len(trimmed) == 0 {
