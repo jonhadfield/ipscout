@@ -232,6 +232,18 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.bingbot.enabled") {
+		sess.Providers.Bingbot.Enabled = ToPtr(v.GetBool("providers.bingbot.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Bingbot provider not defined in config")
+		sess.Messages.Mu.Unlock()
+	}
+
+	sess.Providers.Bingbot.URL = v.GetString("providers.bingbot.url")
+
+	sess.Providers.Bingbot.DocumentCacheTTL = v.GetInt64("providers.bingbot.document_cache_ttl")
+
 	sess.Providers.CriminalIP.ResultCacheTTL = v.GetInt64("providers.criminalip.result_cache_ttl")
 	if v.IsSet("providers.digitalocean.enabled") {
 		sess.Providers.DigitalOcean.Enabled = ToPtr(v.GetBool("providers.digitalocean.enabled"))

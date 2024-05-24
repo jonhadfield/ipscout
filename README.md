@@ -19,6 +19,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
 | [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |    
 | [Azure](#Azure)                                           | Hosting Provider |           -           |
+| [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
@@ -134,6 +135,11 @@ used by their services.
 [Azure](https://azure.microsoft.com/) is a hosting provider
 that [publishes](https://www.microsoft.com/en-gb/download/details.aspx?id=56519) network prefixes used by their
 services.
+
+### Bingbot
+
+[Bingbot](https://www.bing.com/webmasters/help/help-center-661b2d18) is the web crawler for the Bing search engine.
+Bing [publishes](https://www.bing.com/toolbox/bingbot.json) network prefixes used by their crawlers.
 
 ### CriminalIP
 

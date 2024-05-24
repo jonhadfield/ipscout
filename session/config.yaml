@@ -20,6 +20,9 @@ providers:
   azure:
     enabled: true
     # url: override the default URL
+  bingbot:
+    enabled: true
+    # url: override the default URL
   criminalip:
     enabled: true
   digitalocean:

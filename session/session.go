@@ -151,6 +151,11 @@ type Providers struct {
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		URL              string `mapstructure:"url"`
 	} `mapstructure:"azure"`
+	Bingbot struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		URL              string `mapstructure:"url"`
+	} `mapstructure:"bingbot"`
 	CriminalIP struct {
 		APIKey         string
 		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
