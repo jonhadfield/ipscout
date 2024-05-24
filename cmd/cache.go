@@ -15,6 +15,7 @@ func newCacheCommand() *cobra.Command {
 	cacheCmd := &cobra.Command{
 		Use:   "cache",
 		Short: "manage cached items",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				_ = cmd.Help()
@@ -38,6 +39,7 @@ func newCacheListCommand() *cobra.Command {
 		Use:   "list",
 		Short: "list cached items",
 		Long:  `list outputs all of the currently cached items.`,
+		Args:  cobra.NoArgs,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},
@@ -61,6 +63,7 @@ func newCacheInitialiseCommand() *cobra.Command {
 		Use:   "init",
 		Short: "initialise cache",
 		Long:  `initialise cache.`,
+		Args:  cobra.NoArgs,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},
