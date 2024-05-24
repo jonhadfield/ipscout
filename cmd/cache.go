@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jonhadfield/ipscout/process"
+
 	"github.com/jonhadfield/ipscout/manager"
 
 	"github.com/spf13/cobra"
@@ -24,6 +26,7 @@ func newCacheCommand() *cobra.Command {
 	}
 
 	cacheCmd.AddCommand(newCacheDelCommand())
+	cacheCmd.AddCommand(newCacheInitialiseCommand())
 	cacheCmd.AddCommand(newCacheGetCommand())
 	cacheCmd.AddCommand(newCacheListCommand())
 
@@ -47,6 +50,29 @@ func newCacheListCommand() *cobra.Command {
 			if err = mgr.List(); err != nil {
 				return fmt.Errorf("error listing cache items: %w", err)
 			}
+
+			return nil
+		},
+	}
+}
+
+func newCacheInitialiseCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "init",
+		Short: "initialise cache",
+		Long:  `initialise cache.`,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
+			return initConfig(cmd)
+		},
+		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
+			processor, err := process.New(sess)
+			if err != nil {
+				os.Exit(1)
+			}
+
+			processor.Session.Config.Global.InitialiseCacheOnly = true
+
+			processor.Run()
 
 			return nil
 		},

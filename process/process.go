@@ -156,6 +156,12 @@ func (p *Processor) Run() {
 		}
 	}
 
+	if p.Session.Config.Global.InitialiseCacheOnly {
+		fmt.Fprintln(p.Session.Target, "cache initialisation complete")
+
+		return
+	}
+
 	// find hosts
 	results := findHosts(enabledProviders, p.Session.HideProgress)
 

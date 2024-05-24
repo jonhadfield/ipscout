@@ -96,14 +96,15 @@ type Config struct {
 }
 
 type GlobalConfig struct {
-	LogLevel      string   `mapstructure:"log-level"`
-	Output        string   `mapstructure:"output"`
-	IndentSpaces  int      `mapstructure:"indent-spaces"`
-	Ports         []string `mapstructure:"ports"`
-	MaxValueChars int32    `mapstructure:"max-value-chars"`
-	MaxAge        string   `mapstructure:"max-age"`
-	MaxReports    int      `mapstructure:"max-reports"`
-	DisableCache  bool     `mapstructure:"disable-cache"`
+	LogLevel            string   `mapstructure:"log-level"`
+	Output              string   `mapstructure:"output"`
+	IndentSpaces        int      `mapstructure:"indent-spaces"`
+	Ports               []string `mapstructure:"ports"`
+	MaxValueChars       int32    `mapstructure:"max-value-chars"`
+	MaxAge              string   `mapstructure:"max-age"`
+	MaxReports          int      `mapstructure:"max-reports"`
+	DisableCache        bool     `mapstructure:"disable-cache"`
+	InitialiseCacheOnly bool
 }
 
 type Session struct {
