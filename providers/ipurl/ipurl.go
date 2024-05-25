@@ -22,6 +22,8 @@ import (
 const (
 	ProviderName = "ipurl"
 	CacheTTL     = 3 * time.Hour
+	// override default set in providers package constant as column 2 is expected to be wide
+	column1MinWidth = 13
 )
 
 type Config struct {
@@ -371,7 +373,9 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
-	tw.AppendRow(table.Row{color.HiWhiteString("Prefixes")})
+
+	// pad column to ensure title row fills the table
+	tw.AppendRow(table.Row{color.HiWhiteString(providers.PadRight("Prefixes", column1MinWidth))})
 
 	for prefix, urls := range result {
 		tw.AppendRow(table.Row{"", color.CyanString(prefix.String())})
@@ -382,7 +386,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 10},
+		{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: 10},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("IP URL | Host: %s", c.Host.String())
@@ -393,7 +397,5 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	return &tw, nil
 }
-
-const MaxColumnWidth = 120
 
 const IndentPipeHyphens = " |-----"

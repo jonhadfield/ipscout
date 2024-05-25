@@ -64,10 +64,6 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
-const (
-	MaxColumnWidth = 120
-)
-
 func (c *ProviderClient) loadProviderDataFromSource() error {
 	azureClient := azure.New()
 	azureClient.Client = c.HTTPClient
@@ -293,10 +289,10 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{"Platform", dashIfEmpty(result.Properties.Platform)})
 	tw.AppendRow(table.Row{"Cloud", dashIfEmpty(result.Cloud)})
 	tw.AppendRow(table.Row{"System Service", dashIfEmpty(result.Properties.SystemService)})
-	tw.AppendRow(table.Row{"Network Features", dashIfEmpty(strings.Join(result.Properties.NetworkFeatures, ","))})
+	tw.AppendRow(table.Row{"Net Features", dashIfEmpty(strings.Join(result.Properties.NetworkFeatures, ","))})
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
+		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("AZURE | Host: %s", c.Host.String())

@@ -125,7 +125,6 @@ type Session struct {
 	Providers    Providers `mapstructure:"providers"`
 	HideProgress bool      `mapstructure:"hide-progress"`
 
-	// MaxWidth      int
 	UseTestData bool
 }
 

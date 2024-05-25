@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jedib0t/go-pretty/v6/text"
+
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -25,7 +27,6 @@ const (
 	ProviderName           = "abuseipdb"
 	APIURL                 = "https://api.abuseipdb.com"
 	HostIPPath             = "/api/v2/check"
-	MaxColumnWidth         = 120
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05+07:00"
 	ResultTTL              = 12 * time.Hour
@@ -127,7 +128,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	})
 
 	tw.AppendRow(table.Row{"Last Reported", result.Data.LastReportedAt.UTC().Format(providers.TimeFormat)})
-	tw.AppendRow(table.Row{"Abuse Confidence Score", providers.DashIfEmpty(result.Data.AbuseConfidenceScore)})
+	tw.AppendRow(table.Row{"Confidence", providers.DashIfEmpty(result.Data.AbuseConfidenceScore)})
 	tw.AppendRow(table.Row{"Public", result.Data.IsPublic})
 	tw.AppendRow(table.Row{"Domain", providers.DashIfEmpty(result.Data.Domain)})
 	tw.AppendRow(table.Row{"Hostnames", providers.DashIfEmpty(strings.Join(result.Data.Hostnames, ", "))})
@@ -148,7 +149,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
+		{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
 	})
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)

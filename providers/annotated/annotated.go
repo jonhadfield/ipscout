@@ -29,7 +29,6 @@ import (
 const (
 	ProviderName           = "annotated"
 	CacheTTL               = 5 * time.Minute
-	MaxColumnWidth         = 120
 	ipFileSuffixesToIgnore = "sh,conf"
 )
 
@@ -253,7 +252,8 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var rows []table.Row
 
 	for prefix, annotations := range result {
-		tw.AppendRow(table.Row{"Prefix", dashIfEmpty(prefix.String())})
+		// pad column to ensure title row fills the table
+		tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(prefix.String())})
 
 		for _, anno := range annotations {
 			tw.AppendRow(table.Row{"Date", anno.Date})
@@ -279,7 +279,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
+		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 

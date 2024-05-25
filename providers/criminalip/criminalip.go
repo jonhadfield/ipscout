@@ -200,10 +200,6 @@ func fetchData(client session.Session) (*HostSearchResult, error) {
 	return result, nil
 }
 
-const (
-	MaxColumnWidth = 120
-)
-
 func tidyBanner(banner string) string {
 	// remove empty lines using regex match
 	var lines []string
@@ -358,7 +354,8 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		tw.AppendRow(table.Row{"Domains", strings.Join(getDomains(result.Domain), ", ")})
 	}
 
-	tw.AppendRow(table.Row{"Score Inbound", result.Score.Inbound})
+	// pad column to ensure title row fills the table
+	tw.AppendRow(table.Row{providers.PadRight("Score Inbound", providers.Column1MinWidth), result.Score.Inbound})
 	tw.AppendRow(table.Row{"Score Outbound", result.Score.Outbound})
 
 	portDataForTable, err := c.GenPortDataForTable(result.Port.Data)
@@ -417,7 +414,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
+		{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("CRIMINAL IP | Host: %s", c.Host.String())

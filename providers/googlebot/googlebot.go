@@ -113,10 +113,6 @@ func (c *ProviderClient) loadProviderData() error {
 	return nil
 }
 
-const (
-	MaxColumnWidth = 120
-)
-
 func (c *ProviderClient) Initialise() error {
 	if c.Cache == nil {
 		return errors.New("cache not set")
@@ -286,7 +282,8 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var rows []table.Row
 
-	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix.String())})
+	// pad column to ensure title row fills the table
+	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(result.Prefix.String())})
 
 	if !result.CreationTime.IsZero() {
 		tw.AppendRow(table.Row{"Creation Time", dashIfEmpty(result.CreationTime.String())})
@@ -294,7 +291,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
+		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("Googlebot | Host: %s", c.Host.String())

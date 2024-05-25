@@ -22,8 +22,6 @@ import (
 
 const (
 	ProviderName           = "ptr"
-	MaxColumnWidth         = 120
-	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05+07:00"
 	ResultTTL              = 30 * time.Minute
 	DefaultNameserver      = "1.1.1.1:53"
@@ -132,7 +130,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	})
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 15},
+		{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: 15},
 	})
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)

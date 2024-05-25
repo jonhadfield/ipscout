@@ -21,7 +21,6 @@ import (
 
 const (
 	ProviderName           = "ipapi"
-	MaxColumnWidth         = 120
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05+07:00"
 	ResultTTL              = 1 * time.Hour
@@ -124,8 +123,8 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw := table.NewWriter()
-
-	tw.AppendRow(table.Row{"Organisation", providers.DashIfEmpty(findHostData.Org)})
+	// pad column to ensure title row fills the table
+	tw.AppendRow(table.Row{providers.PadRight("Organisation", providers.Column1MinWidth), providers.DashIfEmpty(findHostData.Org)})
 	tw.AppendRow(table.Row{"Hostname", providers.DashIfEmpty(findHostData.Hostname)})
 	tw.AppendRow(table.Row{"Country", providers.DashIfEmpty(findHostData.CountryName)})
 	tw.AppendRow(table.Row{"Region", providers.DashIfEmpty(findHostData.Region)})
@@ -134,13 +133,10 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{"ASN", providers.DashIfEmpty(findHostData.Asn)})
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
+		{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 		{Number: 1, AutoMerge: true},
 	})
 
-	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
-	})
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true

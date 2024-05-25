@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jedib0t/go-pretty/v6/text"
+
 	"github.com/fatih/color"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -26,7 +28,6 @@ const (
 	ProviderName           = "virustotal"
 	APIURL                 = "https://www.virustotal.com"
 	HostIPPath             = "/api/v3/ip_addresses"
-	MaxColumnWidth         = 120
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
 	ResultTTL              = 12 * time.Hour
@@ -463,12 +464,16 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		{Number: 1, AutoMerge: true},
 	})
 
+	tw.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
+	})
+
 	var rows []table.Row
 
 	tm := time.Unix(int64(result.Data.Attributes.LastAnalysisDate), 0)
 
 	rda := result.Data.Attributes
-	tw.AppendRow(table.Row{"Network", result.Data.Attributes.Network})
+	tw.AppendRow(table.Row{providers.PadRight("Network", providers.Column1MinWidth), result.Data.Attributes.Network})
 	tw.AppendRow(table.Row{"Country", result.Data.Attributes.Country})
 	tw.AppendRow(table.Row{"Reputation", result.Data.Attributes.Reputation})
 	tw.AppendRow(table.Row{"Total Votes", fmt.Sprintf("Malicious %d Harmless %d", result.Data.Attributes.TotalVotes.Malicious, result.Data.Attributes.TotalVotes.Harmless)})
@@ -482,12 +487,6 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	rda.LastAnalysisResults.GetTableRows(&c.Session, tw)
 
 	tw.AppendRows(rows)
-	//
-	//	tw.SetColumnConfigs([]table.ColumnConfig{
-	//		{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
-	//	})
-	//}
-	//
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true

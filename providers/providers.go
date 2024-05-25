@@ -14,8 +14,11 @@ import (
 )
 
 const (
-	DefaultUA  = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:125.0) Gecko/20100101 Firefox/125."
-	TimeFormat = "2006-01-02 15:04:05 MST"
+	DefaultUA          = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:125.0) Gecko/20100101 Firefox/125."
+	TimeFormat         = "2006-01-02 15:04:05 MST"
+	Column1MinWidth    = 14
+	WideColumnMaxWidth = 75
+	WideColumnMinWidth = 50
 )
 
 var (
@@ -24,7 +27,7 @@ var (
 	ErrNoMatchFound        = errors.New("no match found")
 	ErrForbiddenByProvider = errors.New("forbidden by provider")
 	CacheProviderPrefix    = "provider_"
-	CacheKeySHALen         = 16
+	CacheKeySHALen         = 15
 )
 
 func AgeToHours(age string) (int64, error) {
@@ -295,4 +298,8 @@ func FormatTimeOrDash(s string, format string) string {
 	}
 
 	return result.UTC().Format(TimeFormat)
+}
+
+func PadRight(str string, length int) string {
+	return str + strings.Repeat(" ", length-len(str))
 }

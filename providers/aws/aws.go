@@ -16,9 +16,8 @@ import (
 )
 
 const (
-	ProviderName   = "aws"
-	DocTTL         = 24 * time.Hour
-	MaxColumnWidth = 120
+	ProviderName = "aws"
+	DocTTL       = 24 * time.Hour
 )
 
 type Config struct {
@@ -314,7 +313,8 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var rows []table.Row
 
-	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix.IPPrefix.String())})
+	// pad column to ensure title row fills the table
+	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(result.Prefix.IPPrefix.String())})
 	tw.AppendRow(table.Row{"Service", dashIfEmpty(result.Prefix.Service)})
 	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Prefix.Region)})
 
@@ -332,7 +332,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 50},
+		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("AWS | Host: %s", c.Host.String())

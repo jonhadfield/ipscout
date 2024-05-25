@@ -25,7 +25,6 @@ const (
 	ProviderName           = "shodan"
 	APIURL                 = "https://api.shodan.io"
 	HostIPPath             = "/shodan/host"
-	MaxColumnWidth         = 120
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
 	ResultTTL              = 12 * time.Hour
@@ -293,7 +292,8 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var rows []table.Row
 
-	tw.AppendRow(table.Row{"WHOIS", providers.FormatTimeOrDash(result.LastUpdate, portLastModifiedFormat)})
+	// pad column to ensure title row fills the table
+	tw.AppendRow(table.Row{providers.PadRight("WHOIS", providers.Column1MinWidth), providers.FormatTimeOrDash(result.LastUpdate, portLastModifiedFormat)})
 	tw.AppendRow(table.Row{" - Org", providers.DashIfEmpty(result.Org)})
 	tw.AppendRow(table.Row{
 		" - Country",
@@ -516,7 +516,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		tw.AppendRows(rows)
 
 		tw.SetColumnConfigs([]table.ColumnConfig{
-			{Number: 2, AutoMerge: true, WidthMax: MaxColumnWidth, WidthMin: 50},
+			{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 		})
 	}
 
