@@ -88,7 +88,12 @@ func (c *Client) List() error {
 		return err
 	}
 
-	present.Tables(c.Config, []*table.Writer{tables})
+	present.Tables(c.Config, []providers.TableWithPriority{
+		{
+			Table:    tables,
+			Priority: 0,
+		},
+	})
 
 	return nil
 }

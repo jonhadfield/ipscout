@@ -61,6 +61,10 @@ func (c *Client) Enabled() bool {
 	return false
 }
 
+func (c *Client) Priority() int {
+	return 300
+}
+
 func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }

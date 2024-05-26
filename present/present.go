@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -29,7 +30,7 @@ type Resulter interface {
 	CreateTable() *table.Writer
 }
 
-func Tables(c *session.Session, tws []*table.Writer) {
+func Tables(c *session.Session, tws []providers.TableWithPriority) {
 	outputTables(c, tws)
 }
 
@@ -180,7 +181,7 @@ func InnerTableStyle(sess session.Session) table.Style {
 	}
 }
 
-func outputTables(c *session.Session, tws []*table.Writer) {
+func outputTables(c *session.Session, tws []providers.TableWithPriority) {
 	twOuter := table.NewWriter()
 
 	twOuter.SetTitle("IPScout [v" + c.App.SemVer + "]")
@@ -190,8 +191,10 @@ func outputTables(c *session.Session, tws []*table.Writer) {
 
 	twOuter.SetStyle(OuterTableStyle(*c))
 
+	sort.Slice(tws, func(i, j int) bool { return tws[i].Priority < tws[j].Priority })
+
 	for _, tw := range tws {
-		t := *tw
+		t := *tw.Table
 		t.SetIndexColumn(1)
 		t.SetStyle(InnerTableStyle(*c))
 		twOuter.AppendRow([]interface{}{t.Render()})

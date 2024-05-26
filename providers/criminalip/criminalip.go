@@ -57,6 +57,10 @@ func (c *Client) Enabled() bool {
 	return false
 }
 
+func (c *Client) Priority() int {
+	return 100
+}
+
 type Config struct {
 	_ struct{}
 	session.Session

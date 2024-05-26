@@ -36,7 +36,6 @@ import (
 	"github.com/jonhadfield/ipscout/providers/ptr"
 
 	"github.com/briandowns/spinner"
-	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
@@ -265,7 +264,7 @@ type findHostsResults struct {
 
 type generateTablesResults struct {
 	sync.RWMutex
-	m []*table.Writer
+	m []providers.TableWithPriority
 }
 
 func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *findHostsResults {
@@ -360,7 +359,7 @@ func outputMessages(sess *session.Session) {
 	}
 }
 
-func generateTables(conf *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) []*table.Writer {
+func generateTables(conf *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) []providers.TableWithPriority {
 	var tables generateTablesResults
 
 	var w sync.WaitGroup
@@ -396,7 +395,10 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 
 			if tbl != nil {
 				tables.RWMutex.Lock()
-				tables.m = append(tables.m, tbl)
+				tables.m = append(tables.m, providers.TableWithPriority{
+					Table:    tbl,
+					Priority: runner.Priority(),
+				})
 				tables.RWMutex.Unlock()
 			}
 		}()

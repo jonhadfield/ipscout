@@ -296,12 +296,18 @@ func DashIfEmpty(value interface{}) string {
 	}
 }
 
+type TableWithPriority struct {
+	Table    *table.Writer
+	Priority int
+}
+
 type ProviderClient interface {
 	Enabled() bool
 	GetConfig() *session.Session
 	Initialise() error
 	FindHost() ([]byte, error)
 	CreateTable([]byte) (*table.Writer, error)
+	Priority() int
 }
 
 func FormatTimeOrDash(s string, format string) string {

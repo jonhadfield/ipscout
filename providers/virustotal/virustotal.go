@@ -58,6 +58,10 @@ func (c *ProviderClient) Enabled() bool {
 	return false
 }
 
+func (c *ProviderClient) Priority() int {
+	return 100
+}
+
 func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res *HostSearchResult, err error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath, c.Host.String())
 	if err != nil {

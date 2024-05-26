@@ -244,7 +244,7 @@ func (c *Client) Show() error {
 		return err
 	}
 
-	present.Tables(c.Sess, []*table.Writer{tables})
+	present.Tables(c.Sess, []providers.TableWithPriority{{Table: tables, Priority: 0}})
 
 	return nil
 }
