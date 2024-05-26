@@ -31,6 +31,10 @@ func RowEmphasisColor(sess session.Session) func(format string, a ...interface{}
 		return color.YellowString
 	case "red":
 		return color.RedString
+	case "green":
+		return color.GreenString
+	case "blue":
+		return color.BlueString
 	case "cyan":
 		return color.CyanString
 	default:

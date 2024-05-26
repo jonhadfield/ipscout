@@ -20,6 +20,8 @@ const (
 	txtASCII  = "ascii"
 	txtRed    = "red"
 	txtYellow = "yellow"
+	txtGreen  = "green"
+	txtBlue   = "blue"
 	txtCyan   = "cyan"
 )
 
@@ -142,6 +144,28 @@ func InnerTableStyle(sess session.Session) table.Style {
 		tableColorOptions := table.ColorOptionsDark
 		tableColorOptions.Row = text.Colors{text.FgWhite, text.BgBlack}
 		tableColorOptions.Header = text.Colors{text.FgHiRed, text.BgHiBlack}
+		tableColorOptions.IndexColumn = text.Colors{text.FgHiWhite, text.BgBlack}
+		tableColorOptions.RowAlternate = table.ColorOptionsDefault.Row
+		tableStyle.Color = tableColorOptions
+
+		return tableStyle
+	case txtGreen:
+		tableStyle = table.StyleColoredGreenWhiteOnBlack
+		tableStyle.Options = table.OptionsNoBordersAndSeparators
+		tableColorOptions := table.ColorOptionsDark
+		tableColorOptions.Header = text.Colors{text.FgHiGreen, text.BgHiBlack}
+		tableColorOptions.Row = text.Colors{text.FgWhite, text.BgBlack}
+		tableColorOptions.IndexColumn = text.Colors{text.FgHiWhite, text.BgBlack}
+		tableColorOptions.RowAlternate = table.ColorOptionsDefault.Row
+		tableStyle.Color = tableColorOptions
+
+		return tableStyle
+	case txtBlue:
+		tableStyle = table.StyleColoredBlueWhiteOnBlack
+		tableStyle.Options = table.OptionsNoBordersAndSeparators
+		tableColorOptions := table.ColorOptionsDark
+		tableColorOptions.Header = text.Colors{text.FgHiBlue, text.BgHiBlack}
+		tableColorOptions.Row = text.Colors{text.FgWhite, text.BgBlack}
 		tableColorOptions.IndexColumn = text.Colors{text.FgHiWhite, text.BgBlack}
 		tableColorOptions.RowAlternate = table.ColorOptionsDefault.Row
 		tableStyle.Color = tableColorOptions
