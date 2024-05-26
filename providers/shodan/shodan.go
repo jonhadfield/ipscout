@@ -28,6 +28,7 @@ const (
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
 	ResultTTL              = 12 * time.Hour
+	OutputPriority         = 50
 )
 
 type Config struct {
@@ -55,7 +56,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() int {
-	return 100
+	return OutputPriority
 }
 
 func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res *HostSearchResult, err error) {

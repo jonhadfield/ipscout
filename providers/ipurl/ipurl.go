@@ -378,12 +378,21 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw := table.NewWriter()
 
-	// pad column to ensure title row fills the table
-	tw.AppendRow(table.Row{color.HiWhiteString(providers.PadRight("Prefixes", column1MinWidth))})
-
 	rowEmphasisColour := providers.RowEmphasisColor(c.Session)
+
+	first := true
 	for prefix, urls := range result {
-		tw.AppendRow(table.Row{"", rowEmphasisColour(prefix.String())})
+		if first {
+			// pad column to ensure title row fills the table
+			tw.AppendRow(table.Row{
+				color.HiWhiteString(providers.PadRight("Prefixes", column1MinWidth)),
+				rowEmphasisColour(prefix.String()),
+			})
+
+			first = false
+		} else {
+			tw.AppendRow(table.Row{"", rowEmphasisColour(prefix.String())})
+		}
 
 		for _, url := range urls {
 			tw.AppendRow(table.Row{"", fmt.Sprintf("%s %s", IndentPipeHyphens, url)})
