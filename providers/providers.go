@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
+
 	"github.com/jedib0t/go-pretty/v6/table"
 
 	"github.com/jonhadfield/ipscout/session"
@@ -20,6 +22,21 @@ const (
 	WideColumnMaxWidth = 75
 	WideColumnMinWidth = 50
 )
+
+func RowEmphasisColor(sess session.Session) func(format string, a ...interface{}) string {
+	switch sess.Config.Global.Style {
+	case "ascii":
+		return fmt.Sprintf
+	case "yellow":
+		return color.YellowString
+	case "red":
+		return color.RedString
+	case "cyan":
+		return color.CyanString
+	default:
+		return color.CyanString
+	}
+}
 
 var (
 	ErrFailedToFetchData   = errors.New("failed to fetch data")

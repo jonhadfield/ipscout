@@ -15,7 +15,6 @@ import (
 
 	"github.com/jedib0t/go-pretty/v6/text"
 
-	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
@@ -113,6 +112,8 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		c.Stats.Mu.Unlock()
 	}()
 
+	rowEmphasisColor := providers.RowEmphasisColor(c.Session)
+
 	var result *HostSearchResult
 	if err := json.Unmarshal(data, &result); err != nil {
 		return nil, fmt.Errorf("error unmarshalling abuseipdb data: %w", err)
@@ -140,7 +141,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		result.Data.TotalReports, c.Providers.AbuseIPDB.MaxAge, result.Data.NumDistinctUsers)})
 
 	for x, dr := range result.Data.Reports {
-		tw.AppendRow(table.Row{"", color.CyanString("%s", dr.ReportedAt.UTC().Format(providers.TimeFormat))})
+		tw.AppendRow(table.Row{"", rowEmphasisColor("%s", dr.ReportedAt.UTC().Format(providers.TimeFormat))})
 		tw.AppendRow(table.Row{"", fmt.Sprintf("%s  Comment: %s", IndentPipeHyphens, dr.Comment)})
 
 		if x == c.Config.Global.MaxReports {

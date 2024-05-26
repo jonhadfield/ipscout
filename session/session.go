@@ -104,6 +104,7 @@ type GlobalConfig struct {
 	MaxAge              string   `mapstructure:"max-age"`
 	MaxReports          int      `mapstructure:"max-reports"`
 	DisableCache        bool     `mapstructure:"disable-cache"`
+	Style               string   `mapstructure:"style"`
 	InitialiseCacheOnly bool
 }
 

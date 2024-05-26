@@ -30,6 +30,7 @@ func newRootCommand() *cobra.Command {
 		maxReports    int
 		logLevel      string
 		output        string
+		style         string
 		disableCache  bool
 	)
 
@@ -107,6 +108,7 @@ func newRootCommand() *cobra.Command {
 	// Define cobra flags, the default value has the lowest (least significant) precedence
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "WARN", "set log level as: ERROR, WARN, INFO, DEBUG")
 	rootCmd.PersistentFlags().StringVar(&output, "output", "table", "output format: table, json")
+	rootCmd.PersistentFlags().StringVar(&style, "style", "", "output style: ascii, cyan, red, yellow")
 	rootCmd.PersistentFlags().StringVar(&maxAge, "max-age", "", "max age of data to consider")
 	rootCmd.PersistentFlags().IntVar(&maxReports, "max-reports", session.DefaultMaxReports, "max reports to output for each provider")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
@@ -367,6 +369,7 @@ func initConfig(cmd *cobra.Command) error {
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")
 	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
 	sess.Config.Global.MaxValueChars = v.GetInt32("global.max_value_chars")
+
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 	sess.Config.Global.MaxReports = v.GetInt("global.max_reports")
 	// TODO: Nasty Hack Alert
@@ -423,6 +426,15 @@ func initConfig(cmd *cobra.Command) error {
 	}
 
 	sess.Config.Global.IndentSpaces = session.DefaultIndentSpaces
+
+	// default to config global style
+	sess.Config.Global.Style = v.GetString("global.style")
+
+	// override with cli flag if set
+	outputStyle, _ := cmd.Flags().GetString("style")
+	if outputStyle != "" {
+		sess.Config.Global.Style = outputStyle
+	}
 
 	return nil
 }

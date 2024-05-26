@@ -290,6 +290,8 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		{Number: 1, AutoMerge: true},
 	})
 
+	rowEmphasisColor := providers.RowEmphasisColor(c.Session)
+
 	var rows []table.Row
 
 	// pad column to ensure title row fills the table
@@ -353,7 +355,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 				continue
 			}
 
-			tw.AppendRow(table.Row{"", color.CyanString("%d/%s", dr.Port, dr.Transport)})
+			tw.AppendRow(table.Row{"", rowEmphasisColor(fmt.Sprintf("%d/%s", dr.Port, dr.Transport))})
 
 			if len(dr.Domains) > 0 {
 				tw.AppendRow(table.Row{
@@ -449,7 +451,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			}
 
 			if len(dr.Ssl.Versions) > 0 {
-				tw.AppendRow(table.Row{"", color.CyanString("SSL")})
+				tw.AppendRow(table.Row{"", rowEmphasisColor("SSL")})
 				tw.AppendRow(table.Row{
 					"",
 					fmt.Sprintf("%s%sIssuer: %s", IndentPipeHyphens,

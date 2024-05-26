@@ -5,6 +5,7 @@ global:
   max_age: 90d
   max_reports: 5
   output: table
+  style: red
   # ports: [80]
 
 providers:
