@@ -5,6 +5,16 @@ and threat of an IP address.
 
 [![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/df6b2974f0844444af617a1c0b0e2cfb)](https://app.codacy.com/gh/jonhadfield/ipscout/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
 
+## Output
+### format
+Results are displayed in a table by default but can also be outputted as JSON format using the `--output` flag.
+- [table](examples/table.png)
+- [json](examples/results.json)  
+### style
+Table styles include ascii (for basic terminals), cyan, red, yellow, green, blue, and can be specified in the `config.yaml` file or with the `--style` flag.
+- [ascii](examples/ascii.txt)
+- [red](examples/table.png)  
+
 ## Providers
 
 IPScout supports multiple well known sources. You can also provide custom sources
@@ -30,13 +40,6 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
-
-## Output
-
-Results are displayed in a table by default but can also be outputted as an ASCII table or in JSON format.  
-- [table](examples/table.png)   
-- [ascii table](examples/ascii.txt)
-- [json](examples/results.json)
 
 ## Installation
 
@@ -74,8 +77,9 @@ global:
   max_value_chars: 300  # limit the number of characters output in results
   max_age: 90d          # maximum age of reports to consider
   max_reports: 5        # maximum number of reports to display
+  ports: ["443/tcp"]    # filter results by port [tcp,udp,443/tcp,...]
   output: table         # output format: table or json
-  ports: [ ]             # filter results by port [tcp,udp,443/tcp,...]
+  style: cyan           # output style [ascii, cyan, green, yellow, red, blue]
 
 providers:
 # list of providers with their configurations below...
@@ -126,7 +130,7 @@ A list of files can be specified in the provider's `paths` section:
 ```yaml
 providers:
   annotated:
-    enabled: false
+    enabled: true
     paths:
       - /path/to/file.yaml
 ```

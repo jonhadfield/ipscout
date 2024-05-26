@@ -5,7 +5,7 @@ global:
   max_age: 90d
   max_reports: 5
   output: table
-  style: red
+  style: cyan
   # ports: [80]
 
 providers:
@@ -14,21 +14,17 @@ providers:
   annotated:
     enabled: true
     paths:
-    #  - <path to yaml file>
+    # - <path to yaml file>
   aws:
     enabled: true
-    # url: override the default URL
   azure:
     enabled: true
-    # url: override the default URL
   bingbot:
     enabled: true
-    # url: override the default URL
   criminalip:
     enabled: true
   digitalocean:
     enabled: true
-    # url: override the default URL
   gcp:
     enabled: true
   google:
@@ -40,18 +36,16 @@ providers:
   ipurl:
     enabled: true
     urls:
-      - "https://iplists.firehol.org/files/firehol_level1.netset"
-      - "https://iplists.firehol.org/files/firehol_level2.netset"
+#      - "https://iplists.firehol.org/files/firehol_level1.netset"
+#      - "https://iplists.firehol.org/files/firehol_level2.netset"
       - "https://iplists.firehol.org/files/blocklist_de.ipset"
       - "https://iplists.firehol.org/files/socks_proxy_7d.ipset"
       - "https://iplists.firehol.org/files/sslproxies_7d.ipset"
       - "https://iplists.firehol.org/files/tor_exits_7d.ipset"
   icloudpr:
     enabled: true
-    # url: override the default URL
   linode:
     enabled: true
-    # url: override the default URL
   ptr:
     enabled: true
     nameservers:
@@ -59,7 +53,6 @@ providers:
       - 9.9.9.9
   shodan:
     enabled: true
-    max_ports: 10
   virustotal:
     enabled: true
     show_providers: true

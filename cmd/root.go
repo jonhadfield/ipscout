@@ -108,7 +108,7 @@ func newRootCommand() *cobra.Command {
 	// Define cobra flags, the default value has the lowest (least significant) precedence
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "WARN", "set log level as: ERROR, WARN, INFO, DEBUG")
 	rootCmd.PersistentFlags().StringVar(&output, "output", "table", "output format: table, json")
-	rootCmd.PersistentFlags().StringVar(&style, "style", "", "output style: ascii, cyan, red, yellow")
+	rootCmd.PersistentFlags().StringVar(&style, "style", "", "output style: ascii, cyan, red, yellow, green, blue")
 	rootCmd.PersistentFlags().StringVar(&maxAge, "max-age", "", "max age of data to consider")
 	rootCmd.PersistentFlags().IntVar(&maxReports, "max-reports", session.DefaultMaxReports, "max reports to output for each provider")
 	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
