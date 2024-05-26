@@ -31,6 +31,13 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
 
+## Output
+
+Results are displayed in a table by default but can also be outputted as an ASCII table or in JSON format.  
+- [table](examples/table.png)   
+- [ascii table](examples/ascii.txt)
+- [json](examples/results.json)
+
 ## Installation
 
 Binaries for macOS, Linux and Windows are available on the [releases](https://github.com/jonhadfield/ipscout/releases)
