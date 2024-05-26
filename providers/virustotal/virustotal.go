@@ -15,8 +15,6 @@ import (
 
 	"github.com/jedib0t/go-pretty/v6/text"
 
-	"github.com/fatih/color"
-
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
@@ -343,7 +341,7 @@ func (lra LastAnalysisResults) ShouldOutput(sess *session.Session) bool {
 	return true
 }
 
-func (lra LastAnalysisResults) GetTableRows(sess *session.Session, tw table.Writer) {
+func (lra LastAnalysisResults) GetTableRows(sess *session.Session, tw table.Writer, rowEmphasisColour func(format string, a ...interface{}) string) {
 	provs := map[string]struct {
 		ard AnalysisResultData
 	}{
@@ -438,7 +436,7 @@ func (lra LastAnalysisResults) GetTableRows(sess *session.Session, tw table.Writ
 
 	for providerName, rda := range provs {
 		if rda.ard.ShouldOutput(sess) {
-			tw.AppendRow(table.Row{"", color.CyanString(providerName)})
+			tw.AppendRow(table.Row{"", rowEmphasisColour(providerName)})
 			tw.AppendRow(table.Row{"", fmt.Sprintf("%s Result: %s", IndentPipeHyphens, rda.ard.Result)})
 			tw.AppendRow(table.Row{"", fmt.Sprintf("%s Category: %s", IndentPipeHyphens, rda.ard.Category)})
 			tw.AppendRow(table.Row{"", fmt.Sprintf("%s Method: %s", IndentPipeHyphens, rda.ard.Method)})
@@ -453,6 +451,8 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
 		c.Stats.Mu.Unlock()
 	}()
+
+	rowEmphasisColor := providers.RowEmphasisColor(c.Session)
 
 	var result *HostSearchResult
 	if err := json.Unmarshal(data, &result); err != nil {
@@ -481,14 +481,14 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{"Country", result.Data.Attributes.Country})
 	tw.AppendRow(table.Row{"Reputation", result.Data.Attributes.Reputation})
 	tw.AppendRow(table.Row{"Total Votes", fmt.Sprintf("Malicious %d Harmless %d", result.Data.Attributes.TotalVotes.Malicious, result.Data.Attributes.TotalVotes.Harmless)})
-	tw.AppendRow(table.Row{"Last Analysis", color.CyanString(tm.UTC().Format(providers.TimeFormat))})
+	tw.AppendRow(table.Row{"Last Analysis", rowEmphasisColor(tm.UTC().Format(providers.TimeFormat))})
 	tw.AppendRow(table.Row{"", fmt.Sprintf("%s Malicious: %d", IndentPipeHyphens, rda.LastAnalysisStats.Malicious)})
 	tw.AppendRow(table.Row{"", fmt.Sprintf("%s Suspicious: %d", IndentPipeHyphens, rda.LastAnalysisStats.Suspicious)})
 	tw.AppendRow(table.Row{"", fmt.Sprintf("%s Harmless: %d", IndentPipeHyphens, rda.LastAnalysisStats.Harmless)})
 	tw.AppendRow(table.Row{"", fmt.Sprintf("%s Undetected: %d", IndentPipeHyphens, rda.LastAnalysisStats.Undetected)})
 	tw.AppendRow(table.Row{"", fmt.Sprintf("%s Timeout: %d", IndentPipeHyphens, rda.LastAnalysisStats.Timeout)})
 	tw.AppendRow(table.Row{"Results", " ---"})
-	rda.LastAnalysisResults.GetTableRows(&c.Session, tw)
+	rda.LastAnalysisResults.GetTableRows(&c.Session, tw, rowEmphasisColor)
 
 	tw.AppendRows(rows)
 	tw.SetAutoIndex(false)
