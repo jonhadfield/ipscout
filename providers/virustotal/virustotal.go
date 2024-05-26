@@ -459,7 +459,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		return nil, fmt.Errorf("error unmarshalling virustotal data: %w", err)
 	}
 
-	if result == nil {
+	if result == nil || result.Data.Attributes.LastAnalysisDate == 0 {
 		return nil, nil
 	}
 
