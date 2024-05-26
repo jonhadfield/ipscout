@@ -133,7 +133,17 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		{Number: 1, AutoMerge: true},
 	})
 
-	tw.AppendRow(table.Row{"Last Reported", result.Data.LastReportedAt.UTC().Format(providers.TimeFormat)})
+	lastReported := result.Data.LastReportedAt
+
+	var lastReportedOutput string
+
+	if lastReported.IsZero() {
+		lastReportedOutput = "never"
+	} else {
+		lastReportedOutput = lastReported.UTC().Format(providers.TimeFormat)
+	}
+
+	tw.AppendRow(table.Row{"Last Reported", lastReportedOutput})
 	tw.AppendRow(table.Row{"Confidence", providers.DashIfEmpty(result.Data.AbuseConfidenceScore)})
 	tw.AppendRow(table.Row{"Public", result.Data.IsPublic})
 	tw.AppendRow(table.Row{"Domain", providers.DashIfEmpty(result.Data.Domain)})
@@ -142,8 +152,16 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{"Country", providers.DashIfEmpty(result.Data.CountryName)})
 	tw.AppendRow(table.Row{"Usage Type", providers.DashIfEmpty(result.Data.UsageType)})
 	tw.AppendRow(table.Row{"ISP", providers.DashIfEmpty(result.Data.Isp)})
-	tw.AppendRow(table.Row{"Reports", fmt.Sprintf("%d (%d days %d users)",
-		result.Data.TotalReports, c.Providers.AbuseIPDB.MaxAge, result.Data.NumDistinctUsers)})
+
+	reportsOutput := "0"
+	if result.Data.TotalReports > 0 {
+		reportsOutput = fmt.Sprintf("%d (%d days %d users)",
+			result.Data.TotalReports,
+			c.Providers.AbuseIPDB.MaxAge,
+			result.Data.NumDistinctUsers)
+	}
+
+	tw.AppendRow(table.Row{"Reports", reportsOutput})
 
 	for x, dr := range result.Data.Reports {
 		tw.AppendRow(table.Row{"", rowEmphasisColor("%s", dr.ReportedAt.UTC().Format(providers.TimeFormat))})
