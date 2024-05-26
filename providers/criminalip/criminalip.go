@@ -50,7 +50,7 @@ func (c *Client) GetConfig() *session.Session {
 
 func (c *Client) Enabled() bool {
 	cip := c.Session.Providers.CriminalIP
-	if cip.APIKey != "" && cip.Enabled != nil && *cip.Enabled {
+	if c.UseTestData || (cip.APIKey != "" && cip.Enabled != nil && *cip.Enabled) {
 		return true
 	}
 

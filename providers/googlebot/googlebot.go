@@ -42,7 +42,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.Session.Providers.Googlebot.Enabled != nil && *c.Session.Providers.Googlebot.Enabled {
+	if c.UseTestData || (c.Session.Providers.Googlebot.Enabled != nil && *c.Session.Providers.Googlebot.Enabled) {
 		return true
 	}
 
@@ -298,10 +298,10 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
-	tw.SetTitle("Googlebot | Host: %s", c.Host.String())
+	tw.SetTitle("GOOGLEBOT | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("Googlebot | Host: %s", "66.249.77.135")
+		tw.SetTitle("GOOGLEBOT | Host: %s", "66.249.77.135")
 	}
 
 	return &tw, nil

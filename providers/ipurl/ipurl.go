@@ -34,7 +34,7 @@ type Config struct {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.Session.Providers.IPURL.Enabled != nil && *c.Session.Providers.IPURL.Enabled {
+	if c.UseTestData || (c.Session.Providers.IPURL.Enabled != nil && *c.Session.Providers.IPURL.Enabled) {
 		return true
 	}
 
@@ -50,7 +50,7 @@ func (c *ProviderClient) GetConfig() *session.Session {
 }
 
 func loadTestData() ([]byte, error) {
-	tdf, err := loadResultsFile("providers/ipurl/testdata/ipurl_5_105_62_0_report.json")
+	tdf, err := loadResultsFile("providers/ipurl/testdata/ipurl_5_105_62_60_report.json")
 	if err != nil {
 		return nil, err
 	}

@@ -55,7 +55,7 @@ type Provider interface {
 }
 
 func (c *Client) Enabled() bool {
-	if c.Session.Providers.AbuseIPDB.Enabled != nil && *c.Session.Providers.AbuseIPDB.Enabled {
+	if c.UseTestData || (c.Session.Providers.AbuseIPDB.Enabled != nil && *c.Session.Providers.AbuseIPDB.Enabled) {
 		return true
 	}
 

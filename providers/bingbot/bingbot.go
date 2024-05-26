@@ -42,7 +42,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.Session.Providers.Bingbot.Enabled != nil && *c.Session.Providers.Bingbot.Enabled {
+	if c.UseTestData || (c.Session.Providers.Bingbot.Enabled != nil && *c.Session.Providers.Bingbot.Enabled) {
 		return true
 	}
 
@@ -183,7 +183,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (*bingbot.Doc, error) {
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	tdf, err := loadResultsFile("providers/bingbot/testdata/bingbot_66_249_77_135_report.json")
+	tdf, err := loadResultsFile("providers/bingbot/testdata/bingbot_157_55_39_0_report.json")
 	if err != nil {
 		return nil, err
 	}
@@ -297,10 +297,10 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
-	tw.SetTitle("Bingbot | Host: %s", c.Host.String())
+	tw.SetTitle("BINGBOT | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("Bingbot | Host: %s", "66.249.77.135")
+		tw.SetTitle("BINGBOT | Host: %s", "157.55.39.0")
 	}
 
 	return &tw, nil

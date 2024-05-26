@@ -53,7 +53,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.Session.Providers.Azure.Enabled != nil && *c.Session.Providers.Azure.Enabled {
+	if c.UseTestData || (c.Session.Providers.Azure.Enabled != nil && *c.Session.Providers.Azure.Enabled) {
 		return true
 	}
 

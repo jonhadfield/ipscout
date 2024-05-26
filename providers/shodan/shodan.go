@@ -48,7 +48,7 @@ type ProviderClient struct {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.Session.Providers.Shodan.Enabled != nil && *c.Session.Providers.Shodan.Enabled {
+	if c.UseTestData || (c.Session.Providers.Shodan.Enabled != nil && *c.Session.Providers.Shodan.Enabled) {
 		return true
 	}
 

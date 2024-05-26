@@ -44,7 +44,7 @@ type ProviderClient struct {
 func (c *ProviderClient) Enabled() bool {
 	an := c.Session.Providers.Annotated
 
-	if len(an.Paths) > 0 && (an.Enabled != nil && *an.Enabled) {
+	if c.UseTestData || (len(an.Paths) > 0 && (an.Enabled != nil && *an.Enabled)) {
 		return true
 	}
 

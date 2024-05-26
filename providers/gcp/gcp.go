@@ -42,7 +42,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.Session.Providers.GCP.Enabled != nil && *c.Session.Providers.GCP.Enabled {
+	if c.UseTestData || (c.Session.Providers.GCP.Enabled != nil && *c.Session.Providers.GCP.Enabled) {
 		return true
 	}
 

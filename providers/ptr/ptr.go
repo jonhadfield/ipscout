@@ -54,7 +54,7 @@ type Provider interface {
 }
 
 func (c *Client) Enabled() bool {
-	if c.Session.Providers.PTR.Enabled != nil && *c.Session.Providers.PTR.Enabled {
+	if c.UseTestData || (c.Session.Providers.PTR.Enabled != nil && *c.Session.Providers.PTR.Enabled) {
 		return true
 	}
 

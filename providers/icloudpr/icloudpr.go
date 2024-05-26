@@ -42,7 +42,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.Session.Providers.ICloudPR.Enabled != nil && *c.Session.Providers.ICloudPR.Enabled {
+	if c.UseTestData || (c.Session.Providers.ICloudPR.Enabled != nil && *c.Session.Providers.ICloudPR.Enabled) {
 		return true
 	}
 

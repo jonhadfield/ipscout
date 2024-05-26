@@ -54,7 +54,7 @@ type Provider interface {
 }
 
 func (c *Client) Enabled() bool {
-	if c.Session.Providers.IPAPI.Enabled != nil && *c.Session.Providers.IPAPI.Enabled {
+	if c.UseTestData || (c.Session.Providers.IPAPI.Enabled != nil && *c.Session.Providers.IPAPI.Enabled) {
 		return true
 	}
 

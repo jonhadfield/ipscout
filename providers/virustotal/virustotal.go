@@ -49,7 +49,7 @@ type ProviderClient struct {
 
 func (c *ProviderClient) Enabled() bool {
 	vtot := c.Session.Providers.VirusTotal
-	if vtot.APIKey != "" && (c.Session.Providers.VirusTotal.Enabled != nil && *c.Session.Providers.VirusTotal.Enabled) {
+	if c.UseTestData || (vtot.APIKey != "" && (c.Session.Providers.VirusTotal.Enabled != nil && *c.Session.Providers.VirusTotal.Enabled)) {
 		return true
 	}
 
@@ -180,7 +180,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	var err error
 
 	if c.UseTestData {
-		result, err = loadResultsFile("providers/virustotal/testdata/virustotal_google_dns_resp.json")
+		result, err = loadResultsFile("providers/virustotal/testdata/virustotal_183_81_169_238_resp.json")
 		if err != nil {
 			return nil, fmt.Errorf("error loading virustotal test data: %w", err)
 		}
