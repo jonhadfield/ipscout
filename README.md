@@ -34,9 +34,9 @@ Provider data and search results can be cached to reduce API calls and improve p
 ## Output
 
 Results are displayed in a table by default but can also be outputted as an ASCII table or in JSON format.  
-- [table](#examples/table.png)   
-- [ascii table](#examples/ascii.txt)
-- [json](#examples/results.json)
+- [table](examples/table.png)   
+- [ascii table](examples/ascii.txt)
+- [json](examples/results.json)
 
 ## Installation
 
