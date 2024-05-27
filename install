@@ -1,0 +1,41 @@
+#!/bin/sh
+set -e
+
+owner="jonhadfield"
+repo="ipscout"
+githubUrl=${githubUrl:-"https://github.com"}
+downloadFolder="${TMPDIR:-/tmp}"
+executable_folder="/usr/local/bin"
+
+get_arch() {
+    case $(uname -m) in
+        "x86_64" | "amd64" ) echo "amd64" ;;
+        "i386" | "i486" | "i586") echo "386" ;;
+        "aarch64" | "arm64" | "arm") echo "arm64" ;;
+        *) echo "${NIL}" ;;
+    esac
+}
+
+get_os(){
+     uname -s | awk '{print tolower($0)}'
+}
+
+file_name="${repo}_$(get_os)_$(get_arch).tar.gz"
+downloaded_file="${downloadFolder}/${file_name}"
+asset_uri="${githubUrl}/${owner}/${repo}/releases/latest/download/${file_name}"
+
+echo "[1/2] Download ${asset_uri} to ${downloadFolder}"
+rm -f "${downloaded_file}"
+curl --fail --location --output "${downloaded_file}" "${asset_uri}"
+
+echo "[2/3] Install ${repo} to ${executable_folder}"
+tar -xz -f "${downloaded_file}"
+[ "$(uname)" = "Linux" ] && sudo install -C ${repo} ${executable_folder}
+[ "$(uname)" = "darwin" ] && install -C ${repo} ${executable_folder}
+
+echo "[3/3] Clean up"
+rm "${downloaded_file}"
+
+echo "${repo} was successfully installed to ${executable_folder}/${repo}"
+
+exit 0
