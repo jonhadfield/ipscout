@@ -39,7 +39,6 @@ providers:
   ipurl:
     enabled: true
     urls:
-      - "https://www.dan.me.uk/torlist/"
       - "http://lists.blocklist.de/lists/apache.txt"
       - "https://iplists.firehol.org/files/socks_proxy_1d.ipset"
       - "https://iplists.firehol.org/files/sslproxies_1d.ipset"
