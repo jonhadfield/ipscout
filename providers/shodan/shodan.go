@@ -48,8 +48,13 @@ type ProviderClient struct {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.Shodan.Enabled != nil && *c.Session.Providers.Shodan.Enabled) {
+	switch {
+	case c.UseTestData:
 		return true
+	case c.Session.Providers.Shodan.Enabled != nil && *c.Session.Providers.Shodan.Enabled:
+		if c.Session.Providers.Shodan.APIKey != "" {
+			return true
+		}
 	}
 
 	return false

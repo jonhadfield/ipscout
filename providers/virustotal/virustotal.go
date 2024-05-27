@@ -49,8 +49,14 @@ type ProviderClient struct {
 
 func (c *ProviderClient) Enabled() bool {
 	vtot := c.Session.Providers.VirusTotal
-	if c.UseTestData || (vtot.APIKey != "" && (c.Session.Providers.VirusTotal.Enabled != nil && *c.Session.Providers.VirusTotal.Enabled)) {
+
+	switch {
+	case c.UseTestData:
 		return true
+	case vtot.Enabled != nil && *vtot.Enabled:
+		if vtot.APIKey != "" {
+			return true
+		}
 	}
 
 	return false
