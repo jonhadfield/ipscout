@@ -20,6 +20,8 @@ const (
 	DocTTL       = 24 * time.Hour
 )
 
+var ErrInvalidIPVersion = errors.New("invalid ip version")
+
 type Config struct {
 	_ struct{}
 	session.Session
@@ -79,6 +81,36 @@ func unmarshalProviderData(data []byte) (*icloudpr.Doc, error) {
 	return res, nil
 }
 
+func splitRecords(records []icloudpr.Record) ([]icloudpr.Record, []icloudpr.Record) {
+	var fours []icloudpr.Record
+
+	var sixes []icloudpr.Record
+
+	for _, record := range records {
+		if record.Prefix.Addr().Is4() {
+			fours = append(fours, record)
+		} else {
+			sixes = append(sixes, record)
+		}
+	}
+
+	return fours, sixes
+}
+
+func createSkeletonDocs(doc *icloudpr.Doc) (icloudpr.Doc, icloudpr.Doc) {
+	var fourDoc icloudpr.Doc
+
+	var sixDoc icloudpr.Doc
+
+	fourDoc.ETag = doc.ETag
+	fourDoc.LastModified = doc.LastModified
+
+	sixDoc.ETag = doc.ETag
+	sixDoc.LastModified = doc.LastModified
+
+	return fourDoc, sixDoc
+}
+
 func (c *ProviderClient) loadProviderData() error {
 	icloudprClient := icloudpr.New()
 	icloudprClient.Client = c.HTTPClient
@@ -93,9 +125,18 @@ func (c *ProviderClient) loadProviderData() error {
 		return fmt.Errorf("error fetching icloudpr data: %w", err)
 	}
 
-	data, err := json.Marshal(doc)
+	// split into ipv4 and ipv6
+	fourDoc, sixDoc := createSkeletonDocs(&doc)
+	fourDoc.Records, sixDoc.Records = splitRecords(doc.Records)
+
+	fourData, err := json.Marshal(fourDoc)
 	if err != nil {
-		return fmt.Errorf("error marshalling icloudpr provider doc: %w", err)
+		return fmt.Errorf("error marshalling icloudpr provider ipv4 doc: %w", err)
+	}
+
+	sixData, err := json.Marshal(sixDoc)
+	if err != nil {
+		return fmt.Errorf("error marshalling icloudpr provider ipv6 doc: %w", err)
 	}
 
 	docCacheTTL := DocTTL
@@ -105,8 +146,19 @@ func (c *ProviderClient) loadProviderData() error {
 
 	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.SemVer,
-		Key:        providers.CacheProviderPrefix + ProviderName,
-		Value:      data,
+		Key:        providers.CacheProviderPrefix + ProviderName + "_4",
+		Value:      fourData,
+		Version:    doc.ETag,
+		Created:    time.Now(),
+	}, docCacheTTL)
+	if err != nil {
+		return fmt.Errorf("error upserting icloudpr data: %w", err)
+	}
+
+	err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
+		AppVersion: c.App.SemVer,
+		Key:        providers.CacheProviderPrefix + ProviderName + "_6",
+		Value:      sixData,
 		Version:    doc.ETag,
 		Created:    time.Now(),
 	}, docCacheTTL)
@@ -132,13 +184,25 @@ func (c *ProviderClient) Initialise() error {
 	c.Logger.Debug("initialising icloudpr client")
 
 	// load provider data into cache if not already present and fresh
-	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
+	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName+"_4")
 	if err != nil {
-		return fmt.Errorf("checking icloudpr cache: %w", err)
+		return fmt.Errorf("checking icloudpr ipv4 cache: %w", err)
 	}
 
 	if ok {
-		c.Logger.Info("icloudpr provider data found in cache")
+		c.Logger.Info("icloudpr provider ipv4 data found in cache")
+
+		return nil
+	}
+
+	// load provider data into cache if not already present and fresh
+	ok, err = cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName+"_6")
+	if err != nil {
+		return fmt.Errorf("checking icloudpr ipv6 cache: %w", err)
+	}
+
+	if ok {
+		c.Logger.Info("icloudpr provider ipv6 data found in cache")
 
 		return nil
 	}
@@ -153,10 +217,19 @@ func (c *ProviderClient) Initialise() error {
 	return nil
 }
 
-func (c *ProviderClient) loadProviderDataFromCache() (*icloudpr.Doc, error) {
+func (c *ProviderClient) loadProviderDataFromCache(is4, is6 bool) (*icloudpr.Doc, error) {
 	c.Logger.Info("loading icloudpr provider data from cache")
 
-	cacheKey := providers.CacheProviderPrefix + ProviderName
+	var cacheKey string
+
+	switch {
+	case is4:
+		cacheKey = providers.CacheProviderPrefix + ProviderName + "_4"
+	case is6:
+		cacheKey = providers.CacheProviderPrefix + ProviderName + "_6"
+	default:
+		return nil, ErrInvalidIPVersion
+	}
 
 	var doc *icloudpr.Doc
 
@@ -216,7 +289,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return loadTestData(c)
 	}
 
-	doc, err := c.loadProviderDataFromCache()
+	doc, err := c.loadProviderDataFromCache(c.Host.Is4(), c.Host.Is6())
 	if err != nil {
 		return nil, fmt.Errorf("loading icloudpr host data from cache: %w", err)
 	}
