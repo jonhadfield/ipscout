@@ -31,6 +31,9 @@ providers:
     enabled: true
   googlebot:
     enabled: true
+  icloudpr:
+    # disabled by default as can slow down old processors
+    enabled: false
   ipapi:
     enabled: true
   ipurl:
@@ -42,8 +45,6 @@ providers:
       - "https://iplists.firehol.org/files/socks_proxy_7d.ipset"
       - "https://iplists.firehol.org/files/sslproxies_7d.ipset"
       - "https://iplists.firehol.org/files/tor_exits_7d.ipset"
-  icloudpr:
-    enabled: true
   linode:
     enabled: true
   ptr:
