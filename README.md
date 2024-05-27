@@ -52,6 +52,12 @@ $ brew tap jonhadfield/ipscout
 $ brew install ipscout 
 ```
 
+### Linux
+Install latest release.
+```shell
+curl -sL https://raw.githubusercontent.com/jonhadfield/ipscout/add_install_script/install | sh
+```
+
 ### other distributions
 
 Download the latest release from the [releases](https://github.com/jonhadfield/ipscout/releases) page.
