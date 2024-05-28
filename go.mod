@@ -10,7 +10,7 @@ require (
 	github.com/fatih/color v1.17.0
 	github.com/hashicorp/go-retryablehttp v0.7.6
 	github.com/jedib0t/go-pretty/v6 v6.5.9
-	github.com/jonhadfield/ip-fetcher v0.0.0-20240514170611-6ac2e72ac62e
+	github.com/jonhadfield/ip-fetcher v0.0.0-20240528074605-fea835bf9acf
 	github.com/miekg/dns v1.1.59
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.8.0
@@ -59,7 +59,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
+	golang.org/x/exp v0.0.0-20240525044651-4c93da0ed11d // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
