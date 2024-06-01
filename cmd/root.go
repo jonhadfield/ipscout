@@ -226,6 +226,19 @@ func initConfig(cmd *cobra.Command) error {
 	sess.Providers.Azure.URL = v.GetString("providers.azure.url")
 
 	sess.Providers.Azure.DocumentCacheTTL = v.GetInt64("providers.azure.document_cache_ttl")
+
+	if v.IsSet("providers.azurewaf.enabled") {
+		sess.Providers.AzureWAF.Enabled = ToPtr(v.GetBool("providers.azurewaf.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Azure WAF provider not defined in config")
+		sess.Messages.Mu.Unlock()
+	}
+
+	sess.Providers.AzureWAF.ResourceIDs = v.GetStringSlice("providers.azurewaf.resource_ids")
+
+	sess.Providers.AzureWAF.DocumentCacheTTL = v.GetInt64("providers.azurewaf.document_cache_ttl")
+
 	if v.IsSet("providers.criminalip.enabled") {
 		sess.Providers.CriminalIP.Enabled = ToPtr(v.GetBool("providers.criminalip.enabled"))
 	} else {
