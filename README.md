@@ -28,6 +28,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
 | [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |    
 | [Azure](#Azure)                                           | Hosting Provider |           -           |
+| [Azure WAF](#Azure-WAF)                                   |       WAF        | Azure access required |
 | [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
@@ -156,6 +157,12 @@ used by their services.
 [Azure](https://azure.microsoft.com/) is a hosting provider
 that [publishes](https://www.microsoft.com/en-gb/download/details.aspx?id=56519) network prefixes used by their
 services.
+
+### Azure WAF
+
+[Azure WAF](https://azure.microsoft.com/en-gb/products/web-application-firewall/) is a Web Application Firewall used to secure services hosted on Azure.  
+This currently supports Azure Global WAF, used to secure Azure Front Door, and will show custom rules and prefixes matching the provided host.   
+Authentication will be read from the environment.
 
 ### Bingbot
 
