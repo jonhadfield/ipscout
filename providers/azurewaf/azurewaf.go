@@ -239,6 +239,10 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, err
 	}
 
+	if matches == nil {
+		return nil, providers.ErrNoMatchFound
+	}
+
 	c.Logger.Info("azurewaf match found", "host", c.Host.String())
 
 	var raw []byte
@@ -252,7 +256,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 }
 
 func matchIPToPolicyCustomRules(host netip.Addr, policies []*armfrontdoor.WebApplicationFirewallPolicy) (*HostSearchResult, error) {
-	hostSearchResult := &HostSearchResult{}
+	var hostSearchResult *HostSearchResult
 
 	for _, policy := range policies {
 		var hasMatches bool
@@ -275,40 +279,36 @@ func matchIPToPolicyCustomRules(host netip.Addr, policies []*armfrontdoor.WebApp
 
 				for _, rawPrefix := range mc.MatchValue {
 					// if prefix check it contains host
+					var prefix netip.Prefix
+
+					var err error
 					if strings.Contains(*rawPrefix, "/") {
-						prefix, err := netip.ParsePrefix(*rawPrefix)
+						prefix, err = netip.ParsePrefix(*rawPrefix)
 						if err != nil {
 							return nil, fmt.Errorf("error parsing prefix: %w", err)
 						}
+					} else {
+						var addr netip.Addr
 
-						if prefix.Contains(host) {
-							hasMatches = true
-							customRuleMatch.Negate = *mc.NegateCondition
-							customRuleMatch.RuleType = string(*rule.RuleType)
-							customRuleMatch.Action = string(*rule.Action)
-							customRuleMatch.Priority = *rule.Priority
-							customRuleMatch.RuleName = *rule.Name
-							customRuleMatch.Prefixes = append(customRuleMatch.Prefixes, prefix)
+						addr, err = netip.ParseAddr(*rawPrefix)
+						if err != nil {
+							return nil, fmt.Errorf("error parsing address: %w", err)
 						}
 
-						continue
-					}
-
-					ip, err := tryNetStrToPrefix(*rawPrefix)
-					if err != nil {
-						return nil, fmt.Errorf("error parsing prefix: %w", err)
-					}
-
-					if ip.Contains(host) {
-						polMatch := PolicyMatch{
-							RID: config.ParseResourceID(*policy.ID),
+						prefix, err = addr.Prefix(addr.BitLen())
+						if err != nil {
+							return nil, fmt.Errorf("error creating prefix: %w", err)
 						}
+					}
 
-						polMatch.CustomRuleMatches = append(polMatch.CustomRuleMatches, customRuleMatch)
-
-						hostSearchResult.PolicyMatches = append(hostSearchResult.PolicyMatches, PolicyMatch{
-							RID: config.ParseResourceID(*policy.ID),
-						})
+					if prefix.Contains(host) {
+						hasMatches = true
+						customRuleMatch.Negate = *mc.NegateCondition
+						customRuleMatch.RuleType = string(*rule.RuleType)
+						customRuleMatch.Action = string(*rule.Action)
+						customRuleMatch.Priority = *rule.Priority
+						customRuleMatch.RuleName = *rule.Name
+						customRuleMatch.Prefixes = append(customRuleMatch.Prefixes, prefix)
 					}
 				}
 			}
@@ -320,6 +320,10 @@ func matchIPToPolicyCustomRules(host netip.Addr, policies []*armfrontdoor.WebApp
 		}
 
 		if hasMatches {
+			if hostSearchResult == nil {
+				hostSearchResult = &HostSearchResult{}
+			}
+
 			hostSearchResult.PolicyMatches = append(hostSearchResult.PolicyMatches, policyMatch)
 		}
 	}
@@ -467,28 +471,4 @@ func dashIfEmpty(value interface{}) string {
 	default:
 		return "-"
 	}
-}
-
-func tryNetStrToPrefix(inNetStr string) (netip.Prefix, error) {
-	// if no mask then try parsing as address
-	if !strings.Contains(inNetStr, "/") {
-		addr, err := netip.ParseAddr(inNetStr)
-		if err != nil {
-			return netip.Prefix{}, fmt.Errorf("error parsing address: %w", err)
-		}
-
-		prefix, err := addr.Prefix(addr.BitLen())
-		if err != nil {
-			return netip.Prefix{}, fmt.Errorf("error creating prefix: %w", err)
-		}
-
-		return prefix, nil
-	}
-
-	prefix, err := netip.ParsePrefix(inNetStr)
-	if err != nil {
-		return netip.Prefix{}, fmt.Errorf("error parsing prefix: %w", err)
-	}
-
-	return prefix, nil
 }
