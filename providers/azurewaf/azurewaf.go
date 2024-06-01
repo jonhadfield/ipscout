@@ -25,7 +25,7 @@ import (
 
 const (
 	ProviderName      = "azurewaf"
-	DocTTL            = 24 * time.Hour
+	DocTTL            = 1 * time.Hour
 	IndentPipeHyphens = " |-----"
 )
 
