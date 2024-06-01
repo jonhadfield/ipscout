@@ -19,6 +19,10 @@ providers:
     enabled: true
   azure:
     enabled: true
+  azurewaf:
+    enabled: false
+    resource_ids:
+      - /subscriptions/08796683-91d4-4205-9a41-826889f266e9/resourceGroups/example/providers/Microsoft.Network/frontdoorWebApplicationFirewallPolicies/example
   bingbot:
     enabled: true
   criminalip:

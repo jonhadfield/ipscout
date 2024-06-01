@@ -1,0 +1,36 @@
+{
+  "Raw": null,
+  "PolicyMatches": [
+    {
+      "RID": {
+        "SubscriptionID": "f505ff0d-1bb2-4f5a-a6d0-214887b9faeb",
+        "ResourceGroup": "Group1",
+        "Provider": "Microsoft.Network",
+        "Name": "Policy1",
+        "Raw": "/subscriptions/f505ff0d-1bb2-4f5a-a6d0-214887b9faeb/resourcegroups/Group1/providers/Microsoft.Network/frontdoorwebapplicationfirewallpolicies/Policy2"
+      },
+      "CustomRuleMatches": [
+        {
+          "RuleName": "Rule1",
+          "RuleType": "MatchRule",
+          "Prefixes": [
+            "165.232.46.0/24"
+          ],
+          "Negate": false,
+          "Action": "Log",
+          "Priority": 600
+        },
+        {
+          "RuleName": "Rule2",
+          "RuleType": "RateLimitRule",
+          "Prefixes": [
+            "165.232.46.239/32"
+          ],
+          "Negate": true,
+          "Action": "Block",
+          "Priority": 1500
+        }
+      ]
+    }
+  ]
+}

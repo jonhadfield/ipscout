@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jonhadfield/ipscout/providers/azurewaf"
+
 	"github.com/jonhadfield/ipscout/providers/bingbot"
 
 	"github.com/jonhadfield/ipscout/providers/virustotal"
@@ -61,6 +63,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		{Name: annotated.ProviderName, Enabled: sess.Providers.Annotated.Enabled, APIKey: "", NewClient: annotated.NewProviderClient},
 		{Name: aws.ProviderName, Enabled: sess.Providers.AWS.Enabled, APIKey: "", NewClient: aws.NewProviderClient},
 		{Name: azure.ProviderName, Enabled: sess.Providers.Azure.Enabled, APIKey: "", NewClient: azure.NewProviderClient},
+		{Name: azurewaf.ProviderName, Enabled: sess.Providers.AzureWAF.Enabled, APIKey: "", NewClient: azurewaf.NewProviderClient},
 		{Name: bingbot.ProviderName, Enabled: sess.Providers.Bingbot.Enabled, APIKey: "", NewClient: bingbot.NewProviderClient},
 		{Name: criminalip.ProviderName, Enabled: sess.Providers.CriminalIP.Enabled, APIKey: sess.Providers.CriminalIP.APIKey, NewClient: criminalip.NewProviderClient},
 		{Name: digitalocean.ProviderName, Enabled: sess.Providers.DigitalOcean.Enabled, APIKey: "", NewClient: digitalocean.NewProviderClient},

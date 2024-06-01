@@ -151,6 +151,11 @@ type Providers struct {
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		URL              string `mapstructure:"url"`
 	} `mapstructure:"azure"`
+	AzureWAF struct {
+		Enabled          *bool `mapstructure:"enabled"`
+		ResourceIDs      []string
+		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
+	} `mapstructure:"azure"`
 	Bingbot struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
