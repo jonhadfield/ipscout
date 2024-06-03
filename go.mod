@@ -9,7 +9,7 @@ require (
 	github.com/dgraph-io/badger/v4 v4.2.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.17.0
-	github.com/hashicorp/go-retryablehttp v0.7.6
+	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jedib0t/go-pretty/v6 v6.5.9
 	github.com/jonhadfield/azwaf v0.0.0-20240520191505-43fd2a2b5b8b
 	github.com/jonhadfield/ip-fetcher v0.0.0-20240528074605-fea835bf9acf
