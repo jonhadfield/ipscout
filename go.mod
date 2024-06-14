@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jedib0t/go-pretty/v6 v6.5.9
 	github.com/jonhadfield/azwaf v0.0.0-20240520191505-43fd2a2b5b8b
-	github.com/jonhadfield/ip-fetcher v0.0.0-20240611204653-a5faded849c1
+	github.com/jonhadfield/ip-fetcher v0.0.0-20240614183832-9c8cb19ddd0d
 	github.com/miekg/dns v1.1.59
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.8.0
@@ -45,8 +45,12 @@ require (
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.2.2 // indirect
+	github.com/Danny-Dasilva/CycleTLS/cycletls v1.0.26 // indirect
+	github.com/Danny-Dasilva/fhttp v0.0.0-20240217042913-eeeb0b347ce1 // indirect
 	github.com/alexeyco/simpletable v1.0.0 // indirect
+	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dimchansky/utfbom v1.1.1 // indirect
@@ -61,6 +65,7 @@ require (
 	github.com/google/flatbuffers v24.3.25+incompatible // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gookit/color v1.5.4 // indirect
+	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
@@ -79,6 +84,8 @@ require (
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/quic-go/quic-go v0.41.0 // indirect
+	github.com/refraction-networking/utls v1.6.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
@@ -112,4 +119,5 @@ require (
 	golang.org/x/tools v0.22.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
+	h12.io/socks v1.0.3 // indirect
 )
