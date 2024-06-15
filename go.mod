@@ -11,11 +11,11 @@ require (
 	github.com/fatih/color v1.17.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jedib0t/go-pretty/v6 v6.5.9
-	github.com/jonhadfield/azwaf v0.0.0-20240520191505-43fd2a2b5b8b
+	github.com/jonhadfield/azwaf v0.0.0-20240615102631-9be3871d19e5
 	github.com/jonhadfield/ip-fetcher v0.0.0-20240614183832-9c8cb19ddd0d
 	github.com/miekg/dns v1.1.61
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
