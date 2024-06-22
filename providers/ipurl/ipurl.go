@@ -41,8 +41,8 @@ func (c *ProviderClient) Enabled() bool {
 	return false
 }
 
-func (c *ProviderClient) Priority() int {
-	return 300
+func (c *ProviderClient) Priority() *int32 {
+	return c.Session.Providers.IPURL.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

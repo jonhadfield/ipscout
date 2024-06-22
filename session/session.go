@@ -132,98 +132,116 @@ type Session struct {
 type Providers struct {
 	AbuseIPDB struct {
 		APIKey         string
-		Enabled        *bool `mapstructure:"enabled"`
-		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
-		MaxAge         int   `mapstructure:"max-age"`
+		Enabled        *bool  `mapstructure:"enabled"`
+		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
+		MaxAge         int    `mapstructure:"max-age"`
+		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"abuseipdb"`
 	Annotated struct {
 		Enabled          *bool    `mapstructure:"enabled"`
 		DocumentCacheTTL int64    `mapstructure:"document_cache_ttl"`
 		Paths            []string `mapstructure:"paths"`
+		OutputPriority   *int32   `mapstructure:"output_priority"`
 	} `mapstructure:"annotated"`
 	AWS struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"aws"`
 	Azure struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"azure"`
 	AzureWAF struct {
 		Enabled          *bool `mapstructure:"enabled"`
 		ResourceIDs      []string
-		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"azure"`
 	Bingbot struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"bingbot"`
 	CriminalIP struct {
 		APIKey         string
-		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
-		Enabled        *bool `mapstructure:"enabled"`
+		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
+		Enabled        *bool  `mapstructure:"enabled"`
+		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"criminalip"`
 	DigitalOcean struct {
 		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"digitalocean"`
 	GCP struct {
 		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"gcp"`
 	Google struct {
 		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"google"`
 	Googlebot struct {
 		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"googlebot"`
 	ICloudPR struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"icloudpr"`
 	IPAPI struct {
 		APIKey         string
-		Enabled        *bool `mapstructure:"enabled"`
-		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
+		Enabled        *bool  `mapstructure:"enabled"`
+		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
+		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"ipapi"`
 	IPURL struct {
 		Enabled          *bool    `mapstructure:"enabled"`
 		DocumentCacheTTL int64    `mapstructure:"document_cache_ttl"`
 		URLs             []string `mapstructure:"urls"`
+		OutputPriority   *int32   `mapstructure:"output_priority"`
 	} `mapstructure:"ipurl"`
 	Linode struct {
 		Enabled          *bool `mapstructure:"enabled"`
 		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
 		URL              string
+		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"linode"`
 	Shodan struct {
 		APIKey         string
-		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
-		Enabled        *bool `mapstructure:"enabled"`
+		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
+		Enabled        *bool  `mapstructure:"enabled"`
+		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"shodan"`
 	PTR struct {
 		Enabled        *bool    `mapstructure:"enabled"`
 		ResultCacheTTL int64    `mapstructure:"result_cache_ttl"`
 		Nameservers    []string `mapstructure:"nameservers"`
+		OutputPriority *int32   `mapstructure:"output_priority"`
 	} `mapstructure:"ptr"`
 	VirusTotal struct {
 		APIKey         string
-		ResultCacheTTL int64 `mapstructure:"result_cache_ttl"`
-		ShowProviders  *bool `mapstructure:"show_providers"`
-		ShowUnrated    *bool `mapstructure:"show_unrated"`
-		ShowHarmless   *bool `mapstructure:"show_harmless"`
-		ShowClean      *bool `mapstructure:"show_clean"`
-		Enabled        *bool `mapstructure:"enabled"`
+		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
+		ShowProviders  *bool  `mapstructure:"show_providers"`
+		ShowUnrated    *bool  `mapstructure:"show_unrated"`
+		ShowHarmless   *bool  `mapstructure:"show_harmless"`
+		ShowClean      *bool  `mapstructure:"show_clean"`
+		Enabled        *bool  `mapstructure:"enabled"`
+		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"virustotal"`
 }
 

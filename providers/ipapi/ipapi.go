@@ -61,8 +61,8 @@ func (c *Client) Enabled() bool {
 	return false
 }
 
-func (c *Client) Priority() int {
-	return 500
+func (c *Client) Priority() *int32 {
+	return c.Session.Providers.IPAPI.OutputPriority
 }
 
 func (c *Client) GetConfig() *session.Session {

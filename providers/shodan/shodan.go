@@ -60,8 +60,8 @@ func (c *ProviderClient) Enabled() bool {
 	return false
 }
 
-func (c *ProviderClient) Priority() int {
-	return OutputPriority
+func (c *ProviderClient) Priority() *int32 {
+	return c.Session.Providers.Shodan.OutputPriority
 }
 
 func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res *HostSearchResult, err error) {

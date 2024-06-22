@@ -51,8 +51,8 @@ func (c *ProviderClient) Enabled() bool {
 	return false
 }
 
-func (c *ProviderClient) Priority() int {
-	return 200
+func (c *ProviderClient) Priority() *int32 {
+	return c.Session.Providers.Annotated.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

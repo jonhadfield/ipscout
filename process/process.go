@@ -315,7 +315,6 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	return &results
 }
 
-// func generateOutput(conf *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) error {
 func output(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) error {
 	switch sess.Config.Global.Output {
 	case "table":
@@ -391,7 +390,7 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 
 			tbl, err := runner.CreateTable(createTableData)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+				_, _ = fmt.Fprintln(os.Stderr, err)
 
 				return
 			}

@@ -57,8 +57,8 @@ func (c *Client) Enabled() bool {
 	return false
 }
 
-func (c *Client) Priority() int {
-	return 100
+func (c *Client) Priority() *int32 {
+	return c.Session.Providers.CriminalIP.OutputPriority
 }
 
 type Config struct {

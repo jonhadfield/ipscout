@@ -190,6 +190,10 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.abuseipdb.output_priority") {
+		sess.Providers.AbuseIPDB.OutputPriority = ToPtr(v.GetInt32("providers.abuseipdb.output_priority"))
+	}
+
 	sess.Providers.AbuseIPDB.MaxAge = v.GetInt("providers.abuseipdb.max_age")
 	sess.Providers.AbuseIPDB.ResultCacheTTL = v.GetInt64("providers.abuseipdb.result_cache_ttl")
 
@@ -199,6 +203,10 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "Annotated provider not defined in config")
 		sess.Messages.Mu.Unlock()
+	}
+
+	if v.IsSet("providers.annotated.output_priority") {
+		sess.Providers.Annotated.OutputPriority = ToPtr(v.GetInt32("providers.annotated.output_priority"))
 	}
 
 	sess.Providers.Annotated.Paths = v.GetStringSlice("providers.annotated.paths")
@@ -212,9 +220,14 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.aws.output_priority") {
+		sess.Providers.AWS.OutputPriority = ToPtr(v.GetInt32("providers.aws.output_priority"))
+	}
+
 	sess.Providers.AWS.URL = v.GetString("providers.aws.url")
 	sess.Providers.AWS.DocumentCacheTTL = v.GetInt64("providers.aws.document_cache_ttl")
 
+	// Azure
 	if v.IsSet("providers.azure.enabled") {
 		sess.Providers.Azure.Enabled = ToPtr(v.GetBool("providers.azure.enabled"))
 	} else {
@@ -223,10 +236,15 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.azure.output_priority") {
+		sess.Providers.Azure.OutputPriority = ToPtr(v.GetInt32("providers.azure.output_priority"))
+	}
+
 	sess.Providers.Azure.URL = v.GetString("providers.azure.url")
 
 	sess.Providers.Azure.DocumentCacheTTL = v.GetInt64("providers.azure.document_cache_ttl")
 
+	// AzureWAF
 	if v.IsSet("providers.azurewaf.enabled") {
 		sess.Providers.AzureWAF.Enabled = ToPtr(v.GetBool("providers.azurewaf.enabled"))
 	} else {
@@ -235,10 +253,15 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.azurewaf.output_priority") {
+		sess.Providers.AzureWAF.OutputPriority = ToPtr(v.GetInt32("providers.azurewaf.output_priority"))
+	}
+
 	sess.Providers.AzureWAF.ResourceIDs = v.GetStringSlice("providers.azurewaf.resource_ids")
 
 	sess.Providers.AzureWAF.DocumentCacheTTL = v.GetInt64("providers.azurewaf.document_cache_ttl")
 
+	// CriminalIP
 	if v.IsSet("providers.criminalip.enabled") {
 		sess.Providers.CriminalIP.Enabled = ToPtr(v.GetBool("providers.criminalip.enabled"))
 	} else {
@@ -247,6 +270,13 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.criminalip.output_priority") {
+		sess.Providers.CriminalIP.OutputPriority = ToPtr(v.GetInt32("providers.criminalip.output_priority"))
+	}
+
+	sess.Providers.CriminalIP.ResultCacheTTL = v.GetInt64("providers.criminalip.result_cache_ttl")
+
+	// BingBot
 	if v.IsSet("providers.bingbot.enabled") {
 		sess.Providers.Bingbot.Enabled = ToPtr(v.GetBool("providers.bingbot.enabled"))
 	} else {
@@ -255,11 +285,15 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.bingbot.output_priority") {
+		sess.Providers.Bingbot.OutputPriority = ToPtr(v.GetInt32("providers.bingbot.output_priority"))
+	}
+
 	sess.Providers.Bingbot.URL = v.GetString("providers.bingbot.url")
 
 	sess.Providers.Bingbot.DocumentCacheTTL = v.GetInt64("providers.bingbot.document_cache_ttl")
 
-	sess.Providers.CriminalIP.ResultCacheTTL = v.GetInt64("providers.criminalip.result_cache_ttl")
+	// DigitalOcean
 	if v.IsSet("providers.digitalocean.enabled") {
 		sess.Providers.DigitalOcean.Enabled = ToPtr(v.GetBool("providers.digitalocean.enabled"))
 	} else {
@@ -268,9 +302,14 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.digitalocean.output_priority") {
+		sess.Providers.DigitalOcean.OutputPriority = ToPtr(v.GetInt32("providers.digitalocean.output_priority"))
+	}
+
 	sess.Providers.DigitalOcean.URL = v.GetString("providers.digitalocean.url")
 	sess.Providers.DigitalOcean.DocumentCacheTTL = v.GetInt64("providers.digitalocean.document_cache_ttl")
 
+	// GCP
 	if v.IsSet("providers.gcp.enabled") {
 		sess.Providers.GCP.Enabled = ToPtr(v.GetBool("providers.gcp.enabled"))
 	} else {
@@ -279,9 +318,14 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.gcp.output_priority") {
+		sess.Providers.GCP.OutputPriority = ToPtr(v.GetInt32("providers.gcp.output_priority"))
+	}
+
 	sess.Providers.GCP.URL = v.GetString("providers.gcp.url")
 	sess.Providers.GCP.DocumentCacheTTL = v.GetInt64("providers.gcp.document_cache_ttl")
 
+	// Google
 	if v.IsSet("providers.google.enabled") {
 		sess.Providers.Google.Enabled = ToPtr(v.GetBool("providers.google.enabled"))
 	} else {
@@ -290,6 +334,11 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.google.output_priority") {
+		sess.Providers.Google.OutputPriority = ToPtr(v.GetInt32("providers.google.output_priority"))
+	}
+
+	// Googlebot
 	if v.IsSet("providers.googlebot.enabled") {
 		sess.Providers.Googlebot.Enabled = ToPtr(v.GetBool("providers.googlebot.enabled"))
 	} else {
@@ -298,8 +347,13 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.googlebot.output_priority") {
+		sess.Providers.Googlebot.OutputPriority = ToPtr(v.GetInt32("providers.Googlebot.output_priority"))
+	}
+
 	sess.Providers.Googlebot.URL = v.GetString("providers.googlebot.url")
 
+	// iCloud Private Relay
 	if v.IsSet("providers.icloudpr.enabled") {
 		sess.Providers.ICloudPR.Enabled = ToPtr(v.GetBool("providers.icloudpr.enabled"))
 	} else {
@@ -308,9 +362,14 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.icloudpr.output_priority") {
+		sess.Providers.ICloudPR.OutputPriority = ToPtr(v.GetInt32("providers.icloudpr.output_priority"))
+	}
+
 	sess.Providers.ICloudPR.URL = v.GetString("providers.icloudpr.url")
 	sess.Providers.ICloudPR.DocumentCacheTTL = v.GetInt64("providers.icloudpr.document_cache_ttl")
 
+	// IP URL
 	if v.IsSet("providers.ipurl.enabled") {
 		sess.Providers.IPURL.Enabled = ToPtr(v.GetBool("providers.ipurl.enabled"))
 	} else {
@@ -319,9 +378,14 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.ipurl.output_priority") {
+		sess.Providers.IPURL.OutputPriority = ToPtr(v.GetInt32("providers.ipurl.output_priority"))
+	}
+
 	sess.Providers.IPURL.URLs = v.GetStringSlice("providers.ipurl.urls")
 	sess.Providers.IPURL.DocumentCacheTTL = v.GetInt64("providers.ipurl.document_cache_ttl")
 
+	// Linode
 	if v.IsSet("providers.linode.enabled") {
 		sess.Providers.Linode.Enabled = ToPtr(v.GetBool("providers.linode.enabled"))
 	} else {
@@ -330,10 +394,15 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.linode.output_priority") {
+		sess.Providers.Linode.OutputPriority = ToPtr(v.GetInt32("providers.linode.output_priority"))
+	}
+
 	sess.Providers.Linode.DocumentCacheTTL = v.GetInt64("providers.linode.document_cache_ttl")
 	sess.Providers.Linode.URL = v.GetString("providers.linode.url")
 	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
 
+	// Shodan
 	if v.IsSet("providers.shodan.enabled") {
 		sess.Providers.Shodan.Enabled = ToPtr(v.GetBool("providers.shodan.enabled"))
 	} else {
@@ -342,10 +411,15 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.shodan.output_priority") {
+		sess.Providers.Shodan.OutputPriority = ToPtr(v.GetInt32("providers.shodan.output_priority"))
+	}
+
 	if v.IsSet("providers.shodan.api_key") {
 		sess.Providers.Shodan.APIKey = v.GetString("providers.shodan.api_key")
 	}
 
+	// PTR
 	if v.IsSet("providers.ptr.enabled") {
 		sess.Providers.PTR.Enabled = ToPtr(v.GetBool("providers.ptr.enabled"))
 	} else {
@@ -354,9 +428,14 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.ptr.output_priority") {
+		sess.Providers.PTR.OutputPriority = ToPtr(v.GetInt32("providers.ptr.output_priority"))
+	}
+
 	sess.Providers.PTR.ResultCacheTTL = v.GetInt64("providers.ptr.result_cache_ttl")
 	sess.Providers.PTR.Nameservers = v.GetStringSlice("providers.ptr.nameservers")
 
+	// IPAPI
 	if v.IsSet("providers.ipapi.enabled") {
 		sess.Providers.IPAPI.Enabled = ToPtr(v.GetBool("providers.ipapi.enabled"))
 	} else {
@@ -365,6 +444,11 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Unlock()
 	}
 
+	if v.IsSet("providers.ipapi.output_priority") {
+		sess.Providers.IPAPI.OutputPriority = ToPtr(v.GetInt32("providers.ipapi.output_priority"))
+	}
+
+	// VirusTotal
 	if v.IsSet("providers.virustotal.enabled") {
 		sess.Providers.VirusTotal.Enabled = ToPtr(v.GetBool("providers.virustotal.enabled"))
 		sess.Providers.VirusTotal.ResultCacheTTL = v.GetInt64("providers.virustotal.result_cache_ttl")
@@ -376,6 +460,10 @@ func initConfig(cmd *cobra.Command) error {
 		sess.Messages.Mu.Lock()
 		sess.Messages.Info = append(sess.Messages.Info, "VirusTotal provider not defined in config")
 		sess.Messages.Mu.Unlock()
+	}
+
+	if v.IsSet("providers.virustotal.output_priority") {
+		sess.Providers.VirusTotal.OutputPriority = ToPtr(v.GetInt32("providers.virustotal.output_priority"))
 	}
 
 	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")

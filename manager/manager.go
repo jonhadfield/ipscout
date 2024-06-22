@@ -90,8 +90,8 @@ func (c *Client) List() error {
 
 	present.Tables(c.Config, []providers.TableWithPriority{
 		{
-			Table:    tables,
-			Priority: 0,
+			Table: tables,
+			// Priority: 0,
 		},
 	})
 

@@ -191,7 +191,15 @@ func outputTables(c *session.Session, tws []providers.TableWithPriority) {
 
 	twOuter.SetStyle(OuterTableStyle(*c))
 
-	sort.Slice(tws, func(i, j int) bool { return tws[i].Priority < tws[j].Priority })
+	sort.Slice(tws, func(i, j int) bool {
+		priorityI := tws[i].Priority
+
+		if priorityI != nil && (tws[j].Priority == nil || *priorityI < *tws[j].Priority) {
+			return true
+		}
+
+		return false
+	})
 
 	for _, tw := range tws {
 		t := *tw.Table

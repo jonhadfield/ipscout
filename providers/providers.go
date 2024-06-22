@@ -298,7 +298,7 @@ func DashIfEmpty(value interface{}) string {
 
 type TableWithPriority struct {
 	Table    *table.Writer
-	Priority int
+	Priority *int32
 }
 
 type ProviderClient interface {
@@ -307,7 +307,7 @@ type ProviderClient interface {
 	Initialise() error
 	FindHost() ([]byte, error)
 	CreateTable([]byte) (*table.Writer, error)
-	Priority() int
+	Priority() *int32
 }
 
 func FormatTimeOrDash(s string, format string) string {
