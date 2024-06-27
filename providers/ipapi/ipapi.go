@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/netip"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -67,6 +68,71 @@ func (c *Client) Priority() *int32 {
 
 func (c *Client) GetConfig() *session.Session {
 	return &c.Session
+}
+
+func (c *Client) Rate(findRes []byte) (providers.RateResult, error) {
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	rateResult.Score = 0
+	rateResult.Reasons = []string{"no matches"}
+	rateResult.Detected = false
+	highThreatCountryCodes := []string{
+		"CN",
+		"RU",
+		"IR",
+		"KP",
+		"SY",
+		"CU",
+		"SD",
+		"VE",
+		"PK",
+		"TR",
+		"EG",
+		"SA",
+		"ID",
+		"VN",
+		"PH",
+		"TH",
+		"MY",
+		"BD",
+		"NG",
+		"ZA",
+		"KE",
+		"ET",
+		"GH",
+		"CI",
+		"UG",
+		"TZ",
+	}
+
+	mediumThreatCountryCodes := []string{
+		"NL",
+		"CA",
+	}
+
+	if doc.CountryCode != "" {
+		i := slices.Index(highThreatCountryCodes, doc.CountryCode)
+		if i != -1 {
+			rateResult.Detected = true
+			rateResult.Score += 10
+			rateResult.Reasons = append(rateResult.Reasons, fmt.Sprintf("High Threat Country: %s", doc.CountryCode))
+		} else {
+			i := slices.Index(mediumThreatCountryCodes, doc.CountryCode)
+			if i != -1 {
+				rateResult.Detected = true
+				rateResult.Score += 7
+				rateResult.Reasons = append(rateResult.Reasons, fmt.Sprintf("Medium Threat Country: %s", doc.CountryCode))
+			}
+		}
+	}
+
+	return rateResult, nil
 }
 
 func (c *Client) Initialise() error {

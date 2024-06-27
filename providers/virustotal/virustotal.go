@@ -47,6 +47,45 @@ type ProviderClient struct {
 	session.Session
 }
 
+func (c *ProviderClient) Rate(findRes []byte) (providers.RateResult, error) {
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling virustotal data: %w", err)
+	}
+
+	// assume no result if no host id
+	if doc.Data.ID == "" {
+		return providers.RateResult{}, nil
+	}
+
+	// cannot reach here unless detected
+	rateResult.Detected = true
+
+	switch {
+	case doc.Data.Attributes.LastAnalysisStats.Malicious > 0:
+		rateResult.Score += 10
+		rateResult.Threat = "very high"
+		rateResult.Reasons = append(rateResult.Reasons, "malicious")
+	case doc.Data.Attributes.LastAnalysisStats.Suspicious > 0:
+		rateResult.Threat = "high"
+		rateResult.Score += 7
+		rateResult.Reasons = append(rateResult.Reasons, "suspicious")
+	case doc.Data.Attributes.LastAnalysisStats.Harmless > 0 || doc.Data.Attributes.LastAnalysisStats.Undetected > 0:
+		rateResult.Threat = "low"
+		rateResult.Score += 3
+		rateResult.Reasons = append(rateResult.Reasons, "harmless")
+	}
+
+	if rateResult.Score > 10 {
+		rateResult.Score = 10
+	}
+
+	return rateResult, nil
+}
+
 func (c *ProviderClient) Enabled() bool {
 	vtot := c.Session.Providers.VirusTotal
 

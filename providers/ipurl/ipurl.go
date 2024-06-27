@@ -49,6 +49,10 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *ProviderClient) Rate(findRes []byte) (providers.RateResult, error) {
+	return providers.RateResult{}, nil
+}
+
 func loadTestData() ([]byte, error) {
 	tdf, err := loadResultsFile("providers/ipurl/testdata/ipurl_5_105_62_60_report.json")
 	if err != nil {

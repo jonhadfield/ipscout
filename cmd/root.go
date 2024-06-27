@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mitchellh/go-homedir"
+
 	"github.com/jonhadfield/ipscout/process"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/cobra"
@@ -72,9 +74,11 @@ func newRootCommand() *cobra.Command {
 
 	cacheCommand := newCacheCommand()
 	configCommand := newConfigCommand()
+	rateCommand := newRateCommand()
 
 	rootCmd.AddCommand(cacheCommand)
 	rootCmd.AddCommand(configCommand)
+	rootCmd.AddCommand(rateCommand)
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.RunE = func(cmd *cobra.Command, args []string) error {
 		// using test data doesn't require a host be provided
@@ -166,23 +170,12 @@ const (
 	defaultVirusTotalOutputPriority   = 40
 )
 
-func initSessionConfig(sess *session.Session, v *viper.Viper) {
+func initProviderConfig(sess *session.Session, v *viper.Viper) {
+	// IP API
 	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")
-	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
-	sess.Config.Global.MaxValueChars = v.GetInt32("global.max_value_chars")
 
-	sess.Config.Global.MaxAge = v.GetString("global.max_age")
-	sess.Config.Global.MaxReports = v.GetInt("global.max_reports")
-	// TODO: Nasty Hack Alert
-	// if not specified, ports is returned as a string: "[]"
-	// set to nil if that's the case
-	if len(sess.Config.Global.Ports) == 0 || sess.Config.Global.Ports[0] == "[]" {
-		sess.Config.Global.Ports = nil
-	}
-
-	sess.Config.Global.MaxAge = v.GetString("global.max_age")
-
+	// Abuse IPDB
 	if v.IsSet("providers.abuseipdb.enabled") {
 		sess.Providers.AbuseIPDB.Enabled = ToPtr(v.GetBool("providers.abuseipdb.enabled"))
 	} else {
@@ -504,11 +497,60 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) {
 	}
 }
 
+func initHomeDirConfig(sess *session.Session, v *viper.Viper) error {
+	var err error
+
+	homeDir := v.GetString("home_dir")
+	if homeDir == "" {
+		homeDir, err = homedir.Dir()
+		if err != nil {
+			return fmt.Errorf("failed to get home directory: %w", err)
+		}
+	}
+
+	// check home directory exists
+	_, err = os.Stat(homeDir)
+	if err != nil && os.IsNotExist(err) {
+		return fmt.Errorf("home directory %s does not exist: %w", homeDir, err)
+	}
+
+	sess.Config.Global.HomeDir = homeDir
+
+	return nil
+}
+
+func initSessionConfig(sess *session.Session, v *viper.Viper) error {
+	initProviderConfig(sess, v)
+
+	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
+	sess.Config.Global.MaxValueChars = v.GetInt32("global.max_value_chars")
+
+	sess.Config.Global.MaxAge = v.GetString("global.max_age")
+	sess.Config.Global.MaxReports = v.GetInt("global.max_reports")
+	// TODO: Nasty Hack Alert
+	// if not specified, ports is returned as a string: "[]"
+	// set to nil if that's the case
+	if len(sess.Config.Global.Ports) == 0 || sess.Config.Global.Ports[0] == "[]" {
+		sess.Config.Global.Ports = nil
+	}
+
+	sess.Config.Global.MaxAge = v.GetString("global.max_age")
+
+	return nil
+}
+
 func initConfig(cmd *cobra.Command) error {
 	v := viper.New()
 
+	// create session
 	sess = session.New()
-	configRoot := session.GetConfigRoot("", AppName)
+
+	// get home dir to be used for config and cache
+	if err := initHomeDirConfig(sess, v); err != nil {
+		return err
+	}
+
+	configRoot := session.GetConfigRoot("", sess.Config.Global.HomeDir, AppName)
 	sess.App.Version = version
 	sess.App.SemVer = semver
 
@@ -541,7 +583,9 @@ func initConfig(cmd *cobra.Command) error {
 
 	sess.Target = os.Stderr
 
-	initSessionConfig(sess, v)
+	if err := initSessionConfig(sess, v); err != nil {
+		return err
+	}
 
 	// initialise logging
 	initLogging(cmd)

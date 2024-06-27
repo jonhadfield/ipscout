@@ -308,6 +308,15 @@ type ProviderClient interface {
 	FindHost() ([]byte, error)
 	CreateTable([]byte) (*table.Writer, error)
 	Priority() *int32
+	Rate([]byte) (RateResult, error)
+}
+
+type RateResult struct {
+	// Provider string
+	Detected bool
+	Score    float64
+	Reasons  []string
+	Threat   string
 }
 
 func FormatTimeOrDash(s string, format string) string {

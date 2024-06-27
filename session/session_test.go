@@ -66,7 +66,7 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 	t.Run("PathExists", func(t *testing.T) {
 		tempDir := t.TempDir()
 
-		configRoot := GetConfigRoot(tempDir, AppName)
+		configRoot := GetConfigRoot(tempDir, "", AppName)
 
 		// create session root (required for cache path)
 		created, err := CreateDefaultConfigIfMissing(configRoot)
@@ -92,7 +92,7 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 
 	t.Run("PathDoesNotExist", func(t *testing.T) {
 		tempDir := t.TempDir()
-		configRoot := GetConfigRoot(tempDir, AppName)
+		configRoot := GetConfigRoot(tempDir, "", AppName)
 
 		// create session root (required for cache path)
 		created, err := CreateDefaultConfigIfMissing(configRoot)
@@ -119,7 +119,7 @@ func TestGetConfigRoot(t *testing.T) {
 	t.Run("ValidAppName", func(t *testing.T) {
 		dir := t.TempDir()
 		appName := "test"
-		path := GetConfigRoot(dir, appName)
+		path := GetConfigRoot(dir, "", appName)
 		require.Equal(t, filepath.Join(dir, ".config", appName), path)
 	})
 
@@ -128,7 +128,7 @@ func TestGetConfigRoot(t *testing.T) {
 		dir, err := homedir.Dir()
 		require.NoError(t, err)
 
-		path := GetConfigRoot("", appName)
+		path := GetConfigRoot("", "", appName)
 		require.Equal(t, filepath.Join(dir, ".config", appName), path)
 	})
 }

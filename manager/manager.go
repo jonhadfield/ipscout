@@ -15,7 +15,6 @@ import (
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/session"
-	"github.com/mitchellh/go-homedir"
 )
 
 const MaxColumnWidth = 60
@@ -60,14 +59,7 @@ func NewClient(config *session.Session) (Client, error) {
 }
 
 func (c *Client) List() error {
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		c.Config.Logger.Error("failed to get home directory", "error", err)
-
-		os.Exit(1)
-	}
-
-	db, err := cache.Create(c.Config.Logger, filepath.Join(homeDir, ".config", "ipscout"))
+	db, err := cache.Create(c.Config.Logger, filepath.Join(c.Config.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
 		c.Config.Logger.Error("failed to create cache", "error", err)
 
@@ -99,14 +91,7 @@ func (c *Client) List() error {
 }
 
 func (c *Client) Delete(keys []string) error {
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		c.Config.Logger.Error("failed to get home directory", "error", err)
-
-		os.Exit(1)
-	}
-
-	db, err := cache.Create(c.Config.Logger, filepath.Join(homeDir, ".config", "ipscout"))
+	db, err := cache.Create(c.Config.Logger, filepath.Join(c.Config.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
 		c.Config.Logger.Error("failed to create cache", "error", err)
 
@@ -125,14 +110,7 @@ func (c *Client) Delete(keys []string) error {
 }
 
 func (c *Client) Get(key string, raw bool) error {
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		c.Config.Logger.Error("failed to get home directory", "error", err)
-
-		os.Exit(1)
-	}
-
-	db, err := cache.Create(c.Config.Logger, filepath.Join(homeDir, ".config", "ipscout"))
+	db, err := cache.Create(c.Config.Logger, filepath.Join(c.Config.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
 		c.Config.Logger.Error("failed to create cache", "error", err)
 

@@ -59,6 +59,10 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *ProviderClient) Rate(findRes []byte) (providers.RateResult, error) {
+	return providers.RateResult{}, nil
+}
+
 func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	var res *HostSearchResult
 

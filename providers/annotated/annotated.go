@@ -59,6 +59,55 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
+type annotation struct {
+	Date   time.Time `yaml:"date"`
+	Author string    `yaml:"author"`
+	Notes  []string  `yaml:"notes"`
+	Source string    `yaml:"source"`
+}
+
+func annotationsContainsTerm(ae []annotation, term string) bool {
+	for y := range ae {
+		if annotationNotesContain(ae[y].Notes, term) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func annotationNotesContain(notes []string, term string) bool {
+	for x := range notes {
+		if strings.Contains(notes[x], term) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (c *ProviderClient) Rate(findRes []byte) (providers.RateResult, error) {
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	// search annotations for no-block or moderation
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	for _, v := range doc {
+		if annotationsContainsTerm(v, "threat:noblock") {
+			rateResult.Threat = "noblock"
+			rateResult.Detected = true
+			rateResult.Reasons = append(rateResult.Reasons, "threat: noblock")
+		}
+	}
+
+	return rateResult, nil
+}
+
 func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 	c.Logger.Debug("creating annotated client")
 
@@ -511,13 +560,6 @@ type VersionedAnnotatedDoc struct {
 	LastFetchedFromSource time.Time
 	LastFetchededFromDB   time.Time
 	Doc                   PrefixesWithAnnotations
-}
-
-type annotation struct {
-	Date   time.Time `yaml:"date"`
-	Author string    `yaml:"author"`
-	Notes  []string  `yaml:"notes"`
-	Source string    `yaml:"source"`
 }
 
 type yamlAnnotation struct {

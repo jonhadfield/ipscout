@@ -48,6 +48,10 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *Client) Rate(findRes []byte) (providers.RateResult, error) {
+	return providers.RateResult{}, nil
+}
+
 func (c *Client) Enabled() bool {
 	cip := c.Session.Providers.CriminalIP
 	if c.UseTestData || (cip.APIKey != "" && cip.Enabled != nil && *cip.Enabled) {

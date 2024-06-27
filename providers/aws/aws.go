@@ -57,6 +57,28 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *ProviderClient) Rate(findRes []byte) (providers.RateResult, error) {
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	if doc.Prefix.IPPrefix.String() == "" {
+		return rateResult, fmt.Errorf("no prefix found in aws data")
+	}
+
+	if doc.IPPrefix.IsValid() || doc.IPv6Prefix.IPv6Prefix.IsValid() {
+		rateResult.Score = 7
+		rateResult.Detected = true
+		rateResult.Reasons = []string{"hosted in AWS"}
+	}
+
+	return rateResult, nil
+}
+
 func unmarshalProviderData(rBody []byte) (*aws.Doc, error) {
 	var res *aws.Doc
 

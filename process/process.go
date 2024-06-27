@@ -44,7 +44,6 @@ import (
 	"github.com/jonhadfield/ipscout/providers/ipurl"
 	"github.com/jonhadfield/ipscout/providers/shodan"
 	"github.com/jonhadfield/ipscout/session"
-	"github.com/mitchellh/go-homedir"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -121,14 +120,7 @@ type Processor struct {
 }
 
 func (p *Processor) Run() {
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		p.Session.Logger.Error("failed to get home directory", "error", err)
-
-		os.Exit(1)
-	}
-
-	db, err := cache.Create(p.Session.Logger, filepath.Join(homeDir, ".config", "ipscout"))
+	db, err := cache.Create(p.Session.Logger, filepath.Join(p.Session.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
 		p.Session.Logger.Error("failed to create cache", "error", err)
 

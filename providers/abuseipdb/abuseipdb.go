@@ -75,6 +75,45 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *Client) Rate(findRes []byte) (providers.RateResult, error) {
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	if doc.Data.IsTor {
+		rateResult.Score += 7
+		rateResult.Reasons = []string{"TOR node"}
+	}
+
+	rateResult.Score = doc.Data.AbuseConfidenceScore / 10
+	rateResult.Reasons = append(rateResult.Reasons, fmt.Sprintf("confidence: %.2f", doc.Data.AbuseConfidenceScore))
+
+	switch {
+	case rateResult.Score >= 10:
+		rateResult.Threat = "very high"
+		rateResult.Score = 10
+	case rateResult.Score >= 7:
+		rateResult.Threat = "high"
+	case rateResult.Score >= 5:
+		rateResult.Threat = "medium"
+	case rateResult.Score >= 3:
+		rateResult.Threat = "low"
+	default:
+		rateResult.Threat = "low"
+		rateResult.Score = 3
+	}
+
+	if doc.Data.IPAddress != "" {
+		rateResult.Detected = true
+	}
+
+	return rateResult, nil
+}
+
 type Client struct {
 	session.Session
 }
@@ -370,7 +409,7 @@ type HostSearchResult struct {
 		IsPublic             bool      `json:"isPublic,omitempty"`
 		IPVersion            int       `json:"ipVersion,omitempty"`
 		IsWhitelisted        bool      `json:"isWhitelisted,omitempty"`
-		AbuseConfidenceScore int       `json:"abuseConfidenceScore,omitempty"`
+		AbuseConfidenceScore float64   `json:"abuseConfidenceScore,omitempty"`
 		CountryCode          string    `json:"countryCode,omitempty"`
 		CountryName          string    `json:"countryName,omitempty"`
 		UsageType            string    `json:"usageType,omitempty"`

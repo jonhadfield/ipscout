@@ -12,7 +12,6 @@ import (
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 )
 
@@ -96,8 +95,9 @@ type Config struct {
 }
 
 type GlobalConfig struct {
-	LogLevel            string   `mapstructure:"log-level"`
-	Output              string   `mapstructure:"output"`
+	LogLevel            string `mapstructure:"log-level"`
+	Output              string `mapstructure:"output"`
+	HomeDir             string
 	IndentSpaces        int      `mapstructure:"indent-spaces"`
 	Ports               []string `mapstructure:"ports"`
 	MaxValueChars       int32    `mapstructure:"max-value-chars"`
@@ -320,17 +320,12 @@ func CreateConfigPathStructure(configRoot string) error {
 
 // GetConfigRoot returns the root path for the app's session directory
 // if root is specified, it will use that, otherwise it will use the user's home directory
-func GetConfigRoot(root string, appName string) string {
+func GetConfigRoot(root string, homeDir string, appName string) string {
 	// if root specified then use that
 	if root != "" {
 		return filepath.Join(root, ".config", appName)
 	}
 
 	// otherwise, use the user's home directory
-	home, err := homedir.Dir()
-	if err != nil {
-		os.Exit(1)
-	}
-
-	return filepath.Join(home, ".config", appName)
+	return filepath.Join(homeDir, ".config", appName)
 }

@@ -69,6 +69,10 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *Client) Rate(findRes []byte) (providers.RateResult, error) {
+	return providers.RateResult{}, nil
+}
+
 func (c *Client) Initialise() error {
 	if c.Session.Cache == nil {
 		return errors.New("cache not set")

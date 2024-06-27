@@ -66,6 +66,10 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *ProviderClient) Rate(findRes []byte) (providers.RateResult, error) {
+	return providers.RateResult{}, nil
+}
+
 func unmarshalProviderData(rBody []byte) ([]*armfrontdoor.WebApplicationFirewallPolicy, error) {
 	var res []*armfrontdoor.WebApplicationFirewallPolicy
 
