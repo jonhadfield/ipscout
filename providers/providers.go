@@ -367,3 +367,9 @@ type RatingConfig struct {
 type ProviderRatingConfig struct {
 	DefaultMatchScore float64 `json:"defaultMatchScore"`
 }
+
+func UpdateScoreIfLarger(a *float64, b float64) {
+	if b > *a {
+		*a = b
+	}
+}

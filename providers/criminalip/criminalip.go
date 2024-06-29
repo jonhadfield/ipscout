@@ -48,8 +48,92 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *Client) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
-	return providers.RateResult{}, nil
+func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	var reasons []string
+
+	var detected bool
+
+	var score float64
+
+	if len(doc.Honeypot.Data) > 0 {
+		detected = true
+
+		providers.UpdateScoreIfLarger(&score, 10)
+
+		reasons = append(reasons, "honeypot attacked")
+	}
+
+	if doc.Issues.IsScanner {
+		detected = true
+
+		providers.UpdateScoreIfLarger(&score, 10)
+
+		reasons = append(reasons, "scanner")
+	}
+
+	if doc.Issues.IsVpn {
+		detected = true
+
+		providers.UpdateScoreIfLarger(&score, 7)
+
+		reasons = append(reasons, "VPN")
+	}
+
+	if doc.Issues.IsCloud {
+		detected = true
+
+		providers.UpdateScoreIfLarger(&score, 7)
+
+		reasons = append(reasons, "cloud")
+	}
+
+	if doc.Issues.IsTor {
+		detected = true
+
+		providers.UpdateScoreIfLarger(&score, 9)
+
+		reasons = append(reasons, "TOR")
+	}
+
+	if doc.Issues.IsProxy {
+		detected = true
+
+		providers.UpdateScoreIfLarger(&score, 9)
+
+		reasons = append(reasons, "proxy")
+	}
+
+	if doc.Issues.IsHosting {
+		detected = true
+
+		providers.UpdateScoreIfLarger(&score, 8)
+
+		reasons = append(reasons, "hosting")
+	}
+	// if doc.Issues.IsMobile {
+	// 	detected = true
+	// 	providers.UpdateScoreIfLarger(&score, 9)
+	// 	reasons = append(reasons, "Mobile")
+	// }
+	if doc.Issues.IsDarkweb {
+		detected = true
+
+		providers.UpdateScoreIfLarger(&score, 10)
+
+		reasons = append(reasons, "darkweb")
+	}
+
+	return providers.RateResult{
+		Detected: detected,
+		Score:    score,
+		Reasons:  reasons,
+	}, nil
 }
 
 func (c *Client) Enabled() bool {
@@ -162,7 +246,7 @@ func loadTestData(c *Client) ([]byte, error) {
 }
 
 func fetchData(client session.Session) (*HostSearchResult, error) {
-	cacheKey := fmt.Sprintf("criminalip_%s_report.json", strings.ReplaceAll(client.Host.String(), ".", "_"))
+	cacheKey := providers.CacheProviderPrefix + ProviderName + "_" + strings.ReplaceAll(client.Host.String(), ".", "_")
 	if item, err := cache.Read(client.Logger, client.Cache, cacheKey); err == nil {
 		if item != nil {
 			result, uErr := unmarshalResponse(item.Value)
@@ -253,6 +337,18 @@ func (c *Client) Initialise() error {
 
 	c.Logger.Debug("initialising criminalip client")
 
+	// load provider data into cache if not already present and fresh
+	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
+	if err != nil {
+		return fmt.Errorf("checking criminalip cache: %w", err)
+	}
+
+	if ok {
+		c.Logger.Info("criminalip provider data found in cache")
+
+		return nil
+	}
+
 	return nil
 }
 
@@ -327,6 +423,50 @@ func (c *Client) GenPortDataForTable(in []PortDataEntry) (GeneratePortDataForTab
 	return out, nil
 }
 
+func GenIssuesOutputForTable(in Issues) string {
+	var matchedIssues []string
+
+	if in.IsScanner {
+		matchedIssues = append(matchedIssues, "scanner")
+	}
+
+	if in.IsVpn {
+		matchedIssues = append(matchedIssues, "VPN")
+	}
+
+	if in.IsCloud {
+		matchedIssues = append(matchedIssues, "cloud")
+	}
+
+	if in.IsTor {
+		matchedIssues = append(matchedIssues, "TOR")
+	}
+
+	if in.IsProxy {
+		matchedIssues = append(matchedIssues, "proxy")
+	}
+
+	if in.IsHosting {
+		matchedIssues = append(matchedIssues, "hosting")
+	}
+
+	if in.IsMobile {
+		matchedIssues = append(matchedIssues, "mobile")
+	}
+
+	if in.IsDarkweb {
+		matchedIssues = append(matchedIssues, "darkweb")
+	}
+
+	output := "none"
+
+	if len(matchedIssues) > 0 {
+		output = strings.Join(matchedIssues, ", ")
+	}
+
+	return output
+}
+
 func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	start := time.Now()
 	defer func() {
@@ -370,6 +510,8 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error generating port data for table: %w", err)
 	}
+
+	tw.AppendRow(table.Row{"Issues", GenIssuesOutputForTable(result.Issues)})
 
 	if portDataForTable.skips > 0 {
 		tw.AppendRow(table.Row{"Ports", fmt.Sprintf("%d (%d filtered)", len(result.Port.Data), portDataForTable.skips)})
@@ -420,9 +562,11 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 		}
 	}
 
+	tw.AppendRow(table.Row{"Honeypot Hits", result.Honeypot.Count})
+
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
+		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("CRIMINAL IP | Host: %s", c.Host.String())
@@ -613,22 +757,34 @@ type PortDataEntry struct {
 	IsVulnerability bool `json:"is_vulnerability"`
 }
 
+type HoneypotDataEntry struct {
+	IPAddress     string `json:"ip_address"`
+	LogDate       string `json:"log_date"`
+	DstPort       int    `json:"dst_port"`
+	Message       string `json:"message"`
+	UserAgent     string `json:"user_agent"`
+	ProtocolType  string `json:"protocol_type"`
+	ConfirmedTime string `json:"confirmed_time"`
+}
+
+type Issues struct {
+	IsVpn          bool `json:"is_vpn"`
+	IsCloud        bool `json:"is_cloud"`
+	IsTor          bool `json:"is_tor"`
+	IsProxy        bool `json:"is_proxy"`
+	IsHosting      bool `json:"is_hosting"`
+	IsMobile       bool `json:"is_mobile"`
+	IsDarkweb      bool `json:"is_darkweb"`
+	IsScanner      bool `json:"is_scanner"`
+	IsSnort        bool `json:"is_snort"`
+	IsAnonymousVpn bool `json:"is_anonymous_vpn"`
+}
+
 type HostSearchResult struct {
 	Raw    []byte
 	IP     string `json:"ip"`
-	Issues struct {
-		IsVpn          bool `json:"is_vpn"`
-		IsCloud        bool `json:"is_cloud"`
-		IsTor          bool `json:"is_tor"`
-		IsProxy        bool `json:"is_proxy"`
-		IsHosting      bool `json:"is_hosting"`
-		IsMobile       bool `json:"is_mobile"`
-		IsDarkweb      bool `json:"is_darkweb"`
-		IsScanner      bool `json:"is_scanner"`
-		IsSnort        bool `json:"is_snort"`
-		IsAnonymousVpn bool `json:"is_anonymous_vpn"`
-	} `json:"issues"`
-	Score struct {
+	Issues Issues `json:"issues"`
+	Score  struct {
 		Inbound  string `json:"inbound"`
 		Outbound string `json:"outbound"`
 	} `json:"score"`
@@ -707,16 +863,8 @@ type HostSearchResult struct {
 		} `json:"data"`
 	} `json:"webcam"`
 	Honeypot struct {
-		Count int `json:"count"`
-		Data  []struct {
-			IPAddress     string `json:"ip_address"`
-			LogDate       string `json:"log_date"`
-			DstPort       int    `json:"dst_port"`
-			Message       string `json:"message"`
-			UserAgent     string `json:"user_agent"`
-			ProtocolType  string `json:"protocol_type"`
-			ConfirmedTime string `json:"confirmed_time"`
-		} `json:"data"`
+		Count int                 `json:"count"`
+		Data  []HoneypotDataEntry `json:"data"`
 	} `json:"honeypot"`
 	IPCategory struct {
 		Count int `json:"count"`
