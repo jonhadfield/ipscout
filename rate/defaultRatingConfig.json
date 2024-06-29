@@ -1,5 +1,6 @@
 {
   "global": {
+    "blockScoreThreshold": 5.0,
     "highThreatCountryCodes": [
       "CN",
       "RU",
@@ -34,8 +35,23 @@
     ]
   },
   "providers": {
+    "criminalip": {
+      "honeypotAttacked": 10.0,
+      "scannerMatchScore": 10.0,
+      "vpnMatchScore": 7.0,
+      "cloudMatchScore": 7.0,
+      "torMatchScore": 9.0,
+      "proxyMatchScore": 9.0,
+      "hostingMatchScore": 8.0,
+      "darkwebMatchScore": 10.0
+    },
     "ipurl": {
-      "defaultMatchScore": 10.00
+      "defaultMatchScore": 10.0
+    },
+    "shodan": {
+      "openPortsScore": 5.0,
+      "highThreatCountryMatchScore": 10.0,
+      "mediumThreatCountryMatchScore": 7.0
     }
   }
 }

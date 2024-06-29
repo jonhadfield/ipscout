@@ -2,6 +2,7 @@ package rate
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -257,6 +258,11 @@ func rateFindHostsResults(sess *session.Session, runners map[string]providers.Pr
 
 	var rateOutput RatingOutput
 
+	var ratingConfig providers.RatingConfig
+	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
+		return RatingOutput{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+	}
+
 	for k := range results.m {
 		rateResult, err := runners[k].RateHostData(results.m[k], ratingConfigJSON)
 		if err != nil {
@@ -301,16 +307,10 @@ func rateFindHostsResults(sess *session.Session, runners map[string]providers.Pr
 	// if we don't have a recommendation already, then set one based on the aggregate score
 	if rateOutput.Recommendation == "" {
 		switch {
-		case aggregateScore >= 10:
-			rateOutput.Recommendation = txtBlock
-		case aggregateScore >= 7:
-			rateOutput.Recommendation = txtBlock
-		case aggregateScore >= 5:
-			rateOutput.Recommendation = txtBlock
-		case aggregateScore >= 3:
+		case aggregateScore < ratingConfig.Global.BlockScoreThreshold:
 			rateOutput.Recommendation = txtAllow
-		case aggregateScore >= 1:
-			rateOutput.Recommendation = txtAllow
+		default:
+			rateOutput.Recommendation = txtBlock
 		}
 	}
 

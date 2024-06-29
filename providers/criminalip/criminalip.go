@@ -51,6 +51,11 @@ func (c *Client) GetConfig() *session.Session {
 func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var doc HostSearchResult
 
+	var ratingConfig providers.RatingConfig
+	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+	}
+
 	if err := json.Unmarshal(findRes, &doc); err != nil {
 		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
 	}
@@ -64,7 +69,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	if len(doc.Honeypot.Data) > 0 {
 		detected = true
 
-		providers.UpdateScoreIfLarger(&score, 10)
+		providers.UpdateScoreIfLarger(&score, ratingConfig.ProviderRatingsConfigs.CriminalIP.HoneypotAttackedScore)
 
 		reasons = append(reasons, "honeypot attacked")
 	}
@@ -72,7 +77,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	if doc.Issues.IsScanner {
 		detected = true
 
-		providers.UpdateScoreIfLarger(&score, 10)
+		providers.UpdateScoreIfLarger(&score, ratingConfig.ProviderRatingsConfigs.CriminalIP.ScannerMatchScore)
 
 		reasons = append(reasons, "scanner")
 	}
@@ -80,7 +85,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	if doc.Issues.IsVpn {
 		detected = true
 
-		providers.UpdateScoreIfLarger(&score, 7)
+		providers.UpdateScoreIfLarger(&score, ratingConfig.ProviderRatingsConfigs.CriminalIP.VPNMatchScore)
 
 		reasons = append(reasons, "VPN")
 	}
@@ -88,7 +93,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	if doc.Issues.IsCloud {
 		detected = true
 
-		providers.UpdateScoreIfLarger(&score, 7)
+		providers.UpdateScoreIfLarger(&score, ratingConfig.ProviderRatingsConfigs.CriminalIP.CloudMatchScore)
 
 		reasons = append(reasons, "cloud")
 	}
@@ -96,7 +101,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	if doc.Issues.IsTor {
 		detected = true
 
-		providers.UpdateScoreIfLarger(&score, 9)
+		providers.UpdateScoreIfLarger(&score, ratingConfig.ProviderRatingsConfigs.CriminalIP.TORMatchScore)
 
 		reasons = append(reasons, "TOR")
 	}
@@ -104,7 +109,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	if doc.Issues.IsProxy {
 		detected = true
 
-		providers.UpdateScoreIfLarger(&score, 9)
+		providers.UpdateScoreIfLarger(&score, ratingConfig.ProviderRatingsConfigs.CriminalIP.ProxyMatchScore)
 
 		reasons = append(reasons, "proxy")
 	}
@@ -112,7 +117,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	if doc.Issues.IsHosting {
 		detected = true
 
-		providers.UpdateScoreIfLarger(&score, 8)
+		providers.UpdateScoreIfLarger(&score, ratingConfig.ProviderRatingsConfigs.CriminalIP.HostingMatchScore)
 
 		reasons = append(reasons, "hosting")
 	}
@@ -124,7 +129,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	if doc.Issues.IsDarkweb {
 		detected = true
 
-		providers.UpdateScoreIfLarger(&score, 10)
+		providers.UpdateScoreIfLarger(&score, ratingConfig.ProviderRatingsConfigs.CriminalIP.DarkwebMatchScore)
 
 		reasons = append(reasons, "darkweb")
 	}

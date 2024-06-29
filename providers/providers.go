@@ -313,7 +313,6 @@ type ProviderClient interface {
 }
 
 type RateResult struct {
-	// Provider string
 	Detected bool
 	Score    float64
 	Reasons  []string
@@ -353,14 +352,29 @@ func LoadRatingConfig(ratingConfigJSON string) (*RatingConfig, error) {
 
 type RatingConfig struct {
 	Global struct {
+		BlockScoreThreshold      float64  `json:"blockScoreThreshold"`
 		HighThreatCountryCodes   []string `json:"highThreatCountryCodes"`
 		MediumThreatCountryCodes []string `json:"mediumThreatCountryCodes"`
 	}
 	ProviderRatingsConfigs struct {
+		CriminalIP struct {
+			HoneypotAttackedScore float64 `json:"honeypotAttackedScore,omitempty"`
+			ScannerMatchScore     float64 `json:"scannerMatchScore,omitempty"`
+			VPNMatchScore         float64 `json:"vpnMatchScore,omitempty"`
+			CloudMatchScore       float64 `json:"cloudMatchScore,omitempty"`
+			TORMatchScore         float64 `json:"torMatchScore,omitempty"`
+			ProxyMatchScore       float64 `json:"proxyMatchScore,omitempty"`
+			HostingMatchScore     float64 `json:"hostingMatchScore,omitempty"`
+			DarkwebMatchScore     float64 `json:"darkwebMatchScore,omitempty"`
+		} `json:"criminalip"`
 		IPURL struct {
-			Hello             string  `json:"hello,omitempty"`
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"ipurl"`
+		Shodan struct {
+			OpenPortsScore                float64 `json:"openPortsScore,omitempty"`
+			HighThreatCountryMatchScore   float64 `json:"highThreatCountryMatchScore,omitempty"`
+			MediumThreatCountryMatchScore float64 `json:"mediumThreatCountryMatchScore,omitempty"`
+		} `json:"shodan"`
 	} `json:"providers"`
 }
 

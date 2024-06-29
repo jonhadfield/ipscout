@@ -182,59 +182,25 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func rateGeolocation(doc HostSearchResult) providers.RateResult {
+func rateGeolocation(doc HostSearchResult, ratingConfig providers.RatingConfig) providers.RateResult {
 	var score float64
 
 	var detected bool
 
 	var reasons []string
 
-	highThreatCountryCodes := []string{
-		"CN",
-		"RU",
-		"IR",
-		"KP",
-		"SY",
-		"CU",
-		"SD",
-		"VE",
-		"PK",
-		"TR",
-		"EG",
-		"SA",
-		"ID",
-		"VN",
-		"PH",
-		"TH",
-		"MY",
-		"BD",
-		"NG",
-		"ZA",
-		"KE",
-		"ET",
-		"GH",
-		"CI",
-		"UG",
-		"TZ",
-	}
-
-	mediumThreatCountryCodes := []string{
-		"NL",
-		"CA",
-	}
-
 	if doc.CountryCode != "" {
-		i := slices.Index(highThreatCountryCodes, doc.CountryCode)
+		i := slices.Index(ratingConfig.Global.HighThreatCountryCodes, doc.CountryCode)
 		if i != -1 {
 			detected = true
-			score += 10
+			score += ratingConfig.ProviderRatingsConfigs.Shodan.HighThreatCountryMatchScore
 
 			reasons = append(reasons, fmt.Sprintf("high Threat Country: %s", doc.CountryCode))
 		} else {
-			i := slices.Index(mediumThreatCountryCodes, doc.CountryCode)
+			i = slices.Index(ratingConfig.Global.MediumThreatCountryCodes, doc.CountryCode)
 			if i != -1 {
 				detected = true
-				score += 7
+				score += ratingConfig.ProviderRatingsConfigs.Shodan.MediumThreatCountryMatchScore
 
 				reasons = append(reasons, fmt.Sprintf("medium Threat Country: %s", doc.CountryCode))
 			}
@@ -245,11 +211,10 @@ func rateGeolocation(doc HostSearchResult) providers.RateResult {
 		Detected: detected,
 		Score:    score,
 		Reasons:  reasons,
-		// Threat:   threa,
 	}
 }
 
-func ratePorts(doc HostSearchResult) providers.RateResult {
+func ratePorts(doc HostSearchResult, ratingConfig providers.RatingConfig) providers.RateResult {
 	var score float64
 
 	var detected bool
@@ -259,7 +224,7 @@ func ratePorts(doc HostSearchResult) providers.RateResult {
 	if len(doc.Ports) > 0 {
 		return providers.RateResult{
 			Detected: true,
-			Score:    7,
+			Score:    ratingConfig.ProviderRatingsConfigs.Shodan.OpenPortsScore,
 			Reasons:  []string{"has open ports"},
 		}
 	}
@@ -271,15 +236,20 @@ func ratePorts(doc HostSearchResult) providers.RateResult {
 	}
 }
 
-func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
+func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var doc HostSearchResult
+
+	var ratingConfig providers.RatingConfig
+	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+	}
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
 		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
 	}
 
-	geoResult := rateGeolocation(doc)
-	portsResult := ratePorts(doc)
+	geoResult := rateGeolocation(doc, ratingConfig)
+	portsResult := ratePorts(doc, ratingConfig)
 
 	reasons := geoResult.Reasons
 	reasons = append(reasons, portsResult.Reasons...)
@@ -294,7 +264,6 @@ func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.R
 		Detected: score > 0,
 		Score:    score,
 		Reasons:  reasons,
-		Threat:   "",
 	}, nil
 }
 
