@@ -1,0 +1,43 @@
+{
+  "global": {
+    "highThreatCountryCodes": [
+      "CN",
+      "RU",
+      "IR",
+      "KP",
+      "SY",
+      "CU",
+      "SD",
+      "VE",
+      "PK",
+      "TR",
+      "EG",
+      "SA",
+      "ID",
+      "VN",
+      "PH",
+      "TH",
+      "MY",
+      "BD",
+      "NG",
+      "ZA",
+      "KE",
+      "ET",
+      "GH",
+      "CI",
+      "UG",
+      "TZ"
+    ],
+    "mediumThreatCountryCodes": [
+      "NL",
+      "CA"
+    ]
+  },
+  "providers": {
+    "ipurl": {
+      "defaultMatchScore": 10.00
+    }
+  }
+}
+
+

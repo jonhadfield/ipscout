@@ -75,7 +75,7 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *Client) Rate(findRes []byte) (providers.RateResult, error) {
+func (c *Client) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
 	var doc HostSearchResult
 
 	var rateResult providers.RateResult

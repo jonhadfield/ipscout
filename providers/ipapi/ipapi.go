@@ -70,7 +70,12 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *Client) Rate(findRes []byte) (providers.RateResult, error) {
+func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
+	var ratingConfig providers.RatingConfig
+	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+	}
+
 	var doc HostSearchResult
 
 	var rateResult providers.RateResult
@@ -80,50 +85,16 @@ func (c *Client) Rate(findRes []byte) (providers.RateResult, error) {
 	}
 
 	rateResult.Score = 0
-	rateResult.Reasons = []string{"no matches"}
 	rateResult.Detected = false
-	highThreatCountryCodes := []string{
-		"CN",
-		"RU",
-		"IR",
-		"KP",
-		"SY",
-		"CU",
-		"SD",
-		"VE",
-		"PK",
-		"TR",
-		"EG",
-		"SA",
-		"ID",
-		"VN",
-		"PH",
-		"TH",
-		"MY",
-		"BD",
-		"NG",
-		"ZA",
-		"KE",
-		"ET",
-		"GH",
-		"CI",
-		"UG",
-		"TZ",
-	}
-
-	mediumThreatCountryCodes := []string{
-		"NL",
-		"CA",
-	}
 
 	if doc.CountryCode != "" {
-		i := slices.Index(highThreatCountryCodes, doc.CountryCode)
+		i := slices.Index(ratingConfig.Global.HighThreatCountryCodes, doc.CountryCode)
 		if i != -1 {
 			rateResult.Detected = true
-			rateResult.Score += 10
+			rateResult.Score += 9
 			rateResult.Reasons = append(rateResult.Reasons, fmt.Sprintf("High Threat Country: %s", doc.CountryCode))
 		} else {
-			i := slices.Index(mediumThreatCountryCodes, doc.CountryCode)
+			i := slices.Index(ratingConfig.Global.MediumThreatCountryCodes, doc.CountryCode)
 			if i != -1 {
 				rateResult.Detected = true
 				rateResult.Score += 7

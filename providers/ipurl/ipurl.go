@@ -49,8 +49,31 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *ProviderClient) Rate(findRes []byte) (providers.RateResult, error) {
-	return providers.RateResult{}, nil
+func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
+	var ratingConfig providers.RatingConfig
+
+	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+	}
+
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	rateResult.Score = 0
+	rateResult.Detected = false
+
+	if len(doc) > 0 {
+		rateResult.Detected = true
+		rateResult.Score = ratingConfig.ProviderRatingsConfigs.IPURL.DefaultMatchScore
+		rateResult.Reasons = append(rateResult.Reasons, fmt.Sprintf("matched prefix in %d ip sets", len(doc)))
+	}
+
+	return rateResult, nil
 }
 
 func loadTestData() ([]byte, error) {

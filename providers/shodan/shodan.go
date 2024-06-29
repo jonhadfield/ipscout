@@ -182,14 +182,12 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *ProviderClient) Rate(findRes []byte) (providers.RateResult, error) {
-	var doc HostSearchResult
+func rateGeolocation(doc HostSearchResult) providers.RateResult {
+	var score float64
 
-	var rateResult providers.RateResult
+	var detected bool
 
-	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
-	}
+	var reasons []string
 
 	highThreatCountryCodes := []string{
 		"CN",
@@ -228,20 +226,76 @@ func (c *ProviderClient) Rate(findRes []byte) (providers.RateResult, error) {
 	if doc.CountryCode != "" {
 		i := slices.Index(highThreatCountryCodes, doc.CountryCode)
 		if i != -1 {
-			rateResult.Detected = true
-			rateResult.Score += 10
-			rateResult.Reasons = append(rateResult.Reasons, fmt.Sprintf("High Threat Country: %s", doc.CountryCode))
+			detected = true
+			score += 10
+
+			reasons = append(reasons, fmt.Sprintf("high Threat Country: %s", doc.CountryCode))
 		} else {
 			i := slices.Index(mediumThreatCountryCodes, doc.CountryCode)
 			if i != -1 {
-				rateResult.Detected = true
-				rateResult.Score += 7
-				rateResult.Reasons = append(rateResult.Reasons, fmt.Sprintf("Medium Threat Country: %s", doc.CountryCode))
+				detected = true
+				score += 7
+
+				reasons = append(reasons, fmt.Sprintf("medium Threat Country: %s", doc.CountryCode))
 			}
 		}
 	}
 
-	return rateResult, nil
+	return providers.RateResult{
+		Detected: detected,
+		Score:    score,
+		Reasons:  reasons,
+		// Threat:   threa,
+	}
+}
+
+func ratePorts(doc HostSearchResult) providers.RateResult {
+	var score float64
+
+	var detected bool
+
+	var reasons []string
+
+	if len(doc.Ports) > 0 {
+		return providers.RateResult{
+			Detected: true,
+			Score:    7,
+			Reasons:  []string{"has open ports"},
+		}
+	}
+
+	return providers.RateResult{
+		Detected: detected,
+		Score:    score,
+		Reasons:  reasons,
+	}
+}
+
+func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	geoResult := rateGeolocation(doc)
+	portsResult := ratePorts(doc)
+
+	reasons := geoResult.Reasons
+	reasons = append(reasons, portsResult.Reasons...)
+
+	score := geoResult.Score
+
+	if portsResult.Score > score {
+		score = portsResult.Score
+	}
+
+	return providers.RateResult{
+		Detected: score > 0,
+		Score:    score,
+		Reasons:  reasons,
+		Threat:   "",
+	}, nil
 }
 
 func fetchData(c session.Session) (*HostSearchResult, error) {

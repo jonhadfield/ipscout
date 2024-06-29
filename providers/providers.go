@@ -1,6 +1,7 @@
 package providers
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -308,7 +309,7 @@ type ProviderClient interface {
 	FindHost() ([]byte, error)
 	CreateTable([]byte) (*table.Writer, error)
 	Priority() *int32
-	Rate([]byte) (RateResult, error)
+	RateHostData([]byte, []byte) (RateResult, error)
 }
 
 type RateResult struct {
@@ -338,4 +339,31 @@ func FormatTimeOrDash(s string, format string) string {
 
 func PadRight(str string, length int) string {
 	return str + strings.Repeat(" ", length-len(str))
+}
+
+// TODO: allow user specified rating config
+func LoadRatingConfig(ratingConfigJSON string) (*RatingConfig, error) {
+	ratingConfig := RatingConfig{}
+	if err := json.Unmarshal([]byte(ratingConfigJSON), &ratingConfig); err != nil {
+		return nil, fmt.Errorf("error unmarshalling default rating config: %w", err)
+	}
+
+	return &ratingConfig, nil
+}
+
+type RatingConfig struct {
+	Global struct {
+		HighThreatCountryCodes   []string `json:"highThreatCountryCodes"`
+		MediumThreatCountryCodes []string `json:"mediumThreatCountryCodes"`
+	}
+	ProviderRatingsConfigs struct {
+		IPURL struct {
+			Hello             string  `json:"hello,omitempty"`
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"ipurl"`
+	} `json:"providers"`
+}
+
+type ProviderRatingConfig struct {
+	DefaultMatchScore float64 `json:"defaultMatchScore"`
 }

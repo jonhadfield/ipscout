@@ -1,6 +1,7 @@
 package rate
 
 import (
+	_ "embed"
 	"fmt"
 	"log/slog"
 	"os"
@@ -15,8 +16,6 @@ import (
 	"github.com/jonhadfield/ipscout/providers/ipapi"
 
 	"github.com/jedib0t/go-pretty/v6/table"
-
-	"github.com/jonhadfield/ipscout/providers/azurewaf"
 
 	"github.com/jonhadfield/ipscout/providers/bingbot"
 
@@ -47,6 +46,9 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+//go:embed defaultRatingConfig.json
+var defaultRatingConfigJSON string
+
 const (
 	txtAllow = "allow"
 	txtBlock = "block"
@@ -67,7 +69,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		{Name: annotated.ProviderName, Enabled: sess.Providers.Annotated.Enabled, APIKey: "", NewClient: annotated.NewProviderClient},
 		{Name: aws.ProviderName, Enabled: sess.Providers.AWS.Enabled, APIKey: "", NewClient: aws.NewProviderClient},
 		{Name: azure.ProviderName, Enabled: sess.Providers.Azure.Enabled, APIKey: "", NewClient: azure.NewProviderClient},
-		{Name: azurewaf.ProviderName, Enabled: sess.Providers.AzureWAF.Enabled, APIKey: "", NewClient: azurewaf.NewProviderClient},
+		// {Name: azurewaf.ProviderName, Enabled: sess.Providers.AzureWAF.Enabled, APIKey: "", NewClient: azurewaf.NewProviderClient},
 		{Name: bingbot.ProviderName, Enabled: sess.Providers.Bingbot.Enabled, APIKey: "", NewClient: bingbot.NewProviderClient},
 		{Name: criminalip.ProviderName, Enabled: sess.Providers.CriminalIP.Enabled, APIKey: sess.Providers.CriminalIP.APIKey, NewClient: criminalip.NewProviderClient},
 		{Name: digitalocean.ProviderName, Enabled: sess.Providers.DigitalOcean.Enabled, APIKey: "", NewClient: digitalocean.NewProviderClient},
@@ -126,6 +128,14 @@ type Rater struct {
 }
 
 func (r *Rater) Run() {
+	// validate rating config
+	_, err := providers.LoadRatingConfig(defaultRatingConfigJSON)
+	if err != nil {
+		r.Session.Logger.Error("failed to load rating config", "error", err)
+
+		os.Exit(1)
+	}
+
 	db, err := cache.Create(r.Session.Logger, filepath.Join(r.Session.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
 		r.Session.Logger.Error("failed to create cache", "error", err)
@@ -135,7 +145,12 @@ func (r *Rater) Run() {
 
 	r.Session.Cache = db
 
-	defer db.Close()
+	defer func() {
+		if err = db.Close(); err != nil {
+			fmt.Printf("error: %s", err.Error())
+			os.Exit(1)
+		}
+	}()
 
 	// get provider clients
 	providerClients, err := getEnabledProviderClients(*r.Session)
@@ -160,7 +175,7 @@ func (r *Rater) Run() {
 	}
 
 	if r.Session.Config.Global.InitialiseCacheOnly {
-		fmt.Fprintln(r.Session.Target, "cache initialisation complete")
+		_, _ = fmt.Fprintln(r.Session.Target, "cache initialisation complete")
 
 		return
 	}
@@ -168,6 +183,7 @@ func (r *Rater) Run() {
 	// find hosts
 	results := findHosts(enabledProviders, r.Session.HideProgress)
 
+	// output timings when debug logging
 	if strings.EqualFold(r.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range r.Session.Stats.FindHostDuration {
 			r.Session.Logger.Debug("find hosts timing", "provider", provider, "duration", dur.String())
@@ -191,7 +207,7 @@ func (r *Rater) Run() {
 	}
 
 	// rate results
-	rrs, err := rateFindHostsResults(r.Session, enabledProviders, results)
+	rrs, err := rateFindHostsResults(r.Session, enabledProviders, results, []byte(defaultRatingConfigJSON))
 	if err != nil {
 		r.Session.Logger.Error("failed to rate results", "error", err)
 
@@ -232,7 +248,7 @@ type RatingOutput struct {
 	Reasons []string
 }
 
-func rateFindHostsResults(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) (RatingOutput, error) {
+func rateFindHostsResults(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults, ratingConfigJSON []byte) (RatingOutput, error) {
 	sess.Logger.Debug("rating results")
 
 	runningTotal := 0.0
@@ -242,7 +258,7 @@ func rateFindHostsResults(sess *session.Session, runners map[string]providers.Pr
 	var rateOutput RatingOutput
 
 	for k := range results.m {
-		rateResult, err := runners[k].Rate(results.m[k])
+		rateResult, err := runners[k].RateHostData(results.m[k], ratingConfigJSON)
 		if err != nil {
 			return RatingOutput{}, fmt.Errorf("error rating %s: %w", k, err)
 		}
@@ -261,6 +277,9 @@ func rateFindHostsResults(sess *session.Session, runners map[string]providers.Pr
 
 		if rateResult.Detected {
 			providersThatDetected++
+
+			sess.Logger.Debug("detected", "provider", k, "score", rateResult.Score, "reasons", rateResult.Reasons)
+
 			runningTotal += rateResult.Score
 		}
 
@@ -271,9 +290,6 @@ func rateFindHostsResults(sess *session.Session, runners map[string]providers.Pr
 			Reason:   strings.Join(rateResult.Reasons, " | "),
 		})
 	}
-
-	// fmt.Println("runningTotal", runningTotal)
-	// fmt.Println("providersThatDetected", providersThatDetected)
 
 	if providersThatDetected == 0 {
 		return RatingOutput{}, fmt.Errorf("no providers detected")
