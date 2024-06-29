@@ -21,11 +21,9 @@ import (
 )
 
 const (
-	ProviderName           = "ipapi"
-	IndentPipeHyphens      = " |-----"
-	portLastModifiedFormat = "2006-01-02T15:04:05+07:00"
-	ResultTTL              = 1 * time.Hour
-	apiDomain              = "https://ipapi.co"
+	ProviderName = "ipapi"
+	ResultTTL    = 1 * time.Hour
+	apiDomain    = "https://ipapi.co"
 )
 
 type Client struct {
@@ -305,7 +303,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	}
 
 	// load data from cache
-	cacheKey := fmt.Sprintf("ipapi_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
+	cacheKey := providers.CacheProviderPrefix + ProviderName + "_" + strings.ReplaceAll(c.Host.String(), ".", "_")
 
 	var item *cache.Item
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
