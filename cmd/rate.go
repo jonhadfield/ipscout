@@ -15,8 +15,9 @@ func newRateCommand() *cobra.Command {
 	var useTestData bool
 
 	cacheCmd := &cobra.Command{
-		Use:   "rate",
-		Short: "rate ip address",
+		Use:    "rate",
+		Short:  "rate ip address",
+		Hidden: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// using test data doesn't require a host be provided
 			// but command does so use placeholder
