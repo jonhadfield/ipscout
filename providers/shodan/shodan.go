@@ -313,7 +313,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	}
 
 	// load data from cache
-	cacheKey := fmt.Sprintf("shodan_%s_report.json", strings.ReplaceAll(c.Host.String(), ".", "_"))
+	cacheKey := providers.CacheProviderPrefix + ProviderName + "_" + strings.ReplaceAll(c.Host.String(), ".", "_")
 
 	var item *cache.Item
 
