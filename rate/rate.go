@@ -47,7 +47,7 @@ import (
 )
 
 //go:embed defaultRatingConfig.json
-var defaultRatingConfigJSON string
+var DefaultRatingConfigJSON string
 
 const (
 	txtAllow = "allow"
@@ -129,7 +129,7 @@ type Rater struct {
 
 func (r *Rater) Run() {
 	// validate rating config
-	_, err := providers.LoadRatingConfig(defaultRatingConfigJSON)
+	_, err := providers.LoadRatingConfig(DefaultRatingConfigJSON)
 	if err != nil {
 		r.Session.Logger.Error("failed to load rating config", "error", err)
 
@@ -207,7 +207,7 @@ func (r *Rater) Run() {
 	}
 
 	// rate results
-	rrs, err := rateFindHostsResults(r.Session, enabledProviders, results, []byte(defaultRatingConfigJSON))
+	rrs, err := rateFindHostsResults(r.Session, enabledProviders, results, []byte(DefaultRatingConfigJSON))
 	if err != nil {
 		r.Session.Logger.Error("failed to rate results", "error", err)
 

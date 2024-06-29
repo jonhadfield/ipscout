@@ -5,9 +5,8 @@ import (
 	"net/netip"
 	"os"
 
+	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/rate"
-	"github.com/jonhadfield/ipscout/session"
-
 	"github.com/spf13/cobra"
 )
 
@@ -62,7 +61,14 @@ func newDefaultRateCommand() *cobra.Command {
 			return initConfig(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
-			fmt.Println(session.DefaultConfig)
+			_, err := providers.LoadRatingConfig(rate.DefaultRatingConfigJSON)
+			if err != nil {
+				fmt.Printf("error loading default rating config: %s", err.Error())
+
+				os.Exit(1)
+			}
+
+			fmt.Printf("%s", rate.DefaultRatingConfigJSON)
 
 			return nil
 		},
