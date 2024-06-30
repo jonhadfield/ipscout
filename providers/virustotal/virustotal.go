@@ -29,6 +29,9 @@ const (
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
 	ResultTTL              = 12 * time.Hour
+	dataColumnNo           = 2
+	veryHighScore          = 10
+	APITimeout             = 10 * time.Second
 )
 
 type Config struct {
@@ -66,7 +69,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.R
 
 	switch {
 	case doc.Data.Attributes.LastAnalysisStats.Malicious > 0:
-		rateResult.Score += 10
+		rateResult.Score += veryHighScore
 		rateResult.Threat = "very high"
 		rateResult.Reasons = append(rateResult.Reasons, "malicious")
 	case doc.Data.Attributes.LastAnalysisStats.Suspicious > 0:
@@ -79,8 +82,8 @@ func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.R
 		rateResult.Reasons = append(rateResult.Reasons, "harmless")
 	}
 
-	if rateResult.Score > 10 {
-		rateResult.Score = 10
+	if rateResult.Score > veryHighScore {
+		rateResult.Score = veryHighScore
 	}
 
 	return rateResult, nil
@@ -116,7 +119,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 		panic(err)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, APITimeout)
 	defer cancel()
 
 	req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodGet, sURL.String(), nil)
@@ -514,7 +517,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	})
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
+		{Number: dataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
 	})
 
 	var rows []table.Row

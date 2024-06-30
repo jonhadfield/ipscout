@@ -54,17 +54,25 @@ var (
 )
 
 func AgeToHours(age string) (int64, error) {
+	const (
+		singleHour    = 1
+		hoursInADay   = singleHour * 24
+		hoursInAWeek  = hoursInADay * 7
+		hoursInAMonth = hoursInADay * 30
+		hoursInAYear  = hoursInADay * 365
+	)
+
 	if age == "" {
 		return 0, nil
 	}
 
 	age = strings.ToLower(age)
 	multiplier := map[string]int{
-		"h": 1,
-		"d": 24,
-		"w": 24 * 7,
-		"m": 24 * 30,
-		"y": 24 * 365,
+		"h": singleHour,
+		"d": hoursInADay,
+		"w": hoursInAWeek,
+		"m": hoursInAMonth,
+		"y": hoursInAYear,
 	}
 
 	var ageNum int64
@@ -212,16 +220,21 @@ type PortTransport struct {
 }
 
 func splitPortTransport(portTransport string) (pt PortTransport) {
+	const (
+		portWithoutTransportParts = 1
+		portWitTransportParts     = 2
+	)
+
 	parts := strings.Split(portTransport, "/")
 
 	switch len(parts) {
-	case 1:
+	case portWithoutTransportParts:
 		if isPort(parts[0]) {
 			pt.port = parts[0]
 		} else if isTransport(parts[0]) {
 			pt.transport = parts[0]
 		}
-	case 2:
+	case portWitTransportParts:
 		if isPort(parts[0]) && isTransport(parts[1]) {
 			pt.port = parts[0]
 			pt.transport = parts[1]

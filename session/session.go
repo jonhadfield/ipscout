@@ -21,6 +21,8 @@ const (
 	DefaultMaxReports     = 5
 	DefaultConfigFileName = "config.yaml"
 	// DefaultConfigFileRoot = ".session/ipscout"
+	defaultDIRPermissions  = 0o700
+	defaultFilePermissions = 0o600
 )
 
 //go:embed config.yaml
@@ -276,12 +278,12 @@ func CreateDefaultConfigIfMissing(path string) (bool, error) {
 
 		// create dir specified in path argument if missing
 		if _, err = os.Stat(path); os.IsNotExist(err) {
-			if err = os.MkdirAll(path, 0o700); err != nil {
+			if err = os.MkdirAll(path, defaultDIRPermissions); err != nil {
 				return false, fmt.Errorf("failed to create session directory: %w", err)
 			}
 		}
 
-		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(DefaultConfig), 0o600); err != nil {
+		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(DefaultConfig), defaultFilePermissions); err != nil {
 			return false, fmt.Errorf("failed to write default session: %w", err)
 		}
 	case err != nil:
@@ -306,7 +308,7 @@ func CreateConfigPathStructure(configRoot string) error {
 		_, err = os.Stat(filepath.Join(configRoot, dir))
 		if err != nil {
 			if os.IsNotExist(err) {
-				mErr := os.MkdirAll(filepath.Join(configRoot, dir), 0o700)
+				mErr := os.MkdirAll(filepath.Join(configRoot, dir), defaultDIRPermissions)
 				if mErr != nil {
 					return fmt.Errorf("failed to create %s directory: %w", dir, mErr)
 				}

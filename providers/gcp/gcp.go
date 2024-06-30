@@ -18,6 +18,7 @@ import (
 const (
 	ProviderName = "gcp"
 	DocTTL       = 24 * time.Hour
+	dataColumnNo = 2
 )
 
 type Config struct {
@@ -58,7 +59,25 @@ func (c *ProviderClient) GetConfig() *session.Session {
 }
 
 func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
-	return providers.RateResult{}, nil
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	if doc.Prefix.String() == "" {
+		return rateResult, fmt.Errorf("no prefix found in gcp data")
+	}
+
+	if doc.Prefix.IsValid() {
+		rateResult.Score = 7
+		rateResult.Detected = true
+		rateResult.Reasons = []string{"hosted in GCP"}
+	}
+
+	return rateResult, nil
 }
 
 func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
@@ -311,7 +330,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
+		{Number: dataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("GCP | Host: %s", c.Host.String())

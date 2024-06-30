@@ -11,7 +11,7 @@ import (
 )
 
 func newConfigCommand() *cobra.Command {
-	cacheCmd := &cobra.Command{
+	configCmd := &cobra.Command{
 		Use:   "config",
 		Short: "manage configuration",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -24,17 +24,17 @@ func newConfigCommand() *cobra.Command {
 		},
 	}
 
-	cacheCmd.AddCommand(newShowConfigCommand())
-	cacheCmd.AddCommand(newDefaultConfigCommand())
+	configCmd.AddCommand(newShowConfigCommand())
+	configCmd.AddCommand(newDefaultConfigCommand())
 
-	return cacheCmd
+	return configCmd
 }
 
 func newShowConfigCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "show",
-		Short: "show configuration",
-		Long:  `show configuration.`,
+		Short: "show custom configuration",
+		Long:  `show custom configuration.`,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},

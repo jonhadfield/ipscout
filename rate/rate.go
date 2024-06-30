@@ -51,8 +51,10 @@ import (
 var DefaultRatingConfigJSON string
 
 const (
-	txtAllow = "allow"
-	txtBlock = "block"
+	txtAllow          = "allow"
+	txtBlock          = "block"
+	spinnerStartupMS  = 50
+	spinnerIntervalMS = 100
 )
 
 type Provider struct {
@@ -174,7 +176,6 @@ func (r *Rater) Run() {
 		}
 	}()
 
-	// get provider clients
 	providerClients, err := getEnabledProviderClients(*r.Session)
 	if err != nil {
 		r.Session.Logger.Error("failed to generate provider clients", "error", err)
@@ -187,7 +188,6 @@ func (r *Rater) Run() {
 
 	enabledProviders := getEnabledProviders(providerClients)
 
-	// initialise providers
 	initialiseProviders(r.Session.Logger, enabledProviders, r.Session.HideProgress)
 
 	if strings.EqualFold(r.Session.Config.Global.LogLevel, "debug") {
@@ -389,7 +389,7 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 
 	var g errgroup.Group
 
-	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+	s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
 
 	if !hideProgress {
 		s.Start() // Start the spinner
@@ -425,7 +425,7 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 		return
 	}
 	// allow time to output spinner
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(spinnerStartupMS * time.Millisecond)
 }
 
 func stopSpinnerIfActive(s *spinner.Spinner) {
@@ -439,11 +439,6 @@ type findHostsResults struct {
 	m map[string][]byte
 }
 
-// type generateTablesResults struct {
-// 	sync.RWMutex
-// 	m []providers.TableWithPriority
-// }
-
 func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *findHostsResults {
 	var results findHostsResults
 
@@ -454,7 +449,7 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	var w sync.WaitGroup
 
 	if !hideProgress {
-		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+		s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
 		s.Start() // Start the spinner
 		s.Suffix = " searching providers..."
 
@@ -484,143 +479,10 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 
 	w.Wait()
 	// allow time to output spinner
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(spinnerStartupMS * time.Millisecond)
 
 	return &results
 }
-
-// func output(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) error {
-// 	switch sess.Config.Global.Output {
-// 	case "table":
-// 		tables := generateTables(sess, runners, results)
-//
-// 		if strings.EqualFold(sess.Config.Global.LogLevel, "debug") {
-// 			for provider, dur := range sess.Stats.CreateTableDuration {
-// 				sess.Logger.Debug("create tables timing", "provider", provider, "duration", dur.String())
-// 			}
-// 		}
-//
-// 		present.Tables(sess, tables)
-//
-// 		outputMessages(sess)
-// 	case "json":
-// 		jo, err := generateJSON(results)
-// 		if err != nil {
-// 			return err
-// 		}
-//
-// 		if err = present.JSON(&jo); err != nil {
-// 			return fmt.Errorf("error outputting JSON: %w", err)
-// 		}
-//
-// 		outputMessages(sess)
-// 	default:
-// 		return fmt.Errorf("unsupported output format: %s", sess.Config.Global.Output)
-// 	}
-//
-// 	return nil
-// }
-//
-// func outputMessages(sess *session.Session) {
-// 	for x := range sess.Messages.Error {
-// 		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgRed.Sprint("[ERROR]"), sess.Messages.Error[x])
-// 	}
-//
-// 	for x := range sess.Messages.Warning {
-// 		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgYellow.Sprint("[WARN]"), sess.Messages.Warning[x])
-// 	}
-//
-// 	for x := range sess.Messages.Info {
-// 		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgGreen.Sprint("[INFO]"), sess.Messages.Info[x])
-// 	}
-// }
-
-// func generateTables(conf *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) []providers.TableWithPriority {
-// 	var tables generateTablesResults
-//
-// 	var w sync.WaitGroup
-//
-// 	if !conf.HideProgress {
-// 		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriterFile(conf.Target))
-// 		s.Start() // Start the spinner
-//
-// 		s.Suffix = " generating output..."
-//
-// 		defer s.Stop()
-// 	}
-//
-// 	for name, runner := range runners {
-// 		w.Add(1)
-//
-// 		go func() {
-// 			defer w.Done()
-// 			results.RLock()
-// 			if results.m[name] == nil {
-// 				return
-// 			}
-//
-// 			createTableData := results.m[name]
-// 			results.RUnlock()
-//
-// 			tbl, err := runner.CreateTable(createTableData)
-// 			if err != nil {
-// 				_, _ = fmt.Fprintln(os.Stderr, err)
-//
-// 				return
-// 			}
-//
-// 			if tbl != nil {
-// 				tables.RWMutex.Lock()
-// 				tables.m = append(tables.m, providers.TableWithPriority{
-// 					Table:    tbl,
-// 					Priority: runner.Priority(),
-// 				})
-// 				tables.RWMutex.Unlock()
-// 			}
-// 		}()
-// 	}
-//
-// 	w.Wait()
-// 	// allow time to output spinner
-// 	time.Sleep(50 * time.Millisecond)
-//
-// 	return tables.m
-// }
-//
-// func generateJSON(results *findHostsResults) (json.RawMessage, error) {
-// 	var counter int64
-//
-// 	var out json.RawMessage
-//
-// 	for name := range results.m {
-// 		results.RLock()
-//
-// 		if results.m[name] == nil {
-// 			return nil, fmt.Errorf("no data found for %s", name)
-// 		}
-//
-// 		if counter == 0 {
-// 			out = json.RawMessage([]byte("["))
-// 		}
-//
-// 		cj := json.RawMessage(results.m[name])
-// 		out = append(out, json.RawMessage([]byte("{\""+name+"\":"))...)
-// 		out = append(out, cj...)
-// 		out = append(out, json.RawMessage([]byte("}"))...)
-//
-// 		if counter == int64(len(results.m)-1) {
-// 			out = append(out, json.RawMessage([]byte("]"))...)
-// 		} else {
-// 			out = append(out, json.RawMessage([]byte(","))...)
-// 		}
-//
-// 		counter++
-//
-// 		results.RUnlock()
-// 	}
-//
-// 	return out, nil
-// }
 
 func New(sess *session.Session) (Rater, error) {
 	p := Rater{

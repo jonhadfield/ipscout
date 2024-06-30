@@ -18,12 +18,13 @@ import (
 )
 
 const (
-	txtASCII  = "ascii"
-	txtRed    = "red"
-	txtYellow = "yellow"
-	txtGreen  = "green"
-	txtBlue   = "blue"
-	txtCyan   = "cyan"
+	txtASCII              = "ascii"
+	txtRed                = "red"
+	txtYellow             = "yellow"
+	txtGreen              = "green"
+	txtBlue               = "blue"
+	txtCyan               = "cyan"
+	externalTableMinWidth = 60
 )
 
 type Resulter interface {
@@ -186,7 +187,7 @@ func outputTables(c *session.Session, tws []providers.TableWithPriority) {
 
 	twOuter.SetTitle("IPScout [v" + c.App.SemVer + "]")
 	twOuter.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 1, AutoMerge: false, WidthMin: 60},
+		{Number: 1, AutoMerge: false, WidthMin: externalTableMinWidth},
 	})
 
 	twOuter.SetStyle(OuterTableStyle(*c))

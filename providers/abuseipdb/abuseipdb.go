@@ -30,6 +30,13 @@ const (
 	portLastModifiedFormat = "2006-01-02T15:04:05+07:00"
 	ResultTTL              = 12 * time.Hour
 	OutputPriority         = 40
+	dataColumnNo           = 2
+	veryHighScoreThreshold = 10
+	highScoreThreshold     = 7
+	mediumScoreThreshold   = 5
+	lowScoreThreshold      = 3
+	abuseScoreMultiplier   = 10
+	APITimeout             = 10 * time.Second
 )
 
 type Config struct {
@@ -89,22 +96,22 @@ func (c *Client) RateHostData(findRes []byte, bytes []byte) (providers.RateResul
 		rateResult.Reasons = []string{"TOR node"}
 	}
 
-	rateResult.Score = doc.Data.AbuseConfidenceScore / 10
+	rateResult.Score = doc.Data.AbuseConfidenceScore / abuseScoreMultiplier
 	rateResult.Reasons = append(rateResult.Reasons, fmt.Sprintf("confidence: %.2f", doc.Data.AbuseConfidenceScore))
 
 	switch {
-	case rateResult.Score >= 10:
+	case rateResult.Score >= veryHighScoreThreshold:
 		rateResult.Threat = "very high"
-		rateResult.Score = 10
-	case rateResult.Score >= 7:
+		rateResult.Score = veryHighScoreThreshold
+	case rateResult.Score >= highScoreThreshold:
 		rateResult.Threat = "high"
-	case rateResult.Score >= 5:
+	case rateResult.Score >= mediumScoreThreshold:
 		rateResult.Threat = "medium"
-	case rateResult.Score >= 3:
+	case rateResult.Score >= lowScoreThreshold:
 		rateResult.Threat = "low"
 	default:
 		rateResult.Threat = "low"
-		rateResult.Score = 3
+		rateResult.Score = lowScoreThreshold
 	}
 
 	if doc.Data.IPAddress != "" {
@@ -217,7 +224,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
+		{Number: dataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
 	})
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
@@ -246,7 +253,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 
 	sURL.RawQuery = fmt.Sprintf("ipAddress=%s&verbose=false&maxAgeInDays=1", c.Host.String())
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, APITimeout)
 	defer cancel()
 
 	req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodGet, sURL.String(), nil)

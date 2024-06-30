@@ -30,6 +30,7 @@ const (
 	ProviderName           = "annotated"
 	CacheTTL               = 5 * time.Minute
 	ipFileSuffixesToIgnore = "sh,conf"
+	dataColumnNo           = 2
 )
 
 type Annotated struct {
@@ -332,7 +333,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
+		{Number: dataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 
@@ -508,7 +509,7 @@ func getValidFilePathsFromDir(l *slog.Logger, dir string) (paths []os.DirEntry) 
 func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotations map[netip.Prefix][]annotation) error {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		return err //nolint: wrapcheck
+		return err // nolint: wrapcheck
 	}
 
 	path, err = filepath.Abs(path)

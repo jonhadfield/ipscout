@@ -47,6 +47,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+const (
+	spinnerStartupMS  = 50
+	spinnerIntervalMS = 100
+)
+
 type Provider struct {
 	Name      string
 	Enabled   *bool
@@ -207,7 +212,7 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 
 	var g errgroup.Group
 
-	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+	s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
 
 	if !hideProgress {
 		s.Start() // Start the spinner
@@ -243,7 +248,7 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 		return
 	}
 	// allow time to output spinner
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(spinnerStartupMS * time.Millisecond)
 }
 
 func stopSpinnerIfActive(s *spinner.Spinner) {
@@ -272,7 +277,7 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	var w sync.WaitGroup
 
 	if !hideProgress {
-		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+		s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
 		s.Start() // Start the spinner
 		s.Suffix = " searching providers..."
 
@@ -302,7 +307,7 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 
 	w.Wait()
 	// allow time to output spinner
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(spinnerStartupMS * time.Millisecond)
 
 	return &results
 }
@@ -359,7 +364,7 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 	var w sync.WaitGroup
 
 	if !conf.HideProgress {
-		s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriterFile(conf.Target))
+		s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriterFile(conf.Target))
 		s.Start() // Start the spinner
 
 		s.Suffix = " generating output..."
@@ -400,7 +405,7 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 
 	w.Wait()
 	// allow time to output spinner
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(spinnerStartupMS * time.Millisecond)
 
 	return tables.m
 }

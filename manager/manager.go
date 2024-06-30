@@ -17,7 +17,10 @@ import (
 	"github.com/jonhadfield/ipscout/session"
 )
 
-const MaxColumnWidth = 60
+const (
+	maxColumnWidth = 60
+	minColumnWidth = 20
+)
 
 type Client struct {
 	Config *session.Session
@@ -42,7 +45,7 @@ func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, erro
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 1, AutoMerge: false, WidthMax: MaxColumnWidth, WidthMin: 20},
+		{Number: 1, AutoMerge: false, WidthMax: maxColumnWidth, WidthMin: minColumnWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("CACHE ITEMS")
@@ -175,7 +178,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 		defer it.Close()
 
 		prefix := []byte(providers.CacheProviderPrefix)
-		// prefix := []byte(providers.CacheProviderPrefix)
+
 		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
 			item := it.Item()
 			k := item.Key()

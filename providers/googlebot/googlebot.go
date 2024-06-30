@@ -18,6 +18,7 @@ import (
 const (
 	ProviderName = "googlebot"
 	DocTTL       = 24 * time.Hour
+	dataColumnNo = 2
 )
 
 type Config struct {
@@ -299,7 +300,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 2, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
+		{Number: dataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("GOOGLEBOT | Host: %s", c.Host.String())
