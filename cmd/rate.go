@@ -33,15 +33,23 @@ func newRateCommand() *cobra.Command {
 			var err error
 
 			if sess.Host, err = netip.ParseAddr(args[0]); err != nil {
-				return fmt.Errorf("invalid host: %w", err)
+				fmt.Printf("invalid host: %s", err.Error())
+
+				os.Exit(1)
 			}
 
 			rater, err := rate.New(sess)
 			if err != nil {
+				fmt.Println(err.Error())
+
 				os.Exit(1)
 			}
 
-			rater.Run()
+			if err = rater.Run(); err != nil {
+				fmt.Println(err.Error())
+
+				os.Exit(1)
+			}
 
 			return nil
 		},
@@ -79,13 +87,13 @@ func newRateConfigCommand() *cobra.Command {
 					os.Exit(1)
 				}
 
-				if rater.Session.Config.Global.RatingsConfigPath == "" {
+				if rater.Session.Config.Global.RatingConfigPath == "" {
 					fmt.Println("rating configuration path not set")
 
 					os.Exit(1)
 				}
 
-				path = rater.Session.Config.Global.RatingsConfigPath
+				path = rater.Session.Config.Global.RatingConfigPath
 			}
 
 			ratingConfig, err := providers.ReadRatingConfigFile(path)

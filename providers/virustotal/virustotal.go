@@ -50,7 +50,7 @@ type ProviderClient struct {
 	session.Session
 }
 
-func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
+func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var doc HostSearchResult
 
 	var rateResult providers.RateResult

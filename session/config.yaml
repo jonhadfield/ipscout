@@ -6,8 +6,7 @@ global:
   max_reports: 5
   output: table
   style: cyan
-  # path to rating config override
-  # ratingsConfigPath: <home>/.config/ratingConfig.json
+  # rating_config_path: <home>/.config/ratingConfig.json
   # ports: [80]
 
 providers:

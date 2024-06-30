@@ -82,7 +82,7 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *Client) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
+func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var doc HostSearchResult
 
 	var rateResult providers.RateResult
@@ -92,7 +92,7 @@ func (c *Client) RateHostData(findRes []byte, bytes []byte) (providers.RateResul
 	}
 
 	if doc.Data.IsTor {
-		rateResult.Score += 7
+		rateResult.Score += 8
 		rateResult.Reasons = []string{"TOR node"}
 	}
 

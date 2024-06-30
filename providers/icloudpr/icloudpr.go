@@ -60,8 +60,31 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
-	return providers.RateResult{}, nil
+func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
+	var ratingConfig providers.RatingConfig
+	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+	}
+
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling iCloud Private Relay find result: %w", err)
+	}
+
+	if doc.Prefix.String() == "" {
+		return rateResult, fmt.Errorf("no prefix found in iCloud Private Relay data")
+	}
+
+	if doc.Prefix.IsValid() {
+		rateResult.Score = ratingConfig.ProviderRatingsConfigs.ICloudPR.DefaultMatchScore
+		rateResult.Detected = true
+		rateResult.Reasons = []string{"source is iCloud Private Relay"}
+	}
+
+	return rateResult, nil
 }
 
 func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {

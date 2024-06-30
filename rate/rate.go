@@ -130,14 +130,15 @@ type Rater struct {
 	Session *session.Session
 }
 
-func GetRatingConfigFromPath(path string) ([]byte, error) {
+func GetRatingConfig(path string) ([]byte, error) {
 	var err error
 
 	ratingConfigJSON := []byte(DefaultRatingConfigJSON)
+
 	if path != "" {
 		ratingConfigJSON, err = providers.ReadRatingConfigFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("failed to load rating config: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 	}
 
@@ -150,21 +151,17 @@ func GetRatingConfigFromPath(path string) ([]byte, error) {
 	return ratingConfigJSON, nil
 }
 
-func (r *Rater) Run() {
+func (r *Rater) Run() error {
 	var err error
 
-	ratingConfig, err := GetRatingConfigFromPath(r.Session.Config.Global.RatingsConfigPath)
+	ratingConfig, err := GetRatingConfig(r.Session.Config.Global.RatingConfigPath)
 	if err != nil {
-		r.Session.Logger.Error("failed to load rating config", "error", err)
-
-		os.Exit(1)
+		return err
 	}
 
 	db, err := cache.Create(r.Session.Logger, filepath.Join(r.Session.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
-		r.Session.Logger.Error("failed to create cache", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("failed to create cache: %w", err)
 	}
 
 	r.Session.Cache = db
@@ -199,7 +196,7 @@ func (r *Rater) Run() {
 	if r.Session.Config.Global.InitialiseCacheOnly {
 		_, _ = fmt.Fprintln(r.Session.Target, "cache initialisation complete")
 
-		return
+		return nil
 	}
 
 	// find hosts
@@ -225,7 +222,7 @@ func (r *Rater) Run() {
 	if matchingResults == 0 {
 		r.Session.Logger.Warn("no results found", "host", r.Session.Host.String(), "providers checked", strings.Join(mapsKeys(enabledProviders), ", "))
 
-		return
+		return nil
 	}
 
 	// rate results
@@ -251,6 +248,8 @@ func (r *Rater) Run() {
 	})
 
 	color.White("Recommendation: %s", rrs.Recommendation)
+
+	return nil
 }
 
 type rateResultsOutputItem struct {

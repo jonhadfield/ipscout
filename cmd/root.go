@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"net/netip"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/mitchellh/go-homedir"
@@ -537,10 +536,7 @@ func initSessionConfig(sess *session.Session, v *viper.Viper, configRoot string)
 
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 
-	sess.Config.Global.RatingsConfigPath = v.GetString("global.ratings_config_path")
-	if sess.Config.Global.RatingsConfigPath == "" {
-		sess.Config.Global.RatingsConfigPath = filepath.Join(configRoot, "ratingConfig.json")
-	}
+	sess.Config.Global.RatingConfigPath = v.GetString("global.rating_config_path")
 
 	return nil
 }

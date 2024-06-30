@@ -67,7 +67,7 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
+func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	return providers.RateResult{}, nil
 }
 

@@ -384,6 +384,15 @@ type RatingConfig struct {
 		MediumThreatCountryCodes []string `json:"mediumThreatCountryCodes"`
 	}
 	ProviderRatingsConfigs struct {
+		AWS struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"aws"`
+		Azure struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"azure"`
+		Bingbot struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"bingbot"`
 		CriminalIP struct {
 			HoneypotAttackedScore float64 `json:"honeypotAttackedScore,omitempty"`
 			ScannerMatchScore     float64 `json:"scannerMatchScore,omitempty"`
@@ -394,14 +403,40 @@ type RatingConfig struct {
 			HostingMatchScore     float64 `json:"hostingMatchScore,omitempty"`
 			DarkwebMatchScore     float64 `json:"darkwebMatchScore,omitempty"`
 		} `json:"criminalip"`
+		DigitalOcean struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"digitalocean"`
+		GCP struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"gcp"`
+		Google struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"google"`
+		Googlebot struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"googlebot"`
+		ICloudPR struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"icloudpr"`
+		IPAPI struct {
+			HighThreatCountryMatchScore   float64 `json:"highThreatCountryMatchScore,omitempty"`
+			MediumThreatCountryMatchScore float64 `json:"mediumThreatCountryMatchScore,omitempty"`
+		} `json:"ipapi"`
 		IPURL struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"ipurl"`
+		Linode struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"linode"`
 		Shodan struct {
 			OpenPortsScore                float64 `json:"openPortsScore,omitempty"`
 			HighThreatCountryMatchScore   float64 `json:"highThreatCountryMatchScore,omitempty"`
 			MediumThreatCountryMatchScore float64 `json:"mediumThreatCountryMatchScore,omitempty"`
 		} `json:"shodan"`
+		VirusTotal struct {
+			Suspicious float64 `json:"suspicious,omitempty"`
+			Malicious  float64 `json:"malicious,omitempty"`
+		} `json:"virustotal"`
 	} `json:"providers"`
 }
 

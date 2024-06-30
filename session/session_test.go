@@ -128,7 +128,7 @@ func TestGetConfigRoot(t *testing.T) {
 		dir, err := homedir.Dir()
 		require.NoError(t, err)
 
-		path := GetConfigRoot("", "", appName)
+		path := GetConfigRoot("", dir, appName)
 		require.Equal(t, filepath.Join(dir, ".config", appName), path)
 	})
 }

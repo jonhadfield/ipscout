@@ -69,8 +69,31 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
-	return providers.RateResult{}, nil
+func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
+	var ratingConfig providers.RatingConfig
+	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+	}
+
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling azure find result: %w", err)
+	}
+
+	if doc.Prefix.String() == "" {
+		return rateResult, fmt.Errorf("no prefix found in azure data")
+	}
+
+	if doc.Prefix.IsValid() {
+		rateResult.Score = ratingConfig.ProviderRatingsConfigs.Azure.DefaultMatchScore
+		rateResult.Detected = true
+		rateResult.Reasons = []string{"hosted in Azure"}
+	}
+
+	return rateResult, nil
 }
 
 func (c *ProviderClient) loadProviderDataFromSource() error {

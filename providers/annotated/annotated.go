@@ -87,7 +87,7 @@ func annotationNotesContain(notes []string, term string) bool {
 	return false
 }
 
-func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
+func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var doc HostSearchResult
 
 	var rateResult providers.RateResult

@@ -58,8 +58,31 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
-func (c *ProviderClient) RateHostData(findRes []byte, bytes []byte) (providers.RateResult, error) {
-	return providers.RateResult{}, nil
+func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
+	var ratingConfig providers.RatingConfig
+	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+	}
+
+	var doc HostSearchResult
+
+	var rateResult providers.RateResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return providers.RateResult{}, fmt.Errorf("error unmarshalling Googlebot find result: %w", err)
+	}
+
+	if doc.Prefix.String() == "" {
+		return rateResult, fmt.Errorf("no prefix found in Googlebot data")
+	}
+
+	if doc.Prefix.IsValid() {
+		rateResult.Score = ratingConfig.ProviderRatingsConfigs.Googlebot.DefaultMatchScore
+		rateResult.Detected = true
+		rateResult.Reasons = []string{"source is Googlebot"}
+	}
+
+	return rateResult, nil
 }
 
 func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {

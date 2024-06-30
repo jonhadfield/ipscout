@@ -97,7 +97,7 @@ type Config struct {
 }
 
 type GlobalConfig struct {
-	RatingsConfigPath   string `mapstructure:"ratings-config-path"`
+	RatingConfigPath    string `mapstructure:"rating-config-path"`
 	LogLevel            string `mapstructure:"log-level"`
 	Output              string `mapstructure:"output"`
 	HomeDir             string
