@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/netip"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/mitchellh/go-homedir"
@@ -519,7 +520,7 @@ func initHomeDirConfig(sess *session.Session, v *viper.Viper) error {
 	return nil
 }
 
-func initSessionConfig(sess *session.Session, v *viper.Viper) error {
+func initSessionConfig(sess *session.Session, v *viper.Viper, configRoot string) error {
 	initProviderConfig(sess, v)
 
 	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
@@ -535,6 +536,11 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) error {
 	}
 
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
+
+	sess.Config.Global.RatingsConfigPath = v.GetString("global.ratings_config_path")
+	if sess.Config.Global.RatingsConfigPath == "" {
+		sess.Config.Global.RatingsConfigPath = filepath.Join(configRoot, "ratingConfig.json")
+	}
 
 	return nil
 }
@@ -583,7 +589,7 @@ func initConfig(cmd *cobra.Command) error {
 
 	sess.Target = os.Stderr
 
-	if err := initSessionConfig(sess, v); err != nil {
+	if err := initSessionConfig(sess, v, configRoot); err != nil {
 		return err
 	}
 

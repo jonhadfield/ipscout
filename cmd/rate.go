@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/jonhadfield/ipscout/providers"
+
 	"github.com/jonhadfield/ipscout/rate"
 	"github.com/spf13/cobra"
 )
@@ -47,30 +48,69 @@ func newRateCommand() *cobra.Command {
 		},
 	}
 
-	cacheCmd.AddCommand(newDefaultRateCommand())
+	cacheCmd.AddCommand(newRateConfigCommand())
 
 	return cacheCmd
 }
 
-func newDefaultRateCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "default",
-		Short: "output default configuration",
-		Long:  `output default configuration.`,
+func newRateConfigCommand() *cobra.Command {
+	var (
+		showDefault bool
+		configPath  string
+	)
+
+	cmd := &cobra.Command{
+		Use:   "config",
+		Short: "output configuration",
+		Long:  `output configuration.`,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
-			_, err := providers.LoadRatingConfig(rate.DefaultRatingConfigJSON)
+			if showDefault {
+				fmt.Println(rate.DefaultRatingConfigJSON)
+
+				os.Exit(0)
+			}
+
+			path := cmd.Flag("path").Value.String()
+			if path == "" {
+				rater, err := rate.New(sess)
+				if err != nil {
+					os.Exit(1)
+				}
+
+				if rater.Session.Config.Global.RatingsConfigPath == "" {
+					fmt.Println("rating configuration path not set")
+
+					os.Exit(1)
+				}
+
+				path = rater.Session.Config.Global.RatingsConfigPath
+			}
+
+			ratingConfig, err := providers.ReadRatingConfigFile(path)
 			if err != nil {
-				fmt.Printf("error loading default rating config: %s", err.Error())
+				fmt.Println(err.Error())
 
 				os.Exit(1)
 			}
 
-			fmt.Printf("%s", rate.DefaultRatingConfigJSON)
+			_, err = providers.LoadRatingConfig(ratingConfig)
+			if err != nil {
+				fmt.Printf("%s", err)
+
+				os.Exit(1)
+			}
+
+			fmt.Println(string(ratingConfig))
 
 			return nil
 		},
 	}
+
+	cmd.Flags().BoolVar(&showDefault, "default", false, "show default configuration")
+	cmd.Flags().StringVar(&configPath, "path", "", "load configuration from path")
+
+	return cmd
 }

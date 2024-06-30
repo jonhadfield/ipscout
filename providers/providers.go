@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -340,14 +341,27 @@ func PadRight(str string, length int) string {
 	return str + strings.Repeat(" ", length-len(str))
 }
 
-// TODO: allow user specified rating config
-func LoadRatingConfig(ratingConfigJSON string) (*RatingConfig, error) {
+func LoadRatingConfig(ratingConfigJSON []byte) (*RatingConfig, error) {
 	ratingConfig := RatingConfig{}
-	if err := json.Unmarshal([]byte(ratingConfigJSON), &ratingConfig); err != nil {
+	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
 		return nil, fmt.Errorf("error unmarshalling default rating config: %w", err)
 	}
 
 	return &ratingConfig, nil
+}
+
+func ReadRatingConfigFile(path string) ([]byte, error) {
+	_, err := os.Stat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, fmt.Errorf("rating config file does not exist: %w", err)
+	}
+
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("error reading rating config file: %w", err)
+	}
+
+	return content, nil
 }
 
 type RatingConfig struct {

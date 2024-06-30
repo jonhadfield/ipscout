@@ -128,9 +128,30 @@ type Rater struct {
 	Session *session.Session
 }
 
+func GetRatingConfigFromPath(path string) ([]byte, error) {
+	var err error
+
+	ratingConfigJSON := []byte(DefaultRatingConfigJSON)
+	if path != "" {
+		ratingConfigJSON, err = providers.ReadRatingConfigFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load rating config: %w", err)
+		}
+	}
+
+	// try loading the rating config to validate it
+	_, err = providers.LoadRatingConfig(ratingConfigJSON)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load rating config: %w", err)
+	}
+
+	return ratingConfigJSON, nil
+}
+
 func (r *Rater) Run() {
-	// validate rating config
-	_, err := providers.LoadRatingConfig(DefaultRatingConfigJSON)
+	var err error
+
+	ratingConfig, err := GetRatingConfigFromPath(r.Session.Config.Global.RatingsConfigPath)
 	if err != nil {
 		r.Session.Logger.Error("failed to load rating config", "error", err)
 
@@ -208,7 +229,7 @@ func (r *Rater) Run() {
 	}
 
 	// rate results
-	rrs, err := rateFindHostsResults(r.Session, enabledProviders, results, []byte(DefaultRatingConfigJSON))
+	rrs, err := rateFindHostsResults(r.Session, enabledProviders, results, ratingConfig)
 	if err != nil {
 		r.Session.Logger.Error("failed to rate results", "error", err)
 
