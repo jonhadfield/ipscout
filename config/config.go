@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -255,9 +254,7 @@ func (c *Client) Show() error {
 func (c *Client) Delete(keys []string) error {
 	db, err := cache.Create(c.Sess.Logger, filepath.Join(c.Sess.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
-		c.Sess.Logger.Error("failed to create cache", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("failed to create cache: %w", err)
 	}
 
 	c.Sess.Cache = db
@@ -274,9 +271,7 @@ func (c *Client) Delete(keys []string) error {
 func (c *Client) Get(key string, raw bool) error {
 	db, err := cache.Create(c.Sess.Logger, filepath.Join(c.Sess.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
-		c.Sess.Logger.Error("failed to create cache", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("failed to create cache: %w", err)
 	}
 
 	c.Sess.Cache = db

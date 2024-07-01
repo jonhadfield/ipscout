@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/netip"
@@ -22,6 +23,8 @@ const (
 
 var sess *session.Session
 
+var ErrSilent = errors.New("ErrSilent")
+
 //nolint:funlen
 func newRootCommand() *cobra.Command {
 	var (
@@ -37,10 +40,12 @@ func newRootCommand() *cobra.Command {
 	)
 
 	rootCmd := &cobra.Command{
-		Use:   "ipscout [options] <ip address>",
-		Short: "ipscout [command]",
-		Long:  `IPScout searches providers for info on IP addresses`,
-		Args:  cobra.MinimumNArgs(0),
+		Use:           "ipscout [options] <ip address>",
+		Short:         "ipscout [command]",
+		Long:          `IPScout searches providers for information about hosts`,
+		Args:          cobra.MinimumNArgs(0),
+		SilenceErrors: true,
+		SilenceUsage:  true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
 		},
@@ -53,7 +58,8 @@ func newRootCommand() *cobra.Command {
 
 			if len(args) == 0 {
 				_ = cmd.Help()
-				os.Exit(0)
+
+				os.Exit(1)
 			}
 
 			var err error
@@ -64,9 +70,16 @@ func newRootCommand() *cobra.Command {
 
 			processor, err := process.New(sess)
 			if err != nil {
+				fmt.Println(err.Error())
+
 				os.Exit(1)
 			}
-			processor.Run()
+
+			if err = processor.Run(); err != nil {
+				fmt.Println(err.Error())
+
+				os.Exit(1)
+			}
 
 			return nil
 		},
@@ -80,6 +93,13 @@ func newRootCommand() *cobra.Command {
 	rootCmd.AddCommand(configCommand)
 	rootCmd.AddCommand(rateCommand)
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.SetFlagErrorFunc(func(cmd *cobra.Command, err error) error {
+		cmd.Println(err)
+		cmd.Println(cmd.UsageString())
+
+		return ErrSilent
+	})
+
 	rootCmd.RunE = func(cmd *cobra.Command, args []string) error {
 		// using test data doesn't require a host be provided
 		// but command does so use placeholder
@@ -104,7 +124,11 @@ func newRootCommand() *cobra.Command {
 			os.Exit(1)
 		}
 
-		processor.Run()
+		if err = processor.Run(); err != nil {
+			fmt.Println(err.Error())
+
+			os.Exit(1)
+		}
 
 		return nil
 	}
@@ -123,12 +147,14 @@ func newRootCommand() *cobra.Command {
 	return rootCmd
 }
 
-func Execute() {
+func Execute() error {
 	// setup session
 	rootCmd := newRootCommand()
 	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
+		return fmt.Errorf("error: %w", err)
 	}
+
+	return nil
 }
 
 func bindFlags(cmd *cobra.Command, v *viper.Viper) {
@@ -557,25 +583,20 @@ func initConfig(cmd *cobra.Command) error {
 	sess.App.SemVer = semver
 
 	if _, err := session.CreateDefaultConfigIfMissing(configRoot); err != nil {
-		fmt.Printf("can't create default session: %v\n", err)
-
-		os.Exit(1)
+		return fmt.Errorf("cannot create default session: %w", err)
 	}
 
 	v.AddConfigPath(configRoot)
 	v.SetConfigName("config")
 
 	if err := v.ReadInConfig(); err != nil {
-		fmt.Println("can't read session:", err)
-		os.Exit(1)
+		return fmt.Errorf("cannot read session: %w", err)
 	}
 
 	v.AutomaticEnv()
 
 	if err := session.CreateConfigPathStructure(configRoot); err != nil {
-		fmt.Printf("can't create cache directory: %v\n", err)
-
-		os.Exit(1)
+		return fmt.Errorf("can't create cache directory: %w", err)
 	}
 
 	readProviderAuthKeys(v)
@@ -590,13 +611,15 @@ func initConfig(cmd *cobra.Command) error {
 	}
 
 	// initialise logging
-	initLogging(cmd)
+	if err := initLogging(cmd); err != nil {
+		return err
+	}
 
 	sess.HTTPClient = getHTTPClient()
 
 	utd, err := cmd.Flags().GetBool("use-test-data")
 	if err != nil {
-		os.Exit(1)
+		return fmt.Errorf("error getting use-test-data: %w", err)
 	}
 
 	sess.UseTestData = utd
@@ -649,13 +672,12 @@ func initConfig(cmd *cobra.Command) error {
 
 var ProgramLevel = new(slog.LevelVar) // Info by default
 
-func initLogging(cmd *cobra.Command) {
+func initLogging(cmd *cobra.Command) error {
 	hOptions := slog.HandlerOptions{AddSource: false}
 
 	ll, err := cmd.Flags().GetString("log-level")
 	if err != nil {
-		fmt.Println("error getting log-level:", err)
-		os.Exit(1)
+		return fmt.Errorf("error getting log-level: %w", err)
 	}
 
 	sess.Config.Global.LogLevel = ll
@@ -683,6 +705,8 @@ func initLogging(cmd *cobra.Command) {
 	hOptions.Level = ProgramLevel
 
 	sess.Logger = slog.New(slog.NewTextHandler(sess.Target, &hOptions))
+
+	return nil
 }
 
 func readProviderAuthKeys(v *viper.Viper) {

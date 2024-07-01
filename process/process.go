@@ -124,12 +124,10 @@ type Processor struct {
 	Session *session.Session
 }
 
-func (p *Processor) Run() {
+func (p *Processor) Run() error {
 	db, err := cache.Create(p.Session.Logger, filepath.Join(p.Session.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
-		p.Session.Logger.Error("failed to create cache", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("failed to create cache: %w", err)
 	}
 
 	p.Session.Cache = db
@@ -139,12 +137,9 @@ func (p *Processor) Run() {
 	// get provider clients
 	providerClients, err := getEnabledProviderClients(*p.Session)
 	if err != nil {
-		p.Session.Logger.Error("failed to generate provider clients", "error", err)
-
-		// close here as exit prevents defer from running
 		_ = db.Close()
 
-		os.Exit(1) //nolint:gocritic
+		return fmt.Errorf("failed to generate provider clients: %w", err)
 	}
 
 	enabledProviders := getEnabledProviders(providerClients)
@@ -161,7 +156,7 @@ func (p *Processor) Run() {
 	if p.Session.Config.Global.InitialiseCacheOnly {
 		fmt.Fprintln(p.Session.Target, "cache initialisation complete")
 
-		return
+		return nil
 	}
 
 	// find hosts
@@ -186,15 +181,15 @@ func (p *Processor) Run() {
 	if matchingResults == 0 {
 		p.Session.Logger.Warn("no results found", "host", p.Session.Host.String(), "providers checked", strings.Join(mapsKeys(enabledProviders), ", "))
 
-		return
+		return nil
 	}
 
 	// output data
 	if err = output(p.Session, providerClients, results); err != nil {
-		p.Session.Logger.Error("failed to output data", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("failed to output data: %w", err)
 	}
+
+	return nil
 }
 
 func mapsKeys[K comparable, V any](m map[K]V) []K {

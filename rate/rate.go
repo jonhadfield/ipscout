@@ -180,7 +180,7 @@ func (r *Rater) Run() error {
 		// close here as exit prevents defer from running
 		_ = db.Close()
 
-		os.Exit(1) //nolint:gocritic
+		return fmt.Errorf("failed to generate provider clients: %w", err)
 	}
 
 	enabledProviders := getEnabledProviders(providerClients)
@@ -228,16 +228,12 @@ func (r *Rater) Run() error {
 	// rate results
 	rrs, err := rateFindHostsResults(r.Session, enabledProviders, results, ratingConfig)
 	if err != nil {
-		r.Session.Logger.Error("failed to rate results", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("failed to rate results: %w", err)
 	}
 	// generate table from rate results
 	tables, err := r.CreateResultsTable(rrs)
 	if err != nil {
-		r.Session.Logger.Error("failed to create table", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("failed to create table: %w", err)
 	}
 	// present table
 	present.Tables(r.Session, []providers.TableWithPriority{

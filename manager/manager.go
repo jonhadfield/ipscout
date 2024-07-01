@@ -3,7 +3,6 @@ package manager
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -64,9 +63,7 @@ func NewClient(config *session.Session) (Client, error) {
 func (c *Client) List() error {
 	db, err := cache.Create(c.Config.Logger, filepath.Join(c.Config.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
-		c.Config.Logger.Error("failed to create cache", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("error creating cache: %w", err)
 	}
 
 	c.Config.Cache = db
@@ -96,9 +93,7 @@ func (c *Client) List() error {
 func (c *Client) Delete(keys []string) error {
 	db, err := cache.Create(c.Config.Logger, filepath.Join(c.Config.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
-		c.Config.Logger.Error("failed to create cache", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("error creating cache: %w", err)
 	}
 
 	c.Config.Cache = db
@@ -115,9 +110,7 @@ func (c *Client) Delete(keys []string) error {
 func (c *Client) Get(key string, raw bool) error {
 	db, err := cache.Create(c.Config.Logger, filepath.Join(c.Config.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
-		c.Config.Logger.Error("failed to create cache", "error", err)
-
-		os.Exit(1)
+		return fmt.Errorf("error creating cache: %w", err)
 	}
 
 	c.Config.Cache = db
