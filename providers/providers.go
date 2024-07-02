@@ -415,6 +415,9 @@ type RatingConfig struct {
 		Googlebot struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"googlebot"`
+		GoogleSC struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"googlesc"`
 		ICloudPR struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"icloudpr"`

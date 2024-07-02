@@ -187,6 +187,7 @@ const (
 	defaultGCPOutputPriority          = 200
 	defaultGoogleOutputPriority       = 200
 	defaultGooglebotOutputPriority    = 190
+	defaultGoogleSCOutputPriority     = 190
 	defaultiCloudPROutputPriority     = 100
 	defaultIPAPIOutputPriority        = 90
 	defaultIPURLOutputPriority        = 20
@@ -394,6 +395,23 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	}
 
 	sess.Providers.Googlebot.URL = v.GetString("providers.googlebot.url")
+
+	// GoogleSC
+	if v.IsSet("providers.googlesc.enabled") {
+		sess.Providers.GoogleSC.Enabled = ToPtr(v.GetBool("providers.googlesc.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "GoogleSC provider not defined in config")
+		sess.Messages.Mu.Unlock()
+	}
+
+	if v.IsSet("providers.googlesc.output_priority") {
+		sess.Providers.GoogleSC.OutputPriority = ToPtr(v.GetInt32("providers.GoogleSC.output_priority"))
+	} else {
+		sess.Providers.GoogleSC.OutputPriority = ToPtr(int32(defaultGoogleSCOutputPriority))
+	}
+
+	sess.Providers.GoogleSC.URL = v.GetString("providers.googlesc.url")
 
 	// iCloud Private Relay
 	if v.IsSet("providers.icloudpr.enabled") {

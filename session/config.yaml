@@ -36,6 +36,8 @@ providers:
     enabled: true
   googlebot:
     enabled: true
+  googlesc:
+    enabled: true
   icloudpr:
     # disabled by default as can slow down old processors
     enabled: false
