@@ -425,6 +425,7 @@ type RatingConfig struct {
 			HighThreatCountryMatchScore   float64 `json:"highThreatCountryMatchScore,omitempty"`
 			MediumThreatCountryMatchScore float64 `json:"mediumThreatCountryMatchScore,omitempty"`
 		} `json:"ipapi"`
+		IPQS  IPQSRatingConfig `json:"ipqs"`
 		IPURL struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"ipurl"`
@@ -441,6 +442,16 @@ type RatingConfig struct {
 			Malicious  float64 `json:"malicious,omitempty"`
 		} `json:"virustotal"`
 	} `json:"providers"`
+}
+
+type IPQSRatingConfig struct {
+	ProxyScore                    *float64 `json:"proxyScore,omitempty"`
+	VPNScore                      *float64 `json:"vpnScore,omitempty"`
+	TORScore                      *float64 `json:"torScore,omitempty"`
+	BotScore                      *float64 `json:"botScore,omitempty"`
+	RecentAbuseScore              *float64 `json:"recentAbuseScore,omitempty"`
+	HighThreatCountryMatchScore   *float64 `json:"highThreatCountryMatchScore,omitempty"`
+	MediumThreatCountryMatchScore *float64 `json:"mediumThreatCountryMatchScore,omitempty"`
 }
 
 type ProviderRatingConfig struct {

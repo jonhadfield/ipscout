@@ -43,6 +43,8 @@ providers:
     enabled: false
   ipapi:
     enabled: true
+  ipqs:
+    enabled: true
   ipurl:
     enabled: true
     urls:

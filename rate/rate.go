@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jonhadfield/ipscout/providers/ipqs"
+
 	"github.com/fatih/color"
 
 	"github.com/jonhadfield/ipscout/providers/ipapi"
@@ -80,6 +82,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		{Name: google.ProviderName, Enabled: sess.Providers.Google.Enabled, APIKey: "", NewClient: google.NewProviderClient},
 		{Name: googlebot.ProviderName, Enabled: sess.Providers.Googlebot.Enabled, APIKey: "", NewClient: googlebot.NewProviderClient},
 		{Name: ipapi.ProviderName, Enabled: sess.Providers.IPAPI.Enabled, APIKey: "", NewClient: ipapi.NewProviderClient},
+		{Name: ipqs.ProviderName, Enabled: sess.Providers.IPQS.Enabled, APIKey: sess.Providers.IPQS.APIKey, NewClient: ipqs.NewProviderClient},
 		{Name: ipurl.ProviderName, Enabled: sess.Providers.IPURL.Enabled, APIKey: "", NewClient: ipurl.NewProviderClient},
 		{Name: icloudpr.ProviderName, Enabled: sess.Providers.ICloudPR.Enabled, APIKey: "", NewClient: icloudpr.NewProviderClient},
 		{Name: linode.ProviderName, Enabled: sess.Providers.Linode.Enabled, APIKey: "", NewClient: linode.NewProviderClient},

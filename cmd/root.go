@@ -190,6 +190,7 @@ const (
 	defaultGoogleSCOutputPriority     = 190
 	defaultiCloudPROutputPriority     = 100
 	defaultIPAPIOutputPriority        = 90
+	defaultIPQSOutputPriority         = 50
 	defaultIPURLOutputPriority        = 20
 	defaultLinodeOutputPriority       = 140
 	defaultPtrOutputPriority          = 120
@@ -430,6 +431,27 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.ICloudPR.URL = v.GetString("providers.icloudpr.url")
 	sess.Providers.ICloudPR.DocumentCacheTTL = v.GetInt64("providers.icloudpr.document_cache_ttl")
+
+	// IPQS
+	if v.IsSet("providers.ipqs.enabled") {
+		sess.Providers.IPQS.Enabled = ToPtr(v.GetBool("providers.ipqs.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "IPQS provider not defined in config")
+		sess.Messages.Mu.Unlock()
+	}
+
+	if v.IsSet("providers.ipqs.output_priority") {
+		sess.Providers.IPQS.OutputPriority = ToPtr(v.GetInt32("providers.ipqs.output_priority"))
+	} else {
+		sess.Providers.IPQS.OutputPriority = ToPtr(int32(defaultIPQSOutputPriority))
+	}
+
+	if v.IsSet("providers.ipqs.api_key") {
+		sess.Providers.IPQS.APIKey = v.GetString("providers.ipqs.api_key")
+	}
+
+	sess.Providers.IPQS.ResultCacheTTL = v.GetInt64("providers.ipqs.result_cache_ttl")
 
 	// IP URL
 	if v.IsSet("providers.ipurl.enabled") {
@@ -737,20 +759,28 @@ func readProviderAuthKeys(v *viper.Viper) {
 		sess.Providers.AbuseIPDB.Enabled = ToPtr(false)
 	}
 
-	if sess.Providers.Shodan.APIKey == "" {
-		sess.Providers.Shodan.APIKey = v.GetString("shodan_api_key")
-	}
-
-	if sess.Providers.Shodan.APIKey == "" {
-		sess.Providers.Shodan.Enabled = ToPtr(false)
-	}
-
 	if sess.Providers.CriminalIP.APIKey == "" {
 		sess.Providers.CriminalIP.APIKey = v.GetString("criminal_ip_api_key")
 	}
 
 	if sess.Providers.CriminalIP.APIKey == "" {
 		sess.Providers.CriminalIP.Enabled = ToPtr(false)
+	}
+
+	if sess.Providers.IPQS.APIKey == "" {
+		sess.Providers.IPQS.APIKey = v.GetString("ipqs_api_key")
+	}
+
+	if sess.Providers.IPQS.APIKey == "" {
+		sess.Providers.IPQS.Enabled = ToPtr(false)
+	}
+
+	if sess.Providers.Shodan.APIKey == "" {
+		sess.Providers.Shodan.APIKey = v.GetString("shodan_api_key")
+	}
+
+	if sess.Providers.Shodan.APIKey == "" {
+		sess.Providers.Shodan.Enabled = ToPtr(false)
 	}
 
 	if sess.Providers.VirusTotal.APIKey == "" {

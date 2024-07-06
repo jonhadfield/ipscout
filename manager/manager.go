@@ -195,7 +195,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error reading cache: %w", err)
+		return nil, fmt.Errorf("error iterating cache: %w", err)
 	}
 
 	return cacheItemsInfo, nil

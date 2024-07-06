@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jonhadfield/ipscout/providers/ipqs"
+
 	"github.com/jonhadfield/ipscout/providers/azurewaf"
 	"github.com/jonhadfield/ipscout/providers/googlesc"
 
@@ -77,6 +79,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		{Name: googlebot.ProviderName, Enabled: sess.Providers.Googlebot.Enabled, APIKey: "", NewClient: googlebot.NewProviderClient},
 		{Name: googlesc.ProviderName, Enabled: sess.Providers.GoogleSC.Enabled, APIKey: "", NewClient: googlesc.NewProviderClient},
 		{Name: ipapi.ProviderName, Enabled: sess.Providers.IPAPI.Enabled, APIKey: "", NewClient: ipapi.NewProviderClient},
+		{Name: ipqs.ProviderName, Enabled: sess.Providers.IPQS.Enabled, APIKey: sess.Providers.IPQS.APIKey, NewClient: ipqs.NewProviderClient},
 		{Name: ipurl.ProviderName, Enabled: sess.Providers.IPURL.Enabled, APIKey: "", NewClient: ipurl.NewProviderClient},
 		{Name: icloudpr.ProviderName, Enabled: sess.Providers.ICloudPR.Enabled, APIKey: "", NewClient: icloudpr.NewProviderClient},
 		{Name: linode.ProviderName, Enabled: sess.Providers.Linode.Enabled, APIKey: "", NewClient: linode.NewProviderClient},
@@ -289,7 +292,7 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 
 			result, err := runner.FindHost()
 			if err != nil {
-				runner.GetConfig().Logger.Debug(err.Error())
+				runner.GetConfig().Logger.Error(err.Error())
 
 				return
 			}
