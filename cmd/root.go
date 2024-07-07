@@ -585,7 +585,7 @@ func initHomeDirConfig(sess *session.Session, v *viper.Viper) error {
 	return nil
 }
 
-func initSessionConfig(sess *session.Session, v *viper.Viper, configRoot string) error {
+func initSessionConfig(sess *session.Session, v *viper.Viper) error {
 	initProviderConfig(sess, v)
 
 	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
@@ -646,7 +646,7 @@ func initConfig(cmd *cobra.Command) error {
 
 	sess.Target = os.Stderr
 
-	if err := initSessionConfig(sess, v, configRoot); err != nil {
+	if err := initSessionConfig(sess, v); err != nil {
 		return err
 	}
 
