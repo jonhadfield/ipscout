@@ -292,7 +292,7 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 
 			result, err := runner.FindHost()
 			if err != nil {
-				runner.GetConfig().Logger.Error(err.Error())
+				runner.GetConfig().Logger.Info(err.Error())
 
 				return
 			}
