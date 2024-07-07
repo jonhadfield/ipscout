@@ -438,8 +438,8 @@ type RatingConfig struct {
 			MediumThreatCountryMatchScore float64 `json:"mediumThreatCountryMatchScore,omitempty"`
 		} `json:"shodan"`
 		VirusTotal struct {
-			Suspicious float64 `json:"suspicious,omitempty"`
-			Malicious  float64 `json:"malicious,omitempty"`
+			SuspiciousScore *float64 `json:"suspiciousScore,omitempty"`
+			MaliciousScore  *float64 `json:"maliciousScore,omitempty"`
 		} `json:"virustotal"`
 	} `json:"providers"`
 }

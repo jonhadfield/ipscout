@@ -5,10 +5,48 @@ import (
 	"os"
 	"testing"
 
+	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
 
 	"github.com/stretchr/testify/require"
 )
+
+func TestRateHost(t *testing.T) {
+	rc := providers.RatingConfig{}
+	rc.Global.HighThreatCountryCodes = []string{"CN"}
+	rc.Global.MediumThreatCountryCodes = []string{"US"}
+	rc.ProviderRatingsConfigs.VirusTotal.SuspiciousScore = ToPtr(float64(7.6))
+	rc.ProviderRatingsConfigs.VirusTotal.MaliciousScore = ToPtr(float64(9.2))
+	attrs := HostSearchResultDataAttributes{
+		LastAnalysisStats:    LastAnalysisStats{},
+		LastAnalysisResults:  LastAnalysisResults{},
+		LastModificationDate: 0,
+		LastAnalysisDate:     0,
+		Reputation:           0,
+		Country:              "",
+		TotalVotes:           TotalVotes{},
+		Asn:                  0,
+	}
+
+	res := rateHost(attrs, rc)
+	// nothing detected so should return 0
+	require.Equal(t, float64(0), res.Score)
+
+	// expect country US to bring score up to 3
+	attrs.Country = "US"
+	res = rateHost(attrs, rc)
+	require.Equal(t, float64(6), res.Score)
+
+	// setting a report of suspicious should bring score up to 7.6
+	attrs.LastAnalysisStats.Suspicious = 2
+	res = rateHost(attrs, rc)
+	require.Equal(t, float64(7.6), res.Score)
+
+	// setting a report of malicious should bring score up to 9.2
+	attrs.LastAnalysisStats.Malicious = 1
+	res = rateHost(attrs, rc)
+	require.Equal(t, float64(9.2), res.Score)
+}
 
 //nolint:funlen
 func TestVirusTotalHostQuery(t *testing.T) {

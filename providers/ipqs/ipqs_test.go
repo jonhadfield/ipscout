@@ -13,7 +13,6 @@ func ToPtr[T any](v T) *T {
 
 func TestRateHost(t *testing.T) {
 	rc := providers.RatingConfig{}
-	// prc := providers.ProviderRatingConfig{}
 	rc.Global.HighThreatCountryCodes = []string{"CN"}
 	rc.Global.MediumThreatCountryCodes = []string{"US"}
 	rc.ProviderRatingsConfigs.IPQS.ProxyScore = ToPtr(float64(3))
