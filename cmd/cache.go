@@ -75,9 +75,7 @@ func newCacheInitialiseCommand() *cobra.Command {
 
 			processor.Session.Config.Global.InitialiseCacheOnly = true
 
-			processor.Run()
-
-			return nil
+			return processor.Run()
 		},
 	}
 }
