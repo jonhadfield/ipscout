@@ -76,6 +76,10 @@
       "openPortsScore": 5.0,
       "highThreatCountryMatchScore": 10.0,
       "mediumThreatCountryMatchScore": 7.0
+    },
+    "virusTotal": {
+      "suspiciousScore": 7.0,
+      "maliciousScore": 10.0
     }
   }
 }
