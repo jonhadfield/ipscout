@@ -8,11 +8,11 @@ IPScout is a command-line tool for security analysts to enrich IP addresses with
 ### format
 Results are displayed in a table by default but can also be outputted as JSON format using the `--output` flag.
 - [table](examples/table.png)
-- [json](examples/results.json)  
+- [json](examples/results.json)
 ### style
 Table styles include ascii (for basic terminals), cyan, red, yellow, green, blue, and can be specified in the `config.yaml` file or with the `--style` flag.
 - [ascii](examples/ascii.txt)
-- [red](examples/table.png)  
+- [red](examples/table.png)
 
 ## Providers
 
@@ -26,15 +26,17 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [AbuseIPDB](#AbuseIPDB)                                   |  IP Reputation   | Registration required |
 | [Annotated](#Annotated)                                   |  User Provided   |           -           |
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
-| [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |    
+| [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |
 | [Azure](#Azure)                                           | Hosting Provider |           -           |
 | [Azure WAF](#Azure-WAF)                                   |       WAF        | Azure access required |
 | [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
+| [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
 | [Googlebot](#Googlebot)                                   |   Web crawler    |           -           |
 | [IPAPI](#IPAPI)                                           |  IP Geolocation  |           -           |
+| [IPQualityScore](#IPQualityScore)                         |  IP Reputation   | Registration required |
 | [IPURL](#IPURL)                                           |  User Provided   |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
@@ -50,7 +52,7 @@ page.
 
 ```
 $ brew tap jonhadfield/ipscout
-$ brew install ipscout 
+$ brew install ipscout
 ```
 
 ### Linux
@@ -93,7 +95,7 @@ providers:
 
 ## Providers
 
-Providers are configured in the `config.yaml` file.  
+Providers are configured in the `config.yaml` file.
 A number of providers are enabled by default, but can be disabled by setting `enabled: false`.
 
 ### AbuseIPDB
@@ -160,8 +162,8 @@ services.
 
 ### Azure WAF
 
-[Azure WAF](https://azure.microsoft.com/en-gb/products/web-application-firewall/) is a Web Application Firewall used to secure services hosted on Azure.  
-This currently supports Azure Global WAF, used to secure Azure Front Door, and will show custom rules and prefixes matching the provided host.   
+[Azure WAF](https://azure.microsoft.com/en-gb/products/web-application-firewall/) is a Web Application Firewall used to secure services hosted on Azure.
+This currently supports Azure Global WAF, used to secure Azure Front Door, and will show custom rules and prefixes matching the provided host.
 Authentication will be read from the environment.
 
 ### Bingbot
@@ -175,7 +177,9 @@ Query the [CriminalIP](https://www.criminalip.io/) API for information on an IP 
 any abuse reports filed for them.
 A [free plan](https://www.criminalip.io/pricing) exists with a small number of free credits.
 
-Environment variable `CRIMINAL_IP_API_KEY` must be set with your API key.
+Set environment variable `CRIMINAL_IP_API_URL` with your API key.
+
+```yaml
 
 ### DigitalOcean
 
@@ -193,6 +197,11 @@ services.
 [Google](https://support.google.com/a/answer/10026322?hl=en-GB) provides a list of IP addresses used by customers of their services
  and publishes them [here](https://www.gstatic.com/ipranges/goog.json).
 
+### Google Special Crawlers
+
+[Google](https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers#special-case-crawlers) provides a list
+ of IP addresses used by their non-Googlebot crawlers [here](https://developers.google.com/static/search/apis/ipranges/special-crawlers.json).
+
 ### Googlebot
 
 [Googlebot](https://developers.google.com/search/docs/crawling-indexing/googlebot) is a web crawler
@@ -208,6 +217,13 @@ their network prefixes [here](https://mask-api.icloud.com/egress-ip-ranges.csv).
 
 Query the [ipapi](https://ipapi.co/) API for geolocation data.
 The API is free for up 30,000 requests per day.
+
+### IPQualityScore
+
+Query the [IPQualityScore](https://www.ipqualityscore.com/documentation/proxy-detection-api/overview) API for host reputation data.
+The API is free to registered users for 5,000 requests.
+
+Set environment variable `IPQS_API_KEY` with your API key.
 
 ### IPURL
 
@@ -228,10 +244,10 @@ Example configuration:
 A match for target IP 3.68.116.6 in two of the above may return:
 
 ```
-Prefixes                                                                     
-  3.68.116.0/28                                                    
-   |----- https://iplists.firehol.org/files/firehol_level2.netset     
-   |----- https://iplists.firehol.org/files/blocklist_de.ipset      
+Prefixes
+  3.68.116.0/28
+   |----- https://iplists.firehol.org/files/firehol_level2.netset
+   |----- https://iplists.firehol.org/files/blocklist_de.ipset
 ```
 
 ### Linode
@@ -241,7 +257,7 @@ that [publishes](https://geoip.linode.com/) network prefixes used by their servi
 
 ### PTR
 
-The PTR provider does a reverse lookup for the target IP.  
+The PTR provider does a reverse lookup for the target IP.
 See:
 
 - https://en.wikipedia.org/wiki/Reverse_DNS_lookup
