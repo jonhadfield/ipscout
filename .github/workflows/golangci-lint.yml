@@ -4,7 +4,7 @@ on:
     tags:
       - '*'
     branches:
-      - main
+      - '*'
   pull_request:
 jobs:
   golangci:
