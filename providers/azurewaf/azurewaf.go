@@ -198,7 +198,7 @@ func (c *ProviderClient) loadProviderDataFromCache() ([]*armfrontdoor.WebApplica
 			return nil, fmt.Errorf("error unmarshalling cached azurewaf provider doc: %w", err)
 		}
 	} else {
-		return nil, fmt.Errorf("error reading azurewaf provider cache: %w", err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	c.Stats.Mu.Lock()

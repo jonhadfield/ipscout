@@ -367,6 +367,172 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	return result.Raw, nil
 }
 
+func countFilteredPorts(in []HostSearchResultData, ports []string, maxAge string) (int, error) {
+	var filteredPorts int
+
+	for _, dr := range in {
+		var ok bool
+
+		_, ok, err := providers.PortMatchFilter(providers.PortMatchFilterInput{
+			IncomingPort:        fmt.Sprintf("%d/%s", dr.Port, dr.Transport),
+			MatchPorts:          ports,
+			ConfirmedDate:       dr.Timestamp,
+			ConfirmedDateFormat: portLastModifiedFormat,
+			MaxAge:              maxAge,
+		})
+		if err != nil {
+			return 0, fmt.Errorf("error checking port match filter: %w", err)
+		}
+
+		if !ok {
+			filteredPorts++
+
+			continue
+		}
+	}
+
+	return filteredPorts, nil
+}
+
+func appendSSHRows(ssh SSH, globalIndentSpaces int, tw *table.Writer) {
+	if ssh.Type != "" {
+		twc := *tw
+
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s  SSH",
+				IndentPipeHyphens),
+		})
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s%sType: %s",
+				IndentPipeHyphens, strings.Repeat(" ", indentSpaces*globalIndentSpaces), ssh.Type),
+		})
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s%sCipher: %s",
+				IndentPipeHyphens, strings.Repeat(" ", indentSpaces*globalIndentSpaces), ssh.Cipher),
+		})
+	}
+}
+
+func appendHTTPRows(c *ProviderClient, http HTTP, tw *table.Writer) {
+	if http.Status != 0 {
+		twc := *tw
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s  HTTP",
+				IndentPipeHyphens),
+		})
+
+		if http.Location != "" {
+			twc.AppendRow(table.Row{
+				"",
+				fmt.Sprintf("%s%sLocation: %s",
+					IndentPipeHyphens,
+					strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), http.Location),
+			})
+		}
+
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s%sStatus: %d",
+				IndentPipeHyphens,
+				strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), http.Status),
+		})
+
+		if http.Title != "" {
+			twc.AppendRow(table.Row{
+				"",
+				fmt.Sprintf("%s%sTitle: %s",
+					IndentPipeHyphens, strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), http.Title),
+			})
+		}
+
+		if http.Server != "" {
+			twc.AppendRow(table.Row{
+				"",
+				fmt.Sprintf("%s%sServer: %s",
+					IndentPipeHyphens, strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), http.Server),
+			})
+		}
+
+		if http.HTML != "" {
+			http.HTML = strings.TrimSuffix(http.HTML, "\n")
+			twc.AppendRow(table.Row{
+				"",
+				fmt.Sprintf("%s%sHTML: %s",
+					IndentPipeHyphens,
+					strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces),
+					providers.PreProcessValueOutput(&c.Session, http.HTML)),
+			})
+		}
+	}
+}
+
+func appendDNSRows(dns DNS, globalIndentSpaces int, tw *table.Writer) {
+	if dns.ResolverHostname != nil {
+		twc := *tw
+		twc.AppendRow(table.Row{"", fmt.Sprintf("%s  DNS", IndentPipeHyphens)})
+
+		if dns.ResolverHostname != "" {
+			twc.AppendRow(table.Row{
+				"",
+				fmt.Sprintf("%s%sResolver Hostname: %s",
+					IndentPipeHyphens,
+					strings.Repeat(" ", indentSpaces*globalIndentSpaces), dns.ResolverHostname),
+			})
+		}
+
+		if dns.Software != nil {
+			twc.AppendRow(table.Row{
+				"",
+				fmt.Sprintf("%s%sResolver Software: %s",
+					IndentPipeHyphens,
+					strings.Repeat(" ", indentSpaces*globalIndentSpaces), dns.Software),
+			})
+		}
+
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s%sRecursive: %t", IndentPipeHyphens,
+				strings.Repeat(" ", indentSpaces*globalIndentSpaces), dns.Recursive),
+		})
+	}
+}
+
+func appendSSLRows(ssl Ssl, globalIndentSpaces int, rowEmphasisColor func(format string, a ...interface{}) string, tw *table.Writer) {
+	if len(ssl.Versions) > 0 {
+		twc := *tw
+
+		twc.AppendRow(table.Row{"", rowEmphasisColor("SSL")})
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s%sIssuer: %s", IndentPipeHyphens,
+				strings.Repeat(" ", indentSpaces*globalIndentSpaces), ssl.Cert.Issuer.Cn),
+		})
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s%sSubject: %s",
+				IndentPipeHyphens, strings.Repeat(" ", indentSpaces*globalIndentSpaces),
+				ssl.Cert.Subject.Cn),
+		})
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s%sVersions: %s",
+				IndentPipeHyphens, strings.Repeat(" ",
+					indentSpaces*globalIndentSpaces), strings.Join(ssl.Versions, ", ")),
+		})
+		twc.AppendRow(table.Row{
+			"",
+			fmt.Sprintf("%s%sExpires: %s",
+				IndentPipeHyphens,
+				strings.Repeat(" ", indentSpaces*globalIndentSpaces),
+				ssl.Cert.Expires),
+		})
+	}
+}
+
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	start := time.Now()
 	defer func() {
@@ -404,29 +570,11 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{" - Region", providers.DashIfEmpty(result.RegionCode)})
 	tw.AppendRow(table.Row{" - City", providers.DashIfEmpty(result.City)})
 
-	var filteredPorts int
-
 	var portsDisplayed int
 
-	for _, dr := range result.Data {
-		var ok bool
-
-		_, ok, err := providers.PortMatchFilter(providers.PortMatchFilterInput{
-			IncomingPort:        fmt.Sprintf("%d/%s", dr.Port, dr.Transport),
-			MatchPorts:          c.Config.Global.Ports,
-			ConfirmedDate:       dr.Timestamp,
-			ConfirmedDateFormat: portLastModifiedFormat,
-			MaxAge:              c.Config.Global.MaxAge,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("error checking port match filter: %w", err)
-		}
-
-		if !ok {
-			filteredPorts++
-
-			continue
-		}
+	filteredPorts, err := countFilteredPorts(result.Data, c.Config.Global.Ports, c.Config.Global.MaxAge)
+	if err != nil {
+		return nil, fmt.Errorf("error counting filtered ports: %w", err)
 	}
 
 	if filteredPorts > 0 {
@@ -480,130 +628,10 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 				})
 			}
 
-			if dr.SSH.Type != "" {
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s  SSH",
-						IndentPipeHyphens),
-				})
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s%sType: %s",
-						IndentPipeHyphens, strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.SSH.Type),
-				})
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s%sCipher: %s",
-						IndentPipeHyphens, strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.SSH.Cipher),
-				})
-			}
-
-			if dr.HTTP.Status != 0 {
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s  HTTP",
-						IndentPipeHyphens),
-				})
-
-				if dr.HTTP.Location != "" {
-					tw.AppendRow(table.Row{
-						"",
-						fmt.Sprintf("%s%sLocation: %s",
-							IndentPipeHyphens,
-							strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.HTTP.Location),
-					})
-				}
-
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s%sStatus: %d",
-						IndentPipeHyphens,
-						strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.HTTP.Status),
-				})
-
-				if dr.HTTP.Title != "" {
-					tw.AppendRow(table.Row{
-						"",
-						fmt.Sprintf("%s%sTitle: %s",
-							IndentPipeHyphens, strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.HTTP.Title),
-					})
-				}
-
-				if dr.HTTP.Server != "" {
-					tw.AppendRow(table.Row{
-						"",
-						fmt.Sprintf("%s%sServer: %s",
-							IndentPipeHyphens, strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.HTTP.Server),
-					})
-				}
-
-				if dr.HTTP.HTML != "" {
-					dr.HTTP.HTML = strings.TrimSuffix(dr.HTTP.HTML, "\n")
-					tw.AppendRow(table.Row{
-						"",
-						fmt.Sprintf("%s%sHTML: %s",
-							IndentPipeHyphens,
-							strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces),
-							providers.PreProcessValueOutput(&c.Session, dr.HTTP.HTML)),
-					})
-				}
-			}
-
-			if len(dr.Ssl.Versions) > 0 {
-				tw.AppendRow(table.Row{"", rowEmphasisColor("SSL")})
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s%sIssuer: %s", IndentPipeHyphens,
-						strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.Ssl.Cert.Issuer.Cn),
-				})
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s%sSubject: %s",
-						IndentPipeHyphens, strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces),
-						dr.Ssl.Cert.Subject.Cn),
-				})
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s%sVersions: %s",
-						IndentPipeHyphens, strings.Repeat(" ",
-							indentSpaces*c.Config.Global.IndentSpaces), strings.Join(dr.Ssl.Versions, ", ")),
-				})
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s%sExpires: %s",
-						IndentPipeHyphens,
-						strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces),
-						dr.Ssl.Cert.Expires),
-				})
-			}
-
-			if dr.DNS.ResolverHostname != nil {
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s  DNS", IndentPipeHyphens)})
-
-				if dr.DNS.ResolverHostname != "" {
-					tw.AppendRow(table.Row{
-						"",
-						fmt.Sprintf("%s%sResolver Hostname: %s",
-							IndentPipeHyphens,
-							strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.DNS.ResolverHostname),
-					})
-				}
-
-				if dr.DNS.Software != nil {
-					tw.AppendRow(table.Row{
-						"",
-						fmt.Sprintf("%s%sResolver Software: %s",
-							IndentPipeHyphens,
-							strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.DNS.Software),
-					})
-				}
-
-				tw.AppendRow(table.Row{
-					"",
-					fmt.Sprintf("%s%sRecursive: %t", IndentPipeHyphens,
-						strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), dr.DNS.Recursive),
-				})
-			}
+			appendSSHRows(dr.SSH, c.Config.Global.IndentSpaces, &tw)
+			appendHTTPRows(c, dr.HTTP, &tw)
+			appendSSLRows(dr.Ssl, c.Config.Global.IndentSpaces, rowEmphasisColor, &tw)
+			appendDNSRows(dr.DNS, c.Config.Global.IndentSpaces, &tw)
 
 			portsDisplayed++
 
@@ -683,57 +711,9 @@ type HostSearchResultData struct {
 		CountryCode string  `json:"country_code"`
 		Latitude    float64 `json:"latitude"`
 	} `json:"location"`
-	DNS struct {
-		ResolverHostname any  `json:"resolver_hostname"`
-		Recursive        bool `json:"recursive"`
-		ResolverID       any  `json:"resolver_id"`
-		Software         any  `json:"software"`
-	} `json:"dns,omitempty"`
-	SSH struct {
-		Hassh       string `json:"hassh"`
-		Fingerprint string `json:"fingerprint"`
-		Mac         string `json:"mac"`
-		Cipher      string `json:"cipher"`
-		Key         string `json:"key"`
-		Kex         struct {
-			Languages               []string `json:"languages"`
-			ServerHostKeyAlgorithms []string `json:"server_host_key_algorithms"`
-			EncryptionAlgorithms    []string `json:"encryption_algorithms"`
-			KexFollows              bool     `json:"kex_follows"`
-			Unused                  int      `json:"unused"`
-			KexAlgorithms           []string `json:"kex_algorithms"`
-			CompressionAlgorithms   []string `json:"compression_algorithms"`
-			MacAlgorithms           []string `json:"mac_algorithms"`
-		} `json:"kex"`
-		Type string `json:"type"`
-	} `json:"ssh"`
-	HTTP struct {
-		Status     int `json:"status"`
-		RobotsHash int `json:"robots_hash"`
-		Redirects  []struct {
-			Host     string `json:"host"`
-			Data     string `json:"data"`
-			Location string `json:"location"`
-		}
-		SecurityTxt string `json:"security_txt"`
-		Title       string `json:"title"`
-		SitemapHash int    `json:"sitemap_hash"`
-		HTMLHash    int    `json:"html_hash"`
-		Robots      string `json:"robots"`
-		Favicon     struct {
-			Hash     int    `json:"hash"`
-			Data     string `json:"data"`
-			Location string `json:"location"`
-		} `json:"favicon"`
-		HeadersHash     int      `json:"headers_hash"`
-		Host            string   `json:"host"`
-		HTML            string   `json:"html"`
-		Location        string   `json:"location"`
-		Components      struct{} `json:"components"`
-		Server          string   `json:"server"`
-		Sitemap         string   `json:"sitemap"`
-		SecurityTxtHash int      `json:"securitytxt_hash"`
-	} `json:"http,omitempty"`
+	DNS       DNS      `json:"dns,omitempty"`
+	SSH       SSH      `json:"ssh"`
+	HTTP      HTTP     `json:"http,omitempty"`
 	IP        int      `json:"ip"`
 	Domains   []string `json:"domains"`
 	Org       string   `json:"org"`
@@ -741,60 +721,116 @@ type HostSearchResultData struct {
 	Asn       string   `json:"asn"`
 	Transport string   `json:"transport"`
 	IPStr     string   `json:"ip_str"`
-	Ssl       struct {
-		ChainSha256   []string `json:"chain_sha256"`
-		Jarm          string   `json:"jarm"`
-		Chain         []string `json:"chain"`
-		Dhparams      any      `json:"dhparams"`
-		Versions      []string `json:"versions"`
-		AcceptableCas []any    `json:"acceptable_cas"`
-		Tlsext        []struct {
-			ID   int    `json:"id"`
-			Name string `json:"name"`
-		} `json:"tlsext"`
-		Ja3S string `json:"ja3s"`
-		Cert struct {
-			SigAlg     string `json:"sig_alg"`
-			Issued     string `json:"issued"`
-			Expires    string `json:"expires"`
-			Expired    bool   `json:"expired"`
-			Version    int    `json:"version"`
-			Extensions []struct {
-				Critical bool   `json:"critical,omitempty"`
-				Data     string `json:"data"`
-				Name     string `json:"name"`
-			} `json:"extensions"`
-			Fingerprint struct {
-				Sha256 string `json:"sha256"`
-				Sha1   string `json:"sha1"`
-			} `json:"fingerprint"`
-			Serial  json.RawMessage `json:"serial"`
-			Subject struct {
-				Cn string `json:"CN"`
-			} `json:"subject"`
-			Pubkey struct {
-				Type string `json:"type"`
-				Bits int    `json:"bits"`
-			} `json:"pubkey"`
-			Issuer struct {
-				C  string `json:"C"`
-				Cn string `json:"CN"`
-				O  string `json:"O"`
-			} `json:"issuer"`
-		} `json:"cert"`
-		Cipher struct {
-			Version string `json:"version"`
-			Bits    int    `json:"bits"`
-			Name    string `json:"name"`
-		} `json:"cipher"`
-		Trust struct {
-			Revoked bool `json:"revoked"`
-			Browser any  `json:"browser"`
-		} `json:"trust"`
-		HandshakeStates []string `json:"handshake_states"`
-		Alpn            []any    `json:"alpn"`
-		Ocsp            struct{} `json:"ocsp"`
-	} `json:"ssl,omitempty"`
+	Ssl       Ssl      `json:"ssl,omitempty"`
+}
+
+type DNS struct {
+	ResolverHostname any  `json:"resolver_hostname"`
+	Recursive        bool `json:"recursive"`
+	ResolverID       any  `json:"resolver_id"`
+	Software         any  `json:"software"`
+}
+
+type HTTP struct {
+	Status     int `json:"status"`
+	RobotsHash int `json:"robots_hash"`
+	Redirects  []struct {
+		Host     string `json:"host"`
+		Data     string `json:"data"`
+		Location string `json:"location"`
+	}
+	SecurityTxt string `json:"security_txt"`
+	Title       string `json:"title"`
+	SitemapHash int    `json:"sitemap_hash"`
+	HTMLHash    int    `json:"html_hash"`
+	Robots      string `json:"robots"`
+	Favicon     struct {
+		Hash     int    `json:"hash"`
+		Data     string `json:"data"`
+		Location string `json:"location"`
+	} `json:"favicon"`
+	HeadersHash     int      `json:"headers_hash"`
+	Host            string   `json:"host"`
+	HTML            string   `json:"html"`
+	Location        string   `json:"location"`
+	Components      struct{} `json:"components"`
+	Server          string   `json:"server"`
+	Sitemap         string   `json:"sitemap"`
+	SecurityTxtHash int      `json:"securitytxt_hash"`
+}
+
+type SSH struct {
+	Hassh       string `json:"hassh"`
+	Fingerprint string `json:"fingerprint"`
+	Mac         string `json:"mac"`
+	Cipher      string `json:"cipher"`
+	Key         string `json:"key"`
+	Kex         struct {
+		Languages               []string `json:"languages"`
+		ServerHostKeyAlgorithms []string `json:"server_host_key_algorithms"`
+		EncryptionAlgorithms    []string `json:"encryption_algorithms"`
+		KexFollows              bool     `json:"kex_follows"`
+		Unused                  int      `json:"unused"`
+		KexAlgorithms           []string `json:"kex_algorithms"`
+		CompressionAlgorithms   []string `json:"compression_algorithms"`
+		MacAlgorithms           []string `json:"mac_algorithms"`
+	} `json:"kex"`
+	Type string `json:"type"`
+}
+
+type Ssl struct {
+	ChainSha256   []string `json:"chain_sha256"`
+	Jarm          string   `json:"jarm"`
+	Chain         []string `json:"chain"`
+	Dhparams      any      `json:"dhparams"`
+	Versions      []string `json:"versions"`
+	AcceptableCas []any    `json:"acceptable_cas"`
+	Tlsext        []struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"tlsext"`
+	Ja3S string `json:"ja3s"`
+	Cert struct {
+		SigAlg     string `json:"sig_alg"`
+		Issued     string `json:"issued"`
+		Expires    string `json:"expires"`
+		Expired    bool   `json:"expired"`
+		Version    int    `json:"version"`
+		Extensions []struct {
+			Critical bool   `json:"critical,omitempty"`
+			Data     string `json:"data"`
+			Name     string `json:"name"`
+		} `json:"extensions"`
+		Fingerprint struct {
+			Sha256 string `json:"sha256"`
+			Sha1   string `json:"sha1"`
+		} `json:"fingerprint"`
+		Serial  json.RawMessage `json:"serial"`
+		Subject struct {
+			Cn string `json:"CN"`
+		} `json:"subject"`
+		Pubkey struct {
+			Type string `json:"type"`
+			Bits int    `json:"bits"`
+		} `json:"pubkey"`
+		Issuer struct {
+			C  string `json:"C"`
+			Cn string `json:"CN"`
+			O  string `json:"O"`
+		} `json:"issuer"`
+	} `json:"cert"`
+	Cipher struct {
+		Version string `json:"version"`
+		Bits    int    `json:"bits"`
+		Name    string `json:"name"`
+	} `json:"cipher"`
+	Trust struct {
+		Revoked bool `json:"revoked"`
+		Browser any  `json:"browser"`
+	} `json:"trust"`
+	HandshakeStates []string `json:"handshake_states"`
+	Alpn            []any    `json:"alpn"`
+	Ocsp            struct{} `json:"ocsp"`
 }
 
 type HostSearchResult struct {

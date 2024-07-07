@@ -146,7 +146,6 @@ func rateHost(hostData ipqsResp, ratingConfig providers.RatingConfig) providers.
 	}
 
 	if hostData.Tor {
-		rateResult.Score += 8
 		rateResult.Score = chooseScore(defaultTORMatchScore, rateResult.Score, ratingConfig.ProviderRatingsConfigs.IPQS.TORScore)
 		rateResult.Reasons = append(rateResult.Reasons, "TOR")
 	}
