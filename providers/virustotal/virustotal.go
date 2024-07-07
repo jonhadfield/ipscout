@@ -56,7 +56,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	var rateResult providers.RateResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return providers.RateResult{}, fmt.Errorf("error unmarshalling virustotal data: %w", err)
+		return providers.RateResult{}, fmt.Errorf("failed to unmarshall virustotal data: %w", err)
 	}
 
 	// assume no result if no host id

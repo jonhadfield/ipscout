@@ -29,7 +29,6 @@ const (
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
 	ResultTTL              = 12 * time.Hour
-	OutputPriority         = 50
 	dataColumnNo           = 2
 	indentSpaces           = 2
 	APITimeout             = 10 * time.Second
