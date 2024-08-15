@@ -171,7 +171,7 @@ func loadAPIResponse(ctx context.Context, conf *session.Session, apiKey string) 
 
 	sURL, err := url.Parse(urlPath)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error parsing criminal ip api url: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, APITimeout)
@@ -183,7 +183,7 @@ func loadAPIResponse(ctx context.Context, conf *session.Session, apiKey string) 
 
 	req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodGet, sURL.String(), nil)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error creating criminal ip request: %w", err)
 	}
 
 	conf.HTTPClient.HTTPClient.Timeout = APITimeout
@@ -192,7 +192,7 @@ func loadAPIResponse(ctx context.Context, conf *session.Session, apiKey string) 
 
 	resp, err := conf.HTTPClient.Do(req)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error sending criminal ip request: %w", err)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -206,14 +206,14 @@ func loadAPIResponse(ctx context.Context, conf *session.Session, apiKey string) 
 	// read response body
 	rBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error reading criminal ip response body: %w", err)
 	}
 
 	defer resp.Body.Close()
 
 	res, err = unmarshalResponse(rBody)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling criminal ip response: %w", err)
 	}
 
 	// check if response contains an error, despite a 200 status code
