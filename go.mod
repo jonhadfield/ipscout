@@ -11,7 +11,7 @@ require (
 	github.com/fatih/color v1.17.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jedib0t/go-pretty/v6 v6.5.9
-	github.com/jonhadfield/azwaf v0.0.0-20240615102631-9be3871d19e5
+	github.com/jonhadfield/azwaf v0.0.0-20240708191157-3e8f3a2ab5bb
 	github.com/jonhadfield/ip-fetcher v0.0.0-20240625152748-74041462b9c1
 	github.com/miekg/dns v1.1.61
 	github.com/mitchellh/go-homedir v1.1.0
@@ -19,7 +19,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/sync v0.7.0
+	golang.org/x/sync v0.8.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -32,7 +32,7 @@ require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.12.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.7.0 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/internal v1.9.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.9.1 // indirect
 	github.com/Azure/azure-storage-blob-go v0.15.0 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest v0.11.29 // indirect
@@ -112,8 +112,8 @@ require (
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	golang.org/x/mod v0.18.0 // indirect
 	golang.org/x/net v0.26.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
-	golang.org/x/term v0.21.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/tools v0.22.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
