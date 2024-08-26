@@ -181,8 +181,6 @@ A [free plan](https://www.criminalip.io/pricing) exists with a small number of f
 
 Set environment variable `CRIMINAL_IP_API_URL` with your API key.
 
-```yaml
-
 ### DigitalOcean
 
 [DigitalOcean](https://www.digitalocean.com/) is a hosting provider
