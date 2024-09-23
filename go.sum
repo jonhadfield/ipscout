@@ -211,6 +211,7 @@ github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLf
 github.com/jedib0t/go-pretty/v6 v6.5.9 h1:ACteMBRrrmm1gMsXe9PSTOClQ63IXDUt03H5U+UV8OU=
 github.com/jedib0t/go-pretty/v6 v6.5.9/go.mod h1:zbn98qrYlh95FIhwwsbIip0LYpwSG8SUOScs+v9/t0E=
 github.com/jellevandenhooff/dkim v0.0.0-20150330215556-f50fe3d243e1/go.mod h1:E0B/fFc00Y+Rasa88328GlI/XbtyysCtTHZS8h7IrBU=
+github.com/jonhadfield/azwaf v0.0.0-20240708191157-3e8f3a2ab5bb h1:CmF5qIdNwGPj9tNUV2mPiNJCl1hz1n1lmuGWWysG2U8=
 github.com/jonhadfield/azwaf v0.0.0-20240708191157-3e8f3a2ab5bb/go.mod h1:YbeO5eI3HSCOg8hXtgjKiriTqoA35vPfJHdbEirv22Q=
 github.com/jonhadfield/findexec v0.0.0-20190902195615-78db24cd4e77 h1:U1mtIepXhvIq0cLDLO6z1hZYS80lDXzmsZJwMgzwaf8=
 github.com/jonhadfield/findexec v0.0.0-20190902195615-78db24cd4e77/go.mod h1:9Q9pFtVLzvgKEi8++fNhmSR7HpD9+9+dPy/SECsNB6k=
