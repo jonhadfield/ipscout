@@ -88,7 +88,15 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		{Name: virustotal.ProviderName, Enabled: sess.Providers.VirusTotal.Enabled, APIKey: sess.Providers.VirusTotal.APIKey, NewClient: virustotal.NewProviderClient},
 	}
 
+	var enabled int
+
 	for _, provider := range pros {
+		if provider.Enabled == nil || !*provider.Enabled {
+			continue
+		}
+
+		enabled++
+
 		client, err := provider.NewClient(sess)
 		if err != nil {
 			return nil, fmt.Errorf("error creating %s client: %w", provider.Name, err)
@@ -97,6 +105,10 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		if client != nil && client.Enabled() || sess.UseTestData {
 			runners[provider.Name] = client
 		}
+	}
+
+	if enabled == 0 {
+		return nil, fmt.Errorf("no providers enabled")
 	}
 
 	return runners, nil
@@ -225,6 +237,10 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 	}
 
 	for name, runner := range runners {
+		if !runner.Enabled() {
+			continue
+		}
+
 		g.Go(func() error {
 			name := name
 
