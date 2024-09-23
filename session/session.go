@@ -159,10 +159,10 @@ type Providers struct {
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"azure"`
 	AzureWAF struct {
-		Enabled          *bool `mapstructure:"enabled"`
-		ResourceIDs      []string
-		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
-		OutputPriority   *int32 `mapstructure:"output_priority"`
+		Enabled          *bool    `mapstructure:"enabled"`
+		ResourceIDs      []string `mapstructure:"resource_ids"`
+		DocumentCacheTTL int64    `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32   `mapstructure:"output_priority"`
 	} `mapstructure:"azure"`
 	Bingbot struct {
 		Enabled          *bool  `mapstructure:"enabled"`

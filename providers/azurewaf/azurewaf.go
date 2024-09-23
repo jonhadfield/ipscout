@@ -182,7 +182,7 @@ func loadTestData() ([]byte, error) {
 }
 
 func (c *ProviderClient) loadProviderDataFromCache() ([]*armfrontdoor.WebApplicationFirewallPolicy, error) {
-	cacheKey := providers.CacheProviderPrefix + ProviderName + "_" + strings.ReplaceAll(c.Host.String(), ".", "_")
+	cacheKey := providers.CacheProviderPrefix + ProviderName
 
 	var doc []*armfrontdoor.WebApplicationFirewallPolicy
 
