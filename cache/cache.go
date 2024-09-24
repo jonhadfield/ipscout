@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/dgraph-io/badger/v4"
@@ -131,9 +132,9 @@ func Delete(logger *slog.Logger, db *badger.DB, key string) error {
 func DeleteMultiple(logger *slog.Logger, db *badger.DB, keys []string) error {
 	logger.Info("deleting cache items", "keys", keys)
 
-	var deleted int
+	var deletedKeys []string
 
-	var notfound int
+	var missingKeys []string
 
 	for _, key := range keys {
 		found, err := CheckExists(logger, db, key)
@@ -142,7 +143,7 @@ func DeleteMultiple(logger *slog.Logger, db *badger.DB, keys []string) error {
 		}
 
 		if !found {
-			notfound++
+			missingKeys = append(missingKeys, key)
 
 			continue
 		}
@@ -151,10 +152,18 @@ func DeleteMultiple(logger *slog.Logger, db *badger.DB, keys []string) error {
 			return err
 		}
 
-		deleted++
+		deletedKeys = append(deletedKeys, key)
 	}
 
-	fmt.Printf("cache items deleted: %d not found: %d\n", deleted, notfound)
+	if len(deletedKeys) == 0 {
+		fmt.Println("no cache items deleted")
+	} else {
+		fmt.Printf("cache items deleted: %d\n", len(deletedKeys))
+	}
+
+	if len(missingKeys) > 0 {
+		fmt.Printf("cache keys not found: %s\n", strings.Join(missingKeys, ", "))
+	}
 
 	return nil
 }
