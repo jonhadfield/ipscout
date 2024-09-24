@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/chelnak/ysmrr"
+
 	"github.com/jonhadfield/ipscout/providers/ipqs"
 
 	"github.com/jonhadfield/ipscout/providers/azurewaf"
@@ -40,7 +42,6 @@ import (
 	"github.com/jonhadfield/ipscout/providers/digitalocean"
 	"github.com/jonhadfield/ipscout/providers/ptr"
 
-	"github.com/briandowns/spinner"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
@@ -52,7 +53,7 @@ import (
 
 const (
 	spinnerStartupMS  = 50
-	spinnerIntervalMS = 100
+	spinnerIntervalMS = 250
 )
 
 type Provider struct {
@@ -224,15 +225,25 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 
 	var g errgroup.Group
 
-	s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
+	// s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
+	// Create a new spinner manager
+	sm := ysmrr.NewSpinnerManager()
+
+	// Add a spinner
+	is := sm.AddSpinner("initialising providers...")
 
 	if !hideProgress {
-		s.Start() // Start the spinner
+		// s.Start() // Start the spinner
+		sm.Start()
 		// time.Sleep(4 * time.Second) // Run for some time to simulate work
-		s.Suffix = " initialising providers..."
+		// s.Suffix = " initialising providers..."
 
 		defer func() {
-			stopSpinnerIfActive(s)
+			// stopSpinnerIfActive(s)
+			is.Complete()
+			time.Sleep(spinnerIntervalMS * time.Millisecond)
+
+			sm.Stop()
 		}()
 	}
 
@@ -246,11 +257,13 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 
 			gErr := runner.Initialise()
 			if gErr != nil {
-				stopSpinnerIfActive(s)
+				// stopSpinnerIfActive(s)
+				sm.Stop()
 				l.Error("failed to initialise", "provider", name, "error", gErr.Error())
 
 				if !hideProgress {
-					s.Start()
+					// s.Start()
+					sm.Start()
 				}
 			}
 
@@ -259,18 +272,13 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 	}
 
 	if err = g.Wait(); err != nil {
-		stopSpinnerIfActive(s)
+		// stopSpinnerIfActive(s)
+		sm.Stop()
 
 		return
 	}
 	// allow time to output spinner
 	time.Sleep(spinnerStartupMS * time.Millisecond)
-}
-
-func stopSpinnerIfActive(s *spinner.Spinner) {
-	if s != nil && s.Active() {
-		s.Stop()
-	}
 }
 
 type findHostsResults struct {
@@ -293,11 +301,17 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	var w sync.WaitGroup
 
 	if !hideProgress {
-		s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
-		s.Start() // Start the spinner
-		s.Suffix = " searching providers..."
+		sm := ysmrr.NewSpinnerManager()
 
-		defer s.Stop()
+		is := sm.AddSpinner("searching providers...")
+		sm.Start()
+
+		defer func() {
+			is.Complete()
+			time.Sleep(spinnerIntervalMS * time.Millisecond)
+
+			sm.Stop()
+		}()
 	}
 
 	for name, runner := range runners {
@@ -380,12 +394,17 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 	var w sync.WaitGroup
 
 	if !conf.HideProgress {
-		s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriterFile(conf.Target))
-		s.Start() // Start the spinner
+		sm := ysmrr.NewSpinnerManager()
 
-		s.Suffix = " generating output..."
+		is := sm.AddSpinner("generating output...")
+		sm.Start()
 
-		defer s.Stop()
+		defer func() {
+			is.Complete()
+			time.Sleep(spinnerIntervalMS * time.Millisecond)
+			is.UpdateMessage("generated output")
+			sm.Stop()
+		}()
 	}
 
 	for name, runner := range runners {
