@@ -602,7 +602,9 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) error {
 
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 
-	sess.Config.Global.RatingConfigPath = v.GetString("global.rating_config_path")
+	sess.Config.Rating.ConfigPath = v.GetString("rating.config_path")
+	sess.Config.Rating.UseAI = v.GetBool("rating.use_ai")
+	sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai_api_key")
 
 	return nil
 }

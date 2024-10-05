@@ -92,12 +92,18 @@ func (c *Session) Validate() error {
 	return nil
 }
 
+type RatingConfig struct {
+	ConfigPath   string `mapstructure:"config-path"`
+	UseAI        bool   `mapstructure:"use-ai"`
+	OpenAIAPIKey string `mapstructure:"openai-api-key"`
+}
+
 type Config struct {
 	Global GlobalConfig `mapstructure:"global"`
+	Rating RatingConfig `mapstructure:"rating"`
 }
 
 type GlobalConfig struct {
-	RatingConfigPath    string `mapstructure:"rating-config-path"`
 	LogLevel            string `mapstructure:"log-level"`
 	Output              string `mapstructure:"output"`
 	HomeDir             string
