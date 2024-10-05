@@ -39,6 +39,18 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	tw.AppendRow(table.Row{color.WhiteString("%smax_value_chars", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces)), c.Sess.Config.Global.MaxValueChars})
 	tw.AppendRow(table.Row{color.WhiteString("%smax_age", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces)), c.Sess.Config.Global.MaxAge})
 	tw.AppendRow(table.Row{color.WhiteString("%smax_reports", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces)), c.Sess.Config.Global.MaxReports})
+	// rating
+	tw.AppendRow(table.Row{color.HiYellowString("Rating")})
+	tw.AppendRow(table.Row{color.WhiteString("%sconfig_path", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces)), c.Sess.Config.Rating.ConfigPath})
+	tw.AppendRow(table.Row{color.WhiteString("%suse_ai", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces)), c.Sess.Config.Rating.UseAI})
+
+	openAIAPIKeyDefinedOutput := "<not defined>"
+	if c.Sess.Config.Rating.OpenAIAPIKey != "" {
+		openAIAPIKeyDefinedOutput = "<defined>"
+	}
+
+	tw.AppendRow(table.Row{color.WhiteString("%sopenai_api_key", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces)), openAIAPIKeyDefinedOutput})
+
 	tw.AppendRow(table.Row{color.HiYellowString("Providers")})
 	// abuseipdb
 	tw.AppendRow(table.Row{color.HiCyanString("%sAbuseIPDB", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})

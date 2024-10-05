@@ -12,7 +12,11 @@ import (
 )
 
 func newRateCommand() *cobra.Command {
-	var useTestData bool
+	var (
+		useTestData  bool
+		useAI        bool
+		openAIAPIKey string
+	)
 
 	rateCmd := &cobra.Command{
 		Use:   "rate",
@@ -45,6 +49,22 @@ func newRateCommand() *cobra.Command {
 				os.Exit(1)
 			}
 
+			if useAI {
+				rater.Session.Config.Rating.UseAI = true
+			}
+
+			if openAIAPIKey != "" {
+				rater.Session.Config.Rating.OpenAIAPIKey = openAIAPIKey
+			}
+
+			if rater.Session.Config.Rating.UseAI {
+				if rater.Session.Config.Rating.OpenAIAPIKey == "" {
+					fmt.Println("use AI specified but OpenAI api key not set")
+
+					os.Exit(1)
+				}
+			}
+
 			if err = rater.Run(); err != nil {
 				fmt.Println(err.Error())
 
@@ -54,6 +74,9 @@ func newRateCommand() *cobra.Command {
 			return nil
 		},
 	}
+
+	rateCmd.PersistentFlags().BoolVar(&useAI, "use-ai", false, "use AI to rate host")
+	rateCmd.PersistentFlags().StringVar(&openAIAPIKey, "openai-api-key", "", "OpenAI api key")
 
 	rateCmd.AddCommand(newRateConfigCommand())
 
@@ -87,13 +110,13 @@ func newRateConfigCommand() *cobra.Command {
 					os.Exit(1)
 				}
 
-				if rater.Session.Config.Global.RatingConfigPath == "" {
+				if rater.Session.Config.Rating.ConfigPath == "" {
 					fmt.Println("rating configuration path not set")
 
 					os.Exit(1)
 				}
 
-				path = rater.Session.Config.Global.RatingConfigPath
+				path = rater.Session.Config.Rating.ConfigPath
 			}
 
 			ratingConfig, err := providers.ReadRatingConfigFile(path)

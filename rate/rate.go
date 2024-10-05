@@ -157,7 +157,7 @@ func GetRatingConfig(path string) ([]byte, error) {
 func (r *Rater) Run() error {
 	var err error
 
-	ratingConfig, err := GetRatingConfig(r.Session.Config.Global.RatingConfigPath)
+	ratingConfig, err := GetRatingConfig(r.Session.Config.Rating.ConfigPath)
 	if err != nil {
 		return err
 	}
