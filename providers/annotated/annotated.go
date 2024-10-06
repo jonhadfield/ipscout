@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -85,6 +86,43 @@ func annotationNotesContain(notes []string, term string) bool {
 	}
 
 	return false
+}
+
+func extractThreatAnnotations(ae []annotation) (threats []string) {
+	for y := range ae {
+		for z := range ae[y].Notes {
+			if strings.HasPrefix(ae[y].Notes[z], "threat:") {
+				threats = append(threats, ae[y].Notes[z])
+			}
+		}
+	}
+
+	return
+}
+
+func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	threatIndicators := providers.ThreatIndicators{
+		Provider: ProviderName,
+	}
+
+	indicators := make(map[string]string)
+
+	for _, v := range doc {
+		threatAnnotations := extractThreatAnnotations(v)
+		for x, ta := range threatAnnotations {
+			indicators["userSpecified"+strconv.Itoa(x)] = ta
+		}
+	}
+
+	threatIndicators.Indicators = indicators
+
+	return &threatIndicators, nil
 }
 
 func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {

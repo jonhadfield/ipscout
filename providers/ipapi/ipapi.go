@@ -69,6 +69,26 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *Client) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	threatIndicators := providers.ThreatIndicators{
+		Provider: ProviderName,
+	}
+
+	indicators := make(map[string]string)
+
+	indicators["CountryCodeISO3"] = doc.CountryCodeIso3
+
+	threatIndicators.Indicators = indicators
+
+	return &threatIndicators, nil
+}
+
 func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var ratingConfig providers.RatingConfig
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {

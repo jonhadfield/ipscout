@@ -60,6 +60,10 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	return nil, nil
+}
+
 func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var ratingConfig providers.RatingConfig
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {

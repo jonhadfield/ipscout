@@ -10,6 +10,7 @@ import (
 	"net/netip"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -119,6 +120,30 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	}
 
 	return rateResult, nil
+}
+
+func (c *Client) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	threatIndicators := providers.ThreatIndicators{
+		Provider: ProviderName,
+	}
+
+	indicators := make(map[string]string)
+
+	if doc.Data.IsTor {
+		indicators["TOR"] = "true"
+	}
+
+	indicators["AbuseConfidencePercentage"] = strconv.Itoa(int(doc.Data.AbuseConfidenceScore))
+
+	threatIndicators.Indicators = indicators
+
+	return &threatIndicators, nil
 }
 
 type Client struct {

@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -236,6 +237,26 @@ func ratePorts(doc HostSearchResult, ratingConfig providers.RatingConfig) provid
 		Score:    score,
 		Reasons:  reasons,
 	}
+}
+
+func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	threatIndicators := providers.ThreatIndicators{
+		Provider: ProviderName,
+	}
+
+	indicators := make(map[string]string)
+
+	indicators["ExposedPorts"] = strconv.Itoa(len(doc.Ports))
+
+	threatIndicators.Indicators = indicators
+
+	return &threatIndicators, nil
 }
 
 func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
