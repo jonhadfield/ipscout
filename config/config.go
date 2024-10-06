@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"path/filepath"
 	"strings"
 	"time"
@@ -354,13 +355,18 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 				return fmt.Errorf("error reading cache item: %w", err)
 			}
 
-			item.ExpiresAt()
+			var expiresAt int64
+
+			if item.ExpiresAt() <= math.MaxInt64 {
+				expiresAt = int64(item.ExpiresAt()) //nolint:gosec
+			}
+
 			item.EstimatedSize()
 
 			cacheItemsInfo = append(cacheItemsInfo, CacheItemInfo{
 				Key:           string(k),
 				EstimatedSize: item.EstimatedSize(),
-				ExpiresAt:     time.Unix(int64(item.ExpiresAt()), 0),
+				ExpiresAt:     time.Unix(expiresAt, 0),
 				AppVersion:    ci.AppVersion,
 			})
 		}
