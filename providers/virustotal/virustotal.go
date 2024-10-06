@@ -334,7 +334,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	var item *cache.Item
 
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
-		if item.Value != nil && len(item.Value) > 0 {
+		if item != nil && len(item.Value) > 0 {
 			result, err = unmarshalResponse(item.Value)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached virustotal response: %w", err)

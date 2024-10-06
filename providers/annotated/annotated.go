@@ -494,7 +494,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (map[netip.Prefix][]annotat
 
 	cacheKey := providers.CacheProviderPrefix + ProviderName + "_" + uh
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
-		if item.Value != nil && len(item.Value) > 0 {
+		if item != nil && len(item.Value) > 0 {
 			var result map[netip.Prefix][]annotation
 
 			result, err = unmarshalResponse(item.Value)
