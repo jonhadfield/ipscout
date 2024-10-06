@@ -324,6 +324,7 @@ type ProviderClient interface {
 	CreateTable([]byte) (*table.Writer, error)
 	Priority() *int32
 	RateHostData([]byte, []byte) (RateResult, error)
+	ExtractThreatIndicators([]byte) (*ThreatIndicators, error)
 }
 
 type RateResult struct {
@@ -331,6 +332,11 @@ type RateResult struct {
 	Score    float64
 	Reasons  []string
 	Threat   string
+}
+
+type ThreatIndicators struct {
+	Provider   string
+	Indicators map[string]string
 }
 
 func FormatTimeOrDash(s string, format string) string {

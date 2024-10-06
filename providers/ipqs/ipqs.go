@@ -9,6 +9,7 @@ import (
 	"net/netip"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -195,6 +196,34 @@ func countryCodeInCodes(countryCode string, codes []string) bool {
 	}
 
 	return false
+}
+
+func (c *Client) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	threatIndicators := providers.ThreatIndicators{
+		Provider: ProviderName,
+	}
+
+	indicators := make(map[string]string)
+
+	if doc.Proxy {
+		indicators["IsProxy"] = "true"
+	}
+
+	if doc.BotStatus {
+		indicators["IsBot"] = "true"
+	}
+
+	indicators["FraudScore"] = strconv.Itoa(doc.FraudScore)
+
+	threatIndicators.Indicators = indicators
+
+	return &threatIndicators, nil
 }
 
 func (c *Client) RateHostData(findResJSON []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
@@ -516,7 +545,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 
 	var item *cache.Item
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
-		if item.Value != nil && len(item.Value) > 0 {
+		if item != nil && len(item.Value) > 0 {
 			err = json.Unmarshal(item.Value, &result)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached ipqs response: %w", err)

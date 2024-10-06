@@ -10,6 +10,7 @@ import (
 	"net/netip"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -140,6 +141,26 @@ func rateHost(attrs HostSearchResultDataAttributes, ratingConfig providers.Ratin
 	}
 
 	return rateResult
+}
+
+func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	threatIndicators := providers.ThreatIndicators{
+		Provider: ProviderName,
+	}
+
+	indicators := make(map[string]string)
+
+	indicators["ReputationScore"] = strconv.Itoa(doc.Data.Attributes.Reputation)
+
+	threatIndicators.Indicators = indicators
+
+	return &threatIndicators, nil
 }
 
 func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
@@ -313,7 +334,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	var item *cache.Item
 
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
-		if item.Value != nil && len(item.Value) > 0 {
+		if item != nil && len(item.Value) > 0 {
 			result, err = unmarshalResponse(item.Value)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached virustotal response: %w", err)

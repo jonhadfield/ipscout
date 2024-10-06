@@ -50,6 +50,10 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *Client) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	return nil, nil
+}
+
 func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var doc HostSearchResult
 

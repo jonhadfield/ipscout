@@ -1,6 +1,7 @@
 package rate
 
 import (
+	"context"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/sashabaranov/go-openai"
 
 	"github.com/jonhadfield/ipscout/providers/ipqs"
 
@@ -57,6 +60,7 @@ const (
 	txtBlock          = "block"
 	spinnerStartupMS  = 50
 	spinnerIntervalMS = 100
+	maxTokens         = 300
 )
 
 type Provider struct {
@@ -228,21 +232,124 @@ func (r *Rater) Run() error {
 		return nil
 	}
 
+	if r.Session.Config.Rating.UseAI {
+		return aiRate(r, enabledProviders, results)
+	}
+
+	return staticRate(r, enabledProviders, results, ratingConfig)
+}
+
+func aiRate(r *Rater, enabledProviders map[string]providers.ProviderClient, results *findHostsResults) error {
 	// rate results
-	rrs, err := rateFindHostsResults(r.Session, enabledProviders, results, ratingConfig)
+	combinedThreatIndicators, err := extractThreatIndicators(r.Session, enabledProviders, results)
 	if err != nil {
 		return fmt.Errorf("failed to rate results: %w", err)
 	}
+
+	mj, err := json.MarshalIndent(combinedThreatIndicators, "", "  ")
+	if err != nil {
+		return fmt.Errorf("error marshalling threat indicators: %w", err)
+	}
+
 	// generate table from rate results
+	tables, err := r.CreateThreatIndicatorsTable(combinedThreatIndicators)
+	if err != nil {
+		return fmt.Errorf("failed to create table: %w", err)
+	}
+
+	present.Tables(r.Session, []providers.TableWithPriority{
+		{
+			Table: tables,
+		},
+	})
+
+	client := openai.NewClient(r.Session.Config.Rating.OpenAIAPIKey)
+
+	resp, err := client.CreateCompletion(
+		context.Background(),
+		openai.CompletionRequest{
+			Model:     openai.GPT3Dot5TurboInstruct,
+			MaxTokens: maxTokens,
+			Prompt:    "You're a cyber-security expert evaluating threat indicators for an internet source. You will indicate the threat as being low, medium, or high. You do not need to mention every indicator. Each provider's threat indicators are in the provided JSON data:\n\n" + string(mj),
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("OpenAI completion error: %w", err)
+	}
+
+	color.White("Recommendation: %s", resp.Choices[0].Text)
+
+	return nil
+}
+
+func extractThreatIndicators(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) ([]providers.ThreatIndicators, error) {
+	sess.Logger.Debug("extracting threat indicators")
+
+	combinedThreatIndicators := make([]providers.ThreatIndicators, 0)
+
+	for k := range results.m {
+		tis, err := runners[k].ExtractThreatIndicators(results.m[k])
+		if err != nil {
+			return nil, fmt.Errorf("error rating %s: %w", k, err)
+		}
+
+		if tis != nil && tis.Indicators != nil {
+			combinedThreatIndicators = append(combinedThreatIndicators, providers.ThreatIndicators{
+				Provider:   tis.Provider,
+				Indicators: tis.Indicators,
+			})
+		}
+	}
+
+	return combinedThreatIndicators, nil
+}
+
+func (r *Rater) CreateThreatIndicatorsTable(ctis []providers.ThreatIndicators) (*table.Writer, error) {
+	tw := table.NewWriter()
+
+	if len(ctis) == 0 {
+		tw.AppendRow(table.Row{"no threat indicators found"})
+		tw.SetAutoIndex(false)
+
+		return &tw, nil
+	}
+
+	tw.AppendHeader(table.Row{"Provider", "Indicator", "  "})
+
+	var lastProvider string
+
+	for _, ti := range ctis {
+		for k, v := range ti.Indicators {
+			provider := ""
+			if lastProvider != ti.Provider {
+				provider = ti.Provider
+				lastProvider = ti.Provider
+			}
+
+			tw.AppendRow(table.Row{provider, k, v})
+		}
+	}
+
+	tw.SetAutoIndex(false)
+	tw.SetTitle("RATING: " + r.Session.Host.String())
+
+	return &tw, nil
+}
+
+func staticRate(r *Rater, enabledProviders map[string]providers.ProviderClient, results *findHostsResults, ratingConfig []byte) error {
+	rrs, err := staticRateFindHostsResults(r.Session, enabledProviders, results, ratingConfig)
+	if err != nil {
+		return fmt.Errorf("failed to rate results: %w", err)
+	}
+
 	tables, err := r.CreateResultsTable(rrs)
 	if err != nil {
 		return fmt.Errorf("failed to create table: %w", err)
 	}
-	// present table
+
 	present.Tables(r.Session, []providers.TableWithPriority{
 		{
 			Table: tables,
-			// Priority: 0,
 		},
 	})
 
@@ -268,7 +375,7 @@ type RatingOutput struct {
 	Reasons []string
 }
 
-func rateFindHostsResults(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults, ratingConfigJSON []byte) (RatingOutput, error) {
+func staticRateFindHostsResults(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults, ratingConfigJSON []byte) (RatingOutput, error) {
 	sess.Logger.Debug("rating results")
 
 	runningTotal := 0.0

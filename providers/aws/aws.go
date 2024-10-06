@@ -58,6 +58,28 @@ func (c *ProviderClient) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	threatIndicators := providers.ThreatIndicators{
+		Provider: ProviderName,
+	}
+
+	indicators := make(map[string]string)
+
+	if doc.IPPrefix.IsValid() || doc.IPv6Prefix.IPv6Prefix.IsValid() {
+		indicators["HostedInAWS"] = "true"
+	}
+
+	threatIndicators.Indicators = indicators
+
+	return &threatIndicators, nil
+}
+
 func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var ratingConfig providers.RatingConfig
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {

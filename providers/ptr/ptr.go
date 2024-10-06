@@ -71,6 +71,10 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *Client) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	return nil, nil
+}
+
 func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	return providers.RateResult{}, nil
 }
@@ -272,7 +276,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 
 	var item *cache.Item
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
-		if item.Value != nil && len(item.Value) > 0 {
+		if item != nil && len(item.Value) > 0 {
 			err = json.Unmarshal(item.Value, &result)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached ptr response: %w", err)

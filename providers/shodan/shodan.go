@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -238,6 +239,26 @@ func ratePorts(doc HostSearchResult, ratingConfig providers.RatingConfig) provid
 	}
 }
 
+func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	threatIndicators := providers.ThreatIndicators{
+		Provider: ProviderName,
+	}
+
+	indicators := make(map[string]string)
+
+	indicators["ExposedPorts"] = strconv.Itoa(len(doc.Ports))
+
+	threatIndicators.Indicators = indicators
+
+	return &threatIndicators, nil
+}
+
 func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var doc HostSearchResult
 
@@ -289,7 +310,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	var item *cache.Item
 
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
-		if item.Value != nil && len(item.Value) > 0 {
+		if item != nil && len(item.Value) > 0 {
 			result, err = unmarshalResponse(item.Value)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached shodan response: %w", err)

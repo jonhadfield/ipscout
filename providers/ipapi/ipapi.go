@@ -69,6 +69,26 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Session
 }
 
+func (c *Client) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
+	var doc HostSearchResult
+
+	if err := json.Unmarshal(findRes, &doc); err != nil {
+		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+	}
+
+	threatIndicators := providers.ThreatIndicators{
+		Provider: ProviderName,
+	}
+
+	indicators := make(map[string]string)
+
+	indicators["CountryCodeISO3"] = doc.CountryCodeIso3
+
+	threatIndicators.Indicators = indicators
+
+	return &threatIndicators, nil
+}
+
 func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var ratingConfig providers.RatingConfig
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
@@ -308,7 +328,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 
 	var item *cache.Item
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
-		if item.Value != nil && len(item.Value) > 0 {
+		if item != nil && len(item.Value) > 0 {
 			err = json.Unmarshal(item.Value, &result)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshalling cached ipapi response: %w", err)
