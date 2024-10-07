@@ -270,7 +270,10 @@ func aiRate(r *Rater, enabledProviders map[string]providers.ProviderClient, resu
 		openai.CompletionRequest{
 			Model:     openai.GPT3Dot5TurboInstruct,
 			MaxTokens: maxTokens,
-			Prompt:    "You're a cyber-security expert evaluating threat indicators for an internet source. You will indicate the threat as being low, medium, or high. You do not need to mention every indicator. Each provider's threat indicators are in the provided JSON data:\n\n" + string(mj),
+			Prompt: "You are evaluating threat indicators from various providers in order to provide a single paragraph summary and recommendation on whether or not the source should be blocked." +
+				"You do not need to mention every indicator." +
+				"An annotated indicator containing 'threat:noblock' means you will recommend the source is not blocked." +
+				"Each provider's threat indicators are in the provided JSON data:\n\n" + string(mj),
 		},
 	)
 	if err != nil {
