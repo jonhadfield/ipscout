@@ -75,7 +75,7 @@ func newRateCommand() *cobra.Command {
 		},
 	}
 
-	rateCmd.PersistentFlags().BoolVar(&useAI, "use-ai", false, "use AI to rate host")
+	rateCmd.PersistentFlags().BoolVar(&useAI, "ai", false, "use AI to rate host")
 	rateCmd.PersistentFlags().StringVar(&openAIAPIKey, "openai-api-key", "", "OpenAI api key")
 
 	rateCmd.AddCommand(newRateConfigCommand())
