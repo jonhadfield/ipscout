@@ -8,14 +8,14 @@ require (
 	github.com/briandowns/spinner v1.23.1
 	github.com/dgraph-io/badger/v4 v4.3.1
 	github.com/dustin/go-humanize v1.0.1
-	github.com/fatih/color v1.17.0
+	github.com/fatih/color v1.18.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
-	github.com/jedib0t/go-pretty/v6 v6.6.0
+	github.com/jedib0t/go-pretty/v6 v6.6.1
 	github.com/jonhadfield/azwaf v0.0.0-20240923113456-6951da67fcd3
-	github.com/jonhadfield/ip-fetcher v0.0.0-20240625152748-74041462b9c1
+	github.com/jonhadfield/ip-fetcher v0.0.0-20241024131552-b949d3536ff6
 	github.com/miekg/dns v1.1.62
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/sashabaranov/go-openai v1.31.0
+	github.com/sashabaranov/go-openai v1.32.3
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0
@@ -25,7 +25,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-// replace github.com/jonhadfield/ip-fetcher => ../ip-fetcher
+//replace github.com/jonhadfield/ip-fetcher => ../ip-fetcher
 // replace github.com/jonhadfield/azwaf => ../azwaf
 
 require (
