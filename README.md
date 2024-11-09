@@ -6,7 +6,7 @@ All of the host reputation providers require registration but each of them offer
 [![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/df6b2974f0844444af617a1c0b0e2cfb)](https://app.codacy.com/gh/jonhadfield/ipscout/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
 
 ## Output
-### format
+### format  
 Results are displayed in a table by default but can also be outputted as JSON format using the `--output` flag.
 - [table](examples/table.png)
 - [json](examples/results.json)
