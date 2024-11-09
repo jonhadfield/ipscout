@@ -21,4 +21,5 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
-          args: -v --disable lll --disable interfacer --disable gochecknoglobals
+          args: --timeout=5m -v --disable lll --disable interfacer --disable gochecknoglobals
+          skip-cache: false
