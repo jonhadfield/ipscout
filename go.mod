@@ -15,7 +15,7 @@ require (
 	github.com/jonhadfield/ip-fetcher v0.0.0-20241024131552-b949d3536ff6
 	github.com/miekg/dns v1.1.62
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/sashabaranov/go-openai v1.35.6
+	github.com/sashabaranov/go-openai v1.35.7
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0
