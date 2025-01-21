@@ -261,7 +261,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, err
 	}
 
-	match, err := matchIPToDoc(c.Host, doc)
+	match, err := MatchIPToDoc(c.Host, doc)
 	if err != nil {
 		return nil, err
 	}
@@ -285,7 +285,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	return raw, nil
 }
 
-func matchIPToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
+func MatchIPToDoc(host netip.Addr, doc *aws.Doc) (*HostSearchResult, error) {
 	var match *HostSearchResult
 
 	if host.Is4() {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/netip"
@@ -470,9 +471,17 @@ func loadResponse(c session.Session) (res *HostSearchResult, err error) {
 
 	defer resp.Body.Close()
 
-	var apiResp ipqsResp
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading ipqs response body: %w", err)
+	}
 
-	if err = json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
+	if len(body) == 0 {
+		return nil, fmt.Errorf("ipqs response body is empty")
+	}
+
+	var apiResp ipqsResp
+	if err = json.Unmarshal(body, &apiResp); err != nil {
 		return nil, fmt.Errorf("error decoding ipqs response: %w", err)
 	}
 
