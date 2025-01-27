@@ -13,7 +13,7 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.6.5
 	github.com/jonhadfield/azwaf v0.0.0-20241111151416-7d03038b2003
 	github.com/jonhadfield/ip-fetcher v0.0.0-20241024131552-b949d3536ff6
-	github.com/miekg/dns v1.1.62
+	github.com/miekg/dns v1.1.63
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/sashabaranov/go-openai v1.36.1
 	github.com/spf13/cobra v1.8.1
