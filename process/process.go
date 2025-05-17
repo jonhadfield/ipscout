@@ -241,13 +241,14 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 			continue
 		}
 
-		g.Go(func() error {
-			name := name
+		n := name
+		r := runner
 
-			gErr := runner.Initialise()
+		g.Go(func() error {
+			gErr := r.Initialise()
 			if gErr != nil {
 				stopSpinnerIfActive(s)
-				l.Error("failed to initialise", "provider", name, "error", gErr.Error())
+				l.Error("failed to initialise", "provider", n, "error", gErr.Error())
 
 				if !hideProgress {
 					s.Start()
@@ -301,21 +302,23 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	}
 
 	for name, runner := range runners {
+		n := name
+		r := runner
 		w.Add(1)
 
 		go func() {
 			defer w.Done()
 
-			result, err := runner.FindHost()
+			result, err := r.FindHost()
 			if err != nil {
-				runner.GetConfig().Logger.Info(err.Error())
+				r.GetConfig().Logger.Info(err.Error())
 
 				return
 			}
 
 			if result != nil {
 				results.Lock()
-				results.m[name] = result
+				results.m[n] = result
 				results.Unlock()
 			}
 		}()
@@ -389,19 +392,21 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 	}
 
 	for name, runner := range runners {
+		n := name
+		r := runner
 		w.Add(1)
 
 		go func() {
 			defer w.Done()
 			results.RLock()
-			if results.m[name] == nil {
+			if results.m[n] == nil {
 				return
 			}
 
-			createTableData := results.m[name]
+			createTableData := results.m[n]
 			results.RUnlock()
 
-			tbl, err := runner.CreateTable(createTableData)
+			tbl, err := r.CreateTable(createTableData)
 			if err != nil {
 				_, _ = fmt.Fprintln(os.Stderr, err)
 
@@ -412,7 +417,7 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 				tables.RWMutex.Lock()
 				tables.m = append(tables.m, providers.TableWithPriority{
 					Table:    tbl,
-					Priority: runner.Priority(),
+					Priority: r.Priority(),
 				})
 				tables.RWMutex.Unlock()
 			}
