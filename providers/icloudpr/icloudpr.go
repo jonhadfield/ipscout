@@ -379,14 +379,14 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var rows []table.Row
 
 	// pad column to ensure title row fills the table
-	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(result.Prefix.String())})
-	tw.AppendRow(table.Row{"Alpha2Code", dashIfEmpty(result.Alpha2Code)})
-	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Region)})
-	tw.AppendRow(table.Row{"City", dashIfEmpty(result.City)})
-	// tw.AppendRow(table.Row{"Postal Code", dashIfEmpty(result.PostalCode)})
+	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Prefix.String())})
+	tw.AppendRow(table.Row{"Alpha2Code", providers.DashIfEmpty(result.Alpha2Code)})
+	tw.AppendRow(table.Row{"Region", providers.DashIfEmpty(result.Region)})
+	tw.AppendRow(table.Row{"City", providers.DashIfEmpty(result.City)})
+	// tw.AppendRow(table.Row{"Postal Code", providers.DashIfEmpty(result.PostalCode)})
 
 	if !result.CreationTime.IsZero() {
-		tw.AppendRow(table.Row{"Creation Time", dashIfEmpty(result.CreationTime.String())})
+		tw.AppendRow(table.Row{"Creation Time", providers.DashIfEmpty(result.CreationTime.String())})
 	}
 
 	tw.AppendRows(rows)
@@ -430,25 +430,4 @@ type HostSearchResult struct {
 	PostalCode   string       `json:"postal_code"`
 	SyncToken    string       `json:"synctoken"`
 	CreationTime time.Time    `json:"creation_time"`
-}
-
-func dashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		if len(v) == 0 {
-			return "-"
-		}
-
-		return v
-	case *string:
-		if v == nil || len(*v) == 0 {
-			return "-"
-		}
-
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }

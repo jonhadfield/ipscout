@@ -343,16 +343,16 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var rows []table.Row
 
 	// pad column to ensure title row fills the table
-	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(result.Prefix.String())})
-	tw.AppendRow(table.Row{"Scope", dashIfEmpty(result.Scope)})
-	tw.AppendRow(table.Row{"Service", dashIfEmpty(result.Service)})
+	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Prefix.String())})
+	tw.AppendRow(table.Row{"Scope", providers.DashIfEmpty(result.Scope)})
+	tw.AppendRow(table.Row{"Service", providers.DashIfEmpty(result.Service)})
 
 	if !result.CreationTime.IsZero() {
-		tw.AppendRow(table.Row{"Creation Time", dashIfEmpty(result.CreationTime.String())})
+		tw.AppendRow(table.Row{"Creation Time", providers.DashIfEmpty(result.CreationTime.String())})
 	}
 
 	if result.SyncToken != "" {
-		tw.AppendRow(table.Row{"SyncToken", dashIfEmpty(result.SyncToken)})
+		tw.AppendRow(table.Row{"SyncToken", providers.DashIfEmpty(result.SyncToken)})
 	}
 
 	tw.AppendRows(rows)
@@ -394,25 +394,4 @@ type HostSearchResult struct {
 	Scope        string       `json:"scope"`
 	SyncToken    string       `json:"synctoken"`
 	CreationTime time.Time    `json:"creation_time"`
-}
-
-func dashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		if len(v) == 0 {
-			return "-"
-		}
-
-		return v
-	case *string:
-		if v == nil || len(*v) == 0 {
-			return "-"
-		}
-
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }

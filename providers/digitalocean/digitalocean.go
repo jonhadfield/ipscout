@@ -321,18 +321,18 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var rows []table.Row
 
 	// pad column to ensure title row fills the table
-	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(result.Record.NetworkText)})
-	tw.AppendRow(table.Row{"Country Code", dashIfEmpty(result.Record.CountryCode)})
-	tw.AppendRow(table.Row{"City Name", dashIfEmpty(result.Record.CityName)})
-	tw.AppendRow(table.Row{"City Code", dashIfEmpty(result.Record.CityCode)})
-	tw.AppendRow(table.Row{"Zip Code", dashIfEmpty(result.Record.ZipCode)})
+	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Record.NetworkText)})
+	tw.AppendRow(table.Row{"Country Code", providers.DashIfEmpty(result.Record.CountryCode)})
+	tw.AppendRow(table.Row{"City Name", providers.DashIfEmpty(result.Record.CityName)})
+	tw.AppendRow(table.Row{"City Code", providers.DashIfEmpty(result.Record.CityCode)})
+	tw.AppendRow(table.Row{"Zip Code", providers.DashIfEmpty(result.Record.ZipCode)})
 
 	if !result.LastModified.IsZero() {
-		tw.AppendRow(table.Row{"Source Update", dashIfEmpty(result.LastModified.String())})
+		tw.AppendRow(table.Row{"Source Update", providers.DashIfEmpty(result.LastModified.String())})
 	}
 
 	if result.ETag != "" {
-		tw.AppendRow(table.Row{"Version", dashIfEmpty(result.ETag)})
+		tw.AppendRow(table.Row{"Version", providers.DashIfEmpty(result.ETag)})
 	}
 
 	tw.AppendRows(rows)
@@ -372,25 +372,4 @@ type HostSearchResult struct {
 	Record       digitalocean.Record `json:"prefix"`
 	ETag         string              `json:"etag"`
 	LastModified time.Time           `json:"last_modified"`
-}
-
-func dashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		if len(v) == 0 {
-			return "-"
-		}
-
-		return v
-	case *string:
-		if v == nil || len(*v) == 0 {
-			return "-"
-		}
-
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }

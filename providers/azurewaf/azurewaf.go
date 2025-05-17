@@ -388,9 +388,9 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 			}
 
 			for _, prefix := range customRuleMatch.Prefixes {
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s Prefix %s", IndentPipeHyphens, dashIfEmpty(prefix.String()))})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s Priority %s", IndentPipeHyphens, dashIfEmpty(customRuleMatch.Priority))})
-				tw.AppendRow(table.Row{"", fmt.Sprintf("%s Action %s", IndentPipeHyphens, dashIfEmpty(customRuleMatch.Action))})
+				tw.AppendRow(table.Row{"", fmt.Sprintf("%s Prefix %s", IndentPipeHyphens, providers.DashIfEmpty(prefix.String()))})
+				tw.AppendRow(table.Row{"", fmt.Sprintf("%s Priority %s", IndentPipeHyphens, providers.DashIfEmpty(customRuleMatch.Priority))})
+				tw.AppendRow(table.Row{"", fmt.Sprintf("%s Action %s", IndentPipeHyphens, providers.DashIfEmpty(customRuleMatch.Action))})
 				tw.AppendRow(table.Row{"", fmt.Sprintf("%s Negate %t", IndentPipeHyphens, customRuleMatch.Negate)})
 			}
 		}
@@ -457,27 +457,4 @@ type HostSearchResult struct {
 	Raw           []byte
 	PolicyMatches []PolicyMatch
 	CreateDate    time.Time `json:"createDate"`
-}
-
-func dashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		if len(v) == 0 {
-			return "-"
-		}
-
-		return v
-	case *string:
-		if v == nil || len(*v) == 0 {
-			return "-"
-		}
-
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	case int32:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }
