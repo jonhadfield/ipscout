@@ -416,8 +416,8 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 }
 
 func (ard AnalysisResultData) ResultHasAny(v []string) bool {
-	for x := range v {
-		if strings.Contains(ard.Result, v[x]) {
+	for _, val := range v {
+		if strings.Contains(ard.Result, val) {
 			return true
 		}
 	}
