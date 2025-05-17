@@ -345,7 +345,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	for prefix, annotations := range result {
 		// pad column to ensure title row fills the table
-		tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(prefix.String())})
+		tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(prefix.String())})
 
 		for _, anno := range annotations {
 			tw.AppendRow(table.Row{"Date", anno.Date})
@@ -606,25 +606,4 @@ type yamlAnnotation struct {
 	Author string   `yaml:"author"`
 	Notes  []string `yaml:"notes"`
 	Source string   `yaml:"source"`
-}
-
-func dashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		if len(v) == 0 {
-			return "-"
-		}
-
-		return v
-	case *string:
-		if v == nil || len(*v) == 0 {
-			return "-"
-		}
-
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }

@@ -336,14 +336,14 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var rows []table.Row
 
-	tw.AppendRow(table.Row{"Name", dashIfEmpty(result.Name)})
-	tw.AppendRow(table.Row{"ID", dashIfEmpty(result.ID)})
-	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Properties.Region)})
-	tw.AppendRow(table.Row{"Prefix", dashIfEmpty(result.Prefix)})
-	tw.AppendRow(table.Row{"Platform", dashIfEmpty(result.Properties.Platform)})
-	tw.AppendRow(table.Row{"Cloud", dashIfEmpty(result.Cloud)})
-	tw.AppendRow(table.Row{"System Service", dashIfEmpty(result.Properties.SystemService)})
-	tw.AppendRow(table.Row{"Net Features", dashIfEmpty(strings.Join(result.Properties.NetworkFeatures, ","))})
+	tw.AppendRow(table.Row{"Name", providers.DashIfEmpty(result.Name)})
+	tw.AppendRow(table.Row{"ID", providers.DashIfEmpty(result.ID)})
+	tw.AppendRow(table.Row{"Region", providers.DashIfEmpty(result.Properties.Region)})
+	tw.AppendRow(table.Row{"Prefix", providers.DashIfEmpty(result.Prefix)})
+	tw.AppendRow(table.Row{"Platform", providers.DashIfEmpty(result.Properties.Platform)})
+	tw.AppendRow(table.Row{"Cloud", providers.DashIfEmpty(result.Cloud)})
+	tw.AppendRow(table.Row{"System Service", providers.DashIfEmpty(result.Properties.SystemService)})
+	tw.AppendRow(table.Row{"Net Features", providers.DashIfEmpty(strings.Join(result.Properties.NetworkFeatures, ","))})
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: dataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
@@ -384,25 +384,4 @@ type HostSearchResult struct {
 	Name         string           `json:"name"`
 	ID           string           `json:"id"`
 	Properties   azure.Properties `json:"properties"`
-}
-
-func dashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		if len(v) == 0 {
-			return "-"
-		}
-
-		return v
-	case *string:
-		if v == nil || len(*v) == 0 {
-			return "-"
-		}
-
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }

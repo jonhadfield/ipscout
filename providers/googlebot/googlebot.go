@@ -337,10 +337,10 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var rows []table.Row
 
 	// pad column to ensure title row fills the table
-	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(result.Prefix.String())})
+	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Prefix.String())})
 
 	if !result.CreationTime.IsZero() {
-		tw.AppendRow(table.Row{"Creation Time", dashIfEmpty(result.CreationTime.String())})
+		tw.AppendRow(table.Row{"Creation Time", providers.DashIfEmpty(result.CreationTime.String())})
 	}
 
 	tw.AppendRows(rows)
@@ -379,25 +379,4 @@ type HostSearchResult struct {
 	Raw          []byte
 	Prefix       netip.Prefix `json:"prefix"`
 	CreationTime time.Time    `json:"creation_time"`
-}
-
-func dashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		if len(v) == 0 {
-			return "-"
-		}
-
-		return v
-	case *string:
-		if v == nil || len(*v) == 0 {
-			return "-"
-		}
-
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }

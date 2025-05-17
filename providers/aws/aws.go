@@ -368,20 +368,20 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var rows []table.Row
 
 	// pad column to ensure title row fills the table
-	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(result.IPPrefix.String())})
-	tw.AppendRow(table.Row{"Service", dashIfEmpty(result.Prefix.Service)})
-	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Prefix.Region)})
+	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.IPPrefix.String())})
+	tw.AppendRow(table.Row{"Service", providers.DashIfEmpty(result.Prefix.Service)})
+	tw.AppendRow(table.Row{"Region", providers.DashIfEmpty(result.Prefix.Region)})
 
 	if !result.CreateDate.IsZero() {
-		tw.AppendRow(table.Row{"Source Update", dashIfEmpty(result.CreateDate.String())})
+		tw.AppendRow(table.Row{"Source Update", providers.DashIfEmpty(result.CreateDate.String())})
 	}
 
 	if result.SyncToken != "" {
-		tw.AppendRow(table.Row{"Sync Token", dashIfEmpty(result.SyncToken)})
+		tw.AppendRow(table.Row{"Sync Token", providers.DashIfEmpty(result.SyncToken)})
 	}
 
 	if result.ETag != "" {
-		tw.AppendRow(table.Row{"Version", dashIfEmpty(result.ETag)})
+		tw.AppendRow(table.Row{"Version", providers.DashIfEmpty(result.ETag)})
 	}
 
 	tw.AppendRows(rows)
@@ -423,25 +423,4 @@ type HostSearchResult struct {
 	ETag           string    `json:"etag"`
 	SyncToken      string    `json:"syncToken"`
 	CreateDate     time.Time `json:"createDate"`
-}
-
-func dashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		if len(v) == 0 {
-			return "-"
-		}
-
-		return v
-	case *string:
-		if v == nil || len(*v) == 0 {
-			return "-"
-		}
-
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }
