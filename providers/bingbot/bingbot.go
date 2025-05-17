@@ -43,7 +43,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.Bingbot.Enabled != nil && *c.Session.Providers.Bingbot.Enabled) {
+	if c.UseTestData || (c.Providers.Bingbot.Enabled != nil && *c.Providers.Bingbot.Enabled) {
 		return true
 	}
 
@@ -51,7 +51,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.Bingbot.OutputPriority
+	return c.Providers.Bingbot.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

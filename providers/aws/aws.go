@@ -43,7 +43,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.AWS.Enabled != nil && *c.Session.Providers.AWS.Enabled) {
+	if c.UseTestData || (c.Providers.AWS.Enabled != nil && *c.Providers.AWS.Enabled) {
 		return true
 	}
 
@@ -51,7 +51,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.AWS.OutputPriority
+	return c.Providers.AWS.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {
@@ -94,7 +94,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
 	}
 
-	if doc.Prefix.IPPrefix.String() == "" {
+	if doc.IPPrefix.String() == "" {
 		return rateResult, fmt.Errorf("no prefix found in aws data")
 	}
 
@@ -368,7 +368,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	var rows []table.Row
 
 	// pad column to ensure title row fills the table
-	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(result.Prefix.IPPrefix.String())})
+	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), dashIfEmpty(result.IPPrefix.String())})
 	tw.AppendRow(table.Row{"Service", dashIfEmpty(result.Prefix.Service)})
 	tw.AppendRow(table.Row{"Region", dashIfEmpty(result.Prefix.Region)})
 

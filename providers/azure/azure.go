@@ -54,7 +54,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.Azure.Enabled != nil && *c.Session.Providers.Azure.Enabled) {
+	if c.UseTestData || (c.Providers.Azure.Enabled != nil && *c.Providers.Azure.Enabled) {
 		return true
 	}
 
@@ -62,7 +62,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.Azure.OutputPriority
+	return c.Providers.Azure.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

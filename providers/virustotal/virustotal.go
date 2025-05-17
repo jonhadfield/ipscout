@@ -182,7 +182,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 }
 
 func (c *ProviderClient) Enabled() bool {
-	vtot := c.Session.Providers.VirusTotal
+	vtot := c.Providers.VirusTotal
 
 	switch {
 	case c.UseTestData:
@@ -197,7 +197,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.VirusTotal.OutputPriority
+	return c.Providers.VirusTotal.OutputPriority
 }
 
 func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res *HostSearchResult, err error) {

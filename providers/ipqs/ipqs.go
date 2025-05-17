@@ -69,7 +69,7 @@ type Provider interface {
 }
 
 func (c *Client) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.IPQS.Enabled != nil && *c.Session.Providers.IPQS.Enabled) {
+	if c.UseTestData || (c.Providers.IPQS.Enabled != nil && *c.Providers.IPQS.Enabled) {
 		return true
 	}
 
@@ -99,7 +99,7 @@ func chooseScore(def, runningTotal float64, user *float64) float64 {
 }
 
 func (c *Client) Priority() *int32 {
-	return c.Session.Providers.IPQS.OutputPriority
+	return c.Providers.IPQS.OutputPriority
 }
 
 func (c *Client) GetConfig() *session.Session {
@@ -244,18 +244,18 @@ func (c *Client) RateHostData(findResJSON []byte, ratingConfigJSON []byte) (prov
 }
 
 func (c *Client) Initialise() error {
-	if c.Session.Cache == nil {
+	if c.Cache == nil {
 		return errors.New("cache not set")
 	}
 
 	start := time.Now()
 	defer func() {
-		c.Session.Stats.Mu.Lock()
-		c.Session.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Session.Stats.Mu.Unlock()
+		c.Stats.Mu.Lock()
+		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
 	}()
 
-	c.Session.Logger.Debug("initialising ipqs client")
+	c.Logger.Debug("initialising ipqs client")
 
 	return nil
 }
@@ -263,9 +263,9 @@ func (c *Client) Initialise() error {
 func (c *Client) FindHost() ([]byte, error) {
 	start := time.Now()
 	defer func() {
-		c.Session.Stats.Mu.Lock()
-		c.Session.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Session.Stats.Mu.Unlock()
+		c.Stats.Mu.Lock()
+		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
 	}()
 
 	result, err := fetchData(c.Session)
@@ -273,7 +273,7 @@ func (c *Client) FindHost() ([]byte, error) {
 		return nil, err
 	}
 
-	c.Session.Logger.Debug("ipqs host match data", "size", len(result.Raw))
+	c.Logger.Debug("ipqs host match data", "size", len(result.Raw))
 
 	return result.Raw, nil
 }
@@ -281,9 +281,9 @@ func (c *Client) FindHost() ([]byte, error) {
 func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	start := time.Now()
 	defer func() {
-		c.Session.Stats.Mu.Lock()
-		c.Session.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Session.Stats.Mu.Unlock()
+		c.Stats.Mu.Lock()
+		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
 	}()
 
 	if data == nil {
@@ -346,13 +346,13 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true
-	tw.SetTitle("IPQS | Host: %s", c.Session.Host.String())
+	tw.SetTitle("IPQS | Host: %s", c.Host.String())
 
 	if c.UseTestData {
 		tw.SetTitle("IPQS | Host: 74.125.219.32")
 	}
 
-	c.Session.Logger.Debug("ipqs table created", "host", c.Session.Host.String())
+	c.Logger.Debug("ipqs table created", "host", c.Host.String())
 
 	return &tw, nil
 }

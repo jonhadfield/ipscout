@@ -43,7 +43,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.DigitalOcean.Enabled != nil && *c.Session.Providers.DigitalOcean.Enabled) {
+	if c.UseTestData || (c.Providers.DigitalOcean.Enabled != nil && *c.Providers.DigitalOcean.Enabled) {
 		return true
 	}
 
@@ -51,7 +51,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.DigitalOcean.OutputPriority
+	return c.Providers.DigitalOcean.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

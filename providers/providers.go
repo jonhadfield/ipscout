@@ -286,7 +286,7 @@ func isTransport(in any) bool {
 func DashIfEmpty(value interface{}) string {
 	switch v := value.(type) {
 	case time.Time:
-		if v.IsZero() || v == time.Date(0o001, time.January, 1, 0, 0, 0, 0, time.UTC) {
+		if v.IsZero() || v.Equal(time.Date(0o001, time.January, 1, 0, 0, 0, 0, time.UTC)) {
 			return "-"
 		}
 

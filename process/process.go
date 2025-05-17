@@ -394,6 +394,7 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 		go func() {
 			defer w.Done()
 			results.RLock()
+
 			if results.m[name] == nil {
 				return
 			}
@@ -409,12 +410,12 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 			}
 
 			if tbl != nil {
-				tables.RWMutex.Lock()
+				tables.Lock()
 				tables.m = append(tables.m, providers.TableWithPriority{
 					Table:    tbl,
 					Priority: runner.Priority(),
 				})
-				tables.RWMutex.Unlock()
+				tables.Unlock()
 			}
 		}()
 	}

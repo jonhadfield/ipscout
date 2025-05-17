@@ -52,7 +52,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.AzureWAF.Enabled != nil && *c.Session.Providers.AzureWAF.Enabled) {
+	if c.UseTestData || (c.Providers.AzureWAF.Enabled != nil && *c.Providers.AzureWAF.Enabled) {
 		return true
 	}
 
@@ -60,7 +60,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.AzureWAF.OutputPriority
+	return c.Providers.AzureWAF.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

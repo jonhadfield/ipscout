@@ -36,7 +36,7 @@ type Config struct {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.IPURL.Enabled != nil && *c.Session.Providers.IPURL.Enabled) {
+	if c.UseTestData || (c.Providers.IPURL.Enabled != nil && *c.Providers.IPURL.Enabled) {
 		return true
 	}
 
@@ -44,7 +44,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.IPURL.OutputPriority
+	return c.Providers.IPURL.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

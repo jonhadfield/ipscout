@@ -56,7 +56,7 @@ type Provider interface {
 }
 
 func (c *Client) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.PTR.Enabled != nil && *c.Session.Providers.PTR.Enabled) {
+	if c.UseTestData || (c.Providers.PTR.Enabled != nil && *c.Providers.PTR.Enabled) {
 		return true
 	}
 
@@ -64,7 +64,7 @@ func (c *Client) Enabled() bool {
 }
 
 func (c *Client) Priority() *int32 {
-	return c.Session.Providers.PTR.OutputPriority
+	return c.Providers.PTR.OutputPriority
 }
 
 func (c *Client) GetConfig() *session.Session {
@@ -80,18 +80,18 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 }
 
 func (c *Client) Initialise() error {
-	if c.Session.Cache == nil {
+	if c.Cache == nil {
 		return errors.New("cache not set")
 	}
 
 	start := time.Now()
 	defer func() {
-		c.Session.Stats.Mu.Lock()
-		c.Session.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Session.Stats.Mu.Unlock()
+		c.Stats.Mu.Lock()
+		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
 	}()
 
-	c.Session.Logger.Debug("initialising ptr client")
+	c.Logger.Debug("initialising ptr client")
 
 	return nil
 }
@@ -99,9 +99,9 @@ func (c *Client) Initialise() error {
 func (c *Client) FindHost() ([]byte, error) {
 	start := time.Now()
 	defer func() {
-		c.Session.Stats.Mu.Lock()
-		c.Session.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Session.Stats.Mu.Unlock()
+		c.Stats.Mu.Lock()
+		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
 	}()
 
 	result, err := fetchData(c.Session)
@@ -109,7 +109,7 @@ func (c *Client) FindHost() ([]byte, error) {
 		return nil, err
 	}
 
-	c.Session.Logger.Debug("ptr host match data", "size", len(result.Raw))
+	c.Logger.Debug("ptr host match data", "size", len(result.Raw))
 
 	return result.Raw, nil
 }
@@ -117,9 +117,9 @@ func (c *Client) FindHost() ([]byte, error) {
 func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	start := time.Now()
 	defer func() {
-		c.Session.Stats.Mu.Lock()
-		c.Session.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Session.Stats.Mu.Unlock()
+		c.Stats.Mu.Lock()
+		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
+		c.Stats.Mu.Unlock()
 	}()
 
 	var findHostData HostSearchResult
@@ -149,8 +149,8 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)
 	// tw.Style().Options.DrawBorder = true
-	tw.SetTitle("PTR | Host: %s", c.Session.Host.String())
-	c.Session.Logger.Debug("ptr table created", "host", c.Session.Host.String())
+	tw.SetTitle("PTR | Host: %s", c.Host.String())
+	c.Logger.Debug("ptr table created", "host", c.Host.String())
 
 	return &tw, nil
 }

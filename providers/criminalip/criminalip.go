@@ -148,7 +148,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 }
 
 func (c *Client) Enabled() bool {
-	cip := c.Session.Providers.CriminalIP
+	cip := c.Providers.CriminalIP
 	if c.UseTestData || (cip.APIKey != "" && cip.Enabled != nil && *cip.Enabled) {
 		return true
 	}
@@ -157,7 +157,7 @@ func (c *Client) Enabled() bool {
 }
 
 func (c *Client) Priority() *int32 {
-	return c.Session.Providers.CriminalIP.OutputPriority
+	return c.Providers.CriminalIP.OutputPriority
 }
 
 type Config struct {

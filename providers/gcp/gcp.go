@@ -43,7 +43,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.GCP.Enabled != nil && *c.Session.Providers.GCP.Enabled) {
+	if c.UseTestData || (c.Providers.GCP.Enabled != nil && *c.Providers.GCP.Enabled) {
 		return true
 	}
 
@@ -51,7 +51,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.GCP.OutputPriority
+	return c.Providers.GCP.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

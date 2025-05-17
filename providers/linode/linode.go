@@ -43,7 +43,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.Linode.Enabled != nil && *c.Session.Providers.Linode.Enabled) {
+	if c.UseTestData || (c.Providers.Linode.Enabled != nil && *c.Providers.Linode.Enabled) {
 		return true
 	}
 
@@ -51,7 +51,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.Linode.OutputPriority
+	return c.Providers.Linode.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

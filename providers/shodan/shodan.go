@@ -55,8 +55,8 @@ func (c *ProviderClient) Enabled() bool {
 	switch {
 	case c.UseTestData:
 		return true
-	case c.Session.Providers.Shodan.Enabled != nil && *c.Session.Providers.Shodan.Enabled:
-		if c.Session.Providers.Shodan.APIKey != "" {
+	case c.Providers.Shodan.Enabled != nil && *c.Providers.Shodan.Enabled:
+		if c.Providers.Shodan.APIKey != "" {
 			return true
 		}
 	}
@@ -65,7 +65,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.Shodan.OutputPriority
+	return c.Providers.Shodan.OutputPriority
 }
 
 func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res *HostSearchResult, err error) {

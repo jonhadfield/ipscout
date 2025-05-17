@@ -66,8 +66,8 @@ func (c *Client) Enabled() bool {
 	switch {
 	case c.UseTestData:
 		return true
-	case c.Session.Providers.AbuseIPDB.Enabled != nil && *c.Session.Providers.AbuseIPDB.Enabled:
-		if c.Session.Providers.AbuseIPDB.APIKey != "" {
+	case c.Providers.AbuseIPDB.Enabled != nil && *c.Providers.AbuseIPDB.Enabled:
+		if c.Providers.AbuseIPDB.APIKey != "" {
 			return true
 		}
 	}
@@ -76,7 +76,7 @@ func (c *Client) Enabled() bool {
 }
 
 func (c *Client) Priority() *int32 {
-	return c.Session.Providers.AbuseIPDB.OutputPriority
+	return c.Providers.AbuseIPDB.OutputPriority
 }
 
 func (c *Client) GetConfig() *session.Session {

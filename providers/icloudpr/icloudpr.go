@@ -45,7 +45,7 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Session.Providers.ICloudPR.Enabled != nil && *c.Session.Providers.ICloudPR.Enabled) {
+	if c.UseTestData || (c.Providers.ICloudPR.Enabled != nil && *c.Providers.ICloudPR.Enabled) {
 		return true
 	}
 
@@ -53,7 +53,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.ICloudPR.OutputPriority
+	return c.Providers.ICloudPR.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {

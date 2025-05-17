@@ -44,7 +44,7 @@ type ProviderClient struct {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	an := c.Session.Providers.Annotated
+	an := c.Providers.Annotated
 
 	if c.UseTestData || (len(an.Paths) > 0 && (an.Enabled != nil && *an.Enabled)) {
 		return true
@@ -54,7 +54,7 @@ func (c *ProviderClient) Enabled() bool {
 }
 
 func (c *ProviderClient) Priority() *int32 {
-	return c.Session.Providers.Annotated.OutputPriority
+	return c.Providers.Annotated.OutputPriority
 }
 
 func (c *ProviderClient) GetConfig() *session.Session {
