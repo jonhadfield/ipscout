@@ -69,8 +69,8 @@ type annotation struct {
 }
 
 func annotationsContainsTerm(ae []annotation, term string) bool {
-	for y := range ae {
-		if annotationNotesContain(ae[y].Notes, term) {
+	for _, anno := range ae {
+		if annotationNotesContain(anno.Notes, term) {
 			return true
 		}
 	}
@@ -79,8 +79,8 @@ func annotationsContainsTerm(ae []annotation, term string) bool {
 }
 
 func annotationNotesContain(notes []string, term string) bool {
-	for x := range notes {
-		if strings.Contains(notes[x], term) {
+	for _, note := range notes {
+		if strings.Contains(note, term) {
 			return true
 		}
 	}

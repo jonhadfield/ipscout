@@ -361,16 +361,16 @@ func output(sess *session.Session, runners map[string]providers.ProviderClient, 
 }
 
 func outputMessages(sess *session.Session) {
-	for x := range sess.Messages.Error {
-		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgRed.Sprint("[ERROR]"), sess.Messages.Error[x])
+	for _, msg := range sess.Messages.Error {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgRed.Sprint("[ERROR]"), msg)
 	}
 
-	for x := range sess.Messages.Warning {
-		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgYellow.Sprint("[WARN]"), sess.Messages.Warning[x])
+	for _, msg := range sess.Messages.Warning {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgYellow.Sprint("[WARN]"), msg)
 	}
 
-	for x := range sess.Messages.Info {
-		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgGreen.Sprint("[INFO]"), sess.Messages.Info[x])
+	for _, msg := range sess.Messages.Info {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgGreen.Sprint("[INFO]"), msg)
 	}
 }
 
