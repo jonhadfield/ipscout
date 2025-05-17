@@ -142,12 +142,7 @@ func (c *ProviderClient) Initialise() error {
 		return errors.New("cache not set")
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.InitialiseDuration, ProviderName)()
 
 	c.Logger.Debug("initialising azure waf client")
 
@@ -205,20 +200,13 @@ func (c *ProviderClient) loadProviderDataFromCache() ([]*armfrontdoor.WebApplica
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	c.Stats.Mu.Lock()
-	c.Stats.FindHostUsedCache[ProviderName] = true
-	c.Stats.Mu.Unlock()
+	c.Stats.MarkCacheUsed(c.Stats.FindHostUsedCache, ProviderName)
 
 	return doc, nil
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.FindHostDuration, ProviderName)()
 
 	var out []byte
 
@@ -341,12 +329,7 @@ func matchIPToPolicyCustomRules(host netip.Addr, policies []*armfrontdoor.WebApp
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.CreateTableDuration, ProviderName)()
 
 	rowEmphasisColor := providers.RowEmphasisColor(c.Session)
 

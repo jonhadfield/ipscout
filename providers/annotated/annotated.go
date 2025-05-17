@@ -247,12 +247,7 @@ func (c *ProviderClient) Initialise() error {
 		return errors.New("no paths provided for annotated provider")
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.InitialiseDuration, ProviderName)()
 
 	c.Logger.Debug("initialising annotated client")
 
@@ -314,12 +309,7 @@ func generateURLsHash(urls []string) string {
 type HostSearchResult map[netip.Prefix][]annotation
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.CreateTableDuration, ProviderName)()
 
 	var err error
 
@@ -417,12 +407,7 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.FindHostDuration, ProviderName)()
 
 	var err error
 
@@ -504,9 +489,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (map[netip.Prefix][]annotat
 
 			c.Logger.Info("annotated response found in cache", "host", c.Host.String())
 
-			c.Stats.Mu.Lock()
-			c.Stats.FindHostUsedCache[ProviderName] = true
-			c.Stats.Mu.Unlock()
+			c.Stats.MarkCacheUsed(c.Stats.FindHostUsedCache, ProviderName)
 
 			return result, nil
 		}

@@ -115,12 +115,7 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.FindHostDuration, ProviderName)()
 
 	if c.UseTestData {
 		return loadTestData()
@@ -180,12 +175,7 @@ func (c *ProviderClient) Initialise() error {
 		return errors.New("cache not set")
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.InitialiseDuration, ProviderName)()
 
 	c.Logger.Debug("initialising ipurl client")
 
@@ -225,9 +215,7 @@ func (c *ProviderClient) refreshURLCache() error {
 		"not in cache", len(refreshList))
 
 	if len(refreshList) == 0 {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseUsedCache[ProviderName] = true
-		c.Stats.Mu.Unlock()
+		c.Stats.MarkCacheUsed(c.Stats.InitialiseUsedCache, ProviderName)
 
 		return nil
 	}
@@ -363,9 +351,7 @@ func (c *ProviderClient) loadProviderDataFromCache(pwp map[netip.Prefix][]string
 		}
 	}
 
-	c.Stats.Mu.Lock()
-	c.Stats.FindHostUsedCache[ProviderName] = true
-	c.Stats.Mu.Unlock()
+	c.Stats.MarkCacheUsed(c.Stats.FindHostUsedCache, ProviderName)
 
 	return nil
 }
@@ -393,12 +379,7 @@ func unmarshalResponse(rBody []byte) (HostSearchResult, error) {
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.CreateTableDuration, ProviderName)()
 
 	result, err := unmarshalResponse(data)
 	if err != nil {

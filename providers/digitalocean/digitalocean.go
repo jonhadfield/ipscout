@@ -173,12 +173,7 @@ func (c *ProviderClient) Initialise() error {
 		return errors.New("cache not set")
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.InitialiseDuration, ProviderName)()
 
 	c.Logger.Debug("initialising digitalocean client")
 
@@ -226,9 +221,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (*digitalocean.Doc, error) 
 		return nil, fmt.Errorf("error reading digitalocean cache: %w", err)
 	}
 
-	c.Stats.Mu.Lock()
-	c.Stats.FindHostUsedCache[ProviderName] = true
-	c.Stats.Mu.Unlock()
+	c.Stats.MarkCacheUsed(c.Stats.FindHostUsedCache, ProviderName)
 
 	return doc, nil
 }
@@ -251,12 +244,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 
 // FindHost searches for the host in the digitalocean data
 func (c *ProviderClient) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.FindHostDuration, ProviderName)()
 
 	var result *HostSearchResult
 
@@ -304,12 +292,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.CreateTableDuration, ProviderName)()
 
 	result, err := unmarshalResponse(data)
 	if err != nil {

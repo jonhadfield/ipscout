@@ -84,12 +84,7 @@ func (c *Client) Initialise() error {
 		return errors.New("cache not set")
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Session.Stats.Mu.Lock()
-		c.Session.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Session.Stats.Mu.Unlock()
-	}()
+	defer c.Session.Stats.TrackDuration(c.Session.Stats.InitialiseDuration, ProviderName)()
 
 	c.Session.Logger.Debug("initialising ptr client")
 
@@ -97,12 +92,7 @@ func (c *Client) Initialise() error {
 }
 
 func (c *Client) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Session.Stats.Mu.Lock()
-		c.Session.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Session.Stats.Mu.Unlock()
-	}()
+	defer c.Session.Stats.TrackDuration(c.Session.Stats.FindHostDuration, ProviderName)()
 
 	result, err := fetchData(c.Session)
 	if err != nil {
@@ -115,12 +105,7 @@ func (c *Client) FindHost() ([]byte, error) {
 }
 
 func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Session.Stats.Mu.Lock()
-		c.Session.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Session.Stats.Mu.Unlock()
-	}()
+	defer c.Session.Stats.TrackDuration(c.Session.Stats.CreateTableDuration, ProviderName)()
 
 	var findHostData HostSearchResult
 	if err := json.Unmarshal(data, &findHostData); err != nil {
@@ -286,9 +271,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 
 			result.Raw = item.Value
 
-			c.Stats.Mu.Lock()
-			c.Stats.FindHostUsedCache[ProviderName] = true
-			c.Stats.Mu.Unlock()
+			c.Session.Stats.MarkCacheUsed(c.Session.Stats.FindHostUsedCache, ProviderName)
 
 			return result, nil
 		}

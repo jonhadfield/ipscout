@@ -269,9 +269,7 @@ func fetchData(client session.Session) (*HostSearchResult, error) {
 
 			result.Raw = item.Value
 
-			client.Stats.Mu.Lock()
-			client.Stats.FindHostUsedCache[ProviderName] = true
-			client.Stats.Mu.Unlock()
+			client.Stats.MarkCacheUsed(client.Stats.FindHostUsedCache, ProviderName)
 
 			return result, nil
 		}
@@ -339,12 +337,7 @@ func (c *Client) Initialise() error {
 		return errors.New("cache not set")
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.InitialiseDuration, ProviderName)()
 
 	c.Logger.Debug("initialising criminalip client")
 
@@ -364,12 +357,7 @@ func (c *Client) Initialise() error {
 }
 
 func (c *Client) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.FindHostDuration, ProviderName)()
 
 	if c.UseTestData {
 		return loadTestData(c)
@@ -479,12 +467,7 @@ func GenIssuesOutputForTable(in Issues) string {
 }
 
 func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer c.Stats.TrackDuration(c.Stats.CreateTableDuration, ProviderName)()
 
 	result, err := unmarshalResponse(data)
 	if err != nil {
