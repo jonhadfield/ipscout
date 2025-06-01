@@ -59,11 +59,11 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 
 	var ratingConfig providers.RatingConfig
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
-		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalRatingConfigFmt, err)
 	}
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
 	}
 
 	var reasons []string

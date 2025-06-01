@@ -243,7 +243,7 @@ func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.Thr
 	var doc HostSearchResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+		return nil, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
 	}
 
 	threatIndicators := providers.ThreatIndicators{
@@ -264,11 +264,11 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 
 	var ratingConfig providers.RatingConfig
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
-		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalRatingConfigFmt, err)
 	}
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
 	}
 
 	geoResult := rateGeolocation(doc, ratingConfig)

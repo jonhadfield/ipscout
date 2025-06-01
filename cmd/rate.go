@@ -37,7 +37,7 @@ func newRateCommand() *cobra.Command {
 			var err error
 
 			if sess.Host, err = netip.ParseAddr(args[0]); err != nil {
-				fmt.Printf("invalid host: %s", err.Error())
+				fmt.Printf(providers.MsgInvalidHostFmt, err.Error())
 
 				os.Exit(1)
 			}

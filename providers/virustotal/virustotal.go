@@ -73,7 +73,7 @@ func loadRatingConfig(ratingConfigJSON []byte) (providers.RatingConfig, error) {
 	var ratingConfig providers.RatingConfig
 
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
-		return providers.RatingConfig{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+		return providers.RatingConfig{}, fmt.Errorf(providers.ErrUnmarshalRatingConfigFmt, err)
 	}
 
 	return ratingConfig, nil
@@ -83,7 +83,7 @@ func loadFindHostResults(in []byte) (HostSearchResult, error) {
 	var doc HostSearchResult
 
 	if err := json.Unmarshal(in, &doc); err != nil {
-		return HostSearchResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+		return HostSearchResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
 	}
 
 	return doc, nil
@@ -147,7 +147,7 @@ func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.Thr
 	var doc HostSearchResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+		return nil, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
 	}
 
 	threatIndicators := providers.ThreatIndicators{

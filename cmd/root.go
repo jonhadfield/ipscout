@@ -11,6 +11,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 
 	"github.com/jonhadfield/ipscout/process"
+	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -48,40 +49,6 @@ func newRootCommand() *cobra.Command {
 		SilenceUsage:  true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			return initConfig(cmd)
-		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			// using test data doesn't require a host be provided
-			// but command does so use placeholder
-			if useTestData {
-				args = []string{"8.8.8.8"}
-			}
-
-			if len(args) == 0 {
-				_ = cmd.Help()
-
-				os.Exit(1)
-			}
-
-			var err error
-
-			if sess.Host, err = netip.ParseAddr(args[0]); err != nil {
-				return fmt.Errorf("invalid host: %w", err)
-			}
-
-			processor, err := process.New(sess)
-			if err != nil {
-				fmt.Println(err.Error())
-
-				os.Exit(1)
-			}
-
-			if err = processor.Run(); err != nil {
-				fmt.Println(err.Error())
-
-				os.Exit(1)
-			}
-
-			return nil
 		},
 	}
 
@@ -175,6 +142,12 @@ func ToPtr[T any](v T) *T {
 	return &v
 }
 
+func addProviderConfigMessage(sess *session.Session, provider string) {
+	sess.Messages.Mu.Lock()
+	sess.Messages.Info = append(sess.Messages.Info, fmt.Sprintf(providers.ProviderNotDefinedFmt, provider))
+	sess.Messages.Mu.Unlock()
+}
+
 const (
 	defaultAbuseIPDBOutputPriority    = 50
 	defaultAnnotatedOutputPriority    = 30
@@ -207,9 +180,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.abuseipdb.enabled") {
 		sess.Providers.AbuseIPDB.Enabled = ToPtr(v.GetBool("providers.abuseipdb.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "AbuseIPDB provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "AbuseIPDB")
 	}
 
 	if v.IsSet("providers.abuseipdb.output_priority") {
@@ -224,9 +195,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.annotated.enabled") {
 		sess.Providers.Annotated.Enabled = ToPtr(v.GetBool("providers.annotated.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Annotated provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Annotated")
 	}
 
 	if v.IsSet("providers.annotated.output_priority") {
@@ -241,9 +210,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.aws.enabled") {
 		sess.Providers.AWS.Enabled = ToPtr(v.GetBool("providers.aws.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "AWS provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "AWS")
 	}
 
 	if v.IsSet("providers.aws.output_priority") {
@@ -259,9 +226,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.azure.enabled") {
 		sess.Providers.Azure.Enabled = ToPtr(v.GetBool("providers.azure.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Azure provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Azure")
 	}
 
 	if v.IsSet("providers.azure.output_priority") {
@@ -278,9 +243,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.azurewaf.enabled") {
 		sess.Providers.AzureWAF.Enabled = ToPtr(v.GetBool("providers.azurewaf.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Azure WAF provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Azure WAF")
 	}
 
 	if v.IsSet("providers.azurewaf.output_priority") {
@@ -297,9 +260,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.criminalip.enabled") {
 		sess.Providers.CriminalIP.Enabled = ToPtr(v.GetBool("providers.criminalip.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Criminal IP provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Criminal IP")
 	}
 
 	if v.IsSet("providers.criminalip.output_priority") {
@@ -314,9 +275,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.bingbot.enabled") {
 		sess.Providers.Bingbot.Enabled = ToPtr(v.GetBool("providers.bingbot.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Bingbot provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Bingbot")
 	}
 
 	if v.IsSet("providers.bingbot.output_priority") {
@@ -333,9 +292,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.digitalocean.enabled") {
 		sess.Providers.DigitalOcean.Enabled = ToPtr(v.GetBool("providers.digitalocean.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "DigitalOcean provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "DigitalOcean")
 	}
 
 	if v.IsSet("providers.digitalocean.output_priority") {
@@ -351,9 +308,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.gcp.enabled") {
 		sess.Providers.GCP.Enabled = ToPtr(v.GetBool("providers.gcp.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "GCP provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "GCP")
 	}
 
 	if v.IsSet("providers.gcp.output_priority") {
@@ -369,9 +324,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.google.enabled") {
 		sess.Providers.Google.Enabled = ToPtr(v.GetBool("providers.google.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Google provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Google")
 	}
 
 	if v.IsSet("providers.google.output_priority") {
@@ -384,9 +337,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.googlebot.enabled") {
 		sess.Providers.Googlebot.Enabled = ToPtr(v.GetBool("providers.googlebot.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Googlebot provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Googlebot")
 	}
 
 	if v.IsSet("providers.googlebot.output_priority") {
@@ -401,9 +352,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.googlesc.enabled") {
 		sess.Providers.GoogleSC.Enabled = ToPtr(v.GetBool("providers.googlesc.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "GoogleSC provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "GoogleSC")
 	}
 
 	if v.IsSet("providers.googlesc.output_priority") {
@@ -418,9 +367,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.icloudpr.enabled") {
 		sess.Providers.ICloudPR.Enabled = ToPtr(v.GetBool("providers.icloudpr.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "iCloud Private Relay provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "iCloud Private Relay")
 	}
 
 	if v.IsSet("providers.icloudpr.output_priority") {
@@ -436,9 +383,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.ipqs.enabled") {
 		sess.Providers.IPQS.Enabled = ToPtr(v.GetBool("providers.ipqs.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "IPQS provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "IPQS")
 	}
 
 	if v.IsSet("providers.ipqs.output_priority") {
@@ -457,9 +402,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.ipurl.enabled") {
 		sess.Providers.IPURL.Enabled = ToPtr(v.GetBool("providers.ipurl.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "IP URL provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "IP URL")
 	}
 
 	if v.IsSet("providers.ipurl.output_priority") {
@@ -475,9 +418,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.linode.enabled") {
 		sess.Providers.Linode.Enabled = ToPtr(v.GetBool("providers.linode.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Linode provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Linode")
 	}
 
 	if v.IsSet("providers.linode.output_priority") {
@@ -494,9 +435,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.shodan.enabled") {
 		sess.Providers.Shodan.Enabled = ToPtr(v.GetBool("providers.shodan.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Shodan provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Shodan")
 	}
 
 	if v.IsSet("providers.shodan.output_priority") {
@@ -513,9 +452,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.ptr.enabled") {
 		sess.Providers.PTR.Enabled = ToPtr(v.GetBool("providers.ptr.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "PTR provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "PTR")
 	}
 
 	if v.IsSet("providers.ptr.output_priority") {
@@ -531,9 +468,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.ipapi.enabled") {
 		sess.Providers.IPAPI.Enabled = ToPtr(v.GetBool("providers.ipapi.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "IPAPI provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "IPAPI")
 	}
 
 	if v.IsSet("providers.ipapi.output_priority") {
@@ -551,9 +486,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		sess.Providers.VirusTotal.ShowHarmless = ToPtr(v.GetBool("providers.virustotal.show_harmless"))
 		sess.Providers.VirusTotal.ShowClean = ToPtr(v.GetBool("providers.virustotal.show_clean"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "VirusTotal provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "VirusTotal")
 	}
 
 	if v.IsSet("providers.virustotal.output_priority") {

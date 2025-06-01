@@ -67,6 +67,16 @@ curl -sL https://raw.githubusercontent.com/jonhadfield/ipscout/add_install_scrip
 
 Download the latest release from the [releases](https://github.com/jonhadfield/ipscout/releases) page.
 
+### Build from source
+
+Go 1.24 or later is required to compile ipscout. Clone the repository and run:
+
+```shell
+go build ./...
+```
+
+This will create an `ipscout` binary in the current directory.
+
 ## Usage
 
 ```shell
