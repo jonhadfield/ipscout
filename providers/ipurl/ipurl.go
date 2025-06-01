@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"net/netip"
-	"os"
 	"sync"
 	"time"
 
@@ -83,7 +82,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 }
 
 func loadTestData() ([]byte, error) {
-	tdf, err := loadResultsFile("providers/ipurl/testdata/ipurl_5_105_62_60_report.json")
+	tdf, err := providers.LoadResultsFile[HostSearchResult]("providers/ipurl/testdata/ipurl_5_105_62_60_report.json")
 	if err != nil {
 		return nil, err
 	}
@@ -94,24 +93,6 @@ func loadTestData() ([]byte, error) {
 	}
 
 	return out, nil
-}
-
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
-	jf, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("error opening file: %w", err)
-	}
-
-	defer jf.Close()
-
-	decoder := json.NewDecoder(jf)
-
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding json: %w", err)
-	}
-
-	return res, nil
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {

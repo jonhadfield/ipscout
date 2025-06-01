@@ -469,3 +469,23 @@ func UpdateScoreIfLarger(a *float64, b float64) {
 		*a = b
 	}
 }
+
+// LoadResultsFile reads JSON data from path and unmarshals it into the supplied
+// type. It is primarily used for loading provider test data.
+func LoadResultsFile[T any](path string) (*T, error) {
+	jf, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("error opening file: %w", err)
+	}
+
+	defer jf.Close()
+
+	decoder := json.NewDecoder(jf)
+
+	var res T
+	if err = decoder.Decode(&res); err != nil {
+		return nil, fmt.Errorf("error decoding file: %w", err)
+	}
+
+	return &res, nil
+}
