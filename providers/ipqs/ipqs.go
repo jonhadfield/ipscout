@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/netip"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -499,26 +498,8 @@ func loadResponse(c session.Session) (res *HostSearchResult, err error) {
 	return res, nil
 }
 
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
-	jf, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("error opening ipqs file: %w", err)
-	}
-
-	defer jf.Close()
-
-	decoder := json.NewDecoder(jf)
-
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding ipqs file: %w", err)
-	}
-
-	return res, nil
-}
-
 func loadTestData(l *slog.Logger) (*HostSearchResult, error) {
-	tdf, err := loadResultsFile("providers/ipqs/testdata/ipqs_74_125_219_32_report.json")
+	tdf, err := providers.LoadResultsFile[HostSearchResult]("providers/ipqs/testdata/ipqs_74_125_219_32_report.json")
 	if err != nil {
 		return nil, err
 	}

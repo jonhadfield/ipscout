@@ -47,7 +47,7 @@ func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, erro
 			estimatedSize = uint64(x.EstimatedSize) //nolint:gosec
 		}
 
-		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(timeFormat), humanize.Bytes(estimatedSize), present.DashIfEmpty(x.AppVersion)})
+		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(timeFormat), humanize.Bytes(estimatedSize), providers.DashIfEmpty(x.AppVersion)})
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{

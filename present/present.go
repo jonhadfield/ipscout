@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/jonhadfield/ipscout/providers"
 
@@ -45,34 +44,6 @@ func JSON(jms *json.RawMessage) error {
 	fmt.Println(out.String())
 
 	return nil
-}
-
-func DashIfEmpty(value interface{}) string {
-	switch v := value.(type) {
-	case time.Time:
-		if v.IsZero() || v.Equal(time.Date(0o001, time.January, 1, 0, 0, 0, 0, time.UTC)) {
-			return "-"
-		}
-
-		return v.Format(providers.TimeFormat)
-	case string:
-		trimmed := strings.TrimSpace(v)
-		if len(trimmed) == 0 {
-			return "-"
-		}
-
-		return v
-	case *string:
-		if v == nil || len(strings.TrimSpace(*v)) == 0 {
-			return "-"
-		}
-
-		return *v
-	case int:
-		return fmt.Sprintf("%d", v)
-	default:
-		return "-"
-	}
 }
 
 type CombinedData struct {

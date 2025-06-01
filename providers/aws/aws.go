@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/netip"
-	"os"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -190,7 +189,7 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func loadTestData() ([]byte, error) {
-	tdf, err := loadResultsFile("providers/aws/testdata/aws_18_164_52_75_report.json")
+	tdf, err := providers.LoadResultsFile[HostSearchResult]("providers/aws/testdata/aws_18_164_52_75_report.json")
 	if err != nil {
 		return nil, err
 	}
@@ -396,24 +395,6 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	return &tw, nil
-}
-
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
-	jf, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("error opening file: %w", err)
-	}
-
-	defer jf.Close()
-
-	decoder := json.NewDecoder(jf)
-
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding json: %w", err)
-	}
-
-	return res, nil
 }
 
 type HostSearchResult struct {
