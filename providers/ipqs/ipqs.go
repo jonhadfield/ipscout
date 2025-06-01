@@ -432,12 +432,12 @@ type TransactionDetails struct {
 	AddressEmailIdentityMatch string   `json:"address_email_identity_match,omitempty"`
 }
 
-func loadResponse(c session.Session) (res *HostSearchResult, err error) {
+func loadResponse(c session.Session) (*HostSearchResult, error) {
 	if c.Providers.IPQS.APIKey == "" {
 		return nil, errors.New("IPQS API key not set")
 	}
 
-	res = &HostSearchResult{}
+	res := &HostSearchResult{}
 
 	urlPath, err := url.JoinPath(APIURL, c.Providers.IPQS.APIKey, c.Host.String())
 	if err != nil {
@@ -476,7 +476,7 @@ func loadResponse(c session.Session) (res *HostSearchResult, err error) {
 	}
 
 	if len(body) == 0 {
-		return nil, fmt.Errorf("ipqs response body is empty")
+		return nil, errors.New("ipqs response body is empty")
 	}
 
 	var apiResp ipqsResp

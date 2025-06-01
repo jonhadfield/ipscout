@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/jonhadfield/ipscout/providers/hetzner"
 	"log/slog"
@@ -429,7 +430,7 @@ func staticRateFindHostsResults(sess *session.Session, runners map[string]provid
 	}
 
 	if providersThatDetected == 0 {
-		return RatingOutput{}, fmt.Errorf("no providers detected")
+		return RatingOutput{}, errors.New("no providers detected")
 	}
 
 	aggregateScore := runningTotal / float64(providersThatDetected)

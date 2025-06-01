@@ -95,7 +95,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	}
 
 	if doc.Prefix.String() == "" {
-		return rateResult, fmt.Errorf("no prefix found in linode data")
+		return rateResult, errors.New("no prefix found in linode data")
 	}
 
 	if doc.Prefix.IsValid() {
@@ -347,7 +347,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
+func loadResultsFile(path string) (*HostSearchResult, error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening file: %w", err)
@@ -355,14 +355,14 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	defer jf.Close()
 
+	var res HostSearchResult
 	decoder := json.NewDecoder(jf)
 
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding file: %w", err)
+	if err = decoder.Decode(&res); err != nil {
+		return nil, fmt.Errorf("error decoding file: %w", err)
 	}
 
-	return res, nil
+	return &res, nil
 }
 
 type HostSearchResult struct {

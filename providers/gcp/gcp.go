@@ -95,7 +95,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	}
 
 	if doc.Prefix.String() == "" {
-		return rateResult, fmt.Errorf("no prefix found in gcp data")
+		return rateResult, errors.New("no prefix found in gcp data")
 	}
 
 	if doc.Prefix.IsValid() {

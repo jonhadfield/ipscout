@@ -68,7 +68,7 @@ func (c *ProviderClient) Priority() *int32 {
 	return c.Providers.Shodan.OutputPriority
 }
 
-func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res *HostSearchResult, err error) {
+func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (*HostSearchResult, error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath, c.Host.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create shodan api url path: %w", err)
@@ -117,7 +117,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 		return nil, providers.ErrNoDataFound
 	}
 
-	res, err = unmarshalResponse(rBody)
+	res, err := unmarshalResponse(rBody)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
@@ -143,7 +143,7 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	return &res, nil
 }
 
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
+func loadResultsFile(path string) (*HostSearchResult, error) {
 	// get raw data
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -158,16 +158,16 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	defer jf.Close()
 
+	var res HostSearchResult
 	decoder := json.NewDecoder(jf)
 
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding shodan file: %w", err)
+	if err = decoder.Decode(&res); err != nil {
+		return nil, fmt.Errorf("error decoding shodan file: %w", err)
 	}
 
 	res.Raw = raw
 
-	return res, nil
+	return &res, nil
 }
 
 func (ssr *HostSearchResult) CreateTable() *table.Writer {
@@ -697,8 +697,8 @@ func (c *Client) GetConfig() *session.Session {
 	return &c.Config.Session
 }
 
-func (c *Client) GetData() (result *HostSearchResult, err error) {
-	result, err = loadResultsFile("shodan/testdata/shodan_google_dns_resp.json")
+func (c *Client) GetData() (*HostSearchResult, error) {
+	result, err := loadResultsFile("shodan/testdata/shodan_google_dns_resp.json")
 	if err != nil {
 		return nil, err
 	}

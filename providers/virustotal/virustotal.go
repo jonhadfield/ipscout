@@ -175,7 +175,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	}
 
 	if hostData.Data.ID == "" {
-		return providers.RateResult{}, fmt.Errorf("no host id found")
+		return providers.RateResult{}, errors.New("no host id found")
 	}
 
 	return rateHost(hostData.Data.Attributes, ratingConfig), nil
@@ -391,7 +391,7 @@ func (c *ProviderClient) Initialise() error {
 	c.Logger.Debug("initialising virustotal client")
 
 	if c.Providers.VirusTotal.APIKey == "" && !c.UseTestData {
-		return fmt.Errorf("virustotal provider api key not set")
+		return errors.New("virustotal provider api key not set")
 	}
 
 	return nil

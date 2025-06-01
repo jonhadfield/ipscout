@@ -410,7 +410,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
+func loadResultsFile(path string) (*HostSearchResult, error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening file: %w", err)
@@ -422,14 +422,14 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 		}
 	}()
 
+	var res HostSearchResult
 	decoder := json.NewDecoder(jf)
 
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding json: %w", err)
+	if err = decoder.Decode(&res); err != nil {
+		return nil, fmt.Errorf("error decoding json: %w", err)
 	}
 
-	return res, nil
+	return &res, nil
 }
 
 type PolicyMatch struct {

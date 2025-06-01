@@ -94,7 +94,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	}
 
 	if doc.IPPrefix.String() == "" {
-		return rateResult, fmt.Errorf("no prefix found in aws data")
+		return rateResult, errors.New("no prefix found in aws data")
 	}
 
 	if doc.IPPrefix.IsValid() || doc.IPv6Prefix.IPv6Prefix.IsValid() {
