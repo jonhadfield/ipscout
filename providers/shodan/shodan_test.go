@@ -2,6 +2,7 @@ package shodan
 
 import (
 	"encoding/json"
+	"net/http"
 	"os"
 	"testing"
 
@@ -130,7 +131,7 @@ func TestShodanHostDNSQuery(t *testing.T) {
 	require.Equal(t, 37.4056, sr.Data[2].Location.Latitude)
 	require.Equal(t, "United States", sr.Data[2].Location.CountryName)
 	require.Equal(t, "US", sr.Data[2].Location.CountryCode)
-	require.Equal(t, 200, sr.Data[2].HTTP.Status)
+	require.Equal(t, http.StatusOK, sr.Data[2].HTTP.Status)
 	require.Empty(t, sr.Data[2].HTTP.RobotsHash)
 	require.Equal(t, "help.emarketer.com", sr.Data[2].HTTP.Redirects[0].Host)
 	require.Equal(t, "HTTP/1.1 302 Found\r\nX-Content-Type-Options: nosniff\r\nAccess-Control-Allow-Origin: *\r\nLocation: https://dns.google/\r\nDate: Sun, 28 Apr 2024 09:25:22 GMT\r\nContent-Type: text/html; charset=UTF-8\r\nServer: HTTP server (unknown)\r\nContent-Length: 216\r\nX-XSS-Protection: 0\r\nX-Frame-Options: SAMEORIGIN\r\nAlt-Svc: h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000\r\n\r\n", sr.Data[2].HTTP.Redirects[0].Data)
