@@ -89,7 +89,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	var rateResult providers.RateResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return providers.RateResult{}, fmt.Errorf("error unmarshalling find result: %w", err)
+		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
 	}
 
 	if doc.Data.IsTor {
@@ -126,7 +126,7 @@ func (c *Client) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndic
 	var doc HostSearchResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return nil, fmt.Errorf("error unmarshalling find result: %w", err)
+		return nil, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
 	}
 
 	threatIndicators := providers.ThreatIndicators{

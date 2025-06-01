@@ -67,7 +67,7 @@ func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.Thr
 func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (providers.RateResult, error) {
 	var ratingConfig providers.RatingConfig
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
-		return providers.RateResult{}, fmt.Errorf("error unmarshalling rating config: %w", err)
+		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalRatingConfigFmt, err)
 	}
 
 	var doc HostSearchResult
