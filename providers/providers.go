@@ -135,9 +135,9 @@ func PortNetworkMatch(incomingPort string, matchPorts []string) bool {
 func portAgeCheck(portConfirmedTime string, timeFormat string, maxAge string) (bool, error) {
 	switch {
 	case portConfirmedTime == "":
-		return false, fmt.Errorf("no port confirmed time provided")
+		return false, errors.New("no port confirmed time provided")
 	case timeFormat == "":
-		return false, fmt.Errorf("no time format provided")
+		return false, errors.New("no time format provided")
 	}
 
 	// if no age filter provided, then return true
@@ -178,7 +178,10 @@ type PortMatchFilterInput struct {
 
 // PortMatchFilter returns true by default, and false if either age or netmatch is specified
 // and doesn't match
-func PortMatchFilter(in PortMatchFilterInput) (ageMatch, netMatch bool, err error) {
+func PortMatchFilter(in PortMatchFilterInput) (bool, bool, error) {
+	var ageMatch bool
+	var netMatch bool
+	var err error
 	switch in.IncomingPort {
 	case "":
 		netMatch = true
@@ -190,7 +193,7 @@ func PortMatchFilter(in PortMatchFilterInput) (ageMatch, netMatch bool, err erro
 	case in.ConfirmedDate == "" && in.ConfirmedDateFormat == "":
 		ageMatch = true
 	case in.ConfirmedDate == "" || in.ConfirmedDateFormat == "":
-		return false, false, fmt.Errorf("both confirmed date and format must be specified")
+		return false, false, errors.New("both confirmed date and format must be specified")
 	default:
 		ageMatch, err = portAgeCheck(in.ConfirmedDate, in.ConfirmedDateFormat, in.MaxAge)
 		if err != nil {

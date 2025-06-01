@@ -95,7 +95,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	}
 
 	if doc.Prefix.String() == "" {
-		return rateResult, fmt.Errorf("no prefix found in bingbot data")
+		return rateResult, errors.New("no prefix found in bingbot data")
 	}
 
 	if doc.Prefix.IsValid() {

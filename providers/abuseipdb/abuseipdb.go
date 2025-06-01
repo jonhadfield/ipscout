@@ -265,7 +265,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res *HostSearchResult, err error) {
+func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (*HostSearchResult, error) {
 	urlPath, err := url.JoinPath(APIURL, HostIPPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create abuseipdb api url path: %w", err)
@@ -314,7 +314,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 		return nil, providers.ErrNoDataFound
 	}
 
-	res, err = unmarshalResponse(rBody)
+	res, err := unmarshalResponse(rBody)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
@@ -339,7 +339,7 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	return &res, nil
 }
 
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
+func loadResultsFile(path string) (*HostSearchResult, error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening abuseipdb file: %w", err)
@@ -347,14 +347,14 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	defer jf.Close()
 
+	var res HostSearchResult
 	decoder := json.NewDecoder(jf)
 
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding abuseipdb file: %w", err)
+	if err = decoder.Decode(&res); err != nil {
+		return nil, fmt.Errorf("error decoding abuseipdb file: %w", err)
 	}
 
-	return res, nil
+	return &res, nil
 }
 
 func (ssr *HostSearchResult) CreateTable() *table.Writer {

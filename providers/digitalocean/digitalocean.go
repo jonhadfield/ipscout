@@ -95,7 +95,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	}
 
 	if doc.Record.Network.String() == "" {
-		return rateResult, fmt.Errorf("no prefix found in digitalocean data")
+		return rateResult, errors.New("no prefix found in digitalocean data")
 	}
 
 	if doc.Record.Network.IsValid() {

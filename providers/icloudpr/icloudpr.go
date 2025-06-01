@@ -79,7 +79,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	}
 
 	if doc.Prefix.String() == "" {
-		return rateResult, fmt.Errorf("no prefix found in iCloud Private Relay data")
+		return rateResult, errors.New("no prefix found in iCloud Private Relay data")
 	}
 
 	if doc.Prefix.IsValid() {

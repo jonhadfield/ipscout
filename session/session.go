@@ -2,6 +2,7 @@ package session
 
 import (
 	_ "embed"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/netip"
@@ -82,11 +83,11 @@ func New() *Session {
 func (c *Session) Validate() error {
 	switch {
 	case c.Logger == nil:
-		return fmt.Errorf("logger not set")
+		return errors.New("logger not set")
 	case c.Stats == nil:
-		return fmt.Errorf("stats not set")
+		return errors.New("stats not set")
 	case c.Cache == nil:
-		return fmt.Errorf("cache not set")
+		return errors.New("cache not set")
 	}
 
 	return nil
@@ -285,7 +286,7 @@ func unmarshalConfig(data []byte) (*Session, error) {
 // and returns true if it was created, or false if it already exists
 func CreateDefaultConfigIfMissing(path string) (bool, error) {
 	if path == "" {
-		return false, fmt.Errorf("session path not specified")
+		return false, errors.New("session path not specified")
 	}
 
 	// check if session already exists

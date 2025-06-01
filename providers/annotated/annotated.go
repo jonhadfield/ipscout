@@ -88,7 +88,8 @@ func annotationNotesContain(notes []string, term string) bool {
 	return false
 }
 
-func extractThreatAnnotations(ae []annotation) (threats []string) {
+func extractThreatAnnotations(ae []annotation) []string {
+	var threats []string
 	for y := range ae {
 		for z := range ae[y].Notes {
 			if strings.HasPrefix(ae[y].Notes[z], "threat:") {
@@ -97,7 +98,7 @@ func extractThreatAnnotations(ae []annotation) (threats []string) {
 		}
 	}
 
-	return
+	return threats
 }
 
 func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndicators, error) {
@@ -224,7 +225,9 @@ func ReadAnnotatedPrefixesFromFile(l *slog.Logger, path string, prefixesWithAnno
 	return nil
 }
 
-func parseAndRepackYAMLAnnotations(l *slog.Logger, source string, yas []yamlAnnotation) (pyas []annotation) {
+func parseAndRepackYAMLAnnotations(l *slog.Logger, source string, yas []yamlAnnotation) []annotation {
+	var pyas []annotation
+
 	for _, ya := range yas {
 		pDate, err := dateparse.ParseAny(ya.Date, dateparse.PreferMonthFirst(false))
 		if err != nil {
@@ -239,7 +242,7 @@ func parseAndRepackYAMLAnnotations(l *slog.Logger, source string, yas []yamlAnno
 		})
 	}
 
-	return
+	return pyas
 }
 
 func (c *ProviderClient) Initialise() error {
@@ -398,7 +401,7 @@ func loadTestData() ([]byte, error) {
 	return out, nil
 }
 
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
+func loadResultsFile(path string) (*HostSearchResult, error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening file: %w", err)
@@ -406,14 +409,14 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	defer jf.Close()
 
+	var res HostSearchResult
 	decoder := json.NewDecoder(jf)
 
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding json: %w", err)
+	if err = decoder.Decode(&res); err != nil {
+		return nil, fmt.Errorf("error decoding json: %w", err)
 	}
 
-	return res, nil
+	return &res, nil
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {
@@ -523,7 +526,8 @@ type Repository struct {
 	Patterns    []string `toml:"patterns"`
 }
 
-func getValidFilePathsFromDir(l *slog.Logger, dir string) (paths []os.DirEntry) {
+func getValidFilePathsFromDir(l *slog.Logger, dir string) []os.DirEntry {
+	var paths []os.DirEntry
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		l.Warn("failed to read", "dir", dir, "error", err.Error())
@@ -541,7 +545,7 @@ func getValidFilePathsFromDir(l *slog.Logger, dir string) (paths []os.DirEntry) 
 		}
 	}
 
-	return
+	return paths
 }
 
 func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotations map[netip.Prefix][]annotation) error {

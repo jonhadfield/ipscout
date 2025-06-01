@@ -2,6 +2,7 @@ package process
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/jonhadfield/ipscout/providers/hetzner"
 	"log/slog"
@@ -110,7 +111,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 	}
 
 	if enabled == 0 {
-		return nil, fmt.Errorf("no providers enabled")
+		return nil, errors.New("no providers enabled")
 	}
 
 	return runners, nil

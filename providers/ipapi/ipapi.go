@@ -240,8 +240,8 @@ type ipapiResp struct {
 	Hostname           string  `json:"hostname"`
 }
 
-func loadResponse(c session.Session) (res *HostSearchResult, err error) {
-	res = &HostSearchResult{}
+func loadResponse(c session.Session) (*HostSearchResult, error) {
+	res := &HostSearchResult{}
 
 	req, err := retryablehttp.NewRequest("GET", fmt.Sprintf("%s/%s/json", apiDomain, c.Host.String()), nil)
 	if err != nil {
@@ -273,7 +273,7 @@ func loadResponse(c session.Session) (res *HostSearchResult, err error) {
 	return res, nil
 }
 
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
+func loadResultsFile(path string) (*HostSearchResult, error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening ipapi file: %w", err)
@@ -281,14 +281,14 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	defer jf.Close()
 
+	var res HostSearchResult
 	decoder := json.NewDecoder(jf)
 
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding ipapi file: %w", err)
+	if err = decoder.Decode(&res); err != nil {
+		return nil, fmt.Errorf("error decoding ipapi file: %w", err)
 	}
 
-	return res, nil
+	return &res, nil
 }
 
 func loadTestData(l *slog.Logger) (*HostSearchResult, error) {
