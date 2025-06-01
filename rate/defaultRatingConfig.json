@@ -66,6 +66,9 @@
     "googlebot": {
       "defaultMatchScore": 1.0
     },
+    "hetzner": {
+      "defaultMatchScore": 8.0
+    },
     "ipurl": {
       "defaultMatchScore": 10.0
     },

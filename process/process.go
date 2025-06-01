@@ -3,6 +3,7 @@ package process
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jonhadfield/ipscout/providers/hetzner"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -78,6 +79,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		{Name: google.ProviderName, Enabled: sess.Providers.Google.Enabled, APIKey: "", NewClient: google.NewProviderClient},
 		{Name: googlebot.ProviderName, Enabled: sess.Providers.Googlebot.Enabled, APIKey: "", NewClient: googlebot.NewProviderClient},
 		{Name: googlesc.ProviderName, Enabled: sess.Providers.GoogleSC.Enabled, APIKey: "", NewClient: googlesc.NewProviderClient},
+		{Name: hetzner.ProviderName, Enabled: sess.Providers.Hetzner.Enabled, APIKey: "", NewClient: hetzner.NewProviderClient},
 		{Name: ipapi.ProviderName, Enabled: sess.Providers.IPAPI.Enabled, APIKey: "", NewClient: ipapi.NewProviderClient},
 		{Name: ipqs.ProviderName, Enabled: sess.Providers.IPQS.Enabled, APIKey: sess.Providers.IPQS.APIKey, NewClient: ipqs.NewProviderClient},
 		{Name: ipurl.ProviderName, Enabled: sess.Providers.IPURL.Enabled, APIKey: "", NewClient: ipurl.NewProviderClient},

@@ -161,6 +161,7 @@ const (
 	defaultGoogleOutputPriority       = 200
 	defaultGooglebotOutputPriority    = 190
 	defaultGoogleSCOutputPriority     = 190
+	defaultHetznerOutputPriority      = 70
 	defaultiCloudPROutputPriority     = 100
 	defaultIPAPIOutputPriority        = 90
 	defaultIPQSOutputPriority         = 50
@@ -362,6 +363,21 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	}
 
 	sess.Providers.GoogleSC.URL = v.GetString("providers.googlesc.url")
+
+	// Hetzner
+	if v.IsSet("providers.hetzner.enabled") {
+		sess.Providers.Hetzner.Enabled = ToPtr(v.GetBool("providers.hetzner.enabled"))
+	} else {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, "Hetzner provider not defined in config")
+		sess.Messages.Mu.Unlock()
+	}
+
+	if v.IsSet("providers.hetzner.output_priority") {
+		sess.Providers.Hetzner.OutputPriority = ToPtr(v.GetInt32("providers.hetzner.output_priority"))
+	} else {
+		sess.Providers.Hetzner.OutputPriority = ToPtr(int32(defaultHetznerOutputPriority))
+	}
 
 	// iCloud Private Relay
 	if v.IsSet("providers.icloudpr.enabled") {

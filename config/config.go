@@ -153,6 +153,16 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), googlebotEnabled})
 
+	// hetzner
+	tw.AppendRow(table.Row{color.HiCyanString("%sHetzner", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
+
+	hetznerEnabled := false
+	if c.Sess.Providers.Hetzner.Enabled != nil {
+		hetznerEnabled = *c.Sess.Providers.Hetzner.Enabled
+	}
+
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), hetznerEnabled})
+
 	// iCloud Private Relay
 	tw.AppendRow(table.Row{color.HiCyanString("%siCloud Private Relay", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
 

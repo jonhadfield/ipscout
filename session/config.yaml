@@ -42,6 +42,8 @@ providers:
     enabled: true
   googlesc:
     enabled: true
+  hetzner:
+    enabled: true
   icloudpr:
     # disabled by default as can slow down old processors
     enabled: false

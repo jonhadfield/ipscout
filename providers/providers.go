@@ -424,6 +424,9 @@ type RatingConfig struct {
 		GoogleSC struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"googlesc"`
+		Hetzner struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"hetzner"`
 		ICloudPR struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"icloudpr"`

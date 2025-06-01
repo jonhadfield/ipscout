@@ -212,6 +212,12 @@ type Providers struct {
 		URL              string
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"googlesc"`
+	Hetzner struct {
+		Enabled          *bool `mapstructure:"enabled"`
+		DocumentCacheTTL int64 `mapstructure:"document_cache_ttl"`
+		URL              string
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"hetzner"`
 	ICloudPR struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
