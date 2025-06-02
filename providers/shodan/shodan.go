@@ -76,7 +76,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (*Ho
 
 	sURL, err := url.Parse(urlPath)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to parse shodan api url: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, APITimeout)

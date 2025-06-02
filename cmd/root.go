@@ -542,10 +542,8 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) error {
 
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 	sess.Config.Global.MaxReports = v.GetInt("global.max_reports")
-	// TODO: Nasty Hack Alert
-	// if not specified, ports is returned as a string: "[]"
-	// set to nil if that's the case
-	if len(sess.Config.Global.Ports) == 0 || sess.Config.Global.Ports[0] == "[]" {
+
+	if len(sess.Config.Global.Ports) == 1 && sess.Config.Global.Ports[0] == "[]" {
 		sess.Config.Global.Ports = nil
 	}
 
@@ -616,10 +614,7 @@ func initConfig(cmd *cobra.Command) error {
 	sess.UseTestData = utd
 
 	ports, _ := cmd.Flags().GetStringSlice("ports")
-	// TODO: Nasty Hack Alert
-	// if not specified, ports is returned as a string: "[]"
-	// set to nil if that's the case
-	if len(ports) == 0 || ports[0] == "[]" {
+	if len(ports) == 1 && ports[0] == "[]" {
 		ports = nil
 	}
 	// if no ports specified on cli then default to global ports

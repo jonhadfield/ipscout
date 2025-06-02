@@ -273,7 +273,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (*Ho
 
 	sURL, err := url.Parse(urlPath)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to parse abuseipdb api url: %w", err)
 	}
 
 	sURL.RawQuery = fmt.Sprintf("ipAddress=%s&verbose=false&maxAgeInDays=1", c.Host.String())
