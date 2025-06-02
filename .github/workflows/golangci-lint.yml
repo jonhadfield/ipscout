@@ -14,12 +14,12 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: 'stable'
           cache: false
       - uses: actions/checkout@v4
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
           version: latest
-          args: --timeout=5m -v --disable lll --disable gochecknoglobals
+          args: --timeout=5m -v --config .golangci.yml
           skip-cache: false
