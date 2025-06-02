@@ -9,10 +9,11 @@ before:
   hooks:
     - make clean
     - go mod tidy
+
 builds:
-  -
-    id: ipscout
+  - id: ipscout
     binary: ipscout
+    main: ./cmd/ipscout/main.go
     env:
       - CGO_ENABLED=0
     goos:
@@ -25,38 +26,36 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X "github.com/jonhadfield/ipscout/cmd.version=[{{ .Version }}] {{ .Date }} UTC" -X "github.com/jonhadfield/ipscout/cmd.semver={{ .Tag }}"
-brews:
-  -
-    name: ipscout
-    homepage: 'https://github.com/jonhadfield/ipscout'
-    description: 'A command line tool for network administrators and security analysts to quickly identify the origin and threat of an IP address.'
-    repository:
-      owner: jonhadfield
-      name: homebrew-ipscout
+      - -s -w
+      - -X github.com/jonhadfield/ipscout/cmd.version={{ .Version }} {{ .Date }} UTC
+      - -X github.com/jonhadfield/ipscout/cmd.semver={{ .Tag }}
 
 archives:
-  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+  - id: default
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    format: tar.gz
     builds:
       - ipscout
-    format: tar.gz
     format_overrides:
       - goos: windows
         format: zip
     files:
+      - license*
+      - readme*
+      - changelog*
       - none*
+
+checksum:
+  name_template: checksums.txt
 
 release:
   github:
     owner: jonhadfield
     name: ipscout
   prerelease: auto
-  name_template: '{{ .Tag }}'
+  name_template: "{{ .Tag }}"
   extra_files:
     - glob: ./dist/ipscout_darwin*.zip
-
-announce:
-  skip: true
 
 snapshot:
   name_template: "{{ .Tag }}-devel"
@@ -65,9 +64,18 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - README
+      - README*
       - test
       - ignore
 
-checksum:
-  name_template: 'checksums.txt'
+brews:
+  - name: ipscout
+    homepage: https://github.com/jonhadfield/ipscout
+    description: >
+      A command line tool for network administrators and security analysts to quickly identify the origin and threat of an IP address.
+    repository:
+      owner: jonhadfield
+      name: homebrew-ipscout
+
+announce:
+  skip: true
