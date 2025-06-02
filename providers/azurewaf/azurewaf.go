@@ -423,6 +423,7 @@ func loadResultsFile(path string) (*HostSearchResult, error) {
 	}()
 
 	var res HostSearchResult
+
 	decoder := json.NewDecoder(jf)
 
 	if err = decoder.Decode(&res); err != nil {

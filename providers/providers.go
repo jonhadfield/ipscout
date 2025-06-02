@@ -180,8 +180,11 @@ type PortMatchFilterInput struct {
 // and doesn't match
 func PortMatchFilter(in PortMatchFilterInput) (bool, bool, error) {
 	var ageMatch bool
+
 	var netMatch bool
+
 	var err error
+
 	switch in.IncomingPort {
 	case "":
 		netMatch = true

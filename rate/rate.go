@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/providers/hetzner"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -14,6 +13,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jonhadfield/ipscout/providers/hetzner"
 
 	"github.com/sashabaranov/go-openai"
 

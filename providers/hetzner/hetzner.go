@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ip-fetcher/providers/hetzner"
 	"net/netip"
 	"os"
 	"time"
+
+	"github.com/jonhadfield/ip-fetcher/providers/hetzner"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
@@ -124,7 +125,6 @@ func (c *ProviderClient) loadProviderData() error {
 	if err != nil {
 		return fmt.Errorf("error fetching hetzner data: %w", err)
 	}
-	fmt.Printf("hetzner doc: %+v\n", doc)
 
 	data, err := json.Marshal(doc)
 	if err != nil {

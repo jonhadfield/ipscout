@@ -90,6 +90,7 @@ func annotationNotesContain(notes []string, term string) bool {
 
 func extractThreatAnnotations(ae []annotation) []string {
 	var threats []string
+
 	for y := range ae {
 		for z := range ae[y].Notes {
 			if strings.HasPrefix(ae[y].Notes[z], "threat:") {
@@ -410,6 +411,7 @@ func loadResultsFile(path string) (*HostSearchResult, error) {
 	defer jf.Close()
 
 	var res HostSearchResult
+
 	decoder := json.NewDecoder(jf)
 
 	if err = decoder.Decode(&res); err != nil {
@@ -528,6 +530,7 @@ type Repository struct {
 
 func getValidFilePathsFromDir(l *slog.Logger, dir string) []os.DirEntry {
 	var paths []os.DirEntry
+
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		l.Warn("failed to read", "dir", dir, "error", err.Error())
