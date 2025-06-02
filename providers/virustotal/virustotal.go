@@ -208,7 +208,7 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 
 	sURL, err := url.Parse(urlPath)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to parse virustotal api url: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, APITimeout)
