@@ -24,22 +24,34 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func Resolve(name string) (ip netip.Addr, err error) {
+func Resolve(name string) (netip.Addr, error) {
 	i, err := net.ResolveIPAddr("ip", name)
 	if err != nil {
-		return
+		return netip.Addr{}, err
 	}
 
 	return netip.ParseAddr(i.String())
 }
 
+const (
+	defaultRetryMax     = 2
+	defaultRetryWaitMin = 2 * time.Second
+	defaultRetryWaitMax = 5 * time.Second
+	// DefaultRequestTimeout is used for HTTP requests unless otherwise specified
+	DefaultRequestTimeout = 10 * time.Second
+	// ShortRequestTimeout is used for short HTTP requests
+	ShortRequestTimeout = 5 * time.Second
+	// LongRequestTimeout is used for lengthy HTTP requests
+	LongRequestTimeout = 30 * time.Second
+)
+
 func NewHTTPClient() *retryablehttp.Client {
 	rc := &http.Client{Transport: &http.Transport{}}
 	c := retryablehttp.NewClient()
 	c.HTTPClient = rc
-	c.RetryMax = 2
-	c.RetryWaitMin = 2 * time.Second
-	c.RetryWaitMax = 5 * time.Second
+	c.RetryMax = defaultRetryMax
+	c.RetryWaitMin = defaultRetryWaitMin
+	c.RetryWaitMax = defaultRetryWaitMax
 
 	return c
 }
@@ -52,18 +64,14 @@ func MaskSecrets(content string, secret []string) string {
 	return content
 }
 
-func Request(c *retryablehttp.Client, url string, method string, inHeaders http.Header, secrets []string, timeout time.Duration) (body []byte, headers http.Header, status int, err error) {
+func Request(c *retryablehttp.Client, url, method string, inHeaders http.Header, secrets []string, timeout time.Duration) ([]byte, http.Header, int, error) {
 	if method == "" {
-		err = fmt.Errorf("HTTP method not specified")
-
-		return
+		return nil, nil, 0, errors.New("HTTP method not specified")
 	}
 
 	request, err := retryablehttp.NewRequest(method, url, nil)
 	if err != nil {
-		err = fmt.Errorf("failed to request %s: %w", MaskSecrets(url, secrets), err)
-
-		return
+		return nil, nil, 0, fmt.Errorf("failed to request %s: %w", MaskSecrets(url, secrets), err)
 	}
 
 	request.Header = inHeaders
@@ -77,102 +85,101 @@ func Request(c *retryablehttp.Client, url string, method string, inHeaders http.
 
 	request = request.WithContext(ctx)
 
-	var resp *http.Response
-
-	resp, err = c.Do(request)
+	resp, err := c.Do(request)
 	if err != nil {
-		return
-	}
-
-	headers = resp.Header
-
-	body, err = GetResponseBody(resp)
-	if err != nil {
-		err = fmt.Errorf("%w", err)
-
-		return
+		return nil, nil, 0, err
 	}
 	defer resp.Body.Close()
 
-	return body, resp.Header, resp.StatusCode, err
+	headers := resp.Header
+
+	body, err := GetResponseBody(resp)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("%w", err)
+	}
+
+	return body, headers, resp.StatusCode, nil
 }
 
 // GetResourceHeaderValue will make an HTTP request and return the value of the specified header
-func GetResourceHeaderValue(client *retryablehttp.Client, url, method, header string, secrets []string) (result string, err error) {
+func GetResourceHeaderValue(client *retryablehttp.Client, url, method, header string, secrets []string) (string, error) {
 	if header == "" {
-		return "", fmt.Errorf("header must not be empty")
+		return "", errors.New("header must not be empty")
 	}
 
-	_, response, _, err := Request(client, url, method, nil, secrets, 30*time.Second)
+	_, response, _, err := Request(client, url, method, nil, secrets, LongRequestTimeout)
+	if err != nil {
+		return "", err
+	}
 
-	return response.Get(header), err
+	return response.Get(header), nil
 }
 
-type pathInfo struct {
-	exists, parentExists, isDir bool
-	parent                      string
-	mode                        os.FileMode
+type PathInfo struct {
+	Exists, ParentExists, IsDir bool
+	Parent                      string
+	Mode                        os.FileMode
 }
 
-func getPathInfo(p string) (pathInfo, error) {
+func GetPathInfo(p string) (PathInfo, error) {
 	info, err := os.Stat(p)
 	if err == nil {
 		parent := p
 		if !info.IsDir() {
 			parent = filepath.Dir(p)
 		}
-		return pathInfo{
-			exists:       true,
-			parentExists: true,
-			isDir:        info.IsDir(),
-			parent:       parent,
-			mode:         info.Mode(),
+		return PathInfo{
+			Exists:       true,
+			ParentExists: true,
+			IsDir:        info.IsDir(),
+			Parent:       parent,
+			Mode:         info.Mode(),
 		}, nil
 	}
 	if !os.IsNotExist(err) {
-		return pathInfo{}, err
+		return PathInfo{}, err
 	}
 
 	parent := filepath.Dir(p)
 	info, perr := os.Stat(parent)
 	if perr != nil {
 		if os.IsNotExist(perr) {
-			return pathInfo{exists: false, parentExists: false}, nil
+			return PathInfo{Exists: false, ParentExists: false}, nil
 		}
-		return pathInfo{}, perr
+		return PathInfo{}, perr
 	}
 
-	return pathInfo{
-		exists:       false,
-		parentExists: true,
-		parent:       parent,
-		mode:         info.Mode(),
+	return PathInfo{
+		Exists:       false,
+		ParentExists: true,
+		Parent:       parent,
+		Mode:         info.Mode(),
 	}, nil
 }
 
 func DownloadFile(client *retryablehttp.Client, u, path string) (string, error) {
 	if u == "" {
-		return "", fmt.Errorf("url must not be empty")
+		return "", errors.New("url must not be empty")
 	}
 
 	logrus.Debugf("%s | downloading: %s to %s", pflog.GetFunctionName(), u, path)
 
-	info, err := getPathInfo(path)
+	info, err := GetPathInfo(path)
 	if err != nil {
 		return "", err
 	}
 
 	switch {
-	case info.exists && info.isDir:
+	case info.Exists && info.IsDir:
 		pU, err := url.Parse(u)
 		if err != nil {
 			return "", err
 		}
 		path = filepath.Join(path, filepath.Base(pU.Path))
-	case info.exists || info.parentExists:
+	case info.Exists || info.ParentExists:
 		// path is valid as provided
 	default:
-		return "", fmt.Errorf("parent directory does not exist")
+		return "", errors.New("Parent directory does not exist")
 	}
 
 	logrus.Infof("downloading %s to %s", u, path)
@@ -203,14 +210,14 @@ func DownloadFile(client *retryablehttp.Client, u, path string) (string, error) 
 	return path, nil
 }
 
-func RequestContentDispositionFileName(httpClient *retryablehttp.Client, url string, secrets []string) (filename string, err error) {
+func RequestContentDispositionFileName(httpClient *retryablehttp.Client, url string, secrets []string) (string, error) {
 	logrus.Debugf("requesting filename %s", MaskSecrets(url, secrets))
 
 	contentDispHeader, err := GetResourceHeaderValue(
 		httpClient, url, http.MethodHead, "Content-Disposition", secrets,
 	)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	_, params, err := mime.ParseMediaType(contentDispHeader)
@@ -222,35 +229,28 @@ func RequestContentDispositionFileName(httpClient *retryablehttp.Client, url str
 		return "", errors.New("failed to get Content-Disposition header")
 	}
 
-	return params["filename"], err
+	return params["filename"], nil
 }
 
-func GetResponseBody(resp *http.Response) (body []byte, err error) {
+func GetResponseBody(resp *http.Response) ([]byte, error) {
 	var output io.ReadCloser
 
+	var err error
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
 		output, err = gzip.NewReader(resp.Body)
-
 		if err != nil {
-			return
+			return nil, err
 		}
 	default:
 		output = resp.Body
-
-		if err != nil {
-			return
-		}
 	}
 
 	buf := new(bytes.Buffer)
 
-	_, err = buf.ReadFrom(output)
-	if err != nil {
-		return
+	if _, err = buf.ReadFrom(output); err != nil {
+		return nil, err
 	}
 
-	body = buf.Bytes()
-
-	return
+	return buf.Bytes(), nil
 }

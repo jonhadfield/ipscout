@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/netip"
-	"os"
+	"reflect"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -70,9 +71,11 @@ func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.Thr
 
 	indicators := make(map[string]string)
 
-	if doc.Prefix.IsValid() {
-		indicators["HostedInZscaler"] = "true"
+	if doc.Range == "" {
+		return nil, errors.New("no range found in zscaler data")
 	}
+
+	indicators["HostedInZscaler"] = "true"
 
 	threatIndicators.Indicators = indicators
 
@@ -93,15 +96,13 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
 	}
 
-	if doc.Prefix.String() == "" {
+	if doc.Range == "" {
 		return rateResult, errors.New("no prefix found in zscaler data")
 	}
 
-	if doc.Prefix.IsValid() {
-		rateResult.Score = ratingConfig.ProviderRatingsConfigs.Zscaler.DefaultMatchScore
-		rateResult.Detected = true
-		rateResult.Reasons = []string{"hosted in Zscaler"}
-	}
+	rateResult.Score = ratingConfig.ProviderRatingsConfigs.Zscaler.DefaultMatchScore
+	rateResult.Detected = true
+	rateResult.Reasons = []string{"hosted in Zscaler"}
 
 	return rateResult, nil
 }
@@ -118,8 +119,8 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	return res, nil
 }
 
-func unmarshalProviderData(data []byte) (*Doc, error) {
-	var res *Doc
+func unmarshalProviderData(data []byte) (*ipfetcher.Doc, error) {
+	var res *ipfetcher.Doc
 
 	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, fmt.Errorf("error unmarshalling zscaler data: %w", err)
@@ -137,12 +138,10 @@ func (c *ProviderClient) loadProviderData() error {
 		c.Logger.Debug("overriding zscaler source", "url", zc.DownloadURL)
 	}
 
-	prefixes, err := zc.Fetch()
+	doc, err := zc.Fetch()
 	if err != nil {
 		return fmt.Errorf("error fetching zscaler data: %w", err)
 	}
-
-	doc := Doc{Prefixes: prefixes}
 
 	data, err := json.Marshal(doc)
 	if err != nil {
@@ -202,12 +201,12 @@ func (c *ProviderClient) Initialise() error {
 	return nil
 }
 
-func (c *ProviderClient) loadProviderDataFromCache() (*Doc, error) {
+func (c *ProviderClient) loadProviderDataFromCache() (*ipfetcher.Doc, error) {
 	c.Logger.Info("loading zscaler provider data from cache")
 
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 
-	var doc *Doc
+	var doc *ipfetcher.Doc
 
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		var uErr error
@@ -264,18 +263,63 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, err
 	}
 
-	var result *HostSearchResult
+	result := &HostSearchResult{} // nolint:staticcheck
 
-	for _, prefix := range doc.Prefixes {
-		if prefix.Contains(c.Host) {
-			result = &HostSearchResult{
-				Prefix: prefix,
+	ip := net.ParseIP(c.Host.String())
+	if ip == nil {
+		return nil, fmt.Errorf("invalid IP address: %s", c.Host.String())
+	}
+
+	zs := reflect.ValueOf(doc.ZscalerNet)
+
+	for i := range zs.NumField() {
+		continent := zs.Field(i)
+		if continent.Kind() != reflect.Struct {
+			continue
+		}
+
+		continentName := zs.Type().Field(i).Name
+
+		for j := range continent.NumField() {
+			city := continent.Field(j)
+			if city.Kind() != reflect.Slice {
+				continue
 			}
-			break
+
+			cityName := continent.Type().Field(j).Name
+
+			for k := range city.Len() {
+				entry := city.Index(k)
+
+				r := entry.FieldByName("Range")
+				if !r.IsValid() || r.Kind() != reflect.String {
+					continue
+				}
+
+				var cidr *net.IPNet
+
+				_, cidr, err = net.ParseCIDR(r.String())
+				if err != nil {
+					continue
+				}
+
+				if cidr.Contains(ip) {
+					result.Continent = continentName
+					result.City = cityName
+					result.GRE = entry.FieldByName("Gre").String()
+					result.VPN = entry.FieldByName("Vpn").String()
+					result.Hostname = entry.FieldByName("Hostname").String()
+					result.Latitude = entry.FieldByName("Latitude").String()
+					result.Longtitude = entry.FieldByName("Longitude").String()
+					result.Range = r.String()
+
+					break
+				}
+			}
 		}
 	}
 
-	if result == nil {
+	if result.Range == "" {
 		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
@@ -306,7 +350,13 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	var rows []table.Row
 
-	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Prefix.String())})
+	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Range)})
+	tw.AppendRow(table.Row{providers.PadRight("GRE", providers.Column1MinWidth), providers.DashIfEmpty(result.GRE)})
+	tw.AppendRow(table.Row{providers.PadRight("Continent", providers.Column1MinWidth), providers.DashIfEmpty(result.Continent)})
+	tw.AppendRow(table.Row{providers.PadRight("City", providers.Column1MinWidth), providers.DashIfEmpty(result.City)})
+	tw.AppendRow(table.Row{providers.PadRight("Hostname", providers.Column1MinWidth), providers.DashIfEmpty(result.Hostname)})
+	tw.AppendRow(table.Row{providers.PadRight("Longtitude", providers.Column1MinWidth), providers.DashIfEmpty(result.Longtitude)})
+	tw.AppendRow(table.Row{providers.PadRight("Latitude", providers.Column1MinWidth), providers.DashIfEmpty(result.Latitude)})
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
@@ -322,29 +372,14 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadResultsFile(path string) (*HostSearchResult, error) {
-	jf, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("error opening file: %w", err)
-	}
-	defer jf.Close()
-
-	var res HostSearchResult
-
-	decoder := json.NewDecoder(jf)
-
-	if err = decoder.Decode(&res); err != nil {
-		return nil, fmt.Errorf("error decoding file: %w", err)
-	}
-
-	return &res, nil
-}
-
 type HostSearchResult struct {
-	Raw    []byte
-	Prefix netip.Prefix `json:"prefix"`
-}
-
-type Doc struct {
-	Prefixes []netip.Prefix `json:"prefixes"`
+	Raw        []byte
+	Continent  string `json:"continent"`
+	City       string `json:"city"`
+	VPN        string `json:"vpn"`
+	Range      string `json:"range"`
+	GRE        string `json:"gre"`
+	Hostname   string `json:"hostname"`
+	Latitude   string `json:"latitude"`
+	Longtitude string `json:"longitude"`
 }

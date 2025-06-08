@@ -169,6 +169,7 @@ const (
 	defaultPtrOutputPriority          = 120
 	defaultShodanOutputPriority       = 70
 	defaultVirusTotalOutputPriority   = 40
+	defaultZscalerOutputPriority      = 40
 )
 
 func initProviderConfig(sess *session.Session, v *viper.Viper) {
@@ -509,6 +510,22 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	} else {
 		sess.Providers.VirusTotal.OutputPriority = ToPtr(int32(defaultVirusTotalOutputPriority))
 	}
+
+	// Zscaler
+	if v.IsSet("providers.zscaler.enabled") {
+		sess.Providers.Zscaler.Enabled = ToPtr(v.GetBool("providers.zscaler.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Zscaler")
+	}
+
+	if v.IsSet("providers.zscaler.output_priority") {
+		sess.Providers.Zscaler.OutputPriority = ToPtr(v.GetInt32("providers.zscaler.output_priority"))
+	} else {
+		sess.Providers.Zscaler.OutputPriority = ToPtr(int32(defaultZscalerOutputPriority))
+	}
+
+	sess.Providers.Zscaler.DocumentCacheTTL = v.GetInt64("providers.zscaler.document_cache_ttl")
+	sess.Providers.Zscaler.URL = v.GetString("providers.zscaler.url")
 }
 
 func initHomeDirConfig(sess *session.Session, v *viper.Viper) error {

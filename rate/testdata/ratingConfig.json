@@ -79,6 +79,9 @@
       "openPortsScore": 5.0,
       "highThreatCountryMatchScore": 10.0,
       "mediumThreatCountryMatchScore": 7.0
+    },
+    "zscaler": {
+      "defaultMatchScore": 4.0
     }
   }
 }

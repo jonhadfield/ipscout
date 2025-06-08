@@ -12,7 +12,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
-	ipfetcherURL "github.com/jonhadfield/ip-fetcher/providers/url"
+	ipu "github.com/jonhadfield/ip-fetcher/providers/url"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
@@ -240,7 +240,7 @@ type StoredURLPrefixes struct {
 }
 
 func (c *ProviderClient) loadProviderURLsFromSource(providerUrls []string) error {
-	ic := ipfetcherURL.New(ipfetcherURL.WithHttpClient(c.HTTPClient))
+	ic := ipu.New(ipu.WithHttpClient(c.HTTPClient))
 	ic.HttpClient = c.HTTPClient
 
 	var wg sync.WaitGroup
@@ -267,9 +267,9 @@ func (c *ProviderClient) loadProviderURLsFromSource(providerUrls []string) error
 
 // loadProviderDataFromSource fetches the data from the source and caches it for individual urls
 func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix, error) {
-	hf := ipfetcherURL.HttpFile{
+	hf := ipu.HttpFile{
 		Client: c.HTTPClient,
-		Url:    pURL,
+		URL:    pURL,
 	}
 
 	if c.Config.Global.LogLevel == "debug" {

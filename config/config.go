@@ -244,6 +244,17 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), virustotalEnabled})
 
+	// zscaler
+	tw.AppendRow(table.Row{color.HiCyanString("%sZscaler", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
+
+	zscalerEnabled := false
+
+	if c.Sess.Providers.Zscaler.Enabled != nil {
+		zscalerEnabled = *c.Sess.Providers.Zscaler.Enabled
+	}
+
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), zscalerEnabled})
+
 	// end
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, AutoMerge: false, WidthMax: maxColumnWidth, WidthMin: minTableWidth},

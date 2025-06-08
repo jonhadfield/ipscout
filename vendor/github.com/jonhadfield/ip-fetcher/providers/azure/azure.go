@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 
@@ -91,7 +90,7 @@ func (a *Azure) GetDownloadURL() (string, error) {
 
 	reATags := regexp.MustCompile("<a [^>]+>")
 
-	aTags := reATags.FindAllString(string(body), -1)
+	aTags := reATags.FindAllString(body, -1)
 
 	reHRefs := regexp.MustCompile("href=\"[^\"]+\"")
 
@@ -118,7 +117,7 @@ func (a *Azure) GetDownloadURL() (string, error) {
 	return url, nil
 }
 
-func (a *Azure) FetchData() (data []byte, headers http.Header, status int, err error) {
+func (a *Azure) FetchData() ([]byte, http.Header, int, error) {
 	// get download url if not specified
 	if a.DownloadURL == "" {
 		a.DownloadURL = WorkaroundDownloadURL
@@ -132,7 +131,7 @@ func (a *Azure) FetchData() (data []byte, headers http.Header, status int, err e
 	// 	a.DownloadURL = WorkaroundDownloadURL
 	// }
 
-	data, headers, status, err = web.Request(a.Client, a.DownloadURL, http.MethodGet, nil, nil, 5*time.Second)
+	data, headers, status, err := web.Request(a.Client, a.DownloadURL, http.MethodGet, nil, nil, web.ShortRequestTimeout)
 	if status >= http.StatusBadRequest {
 		return nil, nil, status, fmt.Errorf("failed to download prefixes. http status code: %d", status)
 	}
@@ -140,20 +139,20 @@ func (a *Azure) FetchData() (data []byte, headers http.Header, status int, err e
 	return data, headers, status, err
 }
 
-func (a *Azure) Fetch() (doc Doc, md5 string, err error) {
+func (a *Azure) Fetch() (Doc, string, error) {
 	data, headers, _, err := a.FetchData()
 	if err != nil {
-		return
+		return Doc{}, "", err
 	}
 
-	err = json.Unmarshal(data, &doc)
-	if err != nil {
-		return
+	var doc Doc
+	if err = json.Unmarshal(data, &doc); err != nil {
+		return Doc{}, "", err
 	}
 
-	md5 = headers.Get("Content-MD5")
+	md5 := headers.Get("Content-MD5")
 
-	return
+	return doc, md5, nil
 }
 
 type Doc struct {

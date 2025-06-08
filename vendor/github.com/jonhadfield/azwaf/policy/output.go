@@ -24,6 +24,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	maxColumnWidth        = 80
+	shortURLLength        = 27
+	lineLengthLimit       = 60
+	geoCodeMaxLen         = 4
+	valsPerGeoLine        = 4
+	diffErrorExitCode     = 2
+	trimDescriptionLength = 80
+)
+
 // splitExtendedID accepts an extended id <resource id>|<resource item name>, which it parses and then returns
 // the individual components, or any error encountered in deriving them.
 func splitExtendedID(eid string) (string, string, error) {
@@ -127,14 +137,13 @@ func PrintPolicy(policyID, subscriptionID, configPath string) error {
 	return nil
 }
 
-func computeAlder32(r string) string {
+func computeAdler32(r string) string {
 	// change to lower case to avoid inconsistent api responses
 	r = strings.ToLower(r)
 
 	h := adler32.New()
-	if _, err := h.Write([]byte(r)); err != nil {
-		panic(err)
-	}
+	// Write for hash.Hash never returns an error.
+	_, _ = h.Write([]byte(r))
 
 	hi := h.Sum32()
 
@@ -505,7 +514,7 @@ func getManagedRulesetRows(managedRuleSetConfig armfrontdoor.ManagedRuleSet, mrs
 			cells = append(cells, []*simpletable.Cell{
 				{Text: ""},
 				{Text: color.BgDarkGray.Sprintf("Rule Group Description: %s",
-					TrimString(*managedRuleSetDefinitionRuleGroup.Description, 80, "..."))},
+					TrimString(*managedRuleSetDefinitionRuleGroup.Description, trimDescriptionLength, "..."))},
 				{Text: ""},
 				{Text: ""},
 				{Text: rowRGExclusions},
@@ -531,7 +540,7 @@ func getManagedRulesetRows(managedRuleSetConfig armfrontdoor.ManagedRuleSet, mrs
 
 			cells = append(cells, []*simpletable.Cell{
 				{Text: *rg.RuleID},
-				{Text: TrimString(*rg.Description, 80, "...")},
+				{Text: TrimString(*rg.Description, trimDescriptionLength, "...")},
 				{Text: ruleActionOutput},
 				{Text: ruleEnabledState},
 				{Text: rowRExclusions},
@@ -1005,7 +1014,7 @@ func OutputManagedRuleSetExclusionsTable(in *OutputManagedRuleExclusionsTableInp
 
 func OutputPolicyMetaData(policy *armfrontdoor.WebApplicationFirewallPolicy) {
 	rid := config.ParseResourceID(*policy.ID)
-	fmt.Printf("\n%s:%s%s (hash: %s)\n", color.Bold.Sprint("Policy Name"), spaces(9), rid.Name, computeAlder32(*policy.ID))
+	fmt.Printf("\n%s:%s%s (hash: %s)\n", color.Bold.Sprint("Policy Name"), spaces(9), rid.Name, computeAdler32(*policy.ID))
 	fmt.Printf("%s:%s%s\n", color.Bold.Sprint("SKU"), spaces(17), *policy.SKU.Name)
 	fmt.Printf("%s:%s%s\n", color.Bold.Sprint("Resource Group"), spaces(6), rid.ResourceGroup)
 	fmt.Printf("%s:%s%s\n", color.Bold.Sprint("Subscription"), spaces(8), rid.SubscriptionID)
@@ -1170,7 +1179,7 @@ func dashIfEmptyString(val interface{}) string {
 }
 
 func processMatchVal(s string) (result string, isURL, isIPv4, isIPv6, isGeo bool) {
-	if len(s) <= 4 {
+	if len(s) <= geoCodeMaxLen {
 		isGeo = true
 	}
 
@@ -1178,14 +1187,176 @@ func processMatchVal(s string) (result string, isURL, isIPv4, isIPv6, isGeo bool
 	isIPv4 = IsIPv4(s)
 	isIPv6 = IsIPv6(s)
 
-	maxColWidth := 80
+	maxColWidth := maxColumnWidth
 	if len(s) > maxColWidth && isURL {
-		result = fmt.Sprintf("%s...", s[:27])
+		result = fmt.Sprintf("%s...", s[:shortURLLength])
 	} else {
 		result = s
 	}
 
 	return
+}
+
+func handleGeoValue(builder *strings.Builder, val string, valsWritten *int) {
+	if *valsWritten == valsPerGeoLine {
+		if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+			logrus.Fatalf("builder failed to write output - err: %s", err.Error())
+		}
+
+		*valsWritten = 0
+	} else {
+		if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
+			logrus.Fatalf("builder failed to write output - err: %s", err.Error())
+		}
+
+		(*valsWritten)++
+	}
+}
+
+func handleURLValue(builder *strings.Builder, val string, prevType *string) {
+	if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+		logrus.Fatalf("builder failed to write string - %s", err.Error())
+	}
+
+	*prevType = ""
+}
+
+func handleIPv4Value(builder *strings.Builder, val string, prevType *string, valsWritten *int, prevLen, nextLen int) {
+	switch *prevType {
+	case "":
+		if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
+			logrus.Fatalf("builder failed to write string - %s", err.Error())
+		}
+
+		(*valsWritten)++
+
+		*prevType = "ipv4"
+	case "ipv4":
+		switch {
+		case *valsWritten == 2:
+			if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - %s", err.Error())
+			}
+
+			*valsWritten = 0
+
+			*prevType = ""
+		case *valsWritten == 1 && (prevLen+len(val)+nextLen) > lineLengthLimit:
+			if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - %s", err.Error())
+			}
+
+			*valsWritten = 0
+
+			*prevType = ""
+		default:
+			if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - %s", err.Error())
+			}
+
+			(*valsWritten)++
+
+			*prevType = "ipv4"
+		}
+	case "ipv6":
+		switch {
+		case *valsWritten == 2:
+			if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+			}
+
+			*valsWritten = 0
+
+			*prevType = ""
+		case *valsWritten == 1 && (prevLen+len(val)+nextLen) > lineLengthLimit:
+			if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+			}
+
+			*valsWritten = 0
+
+			*prevType = ""
+		default:
+			if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+			}
+
+			(*valsWritten)++
+
+			*prevType = "ipv4"
+		}
+	default:
+		logrus.Errorf("unexpected prev type '%s'", *prevType)
+	}
+}
+
+func handleIPv6Value(builder *strings.Builder, val string, prevType *string, valsWritten *int, prevLen, nextLen int) {
+	switch *prevType {
+	case "":
+		if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
+			logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+		}
+
+		(*valsWritten)++
+
+		*prevType = "ipv6"
+	case "ipv4":
+		switch {
+		case *valsWritten == 1 && (prevLen+len(val)+nextLen) > lineLengthLimit:
+			if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+			}
+
+			*valsWritten = 0
+
+			*prevType = ""
+		case *valsWritten == 2:
+			if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+			}
+
+			*valsWritten = 0
+
+			*prevType = ""
+		default:
+			if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+			}
+
+			(*valsWritten)++
+
+			*prevType = "ipv6"
+		}
+	case "ipv6":
+		switch {
+		case *valsWritten == 1 && (prevLen+len(val)+nextLen) > lineLengthLimit:
+			if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+			}
+
+			*valsWritten = 0
+
+			*prevType = ""
+		case *valsWritten == 2:
+			if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+			}
+
+			*valsWritten = 0
+
+			*prevType = ""
+		default:
+			if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
+				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
+			}
+
+			(*valsWritten)++
+
+			*prevType = "ipv6"
+		}
+	default:
+		logrus.Errorf("unexpected prev type '%s'", *prevType)
+	}
 }
 
 // wrapMatchValues accepts a slice of strings and returns a single comma/line-break separated representation
@@ -1199,212 +1370,38 @@ func wrapMatchValues(mvs []*string, showFull bool) string {
 	builder := strings.Builder{}
 
 	var prevType string
-
 	var valsWritten int
 
-	for x, mv := range mvs {
-		mv := *mv
-
-		x++
-
-		val, isURL, isIPv4, isIPv6, isGeo := processMatchVal(mv)
-
-		// get previous item's length
+	for i, mv := range mvs {
+		val, isURL, isIPv4, isIPv6, isGeo := processMatchVal(*mv)
 		prevLen := 0
-		if x > 1 {
-			prevLen = len(*mvs[x-2])
+		if i > 0 {
+			prevLen = len(*mvs[i-1])
 		}
-
 		nextLen := 0
-		if x != len(mvs) {
-			nextLen = len(*mvs[x])
+		if i < len(mvs)-1 {
+			nextLen = len(*mvs[i+1])
 		}
-
 		switch {
 		case isGeo:
-			if valsWritten == 4 {
-				if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-					logrus.Fatalf("builder failed to write output - err: %s", err.Error())
-				}
-
-				valsWritten = 0
-			} else {
-				if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
-					logrus.Fatalf("builder failed to write output - err: %s", err.Error())
-				}
-
-				valsWritten++
-			}
+			handleGeoValue(&builder, val, &valsWritten)
 		case isURL:
-			// only ever one per row
-			if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-				logrus.Fatalf("builder failed to write string - %s", err.Error())
-			}
-			// reset previous type
-			prevType = ""
-
+			handleURLValue(&builder, val, &prevType)
 		case isIPv4:
-			// TODO: Simpify to a since isIPv4||isIPv6
-			switch prevType {
-			case "":
-				// output first ipv4 address
-				if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
-					logrus.Fatalf("builder failed to write string - %s", err.Error())
-				}
-
-				valsWritten++
-
-				prevType = "ipv4"
-			case "ipv4":
-				switch {
-				case valsWritten == 2:
-					// if we've written two already, then output third and reset
-					if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - %s", err.Error())
-					}
-
-					valsWritten = 0
-
-					prevType = ""
-				case valsWritten == 1 && (prevLen+len(val)+nextLen) > 60:
-					// if we've written one already, then output this as last if line will be over long
-					if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - %s", err.Error())
-					}
-
-					valsWritten = 0
-
-					prevType = ""
-				default:
-					// otherwise we're good to add another after this
-					if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - %s", err.Error())
-					}
-
-					valsWritten++
-
-					prevType = "ipv4"
-				}
-			case "ipv6":
-				switch {
-				case valsWritten == 2:
-					// two ips already written so output third and reset
-					if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-					}
-
-					valsWritten = 0
-
-					prevType = ""
-				case valsWritten == 1 && (prevLen+len(val)+nextLen) > 60:
-					// if we've written one already, then output this as last if line will be over long
-					if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-					}
-
-					valsWritten = 0
-
-					prevType = ""
-				default:
-					if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-					}
-
-					valsWritten++
-
-					prevType = "ipv6"
-				}
-			default:
-				logrus.Errorf("unexpected prev type '%s'", prevType)
-			}
+			handleIPv4Value(&builder, val, &prevType, &valsWritten, prevLen, nextLen)
 		case isIPv6:
-			switch prevType {
-			case "":
-				// output first ipv4 address
-				if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
-					logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-				}
-
-				valsWritten++
-
-				prevType = "ipv6"
-			case "ipv4":
-				switch {
-				case valsWritten == 1 && (prevLen+len(val)+nextLen) > 60:
-					// if we've written one already, then output this as last if line will be over long
-					if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-					}
-
-					valsWritten = 0
-
-					prevType = ""
-				case valsWritten == 2:
-					// two ips already written so output third and reset
-					if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-					}
-
-					prevType = ""
-
-					valsWritten = 0
-				default:
-					if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-					}
-
-					valsWritten++
-
-					prevType = "ipv6"
-				}
-			case "ipv6":
-				switch {
-				case valsWritten == 1 && (prevLen+len(val)+nextLen) > 60:
-					// if we've written one already, then output this as last if line will be over long
-					if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-					}
-
-					valsWritten = 0
-
-					prevType = ""
-				case valsWritten == 2:
-					// two ips already written so output third and reset
-					if _, err := builder.WriteString(fmt.Sprintf("%s\n", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-					}
-
-					valsWritten = 0
-
-					prevType = ""
-				default:
-					if _, err := builder.WriteString(fmt.Sprintf("%s, ", val)); err != nil {
-						logrus.Fatalf("builder failed to write string - err: %s", err.Error())
-					}
-					// if it's a long value, then increase valsWritten by two
-					valsWritten++
-
-					prevType = "ipv6"
-				}
-			default:
-				logrus.Errorf("unexpected prev type '%s'", prevType)
-			}
+			handleIPv6Value(&builder, val, &prevType, &valsWritten, prevLen, nextLen)
 		default:
 			logrus.Errorf("unknown type for %s", val)
 		}
-
-		if x == MaxMatchValuesOutput && !showFull {
-			if _, err := builder.WriteString(fmt.Sprintf("... %d remaining", len(mvs)-x)); err != nil {
+		if i+1 == MaxMatchValuesOutput && !showFull {
+			if _, err := builder.WriteString(fmt.Sprintf("... %d remaining", len(mvs)-(i+1))); err != nil {
 				logrus.Fatalf("builder failed to write string - err: %s", err.Error())
 			}
-
 			break
 		}
 	}
-
-	list := builder.String()
-
-	return strings.TrimRight(list, ", ")
+	return strings.TrimRight(builder.String(), ", ")
 }
 
 func DisplayStringDiffWithDiffTool(orig, updated string) error {
@@ -1455,7 +1452,7 @@ func DisplayStringDiffWithDiffTool(orig, updated string) error {
 		}
 	}
 
-	if exitCode == 2 {
+	if exitCode == diffErrorExitCode {
 		return fmt.Errorf("failed to compare policies")
 	}
 
@@ -1549,13 +1546,13 @@ func ListPolicies(in ListPoliciesInput) error {
 		if in.Full {
 			r = []*simpletable.Cell{
 				{Text: rID.Raw},
-				{Text: computeAlder32(*p.ID)},
+				{Text: computeAdler32(*p.ID)},
 			}
 		} else {
 			r = []*simpletable.Cell{
 				{Text: rID.ResourceGroup},
 				{Text: rID.Name},
-				{Text: computeAlder32(*p.ID)},
+				{Text: computeAdler32(*p.ID)},
 			}
 		}
 

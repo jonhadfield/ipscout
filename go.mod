@@ -11,8 +11,8 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jedib0t/go-pretty/v6 v6.6.7
-	github.com/jonhadfield/azwaf v0.0.0-20250526131925-01c704e651dd
-	github.com/jonhadfield/ip-fetcher v0.0.0-20250601172315-86958e899b8e
+	github.com/jonhadfield/azwaf v0.0.0-20250608090903-5640af7f5974
+	github.com/jonhadfield/ip-fetcher v0.0.0-20250608114736-0be1116f8d8c
 	github.com/miekg/dns v1.1.66
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/sashabaranov/go-openai v1.40.1

@@ -13,16 +13,13 @@ import (
 )
 
 func toJSON(i interface{}) (out string, err error) {
-	funcName := GetFunctionName()
-
 	switch v := i.(type) {
 	case string:
-		// TODO: don't assume it's json
+		// v already contains the json string
 		return v, nil
 	case []byte:
-		if err = json.Unmarshal(v, &out); err != nil {
-			return "", fmt.Errorf("%s - %w", funcName, err)
-		}
+		// return the byte slice as a string without attempting to unmarshal
+		return string(v), nil
 	case armfrontdoor.WebApplicationFirewallPolicy:
 		var j []byte
 
@@ -44,8 +41,6 @@ func toJSON(i interface{}) (out string, err error) {
 	default:
 		return "", tracerr.Errorf("unexpected type: %s", reflect.TypeOf(i).String())
 	}
-
-	return
 }
 
 func actionStringToActionType(action string) (at armfrontdoor.ActionType, err error) {

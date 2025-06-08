@@ -31,7 +31,7 @@ BUILD_DATE := $(shell date -u '+%Y/%m/%d:%H:%M:%S')
 LATEST_TAG := $(shell git describe --abbrev=0 2>/dev/null)
 
 build:
-	CGO_ENABLED=0 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/cmd.version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/cmd.semver=$(BUILD_TAG)"' -o ".local_dist/ipscout"
+	CGO_ENABLED=0 go build -mod=mod -ldflags '-s -w -X "github.com/jonhadfield/ipscout/cmd.version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/cmd.semver=$(BUILD_TAG)"' -o ".local_dist/ipscout"
 
 build-all: fmt
 	GOOS=darwin  CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/cmd.version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/cmd.semver=$(BUILD_TAG)"' -o ".local_dist/ipscout_darwin_amd64"

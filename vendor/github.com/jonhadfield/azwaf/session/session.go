@@ -36,11 +36,8 @@ type Session struct {
 }
 
 func createDirectory(path string) error {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err = os.Mkdir(path, os.ModePerm); err != nil {
-			return fmt.Errorf("failed to create backups directory %s: %s",
-				path, err.Error())
-		}
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create directory %s: %w", path, err)
 	}
 
 	return nil

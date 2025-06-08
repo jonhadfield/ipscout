@@ -14,6 +14,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jonhadfield/ipscout/providers/zscaler"
+
 	"github.com/jonhadfield/ipscout/providers/hetzner"
 
 	"github.com/sashabaranov/go-openai"
@@ -98,6 +100,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		// {Name: ptr.ProviderName, Enabled: sess.Providers.PTR.Enabled, APIKey: "", NewClient: ptr.NewProviderClient},
 		{Name: shodan.ProviderName, Enabled: sess.Providers.Shodan.Enabled, APIKey: sess.Providers.Shodan.APIKey, NewClient: shodan.NewProviderClient},
 		{Name: virustotal.ProviderName, Enabled: sess.Providers.VirusTotal.Enabled, APIKey: sess.Providers.VirusTotal.APIKey, NewClient: virustotal.NewProviderClient},
+		{Name: zscaler.ProviderName, Enabled: sess.Providers.Zscaler.Enabled, APIKey: "", NewClient: zscaler.NewProviderClient},
 	}
 
 	for _, provider := range pros {

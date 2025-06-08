@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/netip"
 	"time"
@@ -42,14 +41,14 @@ func New() DigitalOcean {
 	}
 }
 
-func (a *DigitalOcean) FetchData() (data []byte, headers http.Header, status int, err error) {
+func (a *DigitalOcean) FetchData() ([]byte, http.Header, int, error) {
 	// get download url if not specified
 	if a.DownloadURL == "" {
 		a.DownloadURL = DigitaloceanDownloadURL
 	}
 
-	data, headers, status, err = web.Request(a.Client, a.DownloadURL, http.MethodGet, nil, nil, 5*time.Second)
-	if status >= 400 {
+	data, headers, status, err := web.Request(a.Client, a.DownloadURL, http.MethodGet, nil, nil, web.ShortRequestTimeout)
+	if status >= http.StatusBadRequest {
 		return nil, nil, status, fmt.Errorf("failed to download prefixes. http status code: %d", status)
 	}
 
@@ -62,17 +61,18 @@ type Doc struct {
 	Records      []Record
 }
 
-func (a *DigitalOcean) Fetch() (doc Doc, err error) {
+func (a *DigitalOcean) Fetch() (Doc, error) {
 	data, headers, _, err := a.FetchData()
 	if err != nil {
-		return
+		return Doc{}, err
 	}
 
 	records, err := Parse(data)
 	if err != nil {
-		return
+		return Doc{}, err
 	}
 
+	var doc Doc
 	doc.Records = records
 
 	var etag string
@@ -89,13 +89,13 @@ func (a *DigitalOcean) Fetch() (doc Doc, err error) {
 	lastModifiedRaw := headers.Values(web.LastModifiedHeader)
 	if len(lastModifiedRaw) != 0 {
 		if lastModifiedTime, err = time.Parse(time.RFC1123, lastModifiedRaw[0]); err != nil {
-			return
+			return Doc{}, err
 		}
 	}
 
 	doc.LastModified = lastModifiedTime
 
-	return doc, err
+	return doc, nil
 }
 
 type Entry struct {
@@ -111,12 +111,12 @@ func Parse(data []byte) ([]Record, error) {
 
 	header, err := csvutil.Header(Entry{}, "csv")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	dec, err := csvutil.NewDecoder(r, header...)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	var records []Record

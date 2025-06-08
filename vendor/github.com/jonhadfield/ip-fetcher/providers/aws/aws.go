@@ -6,7 +6,6 @@ import (
 	"net/netip"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/jonhadfield/ip-fetcher/internal/pflog"
 	"github.com/sirupsen/logrus"
@@ -60,13 +59,11 @@ func New() AWS {
 	}
 }
 
-func (a *AWS) FetchETag() (etag string, err error) {
+func (a *AWS) FetchETag() (string, error) {
+	var err error
 	// get download url if not specified
 	if a.DownloadURL == "" {
 		a.DownloadURL = DownloadURL
-		if err != nil {
-			return
-		}
 	}
 
 	inHeaders := http.Header{}
@@ -74,91 +71,89 @@ func (a *AWS) FetchETag() (etag string, err error) {
 
 	var reqUrl *url.URL
 	if reqUrl, err = url.Parse(a.DownloadURL); err != nil {
-		return
+		return "", err
 	}
 
 	var outHeaders http.Header
 
 	var statusCode int
 
-	_, outHeaders, statusCode, err = web.Request(a.Client, reqUrl.String(), http.MethodHead, inHeaders, []string{}, 5*time.Second)
+	_, outHeaders, statusCode, err = web.Request(a.Client, reqUrl.String(), http.MethodHead, inHeaders, []string{}, web.ShortRequestTimeout)
 	if err != nil {
-		return
+		return "", err
 	}
 
-	if statusCode != 200 {
+	if statusCode != http.StatusOK {
 		// err = fmt.Errorf("%s - request for aws etag resulted in status code: %d", funcName, statusCode)
-		return
+		return "", nil
 	}
 
-	etag = outHeaders.Get("Etag")
+	etag := outHeaders.Get("Etag")
 	if etag != "" && len(etag) > 2 {
 		TrimQuotes(&etag)
 	}
 
-	return etag, err
+	return etag, nil
 }
 
-func (a *AWS) FetchData() (data []byte, headers http.Header, status int, err error) {
+func (a *AWS) FetchData() ([]byte, http.Header, int, error) {
 	// get download url if not specified
 	if a.DownloadURL == "" {
 		a.DownloadURL = DownloadURL
-		if err != nil {
-			return
-		}
 	}
 
 	inHeaders := http.Header{}
 	inHeaders.Add("Accept", "application/json")
 
-	return web.Request(a.Client, a.DownloadURL, http.MethodGet, inHeaders, nil, 5*time.Second)
+	return web.Request(a.Client, a.DownloadURL, http.MethodGet, inHeaders, nil, web.ShortRequestTimeout)
 }
 
-func (a *AWS) Fetch() (doc Doc, etag string, err error) {
+func (a *AWS) Fetch() (Doc, string, error) {
 	data, headers, _, err := a.FetchData()
 	if err != nil {
-		return
+		return Doc{}, "", err
 	}
 
-	etag = headers.Get("Etag")
+	etag := headers.Get("Etag")
 	if etag != "" && len(etag) > 2 {
 		TrimQuotes(&etag)
 	}
 
-	doc, err = ProcessData(data)
+	doc, err := ProcessData(data)
 
-	return
+	return doc, etag, err
 }
 
-func ProcessData(data []byte) (doc Doc, err error) {
+func ProcessData(data []byte) (Doc, error) {
 	var rawDoc RawDoc
-	err = json.Unmarshal(data, &rawDoc)
-	if err != nil {
-		return
+	if err := json.Unmarshal(data, &rawDoc); err != nil {
+		return Doc{}, err
 	}
 
-	doc.Prefixes, err = castV4Entries(rawDoc.Prefixes)
+	prefixes, err := castV4Entries(rawDoc.Prefixes)
 	if err != nil {
-		return
+		return Doc{}, err
 	}
 
-	doc.IPv6Prefixes, err = castV6Entries(rawDoc.IPv6Prefixes)
+	ipv6Prefixes, err := castV6Entries(rawDoc.IPv6Prefixes)
 	if err != nil {
-		return
+		return Doc{}, err
 	}
 
-	doc.CreateDate = rawDoc.CreateDate
-	doc.SyncToken = rawDoc.SyncToken
-
-	return
+	return Doc{
+		Prefixes:     prefixes,
+		IPv6Prefixes: ipv6Prefixes,
+		CreateDate:   rawDoc.CreateDate,
+		SyncToken:    rawDoc.SyncToken,
+	}, nil
 }
 
-func castV4Entries(entries []RawPrefix) (res []Prefix, err error) {
+func castV4Entries(entries []RawPrefix) ([]Prefix, error) {
+	var res []Prefix
 	for _, entry := range entries {
-		var p netip.Prefix
-		p, err = netip.ParsePrefix(entry.IPPrefix)
+		p, err := netip.ParsePrefix(entry.IPPrefix)
 		if err != nil {
-			return
+			return res, err
 		}
 
 		res = append(res, Prefix{
@@ -168,15 +163,15 @@ func castV4Entries(entries []RawPrefix) (res []Prefix, err error) {
 		})
 	}
 
-	return
+	return res, nil
 }
 
-func castV6Entries(entries []RawIPv6Prefix) (res []IPv6Prefix, err error) {
+func castV6Entries(entries []RawIPv6Prefix) ([]IPv6Prefix, error) {
+	var res []IPv6Prefix
 	for _, entry := range entries {
-		var p netip.Prefix
-		p, err = netip.ParsePrefix(entry.IPv6Prefix)
+		p, err := netip.ParsePrefix(entry.IPv6Prefix)
 		if err != nil {
-			return
+			return res, err
 		}
 
 		res = append(res, IPv6Prefix{
@@ -186,7 +181,7 @@ func castV6Entries(entries []RawIPv6Prefix) (res []IPv6Prefix, err error) {
 		})
 	}
 
-	return
+	return res, nil
 }
 
 func TrimQuotes(in *string) {

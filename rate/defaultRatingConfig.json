@@ -83,6 +83,9 @@
     "virusTotal": {
       "suspiciousScore": 7.0,
       "maliciousScore": 10.0
+    },
+    "zscaler": {
+      "defaultMatchScore": 4.0
     }
   }
 }

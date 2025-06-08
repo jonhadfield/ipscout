@@ -2,6 +2,7 @@ package url
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/netip"
@@ -28,7 +29,7 @@ func NewList() HttpFiles {
 	}
 
 	return HttpFiles{
-		Urls:   []string{},
+		URLs:   []string{},
 		Client: c,
 	}
 }
@@ -65,27 +66,31 @@ func WithHttpClient(rc *retryablehttp.Client) Option {
 
 type HttpFiles struct {
 	Client *retryablehttp.Client
-	Urls   []string
+	URLs   []string
 	Debug  bool
 }
 
 type HttpFile struct {
 	Client *retryablehttp.Client
-	Url    string
+	URL    string
 	Debug  bool
 }
 
-func (c *Client) FetchPrefixesAsText(requests []Request) (prefixes []string, err error) {
+func (c *Client) FetchPrefixesAsText(requests []Request) ([]string, error) {
 	if c.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
-	var responses []UrlResponse
+	var (
+		responses []URLResponse
+		prefixes  []string
+		err       error
+	)
 
 	for _, req := range requests {
-		var response UrlResponse
+		var response URLResponse
 
-		if response, err = c.get(req.Url, req.Header); err != nil {
+		if response, err = c.get(req.URL, req.Header); err != nil {
 			logrus.Debugf("%s | %s", pflog.GetFunctionName(), err.Error())
 
 			continue
@@ -93,14 +98,15 @@ func (c *Client) FetchPrefixesAsText(requests []Request) (prefixes []string, err
 
 		responses = append(responses, response)
 	}
-
-	pum, err := GetPrefixURLMapFromUrlResponses(&responses)
-
+	pum, err := GetPrefixURLMapFromURLResponses(&responses)
+	if err != nil {
+		return nil, err
+	}
 	for k := range pum {
 		prefixes = append(prefixes, k.String())
 	}
 
-	return
+	return prefixes, nil
 }
 
 func (hf *HttpFiles) Add(urls []string) {
@@ -115,7 +121,7 @@ func (hf *HttpFiles) Add(urls []string) {
 			continue
 		}
 
-		hf.Urls = append(hf.Urls, u)
+		hf.URLs = append(hf.URLs, u)
 	}
 }
 
@@ -127,21 +133,23 @@ type RawDoc struct {
 }
 
 type (
-	Responses         []UrlResponse
+	Responses         []URLResponse
 	PrefixesWithPaths map[netip.Prefix][]string
 )
 
-func (c *Client) FetchPrefixes(requests []Request) (prefixes map[netip.Prefix][]string, err error) {
+func (c *Client) FetchPrefixes(requests []Request) (map[netip.Prefix][]string, error) {
 	if c.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
-	var responses []UrlResponse
+	var (
+		responses []URLResponse
+		prefixes  map[netip.Prefix][]string
+	)
 
 	for _, req := range requests {
-		var response UrlResponse
-
-		if response, err = c.get(req.Url, req.Header); err != nil {
+		response, err := c.get(req.URL, req.Header)
+		if err != nil {
 			logrus.Debugf("%s | %s", pflog.GetFunctionName(), err.Error())
 
 			continue
@@ -150,9 +158,10 @@ func (c *Client) FetchPrefixes(requests []Request) (prefixes map[netip.Prefix][]
 		responses = append(responses, response)
 	}
 
-	prefixes, err = GetPrefixURLMapFromUrlResponses(&responses)
+	var err error
+	prefixes, err = GetPrefixURLMapFromURLResponses(&responses)
 	if err != nil {
-		return
+		return nil, err
 	}
 	//
 	// for k := range pum {
@@ -162,34 +171,35 @@ func (c *Client) FetchPrefixes(requests []Request) (prefixes map[netip.Prefix][]
 	return prefixes, nil
 }
 
-func (hf *HttpFile) FetchPrefixes() (prefixes []netip.Prefix, err error) {
+func (hf *HttpFile) FetchPrefixes() ([]netip.Prefix, error) {
 	if hf.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
-	urlResponse, err := hf.FetchUrl()
+	urlResponse, err := hf.FetchURL()
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	prefixes, err = ReadRawPrefixesFromUrlResponse(urlResponse)
+	prefixes, err := ReadRawPrefixesFromURLResponse(urlResponse)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	return prefixes, nil
 }
 
-func (hf *HttpFile) FetchUrl() (result UrlResponse, err error) {
+func (hf *HttpFile) FetchURL() (URLResponse, error) {
 	if hf.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
-	if result, err = fetchUrlResponse(hf.Client, hf.Url); err != nil {
+	result, err := FetchURLResponse(hf.Client, hf.URL)
+	if err != nil {
 		logrus.Debugf("%s | %s", pflog.GetFunctionName(), err.Error())
 	}
 
-	return
+	return result, err
 }
 
 func extractNetFromString(in string) netip.Prefix {
@@ -217,7 +227,7 @@ func extractNetFromString(in string) netip.Prefix {
 }
 
 // ReadRawPrefixesFromFileData reads the IPs as strings from the given path
-func ReadRawPrefixesFromFileData(data []byte) (ipnets []netip.Prefix, err error) {
+func ReadRawPrefixesFromFileData(data []byte) ([]netip.Prefix, error) {
 	text := strings.Split(string(data), "\n")
 
 	// create regex to check for lines without IPs
@@ -226,8 +236,11 @@ func ReadRawPrefixesFromFileData(data []byte) (ipnets []netip.Prefix, err error)
 		r = regexp.MustCompile(`^\s*#`)
 	}
 
-	var invalidCount int64
-	var commentedCount int64
+	var (
+		ipnets         []netip.Prefix
+		invalidCount   int64
+		commentedCount int64
+	)
 	for _, line := range text {
 		// exclude comments
 		if r.MatchString(line) {
@@ -248,29 +261,28 @@ func ReadRawPrefixesFromFileData(data []byte) (ipnets []netip.Prefix, err error)
 	logrus.Debugf("%s | loaded %d prefixes from %d lines with %d commented and %d invalid", pflog.GetFunctionName(),
 		len(ipnets), len(text), commentedCount, invalidCount)
 
-	return
+	return ipnets, nil
 }
 
-func ReadRawPrefixesFromUrlResponse(response UrlResponse) (prefixes []netip.Prefix, err error) {
-	prefixes, err = ReadRawPrefixesFromFileData(response.data)
+func ReadRawPrefixesFromURLResponse(response URLResponse) ([]netip.Prefix, error) {
+	prefixes, err := ReadRawPrefixesFromFileData(response.Data)
 
-	return
+	return prefixes, err
 }
 
-func GetPrefixURLMapFromUrlResponses(responses *[]UrlResponse) (prefixesWithPaths map[netip.Prefix][]string, err error) {
+func GetPrefixURLMapFromURLResponses(responses *[]URLResponse) (map[netip.Prefix][]string, error) {
 	funcName := pflog.GetFunctionName()
 
 	if responses == nil || len(*responses) == 0 {
 		return nil, fmt.Errorf("%s | no responses", funcName)
 	}
 
-	prefixesWithPaths = make(map[netip.Prefix][]string)
+	prefixesWithPaths := make(map[netip.Prefix][]string)
 
 	var responseCount int
 
 	for _, response := range *responses {
-		var ps []netip.Prefix
-		ps, err = ReadRawPrefixesFromUrlResponse(response)
+		ps, err := ReadRawPrefixesFromURLResponse(response)
 		if err != nil {
 			logrus.Errorf("%s | %s", funcName, err.Error())
 		}
@@ -289,84 +301,78 @@ func GetPrefixURLMapFromUrlResponses(responses *[]UrlResponse) (prefixesWithPath
 
 	logrus.Debugf("%s | loaded %d unique prefixes from %d response(s)", funcName, len(prefixesWithPaths), responseCount)
 
-	return
+	return prefixesWithPaths, nil
 }
 
 type DataMap map[string][]string
 
-type UrlResponse struct {
+type URLResponse struct {
 	url    string
-	data   []byte
+	Data   []byte
 	status int
 }
 
-func (c *Client) get(url *url.URL, header http.Header) (result UrlResponse, err error) {
-	var data []byte
-	var status int
-
-	data, _, status, err = web.Request(c.HttpClient, url.String(), http.MethodGet, header, nil, 10*time.Second)
+func (c *Client) get(url *url.URL, header http.Header) (URLResponse, error) {
+	data, _, status, err := web.Request(c.HttpClient, url.String(), http.MethodGet, header, nil, web.DefaultRequestTimeout)
 	if err != nil {
 		logrus.Debug(err.Error())
 	}
 
-	if !(status >= 200 && status <= 299) {
-		return result, fmt.Errorf("failed to get: %s status: %d", url.String(), status)
+	if status < http.StatusOK || status >= http.StatusMultipleChoices {
+		return URLResponse{}, fmt.Errorf("failed to get: %s status: %d", url.String(), status)
 	}
 
-	return UrlResponse{
+	return URLResponse{
 		url:    url.String(),
-		data:   data,
+		Data:   data,
 		status: status,
 	}, err
 }
 
-func fetchUrlResponse(client *retryablehttp.Client, url string) (result UrlResponse, err error) {
-	var data []byte
-	var status int
-
-	data, _, status, err = web.Request(client, url, http.MethodGet, nil, nil, 10*time.Second)
+func FetchURLResponse(client *retryablehttp.Client, url string) (URLResponse, error) {
+	data, _, status, err := web.Request(client, url, http.MethodGet, nil, nil, web.DefaultRequestTimeout)
 	if err != nil {
 		logrus.Debug(err.Error())
 	}
-	if !(status >= 200 && status <= 299) {
-		return result, fmt.Errorf("failed to fetch: %s status: %d", url, status)
+	if status < http.StatusOK || status >= http.StatusMultipleChoices {
+		return URLResponse{}, fmt.Errorf("failed to fetch: %s status: %d", url, status)
 	}
 
-	return UrlResponse{
+	return URLResponse{
 		url:    url,
-		data:   data,
+		Data:   data,
 		status: status,
 	}, err
 }
 
 type GetInput struct {
-	Url    url.URL
+	URL    url.URL
 	Header http.Header
 }
 
 type Request struct {
 	Method string
-	Url    *url.URL
+	URL    *url.URL
 	Header http.Header
 }
 
-func (c *Client) Get(requests []Request) (*[]UrlResponse, error) {
+func (c *Client) Get(requests []Request) (*[]URLResponse, error) {
 	if c.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
 	if len(requests) == 0 {
-		return nil, fmt.Errorf("no URLs to fetch")
+		return nil, errors.New("no URLs to fetch")
 	}
 
 	var err error
 
-	var responses []UrlResponse
+	var responses []URLResponse
 
 	for _, req := range requests {
-		var response UrlResponse
+		var response URLResponse
 
-		if response, err = c.get(req.Url, req.Header); err != nil {
+		if response, err = c.get(req.URL, req.Header); err != nil {
 			logrus.Debugf("%s | %s", pflog.GetFunctionName(), err.Error())
 
 			return nil, fmt.Errorf("%w", err)
@@ -378,27 +384,26 @@ func (c *Client) Get(requests []Request) (*[]UrlResponse, error) {
 	return &responses, nil
 }
 
-func (hf *HttpFiles) FetchUrls() (results []UrlResponse, err error) {
+func (hf *HttpFiles) FetchURLs() ([]URLResponse, error) {
 	if hf.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
-	if len(hf.Urls) == 0 {
-		err = fmt.Errorf("no URLs to fetch")
-
-		return
+	if len(hf.URLs) == 0 {
+		return nil, errors.New("no URLs to fetch")
 	}
 
-	for _, hfUrl := range hf.Urls {
-		var result UrlResponse
-		if result, err = fetchUrlResponse(hf.Client, hfUrl); err != nil {
+	var results []URLResponse
+	for _, hfURL := range hf.URLs {
+		result, err := FetchURLResponse(hf.Client, hfURL)
+		if err != nil {
 			logrus.Debugf("%s | %s", pflog.GetFunctionName(), err.Error())
 		}
 
 		results = append(results, result)
 	}
 
-	return
+	return results, nil
 }
 
 type RawIPv4Entry struct {

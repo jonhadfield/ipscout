@@ -214,7 +214,7 @@ github.com/inconshreveable/mousetrap
 ## explicit; go 1.18
 github.com/jedib0t/go-pretty/v6/table
 github.com/jedib0t/go-pretty/v6/text
-# github.com/jonhadfield/azwaf v0.0.0-20250526131925-01c704e651dd
+# github.com/jonhadfield/azwaf v0.0.0-20250608090903-5640af7f5974
 ## explicit; go 1.22.4
 github.com/jonhadfield/azwaf/cache
 github.com/jonhadfield/azwaf/config
@@ -223,7 +223,7 @@ github.com/jonhadfield/azwaf/session
 # github.com/jonhadfield/findexec v0.0.0-20190902195615-78db24cd4e77
 ## explicit; go 1.12
 github.com/jonhadfield/findexec
-# github.com/jonhadfield/ip-fetcher v0.0.0-20250601172315-86958e899b8e
+# github.com/jonhadfield/ip-fetcher v0.0.0-20250608114736-0be1116f8d8c
 ## explicit; go 1.24
 github.com/jonhadfield/ip-fetcher/internal/pflog
 github.com/jonhadfield/ip-fetcher/internal/web
@@ -239,6 +239,7 @@ github.com/jonhadfield/ip-fetcher/providers/hetzner
 github.com/jonhadfield/ip-fetcher/providers/icloudpr
 github.com/jonhadfield/ip-fetcher/providers/linode
 github.com/jonhadfield/ip-fetcher/providers/url
+github.com/jonhadfield/ip-fetcher/providers/zscaler
 # github.com/jszwec/csvutil v1.10.0
 ## explicit; go 1.18
 github.com/jszwec/csvutil

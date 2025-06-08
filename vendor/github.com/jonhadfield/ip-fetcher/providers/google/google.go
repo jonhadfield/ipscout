@@ -49,46 +49,60 @@ type RawDoc struct {
 	Entries       []json.RawMessage `json:"prefixes"`
 }
 
-func (gc *Google) FetchData() (data []byte, headers http.Header, status int, err error) {
+func (gc *Google) FetchData() ([]byte, http.Header, int, error) {
+	var (
+		data    []byte
+		headers http.Header
+		status  int
+		err     error
+	)
 	if gc.DownloadURL == "" {
 		gc.DownloadURL = DownloadURL
 	}
-	return web.Request(gc.Client, gc.DownloadURL, http.MethodGet, nil, nil, 10*time.Second)
+	data, headers, status, err = web.Request(gc.Client, gc.DownloadURL, http.MethodGet, nil, nil, web.DefaultRequestTimeout)
+	return data, headers, status, err
 }
 
-func (gc *Google) Fetch() (doc Doc, err error) {
+func (gc *Google) Fetch() (Doc, error) {
 	data, _, _, err := gc.FetchData()
 	if err != nil {
-		return
+		return Doc{}, err
 	}
 
 	return ProcessData(data)
 }
 
-func ProcessData(data []byte) (doc Doc, err error) {
+func ProcessData(data []byte) (Doc, error) {
+	var doc Doc
+	var err error
 	var rawDoc RawDoc
 	err = json.Unmarshal(data, &rawDoc)
 	if err != nil {
-		return
+		return Doc{}, err
 	}
 
 	doc.IPv4Prefixes, doc.IPv6Prefixes, err = castEntries(rawDoc.Entries)
 	if err != nil {
-		return
+		return Doc{}, err
 	}
 
 	ct, err := time.Parse(downloadedFileTimeFormat, rawDoc.CreationTime)
 	if err != nil {
-		return
+		return Doc{}, err
 	}
 
 	doc.CreationTime = ct
 	doc.SyncToken = rawDoc.SyncToken
 
-	return
+	return doc, nil
 }
 
-func castEntries(prefixes []json.RawMessage) (ipv4 []IPv4Entry, ipv6 []IPv6Entry, err error) {
+func castEntries(prefixes []json.RawMessage) ([]IPv4Entry, []IPv6Entry, error) {
+	var (
+		ipv4 []IPv4Entry
+		ipv6 []IPv6Entry
+		err  error
+	)
 	for _, pr := range prefixes {
 		var ipv4entry RawIPv4Entry
 
@@ -123,11 +137,11 @@ func castEntries(prefixes []json.RawMessage) (ipv4 []IPv4Entry, ipv6 []IPv6Entry
 		}
 
 		if err != nil {
-			return
+			return ipv4, ipv6, err
 		}
 	}
 
-	return
+	return ipv4, ipv6, nil
 }
 
 type RawIPv4Entry struct {
