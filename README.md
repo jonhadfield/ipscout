@@ -3,6 +3,15 @@
 IPScout is a command-line tool for security analysts to enrich IP addresses with their origin and threat ratings.
 All of the host reputation providers require registration but each of them offers a free tier.
 
+## Features
+
+- Query multiple reputation and hosting providers concurrently
+- Cache provider metadata and lookup results
+- Manage cached data with `ipscout cache`
+- Show or output configuration with `ipscout config`
+- Rate hosts using `ipscout rate`, optionally with AI assistance
+- Supports Zscaler IP range lookups
+
 [![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/df6b2974f0844444af617a1c0b0e2cfb)](https://app.codacy.com/gh/jonhadfield/ipscout/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
 
 ## Output
@@ -84,6 +93,14 @@ This will create an `ipscout` binary in the current directory.
 $ ipscout <host>
 ```
 `<host>` can be an IP address or a fully qualified domain name.
+
+Additional commands are available:
+
+```shell
+$ ipscout cache    # manage cached results
+$ ipscout config   # view or output configuration
+$ ipscout rate     # rate a host using provider data
+```
 
 ## Configuration
 
@@ -300,6 +317,15 @@ Set environment variable `VIRUSTOTAL_API_KEY` with your API key.
 
 ### Zscaler
 
-[Zscaler](https://www.zscaler.com/) publishes a list of IP prefixes used by its services
-that can be retrieved from their API [here](https://api.config.zscaler.com/zscaler.net/cenr/json).
+[Zscaler](https://www.zscaler.com/) publishes a list of IP prefixes used by its services.
+IPScout downloads this list and checks whether the target IP is within those ranges.
+The default source URL is `https://api.config.zscaler.com/zscaler.net/cenr/json` and
+can be overridden in the configuration file.
+
+```yaml
+  zscaler:
+    enabled: true
+    url: https://api.config.zscaler.com/zscaler.net/cenr/json
+    document_cache_ttl: 1440  # minutes
+```
 
