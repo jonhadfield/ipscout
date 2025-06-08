@@ -7,11 +7,10 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
-	"io"
 	"strconv"
 	"strings"
-
+	"io"
+	"errors"
 	"github.com/andybalholm/brotli"
 	utls "github.com/refraction-networking/utls"
 )
@@ -174,6 +173,8 @@ func StringToSpec(ja3 string, userAgent string, forceHTTP1 bool) (*utls.ClientHe
 		}
 	}
 
+
+
 	// set extension 43
 	ver, err := strconv.ParseUint(version, 10, 16)
 	if err != nil {
@@ -225,7 +226,6 @@ func StringToSpec(ja3 string, userAgent string, forceHTTP1 bool) (*utls.ClientHe
 		GetSessionID:       sha256.Sum256,
 	}, nil
 }
-
 // TLSVersion，Ciphers，Extensions，EllipticCurves，EllipticCurvePointFormats
 func createTlsVersion(ver uint16) (tlsMaxVersion uint16, tlsMinVersion uint16, tlsSuppor utls.TLSExtension, err error) {
 	switch ver {

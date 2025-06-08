@@ -3,7 +3,6 @@ package policy
 import (
 	"context"
 	"fmt"
-
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor"
 	"github.com/jonhadfield/azwaf/session"
 	"github.com/sirupsen/logrus"

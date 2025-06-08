@@ -25,6 +25,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	tls "github.com/refraction-networking/utls"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -45,8 +46,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	tls "github.com/refraction-networking/utls"
 
 	"github.com/Danny-Dasilva/fhttp/http2/hpack"
 	"github.com/Danny-Dasilva/fhttp/httptrace"
@@ -3352,11 +3351,10 @@ func (s http2SettingID) String() string {
 // name (key). See httpguts.ValidHeaderName for the base rules.
 //
 // Further, http2 says:
-//
-//	"Just as in HTTP/1.x, header field names are strings of ASCII
-//	characters that are compared in a case-insensitive
-//	fashion. However, header field names MUST be converted to
-//	lowercase prior to their encoding in HTTP/2. "
+//   "Just as in HTTP/1.x, header field names are strings of ASCII
+//   characters that are compared in a case-insensitive
+//   fashion. However, header field names MUST be converted to
+//   lowercase prior to their encoding in HTTP/2. "
 func http2validWireHeaderFieldName(v string) bool {
 	if len(v) == 0 {
 		return false
@@ -3547,8 +3545,8 @@ func (s *http2sorter) SortStrings(ss []string) {
 // validPseudoPath reports whether v is a valid :path pseudo-header
 // value. It must be either:
 //
-//	*) a non-empty string starting with '/'
-//	*) the string '*', for OPTIONS requests.
+//     *) a non-empty string starting with '/'
+//     *) the string '*', for OPTIONS requests.
 //
 // For now this is only used a quick check for deciding when to clean
 // up Opaque URLs before sending requests from the Transport.
@@ -5871,11 +5869,12 @@ func (sc *http2serverConn) newWriterAndRequest(st *http2stream, f *http2MetaHead
 	return rw, req, nil
 }
 
+
 type http2requestParam struct {
 	method                  string
 	scheme, authority, path string
 	header                  Header
-	rawHeader               []hpack.HeaderField
+	rawHeader				[]hpack.HeaderField
 }
 
 func (sc *http2serverConn) newWriterAndRequestNoBody(st *http2stream, rp http2requestParam) (*http2responseWriter, *Request, error) {
@@ -6351,9 +6350,8 @@ func (rws *http2responseWriterState) writeChunk(p []byte) (n int, err error) {
 // prior to the headers being written. If the set of trailers is fixed
 // or known before the header is written, the normal Go trailers mechanism
 // is preferred:
-//
-//	https://golang.org/pkg/net/http/#ResponseWriter
-//	https://golang.org/pkg/net/http/#example_ResponseWriter_trailers
+//    https://golang.org/pkg/net/http/#ResponseWriter
+//    https://golang.org/pkg/net/http/#example_ResponseWriter_trailers
 const http2TrailerPrefix = "Trailer:"
 
 // promoteUndeclaredTrailers permits http.Handlers to set trailers

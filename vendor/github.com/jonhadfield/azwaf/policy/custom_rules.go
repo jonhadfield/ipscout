@@ -5,6 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor"
+	"github.com/jonhadfield/azwaf/config"
+	"github.com/jonhadfield/azwaf/session"
+	"github.com/sirupsen/logrus"
+	"go4.org/netipx"
 	"log"
 	"net/netip"
 	"os"
@@ -13,12 +18,6 @@ import (
 	"slices"
 	"sort"
 	"strings"
-
-	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor"
-	"github.com/jonhadfield/azwaf/config"
-	"github.com/jonhadfield/azwaf/session"
-	"github.com/sirupsen/logrus"
-	"go4.org/netipx"
 )
 
 type filterCustomRulesInput struct {

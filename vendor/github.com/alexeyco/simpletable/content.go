@@ -2,10 +2,9 @@ package simpletable
 
 import (
 	"fmt"
+	"github.com/mattn/go-runewidth"
 	"regexp"
 	"strings"
-
-	"github.com/mattn/go-runewidth"
 )
 
 // stripAnsiEscapeRegexp is a regular expression to clean ANSI Control sequences
