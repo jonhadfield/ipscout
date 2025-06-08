@@ -25,7 +25,6 @@ const (
 	portLastModifiedFormat = "2006-01-02T15:04:05+07:00"
 	ResultTTL              = 30 * time.Minute
 	DefaultNameserver      = "1.1.1.1:53"
-	dataColumnNo           = 2
 	minTableWidth          = 15
 )
 
@@ -144,7 +143,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	})
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: dataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: minTableWidth},
+		{Number: providers.DataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: minTableWidth},
 	})
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)

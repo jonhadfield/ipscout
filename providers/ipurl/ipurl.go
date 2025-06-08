@@ -24,7 +24,6 @@ const (
 	// override default set in providers package constant as column 2 is expected to be wide
 	column1MinWidth = 13
 	column2MinWidth = 10
-	dataColumnNo    = 2
 )
 
 type Config struct {
@@ -414,7 +413,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: dataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: column2MinWidth},
+		{Number: providers.DataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: column2MinWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("IP URL | Host: %s", c.Host.String())

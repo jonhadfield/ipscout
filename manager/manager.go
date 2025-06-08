@@ -17,16 +17,9 @@ import (
 	"github.com/jonhadfield/ipscout/session"
 )
 
-const (
-	maxColumnWidth = 60
-	minColumnWidth = 20
-)
-
 type Client struct {
 	Config *session.Session
 }
-
-var timeFormat = "2006-01-02 15:04:05 MST"
 
 func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, error) {
 	tw := table.NewWriter()
@@ -47,11 +40,11 @@ func (c *Client) CreateItemsInfoTable(info []CacheItemInfo) (*table.Writer, erro
 			estimatedSize = uint64(x.EstimatedSize) //nolint:gosec
 		}
 
-		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(timeFormat), humanize.Bytes(estimatedSize), providers.DashIfEmpty(x.AppVersion)})
+		tw.AppendRow(table.Row{x.Key, x.ExpiresAt.Format(providers.TimeFormat), humanize.Bytes(estimatedSize), providers.DashIfEmpty(x.AppVersion)})
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 1, AutoMerge: false, WidthMax: maxColumnWidth, WidthMin: minColumnWidth},
+		{Number: 1, AutoMerge: false, WidthMax: providers.MaxColumnWidth, WidthMin: providers.MinColumnWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("CACHE ITEMS")
@@ -108,7 +101,7 @@ func (c *Client) Delete(keys []string) error {
 	defer db.Close()
 
 	if err = cache.DeleteMultiple(c.Config.Logger, db, keys); err != nil {
-		return fmt.Errorf("error deleting cache items: %w", err)
+		return fmt.Errorf(cache.ErrDeleteCacheItemsFmt, err)
 	}
 
 	return nil
@@ -126,7 +119,7 @@ func (c *Client) Get(key string, raw bool) error {
 
 	item, err := cache.Read(c.Config.Logger, db, key)
 	if err != nil {
-		return fmt.Errorf("error reading cache: %w", err)
+		return fmt.Errorf(cache.ErrReadCacheFmt, err)
 	}
 
 	if raw {
@@ -147,12 +140,12 @@ func (c *Client) Get(key string, raw bool) error {
 	pItem.Key = item.Key
 	pItem.AppVersion = item.AppVersion
 	pItem.Version = item.Version
-	pItem.Created = item.Created.Format(timeFormat)
+	pItem.Created = item.Created.Format(providers.TimeFormat)
 	pItem.Value = item.Value
 
 	out, err := json.MarshalIndent(&pItem, "", "  ")
 	if err != nil {
-		return fmt.Errorf("error marshalling item: %w", err)
+		return fmt.Errorf(cache.ErrMarshalItemFmt, err)
 	}
 
 	fmt.Printf("%s\n", out)
@@ -185,7 +178,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 
 			ci, err := cache.Read(c.Config.Logger, db, string(k))
 			if err != nil {
-				return fmt.Errorf("error reading cache item: %w", err)
+				return fmt.Errorf(cache.ErrReadCacheItemFmt, err)
 			}
 
 			item.ExpiresAt()
@@ -207,7 +200,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error iterating cache: %w", err)
+		return nil, fmt.Errorf(cache.ErrIteratingCacheFmt, err)
 	}
 
 	return cacheItemsInfo, nil
