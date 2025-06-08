@@ -19,6 +19,8 @@ import (
 	"github.com/jonhadfield/ipscout/session"
 )
 
+const indentSpaces = 2
+
 type Client struct {
 	Sess *session.Session
 }
