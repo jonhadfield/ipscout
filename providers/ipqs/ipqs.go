@@ -26,7 +26,6 @@ const (
 	ProviderName                         = "ipqs"
 	ResultTTL                            = 1 * time.Hour
 	APIURL                               = "https://ipqualityscore.com/api/json/ip"
-	dataColumnNo                         = 2
 	veryHighScoreThreshold               = 10
 	highScoreThreshold                   = 7
 	mediumScoreThreshold                 = 5
@@ -338,7 +337,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: dataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
+		{Number: providers.DataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 		{Number: 1, AutoMerge: true},
 	})
 

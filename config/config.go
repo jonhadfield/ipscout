@@ -19,17 +19,9 @@ import (
 	"github.com/jonhadfield/ipscout/session"
 )
 
-const (
-	maxColumnWidth = 60
-	indentSpaces   = 2
-	minTableWidth  = 20
-)
-
 type Client struct {
 	Sess *session.Session
 }
-
-var timeFormat = "2006-01-02 15:04:05 MST"
 
 func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	tw := table.NewWriter()
@@ -61,7 +53,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		abuseipdbEnabled = *c.Sess.Providers.AbuseIPDB.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), abuseipdbEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), abuseipdbEnabled})
 
 	// annotated
 
@@ -72,7 +64,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		annotatedEnabled = *c.Sess.Providers.Annotated.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), annotatedEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), annotatedEnabled})
 
 	for x, path := range c.Sess.Providers.Annotated.Paths {
 		var pathsTitle string
@@ -80,7 +72,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 			pathsTitle = "paths"
 		}
 
-		tw.AppendRow(table.Row{color.WhiteString("%s%s", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces), pathsTitle), path})
+		tw.AppendRow(table.Row{color.WhiteString("%s%s", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces), pathsTitle), path})
 	}
 
 	// aws
@@ -91,7 +83,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		awsEnabled = *c.Sess.Providers.AWS.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), awsEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), awsEnabled})
 
 	// azure
 	tw.AppendRow(table.Row{color.HiCyanString("%sAzure", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -101,7 +93,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		azureEnabled = *c.Sess.Providers.Azure.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), azureEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), azureEnabled})
 
 	// criminalip
 	tw.AppendRow(table.Row{color.HiCyanString("%sCriminalIP", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -111,7 +103,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		criminalipEnabled = *c.Sess.Providers.CriminalIP.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), criminalipEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), criminalipEnabled})
 
 	// digitalocean
 	tw.AppendRow(table.Row{color.HiCyanString("%sDigitalocean", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -121,7 +113,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		digitaloceanEnabled = *c.Sess.Providers.DigitalOcean.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), digitaloceanEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), digitaloceanEnabled})
 
 	// gcp
 	tw.AppendRow(table.Row{color.HiCyanString("%sGCP", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -131,7 +123,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		gcpEnabled = *c.Sess.Providers.GCP.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), gcpEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), gcpEnabled})
 
 	// google
 	tw.AppendRow(table.Row{color.HiCyanString("%sGoogle", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -141,7 +133,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		googleEnabled = *c.Sess.Providers.Google.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), googleEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), googleEnabled})
 
 	// googlebot
 	tw.AppendRow(table.Row{color.HiCyanString("%sGooglebot", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -151,7 +143,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		googlebotEnabled = *c.Sess.Providers.Googlebot.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), googlebotEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), googlebotEnabled})
 
 	// hetzner
 	tw.AppendRow(table.Row{color.HiCyanString("%sHetzner", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -161,7 +153,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		hetznerEnabled = *c.Sess.Providers.Hetzner.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), hetznerEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), hetznerEnabled})
 
 	// iCloud Private Relay
 	tw.AppendRow(table.Row{color.HiCyanString("%siCloud Private Relay", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -171,7 +163,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		icloudPREnabled = *c.Sess.Providers.ICloudPR.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), icloudPREnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), icloudPREnabled})
 
 	// ipapi
 	tw.AppendRow(table.Row{color.HiCyanString("%sIPAPI", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -181,7 +173,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		ipapiEnabled = *c.Sess.Providers.IPAPI.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), ipapiEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), ipapiEnabled})
 
 	// IPURL
 	tw.AppendRow(table.Row{color.HiCyanString("%sIPURL", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -191,7 +183,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		ipurlEnabled = *c.Sess.Providers.IPURL.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), ipurlEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), ipurlEnabled})
 
 	for x, url := range c.Sess.Providers.IPURL.URLs {
 		var urlsTitle string
@@ -200,7 +192,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 			urlsTitle = "urls"
 		}
 
-		tw.AppendRow(table.Row{color.WhiteString("%s%s", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces), urlsTitle), url})
+		tw.AppendRow(table.Row{color.WhiteString("%s%s", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces), urlsTitle), url})
 	}
 
 	// linode
@@ -212,7 +204,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		linodeEnabled = *c.Sess.Providers.Linode.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), linodeEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), linodeEnabled})
 
 	// ptr
 	tw.AppendRow(table.Row{color.HiCyanString("%sPTR", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -222,7 +214,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		ptrEnabled = *c.Sess.Providers.PTR.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), ptrEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), ptrEnabled})
 
 	// shodan
 	tw.AppendRow(table.Row{color.HiCyanString("%sShodan", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -232,7 +224,7 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		shodanEnabled = *c.Sess.Providers.Shodan.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), shodanEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), shodanEnabled})
 
 	// virustotal
 	tw.AppendRow(table.Row{color.HiCyanString("%sVirusTotal", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -242,11 +234,11 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 		virustotalEnabled = *c.Sess.Providers.VirusTotal.Enabled
 	}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), virustotalEnabled})
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), virustotalEnabled})
 
 	// end
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 1, AutoMerge: false, WidthMax: maxColumnWidth, WidthMin: minTableWidth},
+		{Number: 1, AutoMerge: false, WidthMax: providers.MaxColumnWidth, WidthMin: providers.MinTableWidth},
 	})
 
 	tw.SetAutoIndex(false)
@@ -285,7 +277,7 @@ func (c *Client) Delete(keys []string) error {
 	defer db.Close()
 
 	if err = cache.DeleteMultiple(c.Sess.Logger, db, keys); err != nil {
-		return fmt.Errorf("error deleting cache items: %w", err)
+		return fmt.Errorf(cache.ErrDeleteCacheItemsFmt, err)
 	}
 
 	return nil
@@ -303,7 +295,7 @@ func (c *Client) Get(key string, raw bool) error {
 
 	item, err := cache.Read(c.Sess.Logger, db, key)
 	if err != nil {
-		return fmt.Errorf("error reading cache: %w", err)
+		return fmt.Errorf(cache.ErrReadCacheFmt, err)
 	}
 
 	if raw {
@@ -324,12 +316,12 @@ func (c *Client) Get(key string, raw bool) error {
 	pItem.Key = item.Key
 	pItem.AppVersion = item.AppVersion
 	pItem.Version = item.Version
-	pItem.Created = item.Created.Format(timeFormat)
+	pItem.Created = item.Created.Format(providers.TimeFormat)
 	pItem.Value = item.Value
 
 	out, err := json.MarshalIndent(&pItem, "", "  ")
 	if err != nil {
-		return fmt.Errorf("error marshalling item: %w", err)
+		return fmt.Errorf(cache.ErrMarshalItemFmt, err)
 	}
 
 	fmt.Printf("%s\n", out)
@@ -362,7 +354,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 
 			ci, err := cache.Read(c.Sess.Logger, db, string(k))
 			if err != nil {
-				return fmt.Errorf("error reading cache item: %w", err)
+				return fmt.Errorf(cache.ErrReadCacheItemFmt, err)
 			}
 
 			var expiresAt int64
@@ -384,7 +376,7 @@ func (c *Client) GetCacheItemsInfo() ([]CacheItemInfo, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error iterating cache: %w", err)
+		return nil, fmt.Errorf(cache.ErrIteratingCacheFmt, err)
 	}
 
 	return cacheItemsInfo, nil

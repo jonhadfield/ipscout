@@ -31,7 +31,6 @@ const (
 	ProviderName           = "annotated"
 	CacheTTL               = 5 * time.Minute
 	ipFileSuffixesToIgnore = "sh,conf"
-	dataColumnNo           = 2
 )
 
 type Annotated struct {
@@ -375,7 +374,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: dataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
+		{Number: providers.DataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 

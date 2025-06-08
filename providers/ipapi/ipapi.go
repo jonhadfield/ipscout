@@ -24,7 +24,6 @@ const (
 	ProviderName = "ipapi"
 	ResultTTL    = 1 * time.Hour
 	apiDomain    = "https://ipapi.co"
-	dataColumnNo = 2
 )
 
 type Client struct {
@@ -193,7 +192,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	tw.AppendRow(table.Row{"ASN", providers.DashIfEmpty(findHostData.Asn)})
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: dataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
+		{Number: providers.DataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 		{Number: 1, AutoMerge: true},
 	})
 

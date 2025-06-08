@@ -23,6 +23,12 @@ const (
 	Column1MinWidth    = 14
 	WideColumnMaxWidth = 75
 	WideColumnMinWidth = 50
+	// defaults used across multiple packages
+	DataColumnNo   = 2
+	IndentSpaces   = 2
+	MaxColumnWidth = 60
+	MinColumnWidth = 20
+	MinTableWidth  = 20
 )
 
 func RowEmphasisColor(sess session.Session) func(format string, a ...interface{}) string {

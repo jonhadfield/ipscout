@@ -31,7 +31,6 @@ const (
 	portLastModifiedFormat = "2006-01-02T15:04:05+07:00"
 	ResultTTL              = 12 * time.Hour
 	OutputPriority         = 40
-	dataColumnNo           = 2
 	veryHighScoreThreshold = 10
 	highScoreThreshold     = 7
 	mediumScoreThreshold   = 5
@@ -249,7 +248,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	}
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: dataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
+		{Number: providers.DataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
 	})
 	tw.SetAutoIndex(false)
 	// tw.SetStyle(table.StyleColoredDark)

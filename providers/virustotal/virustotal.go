@@ -29,7 +29,6 @@ const (
 	HostIPPath                           = "/api/v3/ip_addresses"
 	IndentPipeHyphens                    = " |-----"
 	ResultTTL                            = 12 * time.Hour
-	dataColumnNo                         = 2
 	veryHighScore                        = 10
 	defaultHarmlessScore                 = 0
 	defaultSuspiciousScore               = 7
@@ -609,7 +608,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	})
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: dataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
+		{Number: providers.DataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth, ColorsHeader: text.Colors{text.BgCyan}},
 	})
 
 	var rows []table.Row

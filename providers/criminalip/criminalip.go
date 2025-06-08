@@ -29,7 +29,6 @@ const (
 	IndentPipeHyphens = " |-----"
 	ResultTTL         = 24 * time.Hour
 	APITimeout        = 30 * time.Second
-	dataColumnNo      = 2
 )
 
 type Client struct {
@@ -577,7 +576,7 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
-		{Number: dataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
+		{Number: providers.DataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
 	tw.SetAutoIndex(false)
 	tw.SetTitle("CRIMINAL IP | Host: %s", c.Host.String())

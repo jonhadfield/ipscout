@@ -30,8 +30,6 @@ const (
 	IndentPipeHyphens      = " |-----"
 	portLastModifiedFormat = "2006-01-02T15:04:05.999999"
 	ResultTTL              = 12 * time.Hour
-	dataColumnNo           = 2
-	indentSpaces           = 2
 	APITimeout             = 10 * time.Second
 )
 
@@ -427,12 +425,12 @@ func appendSSHRows(ssh SSH, globalIndentSpaces int, tw *table.Writer) {
 		twc.AppendRow(table.Row{
 			"",
 			fmt.Sprintf("%s%sType: %s",
-				IndentPipeHyphens, strings.Repeat(" ", indentSpaces*globalIndentSpaces), ssh.Type),
+				IndentPipeHyphens, strings.Repeat(" ", providers.IndentSpaces*globalIndentSpaces), ssh.Type),
 		})
 		twc.AppendRow(table.Row{
 			"",
 			fmt.Sprintf("%s%sCipher: %s",
-				IndentPipeHyphens, strings.Repeat(" ", indentSpaces*globalIndentSpaces), ssh.Cipher),
+				IndentPipeHyphens, strings.Repeat(" ", providers.IndentSpaces*globalIndentSpaces), ssh.Cipher),
 		})
 	}
 }
@@ -451,7 +449,7 @@ func appendHTTPRows(c *ProviderClient, http HTTP, tw *table.Writer) {
 				"",
 				fmt.Sprintf("%s%sLocation: %s",
 					IndentPipeHyphens,
-					strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), http.Location),
+					strings.Repeat(" ", providers.IndentSpaces*c.Config.Global.IndentSpaces), http.Location),
 			})
 		}
 
@@ -459,14 +457,14 @@ func appendHTTPRows(c *ProviderClient, http HTTP, tw *table.Writer) {
 			"",
 			fmt.Sprintf("%s%sStatus: %d",
 				IndentPipeHyphens,
-				strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), http.Status),
+				strings.Repeat(" ", providers.IndentSpaces*c.Config.Global.IndentSpaces), http.Status),
 		})
 
 		if http.Title != "" {
 			twc.AppendRow(table.Row{
 				"",
 				fmt.Sprintf("%s%sTitle: %s",
-					IndentPipeHyphens, strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), http.Title),
+					IndentPipeHyphens, strings.Repeat(" ", providers.IndentSpaces*c.Config.Global.IndentSpaces), http.Title),
 			})
 		}
 
@@ -474,7 +472,7 @@ func appendHTTPRows(c *ProviderClient, http HTTP, tw *table.Writer) {
 			twc.AppendRow(table.Row{
 				"",
 				fmt.Sprintf("%s%sServer: %s",
-					IndentPipeHyphens, strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces), http.Server),
+					IndentPipeHyphens, strings.Repeat(" ", providers.IndentSpaces*c.Config.Global.IndentSpaces), http.Server),
 			})
 		}
 
@@ -484,7 +482,7 @@ func appendHTTPRows(c *ProviderClient, http HTTP, tw *table.Writer) {
 				"",
 				fmt.Sprintf("%s%sHTML: %s",
 					IndentPipeHyphens,
-					strings.Repeat(" ", indentSpaces*c.Config.Global.IndentSpaces),
+					strings.Repeat(" ", providers.IndentSpaces*c.Config.Global.IndentSpaces),
 					providers.PreProcessValueOutput(&c.Session, http.HTML)),
 			})
 		}
@@ -501,7 +499,7 @@ func appendDNSRows(dns DNS, globalIndentSpaces int, tw *table.Writer) {
 				"",
 				fmt.Sprintf("%s%sResolver Hostname: %s",
 					IndentPipeHyphens,
-					strings.Repeat(" ", indentSpaces*globalIndentSpaces), dns.ResolverHostname),
+					strings.Repeat(" ", providers.IndentSpaces*globalIndentSpaces), dns.ResolverHostname),
 			})
 		}
 
@@ -510,14 +508,14 @@ func appendDNSRows(dns DNS, globalIndentSpaces int, tw *table.Writer) {
 				"",
 				fmt.Sprintf("%s%sResolver Software: %s",
 					IndentPipeHyphens,
-					strings.Repeat(" ", indentSpaces*globalIndentSpaces), dns.Software),
+					strings.Repeat(" ", providers.IndentSpaces*globalIndentSpaces), dns.Software),
 			})
 		}
 
 		twc.AppendRow(table.Row{
 			"",
 			fmt.Sprintf("%s%sRecursive: %t", IndentPipeHyphens,
-				strings.Repeat(" ", indentSpaces*globalIndentSpaces), dns.Recursive),
+				strings.Repeat(" ", providers.IndentSpaces*globalIndentSpaces), dns.Recursive),
 		})
 	}
 }
@@ -530,25 +528,25 @@ func appendSSLRows(ssl Ssl, globalIndentSpaces int, rowEmphasisColor func(format
 		twc.AppendRow(table.Row{
 			"",
 			fmt.Sprintf("%s%sIssuer: %s", IndentPipeHyphens,
-				strings.Repeat(" ", indentSpaces*globalIndentSpaces), ssl.Cert.Issuer.Cn),
+				strings.Repeat(" ", providers.IndentSpaces*globalIndentSpaces), ssl.Cert.Issuer.Cn),
 		})
 		twc.AppendRow(table.Row{
 			"",
 			fmt.Sprintf("%s%sSubject: %s",
-				IndentPipeHyphens, strings.Repeat(" ", indentSpaces*globalIndentSpaces),
+				IndentPipeHyphens, strings.Repeat(" ", providers.IndentSpaces*globalIndentSpaces),
 				ssl.Cert.Subject.Cn),
 		})
 		twc.AppendRow(table.Row{
 			"",
 			fmt.Sprintf("%s%sVersions: %s",
 				IndentPipeHyphens, strings.Repeat(" ",
-					indentSpaces*globalIndentSpaces), strings.Join(ssl.Versions, ", ")),
+					providers.IndentSpaces*globalIndentSpaces), strings.Join(ssl.Versions, ", ")),
 		})
 		twc.AppendRow(table.Row{
 			"",
 			fmt.Sprintf("%s%sExpires: %s",
 				IndentPipeHyphens,
-				strings.Repeat(" ", indentSpaces*globalIndentSpaces),
+				strings.Repeat(" ", providers.IndentSpaces*globalIndentSpaces),
 				ssl.Cert.Expires),
 		})
 	}
@@ -666,7 +664,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 		tw.AppendRows(rows)
 
 		tw.SetColumnConfigs([]table.ColumnConfig{
-			{Number: dataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
+			{Number: providers.DataColumnNo, AutoMerge: true, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 		})
 	}
 
