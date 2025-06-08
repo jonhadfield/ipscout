@@ -76,3 +76,5 @@ providers:
     show_unrated: true
     show_harmless: true
     show_clean: true
+  zscaler:
+    enabled: true
