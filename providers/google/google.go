@@ -90,7 +90,9 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	if err := json.Unmarshal(rBody, &res); err != nil {
 		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
+
 	res.Raw = rBody
+
 	return &res, nil
 }
 
@@ -99,6 +101,7 @@ func unmarshalProviderData(data []byte) (*google.Doc, error) {
 	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, fmt.Errorf("error unmarshalling google data: %w", err)
 	}
+
 	return &res, nil
 }
 
