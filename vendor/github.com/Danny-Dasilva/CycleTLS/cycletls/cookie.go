@@ -1,11 +1,12 @@
 package cycletls
 
 import (
-	http "github.com/Danny-Dasilva/fhttp"
 	nhttp "net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	http "github.com/Danny-Dasilva/fhttp"
 )
 
 // Time wraps time.Time overriddin the json marshal/unmarshal to pass

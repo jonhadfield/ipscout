@@ -18,7 +18,7 @@ type Table struct {
 	dividers []*dividerCell
 }
 
-//SetStyle sets table style
+// SetStyle sets table style
 func (t *Table) SetStyle(style *Style) {
 	t.style = style
 }
@@ -109,7 +109,8 @@ func (t *Table) line(l, c, r, i string) string {
 }
 
 // textSlice2CellSlice casts []*Cell to []cellInterface cause it's not possible do this:
-//     s := append([]cellInterface{}, t...)
+//
+//	s := append([]cellInterface{}, t...)
 func (t *Table) textSlice2CellSlice(c []*Cell) []cellInterface {
 	r := []cellInterface{}
 

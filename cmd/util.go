@@ -11,9 +11,10 @@ import (
 )
 
 const (
-	retryWaitMin = 3 * time.Second
-	retryWaitMax = 5 * time.Second
-	retryMax     = 3
+	retryWaitMin    = 3 * time.Second
+	retryWaitMax    = 5 * time.Second
+	retryMax        = 3
+	nameLookupDelay = 5 * time.Second
 )
 
 func getHTTPClient() *retryablehttp.Client {
@@ -34,7 +35,7 @@ func parseHost(arg string) (netip.Addr, error) {
 		return addr, nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), nameLookupDelay)
 	defer cancel()
 
 	ips, err := net.DefaultResolver.LookupIP(ctx, "ip", arg)
@@ -48,7 +49,7 @@ func parseHost(arg string) (netip.Addr, error) {
 
 	addr, err := netip.ParseAddr(ips[0].String())
 	if err != nil {
-		return netip.Addr{}, err
+		return netip.Addr{}, fmt.Errorf("failed to parse resolved IP address: %w", err)
 	}
 
 	return addr, nil

@@ -2,13 +2,15 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build !go1.11
 // +build !go1.11
 
 package http2
 
 import (
-	"github.com/Danny-Dasilva/fhttp/httptrace"
 	"net/textproto"
+
+	"github.com/Danny-Dasilva/fhttp/httptrace"
 )
 
 func traceHasWroteHeaderField(trace *httptrace.ClientTrace) bool { return false }

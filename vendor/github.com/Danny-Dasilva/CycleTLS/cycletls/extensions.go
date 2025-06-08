@@ -2,8 +2,9 @@ package cycletls
 
 import (
 	"fmt"
-	utls "github.com/refraction-networking/utls"
 	"strconv"
+
+	utls "github.com/refraction-networking/utls"
 )
 
 type TLSExtensions struct {
