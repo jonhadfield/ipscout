@@ -80,8 +80,9 @@ This will create an `ipscout` binary in the current directory.
 ## Usage
 
 ```shell
-$ ipscout <ip address>
+$ ipscout <host>
 ```
+`<host>` can be an IP address or a fully qualified domain name.
 
 ## Configuration
 
