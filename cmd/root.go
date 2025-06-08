@@ -41,7 +41,7 @@ func newRootCommand() *cobra.Command {
 	)
 
 	rootCmd := &cobra.Command{
-		Use:           "ipscout [options] <ip address>",
+		Use:           "ipscout [options] <host>",
 		Short:         "ipscout [command]",
 		Long:          `IPScout searches providers for information about hosts`,
 		Args:          cobra.MinimumNArgs(0),
@@ -82,7 +82,7 @@ func newRootCommand() *cobra.Command {
 
 		var err error
 
-		if sess.Host, err = netip.ParseAddr(args[0]); err != nil {
+		if sess.Host, err = parseHost(args[0]); err != nil {
 			return fmt.Errorf("invalid host: %w", err)
 		}
 
