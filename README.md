@@ -44,6 +44,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
+| [Zscaler](#Zscaler)                                       |    Security      |           -           |
 
 ## Installation
 
@@ -296,4 +297,9 @@ Set environment variable `SHODAN_API_KEY` with your API key.
 Query the [VirusTotal](https://www.virustotal.com) API for information from various providers on an IP address.
 
 Set environment variable `VIRUSTOTAL_API_KEY` with your API key.
+
+### Zscaler
+
+[Zscaler](https://www.zscaler.com/) publishes a list of IP prefixes used by its services
+that can be retrieved from their API [here](https://api.config.zscaler.com/zscaler.net/cenr/json).
 
