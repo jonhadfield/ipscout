@@ -42,11 +42,8 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 }
 
 func (c *ProviderClient) Enabled() bool {
-	if c.UseTestData || (c.Providers.Google.Enabled != nil && *c.Providers.Google.Enabled) {
-		return true
-	}
-
-	return false
+	return c.UseTestData ||
+		(c.Providers.Google.Enabled != nil && *c.Providers.Google.Enabled)
 }
 
 func (c *ProviderClient) Priority() *int32 {
@@ -89,25 +86,20 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 }
 
 func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
-	var res *HostSearchResult
-
+	var res HostSearchResult
 	if err := json.Unmarshal(rBody, &res); err != nil {
 		return nil, fmt.Errorf("error unmarshalling response: %w", err)
 	}
-
 	res.Raw = rBody
-
-	return res, nil
+	return &res, nil
 }
 
 func unmarshalProviderData(data []byte) (*google.Doc, error) {
-	var res *google.Doc
-
+	var res google.Doc
 	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, fmt.Errorf("error unmarshalling google data: %w", err)
 	}
-
-	return res, nil
+	return &res, nil
 }
 
 func (c *ProviderClient) loadProviderData() error {
@@ -338,22 +330,19 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
+func loadResultsFile(path string) (*HostSearchResult, error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening file: %w", err)
 	}
-
 	defer jf.Close()
 
-	decoder := json.NewDecoder(jf)
-
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding file: %w", err)
+	var res HostSearchResult
+	if err := json.NewDecoder(jf).Decode(&res); err != nil {
+		return nil, fmt.Errorf("error decoding file: %w", err)
 	}
 
-	return res, nil
+	return &res, nil
 }
 
 type HostSearchResult struct {
