@@ -25,8 +25,8 @@ jobs:
         name: Tests
         run: |
           go mod tidy
-          go get github.com/axw/gocov/gocov
-          go get github.com/AlekSi/gocov-xml
+          go install github.com/axw/gocov/gocov
+          go install github.com/AlekSi/gocov-xml
           go install github.com/axw/gocov/gocov
           go install github.com/AlekSi/gocov-xml
           go test -cover -v -failfast -p 1 $(go list ./...) -coverprofile cover.out
