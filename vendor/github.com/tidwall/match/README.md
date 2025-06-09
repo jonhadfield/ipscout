@@ -2,7 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/tidwall/match?status.svg)](https://godoc.org/github.com/tidwall/match)
 
-Match is a very simple pattern matcher where '*' matches on any
+Match is a very simple pattern matcher where '*' matches on any 
 number characters and '?' matches on any one character.
 
 ## Installing
@@ -14,9 +14,9 @@ go get -u github.com/tidwall/match
 ## Example
 
 ```go
-match.Match("hello", "*llo")
-match.Match("jello", "?ello")
-match.Match("hello", "h*o")
+match.Match("hello", "*llo") 
+match.Match("jello", "?ello") 
+match.Match("hello", "h*o") 
 ```
 
 

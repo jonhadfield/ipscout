@@ -303,3 +303,5 @@ handle(err)
 client := subscriptions.NewClient()
 client.Authorizer = azidext.NewTokenCredentialAdapter(cred, []string{"https://management.azure.com//.default"})
 ```
+
+

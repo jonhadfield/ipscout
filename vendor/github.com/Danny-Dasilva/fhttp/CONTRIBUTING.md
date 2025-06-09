@@ -16,7 +16,7 @@ Will be able to use library in order to check fingerprint of incoming requests, 
 The push handler has errors with reading responses, specifically, it will sometimes fail because it read to EOF, or `Client closed connection before receiving entire response`. Someone with knowledge of how pushed requests are sent and read should fix this issue, or see if something was copied wrong when implementing [the pull request](https://go-review.googlesource.com/c/net/+/181497/)
 
 ## Merging upstream
-When changes are made by the golang team on the [http]() or [http2](https://pkg.go.dev/golang.org/x/net/http2) library as a release branch,
+When changes are made by the golang team on the [http]() or [http2](https://pkg.go.dev/golang.org/x/net/http2) library as a release branch,  
 ```
 git remote add -f golang git@github.com:golang/go.git
 git checkout -b golang-upstream golang/master

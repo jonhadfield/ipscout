@@ -1,10 +1,10 @@
 # ![uTLS](logo_small.png) uTLS
-[![Build Status](https://github.com/refraction-networking/utls/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/refraction-networking/utls/actions/workflows/go.yml)
+[![Build Status](https://github.com/refraction-networking/utls/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/refraction-networking/utls/actions/workflows/go.yml) 
 [![godoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/refraction-networking/utls#UConn)
 ---
-uTLS is a fork of "crypto/tls", which provides ClientHello fingerprinting resistance, low-level access to handshake, fake session tickets and some other features. Handshake is still performed by "crypto/tls", this library merely changes ClientHello part of it and provides low-level access.
+uTLS is a fork of "crypto/tls", which provides ClientHello fingerprinting resistance, low-level access to handshake, fake session tickets and some other features. Handshake is still performed by "crypto/tls", this library merely changes ClientHello part of it and provides low-level access.  
 
-**Minimum Go Version**: Go 1.21
+**Minimum Go Version**: Go 1.21 
 
 If you have any questions, bug reports or contributions, you are welcome to publish those on GitHub. If you want to do so in private, ~~you can contact one of developers personally via sergey.frolov@colorado.edu~~.
 
@@ -13,12 +13,12 @@ You can contact one of developers personally via gaukas.wang@colorado.edu.
 Documentation below may not keep up with all the changes and new features at all times,
 so you are encouraged to use [godoc](https://godoc.org/github.com/refraction-networking/utls#UConn).
 
-*Note: Information provided below in this README.md could be obsolete. We welcome
+*Note: Information provided below in this README.md could be obsolete. We welcome 
 any contributions to refresh the documentations in addition to code contributions.*
 
 # Features
 ## Low-level access to handshake
-* Read/write access to all bits of client hello message.
+* Read/write access to all bits of client hello message.  
 * Read access to fields of ClientHandshakeState, which, among other things, includes ServerHello and MasterSecret.
 * Read keystream. Can be used, for example, to "write" something in ciphertext.
 
@@ -35,7 +35,7 @@ ClientHello with relatively small collateral damage. There are multiple solution
 Randomized Fingerprints are supposedly good at defeating blacklists, since
 those fingerprints have random ciphersuites and extensions in random order.
 Note that all used ciphersuites and extensions are fully supported by uTLS,
-which provides a solid moving target without any compatibility or parrot-is-dead attack risks.
+which provides a solid moving target without any compatibility or parrot-is-dead attack risks.  
 
 But note that there's a small chance that generated fingerprint won't work,
 so you may want to keep generating until a working one is found,
@@ -80,8 +80,8 @@ This is not a problem, if you fully control the server and turn unsupported thin
 | iOS 12.1      | low** | no         | None                   | [ec55e5b4136c7949](https://tlsfingerprint.io/id/ec55e5b4136c7949) |
 
 \* Denotes very rough guesstimate of likelihood that unsupported things will get echoed back by the server in the wild,
-*visibly breaking the connection*.
-\*\* No risk, if `utls.EnableWeakCiphers()` is called prior to using it.
+*visibly breaking the connection*.  
+\*\* No risk, if `utls.EnableWeakCiphers()` is called prior to using it.  
 
 #### Parrots FAQ
 > Does it really look like, say, Google Chrome with all the [GREASE](https://tools.ietf.org/html/draft-davidben-tls-grease-01) and stuff?
@@ -160,7 +160,7 @@ Currently, there is a simple function to set session ticket to any desired state
 func (uconn *UConn) SetSessionState(session *ClientSessionState)
 ```
 
-Note that session tickets (fake ones or otherwise) are not reused.
+Note that session tickets (fake ones or otherwise) are not reused.  
 To reuse tickets, create a shared cache and set it on current and further configs:
 
 ```Golang
@@ -235,10 +235,10 @@ Then it can be used just like normal extension:
 ```
 
 # Client Hello IDs
-See full list of `clientHelloID` values [here](https://godoc.org/github.com/refraction-networking/utls#ClientHelloID).
+See full list of `clientHelloID` values [here](https://godoc.org/github.com/refraction-networking/utls#ClientHelloID).  
 There are different behaviors you can get, depending  on your `clientHelloID`:
 
-1. ```utls.HelloRandomized``` adds/reorders extensions, ciphersuites, etc. randomly.
+1. ```utls.HelloRandomized``` adds/reorders extensions, ciphersuites, etc. randomly.  
 `HelloRandomized` adds ALPN in a percentage of cases, you may want to use `HelloRandomizedALPN` or
 `HelloRandomizedNoALPN` to choose specific behavior explicitly, as ALPN might affect application layer.
 2. ```utls.HelloGolang```
@@ -253,10 +253,10 @@ will prepare ClientHello with empty uconn.Extensions so you can fill it with TLS
 	* `utls.HelloChrome_58` - parrots Google Chrome 58
 	* `utls.HelloFirefox_Auto` - parrots recommended(usually latest) Firefox version
 	* `utls.HelloFirefox_55` - parrots Firefox 55
-
+	
 # Usage
 ## Examples
-Find basic examples [here](examples/examples.go).
+Find basic examples [here](examples/examples.go).  
 Here's a more [advanced example](https://github.com/sergeyfrolov/gotapdance/blob//9a777f35a04b0c4c5dacd30bca0e9224eb737b5e/tapdance/conn_raw.go#L275-L292) showing how to generate randomized ClientHello, modify generated ciphersuites a bit, and proceed with the handshake.
 ### Migrating from "crypto/tls"
 Here's how default "crypto/tls" is typically used:
@@ -276,7 +276,7 @@ To start using using uTLS:
 1. Import this library (e.g. `import tls "github.com/refraction-networking/utls"`)
 2. Pick the [Client Hello ID](#client-hello-ids)
 3. Simply substitute `tlsConn := tls.Client(dialConn, &config)`
-with `tlsConn := tls.UClient(dialConn, &config, tls.clientHelloID)`
+with `tlsConn := tls.UClient(dialConn, &config, tls.clientHelloID)`  
 
 ### Customizing handshake
 Some customizations(such as setting session ticket/clientHello) have easy-to-use functions for them. The idea is to make common manipulations easy:

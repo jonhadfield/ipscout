@@ -2,7 +2,7 @@
 ### Chapter 1: [Making private things public](./u_public.go)
 There are numerous handshake-related structs in crypto/tls, most of which are either private or have private fields.
 One of them — `clientHandshakeState` — has private function `handshake()`,
-which is called in the beginning of default handshake.
+which is called in the beginning of default handshake.  
 Unfortunately, user will not be able to directly access this struct outside of tls package.
 As a result, we decided to employ following workaround: declare public copies of private structs.
 Now user is free to manipulate fields of public `ClientHandshakeState`.
@@ -36,12 +36,12 @@ This avoids extra allocations.
 
 ### Chapter 3: [UConn](./u_conn.go)
 `UConn` extends standard `tls.Conn`. Most notably, it stores slice with `TLSExtension`s and public
-`ClientHandshakeState`.
+`ClientHandshakeState`.  
 Whenever `UConn.BuildHandshakeState()` gets called (happens automatically in `UConn.Handshake()`
 or could be called manually), config will be applied according to chosen `ClientHelloID`.
-From contributor's view there are 2 main behaviors:
+From contributor's view there are 2 main behaviors:  
  * `HelloGolang` simply calls default Golang's [`makeClientHello()`](./handshake_client.go)
- and directly stores it into `HandshakeState.Hello`. utls-specific stuff is ignored.
+ and directly stores it into `HandshakeState.Hello`. utls-specific stuff is ignored.  
  * Other ClientHelloIDs fill `UConn.Hello.{Random, CipherSuites, CompressionMethods}` and `UConn.Extensions` with
 per-parrot setup, which then gets applied to appropriate standard tls structs,
 and then marshaled by utls into `HandshakeState.Hello`.

@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We will only maintain one branch which is the master branch. Unless otherwise requested, no security patches will be applied to older Major/Minor versions.
+We will only maintain one branch which is the master branch. Unless otherwise requested, no security patches will be applied to older Major/Minor versions. 
 
 ## Reporting a Vulnerability
 

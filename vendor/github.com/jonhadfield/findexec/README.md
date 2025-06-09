@@ -20,11 +20,11 @@ func main() {
     // find an executable called "diff" without specifying paths which will force
     // searching of the system paths found in environment variable 'PATH'
     _ = findexec.Find("diff", "")
-
+    
     // find an executable called "bash" in specific paths
     _ = findexec.Find("bash", "/home/bin:/bin:/usr/local/bin")
 }
-```
+```  
 
 ## License
 

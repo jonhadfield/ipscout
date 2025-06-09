@@ -38,7 +38,7 @@ func (m MyCustomErr) Error() string { // This implements "error"
 - Provide diagnostics to the user and for tickets that can be used to track down bugs or client misconfigurations
 - Detect errors that are transitory and can be retried
 - Allow the user to identify certain errors that the program can respond to, such a informing the user for the need to do an enrollment
-
+  
 ## Implementing Client Side Errors
 
 Client side errors indicate a misconfiguration or passing of bad arguments that is non-recoverable. Retrying isn't possible.
@@ -90,7 +90,7 @@ We provide a Verbose() function that can retrieve the most verbose message from 
 fmt.Println(errors.Verbose(err))
 ```
 
-If further differentiation is required, we can add custom errors that use Go error wrapping on top of CallErr to achieve our diagnostic goals (such as detecting when to retry a call due to transient errors).
+If further differentiation is required, we can add custom errors that use Go error wrapping on top of CallErr to achieve our diagnostic goals (such as detecting when to retry a call due to transient errors).  
 
 CallErr is always thrown from the comm package (which handles all http requests) and looks similar to:
 
@@ -104,7 +104,7 @@ return nil, errors.CallErr{
 
 ## Future Decisions
 
-The ability to retry calls needs to have centralized responsibility. Either the user is doing it or the client is doing it.
+The ability to retry calls needs to have centralized responsibility. Either the user is doing it or the client is doing it.  
 
 If the user should be responsible, our errors package will include a CanRetry() function that will inform the user if the error provided to them is retryable.  This is based on the http error code and possibly the type of error that was returned.  It would also include a sleep time if the server returned an amount of time to wait.
 

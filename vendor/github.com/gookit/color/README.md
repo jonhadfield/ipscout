@@ -347,7 +347,7 @@ s.Printf("style with %s\n", "options")
 ```go
 	text := `
   <mga1>gookit/color:</>
-     A <green>command-line</>
+     A <green>command-line</> 
      <cyan>color library</> with <fg=167;bg=232>256-color</>
      and <fg=11aa23;op=bold>True-color</> support,
      <fg=mga;op=i>universal API</> methods
@@ -382,7 +382,7 @@ color.Print("<fg=yellow;bg=black;op=underscore;>hello, welcome</>\n")
 // Custom label attr: Supports the use of 16 color names, 256 color values, rgb color values and hex color values
 color.Println("<fg=11aa23>he</><bg=120,35,156>llo</>, <fg=167;bg=232>wel</><fg=red>come</>")
 ```
-
+ 
 ### Tag attributes
 
 tag attributes format:
@@ -403,7 +403,7 @@ attr format:
  "fg=167"
  "fg=167;bg=23"
  "fg=167;bg=23;op=bold"
-
+ 
 True color:
  // hex
  "fg=fc1cac"
@@ -543,7 +543,7 @@ Check out these projects, which use https://github.com/gookit/color :
 - https://github.com/flipped-aurora/gin-vue-admin 基于gin+vue搭建的（中）后台系统框架
 - https://github.com/JanDeDobbeleer/oh-my-posh A prompt theme engine for any shell.
 - https://github.com/jesseduffield/lazygit Simple terminal UI for git commands
-- https://github.com/olivia-ai/olivia 💁‍♀️Your new best friend powered by an artificial neural network
+- https://github.com/olivia-ai/olivia 💁‍♀️Your new best friend powered by an artificial neural network  
 - https://github.com/pterm/pterm PTerm is a modern Go module to beautify console output. Featuring charts, progressbars, tables, trees, etc.
 - https://github.com/securego/gosec Golang security checker
 - https://github.com/TNK-Studio/lazykube ⎈ The lazier way to manage kubernetes.
@@ -552,7 +552,7 @@ Check out these projects, which use https://github.com/gookit/color :
 ## Gookit packages
 
   - [gookit/ini](https://github.com/gookit/ini) Go config management, use INI files
-  - [gookit/rux](https://github.com/gookit/rux) Simple and fast request router for golang HTTP
+  - [gookit/rux](https://github.com/gookit/rux) Simple and fast request router for golang HTTP 
   - [gookit/gcli](https://github.com/gookit/gcli) build CLI application, tool library, running CLI commands
   - [gookit/slog](https://github.com/gookit/slog) Concise and extensible go log library
   - [gookit/event](https://github.com/gookit/event) Lightweight event manager and dispatcher implements by Go

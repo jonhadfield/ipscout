@@ -96,7 +96,7 @@ coverage() {
 	    output_dir="$(mktemp -d)"
 	    target_out="${output_dir}/target.txt"
 	    head_out="${output_dir}/head.txt"
-
+	    
 	    cover "${target}" > "${target_out}"
 	    cover "HEAD" > "${head_out}"
 

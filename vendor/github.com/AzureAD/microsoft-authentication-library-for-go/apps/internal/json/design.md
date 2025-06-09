@@ -4,7 +4,7 @@ Author: John Doak(jdoak@microsoft.com)
 ## Why?
 
 This project needs a special type of marshal/unmarshal not directly supported
-by the encoding/json package.
+by the encoding/json package. 
 
 The need revolves around a few key wants/needs:
 - unmarshal and marshal structs representing JSON messages
@@ -65,11 +65,11 @@ There should never be a need for this in Go.
 
 ## State Machines
 
-This uses state machine designs that based upon the Rob Pike talk on
+This uses state machine designs that based upon the Rob Pike talk on 
 lexers and parsers: https://www.youtube.com/watch?v=HxaD_trXwRE
 
 This is the most common pattern for state machines in Go and
-the model to follow closesly when dealing with streaming
+the model to follow closesly when dealing with streaming 
 processing of textual data.
 
 Our state machines are based on the type:
@@ -78,7 +78,7 @@ type stateFn func() (stateFn, error)
 ```
 
 The state machine itself is simply a struct that has methods that
-satisfy stateFn.
+satisfy stateFn. 
 
 Our state machines have a few standard calls
 - run(): runs the state machine
@@ -107,12 +107,12 @@ Marshalling/Unmarshalling must support(within top level struct):
 We specifically do not support []interface or map[string]interface
 where the interface value would hold some value with a struct in it.
 
-Those will still marshal/unmarshal, but without support for
-AdditionalFields.
+Those will still marshal/unmarshal, but without support for 
+AdditionalFields. 
 
 ## Marshalling
 
-The marshalling design will be based around a statemachine design.
+The marshalling design will be based around a statemachine design. 
 
 The basic logic is as follows:
 
@@ -127,14 +127,14 @@ The basic logic is as follows:
 
 ## Unmarshalling
 
-The unmarshalling desin is also based around a statemachine design. The
+The unmarshalling desin is also based around a statemachine design. The 
 basic logic is as follows:
 
 * If struct has custom marhaller, call it
 * If struct has field "AdditionalFields", it must be a map[string]interface{}
 * Get struct tag detailing json names to go names, create mapping
 * For each key found
-    - If key exists,
+    - If key exists, 
         - If value is basic type, extract value into struct field using Decoder
         - If value is struct type, recursively call statemachine
     - If key doesn't exist, add it to AdditionalFields if it exists using Decoder

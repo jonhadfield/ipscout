@@ -29,7 +29,7 @@ The requirements to accept a pull request are as follows:
 - Maintain test coverage without any reduction.
 - All pull requests require approval from at least one Go OpenAI maintainer.
 
-**Note:**
+**Note:**  
 The merging method for pull requests in this repository is squash merge.
 
 ### Creating a Pull Request
@@ -38,7 +38,7 @@ The merging method for pull requests in this repository is squash merge.
 - Push that branch to GitHub.
 - Start a new Pull Request on GitHub. (Please use the pull request template to provide detailed information.)
 
-**Note:**
+**Note:**  
 If your changes introduce breaking changes, please prefix your pull request title with "[BREAKING_CHANGES]".
 
 ### Code Style

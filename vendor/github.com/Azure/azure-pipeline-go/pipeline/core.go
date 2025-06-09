@@ -280,3 +280,5 @@ func SetLogSanitizer(s LogSanitizer)(){
 func SetForceLogEnabled(enable bool)() {
 	enableForceLog = enable
 }
+
+

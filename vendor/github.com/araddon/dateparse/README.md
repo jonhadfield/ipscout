@@ -1,4 +1,4 @@
-Go Date Parser
+Go Date Parser 
 ---------------------------
 
 Parse many date strings without knowing format in advance.  Uses a scanner to read bytes and use a state machine to find format.  Much faster than shotgun based parse methods.  See [bench_test.go](https://github.com/araddon/dateparse/blob/master/bench_test.go) for performance comparison.
@@ -21,7 +21,7 @@ t, err := dateparse.ParseAny("3/1/2014")
 
 // Parse Strict, error on ambigous mm/dd vs dd/mm dates
 t, err := dateparse.ParseStrict("3/1/2014")
-> returns error
+> returns error 
 
 // Return a string that represents the layout to parse the given date-time.
 layout, err := dateparse.ParseFormat("May 8, 2009 5:57:51 PM")

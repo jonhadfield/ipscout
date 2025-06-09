@@ -14,7 +14,7 @@ this project adds Go module support, but maintains backward compatibility with
 older `v3.x.y` tags and upstream `github.com/dgrijalva/jwt-go`. See the
 [`MIGRATION_GUIDE.md`](./MIGRATION_GUIDE.md) for more information. Version
 v5.0.0 introduces major improvements to the validation of tokens, but is not
-entirely backward compatible.
+entirely backward compatible. 
 
 > After the original author of the library suggested migrating the maintenance
 > of `jwt-go`, a dedicated team of open source maintainers decided to clone the

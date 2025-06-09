@@ -59,7 +59,7 @@ package main
 
 import (
 	"fmt"
-
+	
 	"github.com/gookit/color"
 )
 
@@ -87,12 +87,12 @@ func main() {
 
 	// 也可以:
 	color.Style{color.FgCyan, color.OpBold}.Println("custom color style")
-
+	
 	// internal style:
 	color.Info.Println("message")
 	color.Warn.Println("message")
 	color.Error.Println("message")
-
+	
 	// 使用内置颜色标签
 	color.Print("<suc>he</><comment>llo</>, <cyan>wel</><red>come</>\n")
 	// 自定义标签: 支持使用16色彩名称，256色彩值，rgb色彩值以及hex色彩值
@@ -168,7 +168,7 @@ color.Reset()
 
 > 当然，color已经内置丰富的色彩风格支持
 
-### 扩展风格方法
+### 扩展风格方法 
 
 提供通用的API方法：`Print` `Printf` `Println` `Sprint` `Sprintf`
 
@@ -230,7 +230,7 @@ Run demo: `go run ./_examples/theme_block.go`
 > 256色彩在 `v1.2.4` 后支持Windows CMD,PowerShell 环境
 
 ### 使用前景或后景色
-
+ 
 - `color.C256(val uint8, isBg ...bool) Color256`
 
 ```go
@@ -246,7 +246,7 @@ c.Printf("format %s", "message")
 ### 使用256 色彩风格
 
 > 可同时设置前景和背景色
-
+ 
 - `color.S256(fgAndBg ...uint8) *Style256`
 
 ```go
@@ -291,7 +291,7 @@ color.RGBStyleFromString("213,0,0").Println("red-accent. use RGB number")
 color.HEXStyle("eee", "D50000").Println("deep-purple color")
 ```
 
-### 使用前景或后景色
+### 使用前景或后景色 
 
 - `color.RGB(r, g, b uint8, isBg ...bool) RGBColor`
 
@@ -358,7 +358,7 @@ s.Printf("style with %s\n", "options")
 ```go
 	text := `
   <mga1>gookit/color:</>
-     A <green>command-line</>
+     A <green>command-line</> 
      <cyan>color library</> with <fg=167;bg=232>256-color</>
      and <fg=11aa23;op=bold>True-color</> support,
      <fg=mga;op=i>universal API</> methods
@@ -414,7 +414,7 @@ attr format:
  "fg=167"
  "fg=167;bg=23"
  "fg=167;bg=23;op=bold"
-
+ 
 True color:
  // hex
  "fg=fc1cac"
@@ -563,7 +563,7 @@ const (
 ## Gookit 工具包
 
   - [gookit/ini](https://github.com/gookit/ini) INI配置读取管理，支持多文件加载，数据覆盖合并, 解析ENV变量, 解析变量引用
-  - [gookit/rux](https://github.com/gookit/rux) Simple and fast request router for golang HTTP
+  - [gookit/rux](https://github.com/gookit/rux) Simple and fast request router for golang HTTP 
   - [gookit/gcli](https://github.com/gookit/gcli) Go的命令行应用，工具库，运行CLI命令，支持命令行色彩，用户交互，进度显示，数据格式化显示
   - [gookit/slog](https://github.com/gookit/slog) 简洁易扩展的go日志库
   - [gookit/event](https://github.com/gookit/event) Go实现的轻量级的事件管理、调度程序库, 支持设置监听器的优先级, 支持对一组事件进行监听

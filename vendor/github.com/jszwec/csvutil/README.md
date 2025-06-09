@@ -121,9 +121,9 @@ Marshal is using the Go std [csv.Writer](https://golang.org/pkg/encoding/csv/#Wr
 
 It may happen that your CSV input will not always have the same header. In addition
 to your base fields you may get extra metadata that you would still like to store.
-[Decoder](https://godoc.org/github.com/jszwec/csvutil#Decoder) provides
-[Unused](https://godoc.org/github.com/jszwec/csvutil#Decoder.Unused) method, which after each call to
-[Decode](https://godoc.org/github.com/jszwec/csvutil#Decoder.Decode) can report which header indexes
+[Decoder](https://godoc.org/github.com/jszwec/csvutil#Decoder) provides 
+[Unused](https://godoc.org/github.com/jszwec/csvutil#Decoder.Unused) method, which after each call to 
+[Decode](https://godoc.org/github.com/jszwec/csvutil#Decoder.Decode) can report which header indexes 
 were not used during decoding. Based on that, it is possible to handle and store all these extra values.
 
 ```go
@@ -561,7 +561,7 @@ func main() {
 
 Fields with inline tag behave similarly to embedded struct fields. However,
 it gives a possibility to specify the prefix for all underlying fields. This
-can be useful when one structure can define multiple CSV columns because they
+can be useful when one structure can define multiple CSV columns because they 
 are different from each other only by a certain prefix. Look at the example below.
 
 Playground: https://play.golang.org/p/jyEzeskSnj7
