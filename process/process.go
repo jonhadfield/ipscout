@@ -122,16 +122,16 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 }
 
 func getEnabledProviders(runners map[string]providers.ProviderClient) map[string]providers.ProviderClient {
-	var res map[string]providers.ProviderClient
+	res := make(map[string]providers.ProviderClient)
 
-	for k := range runners {
-		if runners[k].Enabled() {
-			if res == nil {
-				res = make(map[string]providers.ProviderClient)
-			}
-
-			res[k] = runners[k]
+	for k, r := range runners {
+		if r.Enabled() {
+			res[k] = r
 		}
+	}
+
+	if len(res) == 0 {
+		return nil
 	}
 
 	return res
@@ -435,38 +435,24 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 }
 
 func generateJSON(results *findHostsResults) (json.RawMessage, error) {
-	var counter int64
+	data := make(map[string]json.RawMessage)
 
-	var out json.RawMessage
-
-	for name := range results.m {
+	for name, b := range results.m {
 		results.RLock()
-
-		if results.m[name] == nil {
+		if b == nil {
+			results.RUnlock()
 			return nil, fmt.Errorf("no data found for %s", name)
 		}
-
-		if counter == 0 {
-			out = json.RawMessage([]byte("["))
-		}
-
-		cj := json.RawMessage(results.m[name])
-		out = append(out, json.RawMessage([]byte("{\""+name+"\":"))...)
-		out = append(out, cj...)
-		out = append(out, json.RawMessage([]byte("}"))...)
-
-		if counter == int64(len(results.m)-1) {
-			out = append(out, json.RawMessage([]byte("]"))...)
-		} else {
-			out = append(out, json.RawMessage([]byte(","))...)
-		}
-
-		counter++
-
+		data[name] = json.RawMessage(b)
 		results.RUnlock()
 	}
 
-	return out, nil
+	out, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return json.RawMessage(out), nil
 }
 
 func New(sess *session.Session) (Processor, error) {

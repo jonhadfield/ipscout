@@ -118,16 +118,16 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 }
 
 func getEnabledProviders(runners map[string]providers.ProviderClient) map[string]providers.ProviderClient {
-	var res map[string]providers.ProviderClient
+	res := make(map[string]providers.ProviderClient)
 
-	for k := range runners {
-		if runners[k].Enabled() {
-			if res == nil {
-				res = make(map[string]providers.ProviderClient)
-			}
-
-			res[k] = runners[k]
+	for k, r := range runners {
+		if r.Enabled() {
+			res[k] = r
 		}
+	}
+
+	if len(res) == 0 {
+		return nil
 	}
 
 	return res

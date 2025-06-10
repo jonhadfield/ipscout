@@ -230,3 +230,57 @@ func TestIsPort(t *testing.T) {
 	require.False(t, isPort("80000"))
 	require.False(t, isPort("tcp"))
 }
+
+func TestAgeToHours(t *testing.T) {
+	h, err := AgeToHours("")
+	require.NoError(t, err)
+	require.Equal(t, int64(0), h)
+
+	h, err = AgeToHours("2h")
+	require.NoError(t, err)
+	require.Equal(t, int64(2), h)
+
+	h, err = AgeToHours("3d")
+	require.NoError(t, err)
+	require.Equal(t, int64(72), h)
+
+	h, err = AgeToHours("1w")
+	require.NoError(t, err)
+	require.Equal(t, int64(168), h)
+
+	h, err = AgeToHours("2m")
+	require.NoError(t, err)
+	require.Equal(t, int64(1440), h)
+
+	h, err = AgeToHours("1y")
+	require.NoError(t, err)
+	require.Equal(t, int64(8760), h)
+
+	h, err = AgeToHours("bad")
+	require.NoError(t, err)
+	require.Equal(t, int64(0), h)
+}
+
+func TestFormatTimeOrDash(t *testing.T) {
+	ts := "2024-04-19 19:00:00"
+	formatted := FormatTimeOrDash(ts, time.DateTime)
+	require.Equal(t, "2024-04-19 19:00:00 UTC", formatted)
+
+	require.Equal(t, "-", FormatTimeOrDash("", time.DateTime))
+	require.Equal(t, "-", FormatTimeOrDash(ts, ""))
+	require.Equal(t, "-", FormatTimeOrDash("bad", time.DateTime))
+}
+
+func TestPadRight(t *testing.T) {
+	require.Equal(t, "a    ", PadRight("a", 5))
+	require.Equal(t, "test", PadRight("test", 4))
+}
+
+func TestUpdateScoreIfLarger(t *testing.T) {
+	a := 1.0
+	UpdateScoreIfLarger(&a, 2)
+	require.Equal(t, 2.0, a)
+
+	UpdateScoreIfLarger(&a, 1)
+	require.Equal(t, 2.0, a)
+}
