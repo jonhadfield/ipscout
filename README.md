@@ -14,6 +14,7 @@ All of the host reputation providers require registration but each of them offer
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [Provider Details](#providers-1)
+- [Changelog](#changelog)
 - [License](#license)
 
 ## Features
@@ -348,6 +349,10 @@ can be overridden in the configuration file.
     url: https://api.config.zscaler.com/zscaler.net/cenr/json
     document_cache_ttl: 1440  # minutes
 ```
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## License
 
