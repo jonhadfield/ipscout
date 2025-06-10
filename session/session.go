@@ -13,15 +13,14 @@ import (
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/hashicorp/go-retryablehttp"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 const (
-	AppName               = "ipscout"
-	DefaultIndentSpaces   = 2
-	DefaultMaxReports     = 5
-	DefaultConfigFileName = "config.yaml"
-	// DefaultConfigFileRoot = ".session/ipscout"
+	AppName                = "ipscout"
+	DefaultIndentSpaces    = 2
+	DefaultMaxReports      = 5
+	DefaultConfigFileName  = "config.yaml"
 	defaultDIRPermissions  = 0o700
 	defaultFilePermissions = 0o600
 )

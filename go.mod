@@ -1,6 +1,6 @@
 module github.com/jonhadfield/ipscout
 
-go 1.24.0
+go 1.24.3
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor v1.4.0
@@ -21,7 +21,6 @@ require (
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/sync v0.15.0
-	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
