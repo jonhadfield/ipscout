@@ -1,7 +1,20 @@
-# Overview
+# IPScout
+
+## Overview
 
 IPScout is a command-line tool for security analysts to enrich IP addresses with their origin and threat ratings.
 All of the host reputation providers require registration but each of them offers a free tier.
+
+## Table of Contents
+
+- [Features](#features)
+- [Output](#output)
+- [Providers](#providers)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Provider Details](#providers-1)
+- [License](#license)
 
 ## Features
 
@@ -15,7 +28,7 @@ All of the host reputation providers require registration but each of them offer
 [![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/df6b2974f0844444af617a1c0b0e2cfb)](https://app.codacy.com/gh/jonhadfield/ipscout/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
 
 ## Output
-### format  
+### format
 Results are displayed in a table by default but can also be outputted as JSON format using the `--output` flag.
 - [table](examples/table.png)
 - [json](examples/results.json)
@@ -44,8 +57,10 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
+| [Google](#Google)                                         | Hosting Provider |           -           |
 | [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
 | [Googlebot](#Googlebot)                                   |   Web crawler    |           -           |
+| [Hetzner](#Hetzner)                                       | Hosting Provider |           -           |
 | [IPAPI](#IPAPI)                                           |  IP Geolocation  |           -           |
 | [IPQualityScore](#IPQualityScore)                         |  IP Reputation   | Registration required |
 | [IPURL](#IPURL)                                           |  User Provided   |           -           |
@@ -237,6 +252,11 @@ services.
 and [publishes](https://developers.google.com/static/search/apis/ipranges/googlebot.json) network prefixes used by their
 bots.
 
+### Hetzner
+
+[Hetzner](https://www.hetzner.com/) is a hosting provider.
+IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+
 ### iCloud Private Relay
 
 [iCloud Private Relay](https://support.apple.com/en-us/102602) is an anonymising service provided by Apple. They publish
@@ -329,3 +349,6 @@ can be overridden in the configuration file.
     document_cache_ttl: 1440  # minutes
 ```
 
+## License
+
+IPScout is licensed under the [Apache 2.0 License](LICENSE).
