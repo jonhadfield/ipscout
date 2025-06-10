@@ -21,6 +21,7 @@ func (stubProvider) Priority() *int32                          { return nil }
 func (stubProvider) RateHostData([]byte, []byte) (providers.RateResult, error) {
 	return providers.RateResult{}, nil
 }
+
 func (stubProvider) ExtractThreatIndicators([]byte) (*providers.ThreatIndicators, error) {
 	return nil, nil
 }
@@ -56,6 +57,7 @@ func TestGenerateJSON(t *testing.T) {
 	require.NoError(t, err)
 
 	var out map[string]map[string]string
+
 	require.NoError(t, json.Unmarshal(jm, &out))
 	require.Equal(t, "value", out["prov1"]["key"])
 

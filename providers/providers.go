@@ -277,10 +277,6 @@ func isPort(in any) bool {
 		if v > 0 && v < maxPortNumber {
 			return true
 		}
-	case int32:
-		if v > 0 && v < maxPortNumber {
-			return true
-		}
 	}
 
 	return false

@@ -441,15 +441,17 @@ func generateJSON(results *findHostsResults) (json.RawMessage, error) {
 		results.RLock()
 		if b == nil {
 			results.RUnlock()
+
 			return nil, fmt.Errorf("no data found for %s", name)
 		}
+
 		data[name] = json.RawMessage(b)
 		results.RUnlock()
 	}
 
 	out, err := json.Marshal(data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("json marshalling failed: %w", err)
 	}
 
 	return json.RawMessage(out), nil

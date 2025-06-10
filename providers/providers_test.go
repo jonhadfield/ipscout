@@ -257,7 +257,7 @@ func TestAgeToHours(t *testing.T) {
 	require.Equal(t, int64(8760), h)
 
 	h, err = AgeToHours("bad")
-	require.NoError(t, err)
+	require.Error(t, err)
 	require.Equal(t, int64(0), h)
 }
 

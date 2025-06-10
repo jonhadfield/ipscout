@@ -2,7 +2,6 @@ package ipapi
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/netip"
