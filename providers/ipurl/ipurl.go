@@ -157,7 +157,7 @@ type ProviderClient struct {
 
 func (c *ProviderClient) Initialise() error {
 	if c.Cache == nil {
-		return errors.New("cache not set")
+		return session.ErrCacheNotSet
 	}
 
 	start := time.Now()

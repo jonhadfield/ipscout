@@ -83,11 +83,11 @@ func New() *Session {
 func (c *Session) Validate() error {
 	switch {
 	case c.Logger == nil:
-		return errors.New("logger not set")
+		return ErrLoggerNotSet
 	case c.Stats == nil:
-		return errors.New("stats not set")
+		return ErrStatsNotSet
 	case c.Cache == nil:
-		return errors.New("cache not set")
+		return ErrCacheNotSet
 	}
 
 	return nil
