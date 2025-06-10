@@ -152,15 +152,15 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 	c.Logger.Debug("creating annotated client")
 
 	if c.Logger == nil {
-		return nil, errors.New("logger not set")
+		return nil, session.ErrLoggerNotSet
 	}
 
 	if c.Stats == nil {
-		return nil, errors.New("stats not set")
+		return nil, session.ErrStatsNotSet
 	}
 
 	if c.Cache == nil {
-		return nil, errors.New("cache not set")
+		return nil, session.ErrCacheNotSet
 	}
 
 	tc := &ProviderClient{

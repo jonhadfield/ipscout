@@ -256,7 +256,10 @@ func splitPortTransport(portTransport string) (pt PortTransport) {
 	return pt
 }
 
-var validTransports = []string{"tcp", "udp", "icmp"}
+var (
+	validTransports = []string{"tcp", "udp", "icmp"}
+	maxPortNumber   = 65535
+)
 
 func isPort(in any) bool {
 	switch v := in.(type) {
@@ -271,11 +274,11 @@ func isPort(in any) bool {
 
 		return isPort(cint)
 	case int:
-		if v > 0 && v < 65535 {
+		if v > 0 && v < maxPortNumber {
 			return true
 		}
 	case int32:
-		if v > 0 && v < 65535 {
+		if v > 0 && v < maxPortNumber {
 			return true
 		}
 	}
