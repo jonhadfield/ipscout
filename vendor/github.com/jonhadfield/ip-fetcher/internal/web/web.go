@@ -37,11 +37,11 @@ const (
 	defaultRetryMax     = 2
 	defaultRetryWaitMin = 2 * time.Second
 	defaultRetryWaitMax = 5 * time.Second
-	// DefaultRequestTimeout is used for HTTP requests unless otherwise specified
+	// DefaultRequestTimeout is used for HTTP requests unless otherwise specified.
 	DefaultRequestTimeout = 10 * time.Second
-	// ShortRequestTimeout is used for short HTTP requests
+	// ShortRequestTimeout is used for short HTTP requests.
 	ShortRequestTimeout = 5 * time.Second
-	// LongRequestTimeout is used for lengthy HTTP requests
+	// LongRequestTimeout is used for lengthy HTTP requests.
 	LongRequestTimeout = 30 * time.Second
 )
 
@@ -64,7 +64,13 @@ func MaskSecrets(content string, secret []string) string {
 	return content
 }
 
-func Request(c *retryablehttp.Client, url, method string, inHeaders http.Header, secrets []string, timeout time.Duration) ([]byte, http.Header, int, error) {
+func Request(
+	c *retryablehttp.Client,
+	url, method string,
+	inHeaders http.Header,
+	secrets []string,
+	timeout time.Duration,
+) ([]byte, http.Header, int, error) {
 	if method == "" {
 		return nil, nil, 0, errors.New("HTTP method not specified")
 	}
@@ -101,8 +107,12 @@ func Request(c *retryablehttp.Client, url, method string, inHeaders http.Header,
 	return body, headers, resp.StatusCode, nil
 }
 
-// GetResourceHeaderValue will make an HTTP request and return the value of the specified header
-func GetResourceHeaderValue(client *retryablehttp.Client, url, method, header string, secrets []string) (string, error) {
+// GetResourceHeaderValue will make an HTTP request and return the value of the specified header.
+func GetResourceHeaderValue(
+	client *retryablehttp.Client,
+	url, method, header string,
+	secrets []string,
+) (string, error) {
 	if header == "" {
 		return "", errors.New("header must not be empty")
 	}
@@ -179,7 +189,7 @@ func DownloadFile(client *retryablehttp.Client, u, path string) (string, error) 
 	case info.Exists || info.ParentExists:
 		// path is valid as provided
 	default:
-		return "", errors.New("Parent directory does not exist")
+		return "", errors.New("parent directory does not exist")
 	}
 
 	logrus.Infof("downloading %s to %s", u, path)

@@ -3,6 +3,7 @@ package digitalocean
 import (
 	"bytes"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -47,7 +48,14 @@ func (a *DigitalOcean) FetchData() ([]byte, http.Header, int, error) {
 		a.DownloadURL = DigitaloceanDownloadURL
 	}
 
-	data, headers, status, err := web.Request(a.Client, a.DownloadURL, http.MethodGet, nil, nil, web.ShortRequestTimeout)
+	data, headers, status, err := web.Request(
+		a.Client,
+		a.DownloadURL,
+		http.MethodGet,
+		nil,
+		nil,
+		web.ShortRequestTimeout,
+	)
 	if status >= http.StatusBadRequest {
 		return nil, nil, status, fmt.Errorf("failed to download prefixes. http status code: %d", status)
 	}
@@ -123,7 +131,7 @@ func Parse(data []byte) ([]Record, error) {
 	for {
 		var rec Record
 		if err = dec.Decode(&rec); err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return records, nil
 			}
 			// skip invalid records

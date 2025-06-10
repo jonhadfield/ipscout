@@ -3,11 +3,12 @@ package zscaler
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jonhadfield/ip-fetcher/internal/pflog"
 	"github.com/jonhadfield/ip-fetcher/internal/web"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 const (

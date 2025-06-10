@@ -3,6 +3,7 @@ package icloudpr
 import (
 	"bytes"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -180,12 +181,10 @@ Loop:
 		var c Record
 		err = dec.Decode(&c)
 
-		switch err {
-		case io.EOF:
-			err = nil
-
+		switch {
+		case errors.Is(err, io.EOF):
 			break Loop
-		case nil:
+		case err == nil:
 			var pcn netip.Prefix
 			if c.PrefixText == "" {
 				continue
@@ -204,7 +203,7 @@ Loop:
 	return records, nil
 }
 
-// prefix, alpha2code, region, city, postal_code
+// Record holds prefix, alpha2code, region, city and postal_code.
 type Record struct {
 	Prefix     netip.Prefix
 	PrefixText string `csv:"ip_prefix,omitempty"`

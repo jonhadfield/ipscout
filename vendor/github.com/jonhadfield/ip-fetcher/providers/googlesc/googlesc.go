@@ -58,7 +58,14 @@ func (gs *Googlesc) FetchData() ([]byte, http.Header, int, error) {
 	if gs.DownloadURL == "" {
 		gs.DownloadURL = DownloadURL
 	}
-	data, headers, status, err = web.Request(gs.Client, gs.DownloadURL, http.MethodGet, nil, nil, web.DefaultRequestTimeout)
+	data, headers, status, err = web.Request(
+		gs.Client,
+		gs.DownloadURL,
+		http.MethodGet,
+		nil,
+		nil,
+		web.DefaultRequestTimeout,
+	)
 	return data, headers, status, err
 }
 

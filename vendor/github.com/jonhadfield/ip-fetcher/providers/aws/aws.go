@@ -69,8 +69,8 @@ func (a *AWS) FetchETag() (string, error) {
 	inHeaders := http.Header{}
 	inHeaders.Add("Accept", "application/json")
 
-	var reqUrl *url.URL
-	if reqUrl, err = url.Parse(a.DownloadURL); err != nil {
+	var reqURL *url.URL
+	if reqURL, err = url.Parse(a.DownloadURL); err != nil {
 		return "", err
 	}
 
@@ -78,7 +78,14 @@ func (a *AWS) FetchETag() (string, error) {
 
 	var statusCode int
 
-	_, outHeaders, statusCode, err = web.Request(a.Client, reqUrl.String(), http.MethodHead, inHeaders, []string{}, web.ShortRequestTimeout)
+	_, outHeaders, statusCode, err = web.Request(
+		a.Client,
+		reqURL.String(),
+		http.MethodHead,
+		inHeaders,
+		[]string{},
+		web.ShortRequestTimeout,
+	)
 	if err != nil {
 		return "", err
 	}
@@ -190,38 +197,38 @@ func TrimQuotes(in *string) {
 
 type RawPrefix struct {
 	IPPrefix string `json:"ip_prefix" yaml:"ip_prefix"`
-	Region   string `json:"region" yaml:"region"`
-	Service  string `json:"service" yaml:"service"`
+	Region   string `json:"region"    yaml:"region"`
+	Service  string `json:"service"   yaml:"service"`
 }
 
 type RawIPv6Prefix struct {
 	IPv6Prefix string `json:"ipv6_prefix" yaml:"ipv6_prefix"`
-	Region     string `json:"region" yaml:"region"`
-	Service    string `json:"service" yaml:"service"`
+	Region     string `json:"region"      yaml:"region"`
+	Service    string `json:"service"     yaml:"service"`
 }
 
 type RawDoc struct {
 	SyncToken    string          `json:"syncToken"`
 	CreateDate   string          `json:"createDate"`
-	Prefixes     []RawPrefix     `json:"prefixes" yaml:"prefixes"`
+	Prefixes     []RawPrefix     `json:"prefixes"      yaml:"prefixes"`
 	IPv6Prefixes []RawIPv6Prefix `json:"ipv6_prefixes" yaml:"ipv6_prefixes"`
 }
 
 type Doc struct {
 	SyncToken    string       `json:"syncToken"`
 	CreateDate   string       `json:"createDate"`
-	Prefixes     []Prefix     `json:"prefixes" yaml:"prefixes"`
+	Prefixes     []Prefix     `json:"prefixes"      yaml:"prefixes"`
 	IPv6Prefixes []IPv6Prefix `json:"ipv6_prefixes" yaml:"ipv6_prefixes"`
 }
 
 type Prefix struct {
 	IPPrefix netip.Prefix `json:"ip_prefix" yaml:"ip_prefix"`
-	Region   string       `json:"region" yaml:"region"`
-	Service  string       `json:"service" yaml:"service"`
+	Region   string       `json:"region"    yaml:"region"`
+	Service  string       `json:"service"   yaml:"service"`
 }
 
 type IPv6Prefix struct {
 	IPv6Prefix netip.Prefix `json:"ipv6_prefix" yaml:"ipv6_prefix"`
-	Region     string       `json:"region" yaml:"region"`
-	Service    string       `json:"service" yaml:"service"`
+	Region     string       `json:"region"      yaml:"region"`
+	Service    string       `json:"service"     yaml:"service"`
 }

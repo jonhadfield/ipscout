@@ -1,7 +1,7 @@
 package jsondiff
 
 import (
-	"sort"
+	"slices"
 	"strings"
 	"unsafe"
 )
@@ -159,7 +159,7 @@ func (d *Differ) prepare(ptr pointer, src, tgt interface{}) {
 	if !areComparable(src, tgt) {
 		return
 	} else if deepEqual(src, tgt) {
-		k := d.hasher.digest(tgt)
+		k := d.hasher.digest(tgt, false)
 		if d.hashmap == nil {
 			d.hashmap = make(map[uint64]jsonNode)
 		}
@@ -259,11 +259,11 @@ func (d *Differ) compareObjects(ptr pointer, src, tgt map[string]interface{}, do
 			} else {
 				d.diff(ptr, src[k], tgt[k], doc)
 			}
-		case inOld && !inNew:
+		case inOld:
 			if !d.isIgnored(ptr) {
 				d.remove(ptr.copy(), src[k])
 			}
-		case !inOld && inNew:
+		case inNew:
 			if !d.isIgnored(ptr) {
 				d.add(ptr.copy(), tgt[k], doc, false)
 			}
@@ -330,32 +330,37 @@ comparisons:
 }
 
 func (d *Differ) compareArraysLCS(ptr pointer, src, tgt []interface{}, doc string) {
+	if len(src) == len(tgt) {
+		if d.opts.equivalent && d.unorderedDeepEqualSlice(src, tgt) {
+			return
+		}
+	}
 	ptr.snapshot()
 	pairs := lcs(src, tgt)
 	d.snapshotPatchLen = len(d.patch)
 
 	var ai, bi int // src && tgt arrows
-	var add, remove int
+	var adds, removes int
 
 	adjust := func(i int) int {
-		// Adjust indice considering add and remove
-		// operations that precede.
-		return i + add - remove
+		// Adjust index considering add and remove
+		// operations that precede it.
+		return i + adds - removes
 	}
 
-	// Iterate over all the indices of the LCS, which
+	// Iterate over all the indexs of the LCS, which
 	// represent the position of items that are present
 	// in both the source and target slices.
 	for p := 0; p < len(pairs); p++ {
 		ma, mb := pairs[p][0], pairs[p][1]
 
 		// Proceed with addition/deletion or change events
-		// until both arrows reach the current indice.
+		// until both arrows reach the current index.
 		for ai < ma || bi < mb {
 			switch {
 			case ai < ma && bi < mb:
 				// Both arrows points to an item before the
-				// current match indice, which indicate an
+				// current match index, which indicate an
 				// equal amount of different items.
 				ptr.appendIndex(adjust(ai))
 				if d.opts.rationalize {
@@ -368,7 +373,7 @@ func (d *Differ) compareArraysLCS(ptr pointer, src, tgt []interface{}, doc strin
 				bi++
 			case ai < ma:
 				// The left arrow representing the source slice
-				// is lower than the current match indice, which
+				// is lower than the current match index, which
 				// indicate that a preceding item has been removed.
 				ptr.appendIndex(adjust(ai))
 
@@ -377,7 +382,7 @@ func (d *Differ) compareArraysLCS(ptr pointer, src, tgt []interface{}, doc strin
 				}
 				ptr.rewind()
 				ai++
-				remove++
+				removes++
 			default: // bi < mb
 				// Opposite case of the previous condition.
 				ptr.appendIndex(bi)
@@ -386,10 +391,10 @@ func (d *Differ) compareArraysLCS(ptr pointer, src, tgt []interface{}, doc strin
 				}
 				ptr.rewind()
 				bi++
-				add++
+				adds++
 			}
 		}
-		// Both arrows reached the current match indice
+		// Both arrows reached the current match index
 		// where the elements of the source and target
 		// slice are equal, i.e. `src[ai] == tgt[bi]`.
 		ai++
@@ -419,7 +424,7 @@ func (d *Differ) compareArraysLCS(ptr pointer, src, tgt []interface{}, doc strin
 			}
 			ptr.rewind()
 			ai++
-			remove++
+			removes++
 		default: // bi < len(tgt)
 			ptr.appendIndex(bi)
 			if !d.isIgnored(ptr) {
@@ -427,7 +432,7 @@ func (d *Differ) compareArraysLCS(ptr pointer, src, tgt []interface{}, doc strin
 			}
 			ptr.rewind()
 			bi++
-			add++
+			adds++
 		}
 	}
 }
@@ -440,13 +445,13 @@ func (d *Differ) unorderedDeepEqualSlice(src, tgt []interface{}) bool {
 	count := 0
 
 	for _, v := range src {
-		k := d.hasher.digest(v)
+		k := d.hasher.digest(v, d.opts.equivalent)
 		diff[k] = struct{}{}
 		count++
 	}
 	for _, v := range tgt {
-		k := d.hasher.digest(v)
-		// If the digest hash is not in the compare,
+		k := d.hasher.digest(v, d.opts.equivalent)
+		// If the digest hash is not in the comparison set,
 		// return early.
 		if _, ok := diff[k]; !ok {
 			return false
@@ -483,7 +488,7 @@ func (d *Differ) add(path string, v interface{}, doc string, lcs bool) {
 			if !lcs {
 				d.patch = d.patch.append(OperationMove, op.Path, path, v, v, 0)
 			} else {
-				d.patch = d.patch.prepend(d.snapshotPatchLen, OperationMove, op.Path, path, v, v, 0)
+				d.patch = d.patch.insert(d.snapshotPatchLen, OperationMove, op.Path, path, v, v, 0)
 			}
 		}
 		return
@@ -506,7 +511,7 @@ func (d *Differ) remove(path string, v interface{}) {
 
 func (d *Differ) findUnchanged(v interface{}) string {
 	if d.hashmap != nil {
-		k := d.hasher.digest(v)
+		k := d.hasher.digest(v, false)
 		node, ok := d.hashmap[k]
 		if ok {
 			return node.ptr
@@ -537,7 +542,7 @@ func sortStrings(v []string) {
 	if len(v) <= 20 {
 		insertionSort(v)
 	} else {
-		sort.Strings(v)
+		slices.Sort(v)
 	}
 }
 

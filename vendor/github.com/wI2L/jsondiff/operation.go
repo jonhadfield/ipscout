@@ -19,16 +19,13 @@ const (
 )
 
 const (
-	fromFieldLen  = len(`,"from":""`)
-	valueFieldLen = len(`,"value":`)
-	opBaseLen     = len(`{"op":"","path":""}`)
+	fromFieldLen  = 10 // ,"from":""
+	valueFieldLen = 9  // ,"value":
+	opBaseLen     = 19 // {"op":"","path":""}
 )
 
 // null represents a JSON null value.
 type null struct{}
-
-// Patch represents a series of JSON Patch operations.
-type Patch []Operation
 
 // Operation represents a single JSON Patch (RFC6902) operation.
 type Operation struct {
@@ -118,7 +115,10 @@ func (p *Patch) append(typ string, from, path string, src, tgt interface{}, vl i
 	})
 }
 
-func (p *Patch) prepend(startIdx int, typ string, from, path string, src, tgt interface{}, vl int) Patch {
+func (p *Patch) insert(pos int, typ string, from, path string, src, tgt interface{}, vl int) Patch {
+	if pos > len(*p) {
+		return p.append(typ, from, path, src, tgt, vl)
+	}
 	op := Operation{
 		Type:     typ,
 		From:     from,
@@ -127,7 +127,7 @@ func (p *Patch) prepend(startIdx int, typ string, from, path string, src, tgt in
 		Value:    tgt,
 		valueLen: vl,
 	}
-	return append((*p)[:startIdx], append([]Operation{op}, (*p)[startIdx:]...)...)
+	return append((*p)[:pos], append([]Operation{op}, (*p)[pos:]...)...)
 }
 
 func (p *Patch) jsonLength() int {

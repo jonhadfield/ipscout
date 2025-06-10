@@ -59,7 +59,14 @@ func (gc *Google) FetchData() ([]byte, http.Header, int, error) {
 	if gc.DownloadURL == "" {
 		gc.DownloadURL = DownloadURL
 	}
-	data, headers, status, err = web.Request(gc.Client, gc.DownloadURL, http.MethodGet, nil, nil, web.DefaultRequestTimeout)
+	data, headers, status, err = web.Request(
+		gc.Client,
+		gc.DownloadURL,
+		http.MethodGet,
+		nil,
+		nil,
+		web.DefaultRequestTimeout,
+	)
 	return data, headers, status, err
 }
 

@@ -19,7 +19,7 @@ import (
 	"github.com/jonhadfield/ip-fetcher/internal/web"
 )
 
-func NewList() HttpFiles {
+func NewList() HTTPFiles {
 	pflog.SetLogLevel()
 
 	c := web.NewHTTPClient()
@@ -28,7 +28,7 @@ func NewList() HttpFiles {
 		c.Logger = nil
 	}
 
-	return HttpFiles{
+	return HTTPFiles{
 		URLs:   []string{},
 		Client: c,
 	}
@@ -39,7 +39,7 @@ type Option func(*Client)
 type Client struct {
 	Debug bool
 	// URLs       []url.URL
-	HttpClient *retryablehttp.Client
+	HTTPClient *retryablehttp.Client
 }
 
 func New(opt ...Option) *Client {
@@ -51,26 +51,26 @@ func New(opt ...Option) *Client {
 		o(c)
 	}
 
-	if c.HttpClient == nil {
-		c.HttpClient = web.NewHTTPClient()
+	if c.HTTPClient == nil {
+		c.HTTPClient = web.NewHTTPClient()
 	}
 
 	return c
 }
 
-func WithHttpClient(rc *retryablehttp.Client) Option {
+func WithHTTPClient(rc *retryablehttp.Client) Option {
 	return func(c *Client) {
-		c.HttpClient = rc
+		c.HTTPClient = rc
 	}
 }
 
-type HttpFiles struct {
+type HTTPFiles struct {
 	Client *retryablehttp.Client
 	URLs   []string
 	Debug  bool
 }
 
-type HttpFile struct {
+type HTTPFile struct {
 	Client *retryablehttp.Client
 	URL    string
 	Debug  bool
@@ -109,7 +109,7 @@ func (c *Client) FetchPrefixesAsText(requests []Request) ([]string, error) {
 	return prefixes, nil
 }
 
-func (hf *HttpFiles) Add(urls []string) {
+func (hf *HTTPFiles) Add(urls []string) {
 	if hf.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
@@ -171,7 +171,7 @@ func (c *Client) FetchPrefixes(requests []Request) (map[netip.Prefix][]string, e
 	return prefixes, nil
 }
 
-func (hf *HttpFile) FetchPrefixes() ([]netip.Prefix, error) {
+func (hf *HTTPFile) FetchPrefixes() ([]netip.Prefix, error) {
 	if hf.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
@@ -189,7 +189,7 @@ func (hf *HttpFile) FetchPrefixes() ([]netip.Prefix, error) {
 	return prefixes, nil
 }
 
-func (hf *HttpFile) FetchURL() (URLResponse, error) {
+func (hf *HTTPFile) FetchURL() (URLResponse, error) {
 	if hf.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
@@ -226,7 +226,7 @@ func extractNetFromString(in string) netip.Prefix {
 	return p
 }
 
-// ReadRawPrefixesFromFileData reads the IPs as strings from the given path
+// ReadRawPrefixesFromFileData reads the IPs as strings from the given path.
 func ReadRawPrefixesFromFileData(data []byte) ([]netip.Prefix, error) {
 	text := strings.Split(string(data), "\n")
 
@@ -313,7 +313,14 @@ type URLResponse struct {
 }
 
 func (c *Client) get(url *url.URL, header http.Header) (URLResponse, error) {
-	data, _, status, err := web.Request(c.HttpClient, url.String(), http.MethodGet, header, nil, web.DefaultRequestTimeout)
+	data, _, status, err := web.Request(
+		c.HTTPClient,
+		url.String(),
+		http.MethodGet,
+		header,
+		nil,
+		web.DefaultRequestTimeout,
+	)
 	if err != nil {
 		logrus.Debug(err.Error())
 	}
@@ -384,7 +391,7 @@ func (c *Client) Get(requests []Request) (*[]URLResponse, error) {
 	return &responses, nil
 }
 
-func (hf *HttpFiles) FetchURLs() ([]URLResponse, error) {
+func (hf *HTTPFiles) FetchURLs() ([]URLResponse, error) {
 	if hf.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}

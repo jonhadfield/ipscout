@@ -5,7 +5,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/netip"
+	"net/url"
 	"sync"
 	"time"
 
@@ -238,8 +240,8 @@ type StoredURLPrefixes struct {
 }
 
 func (c *ProviderClient) loadProviderURLsFromSource(providerUrls []string) error {
-	ic := ipu.New(ipu.WithHttpClient(c.HTTPClient))
-	ic.HttpClient = c.HTTPClient
+	ic := ipu.New()
+	ic.HTTPClient = c.HTTPClient
 
 	var wg sync.WaitGroup
 
@@ -251,7 +253,7 @@ func (c *ProviderClient) loadProviderURLsFromSource(providerUrls []string) error
 		go func() {
 			defer wg.Done()
 
-			_, err := c.loadProviderURLFromSource(iu)
+			err := c.loadProviderURLFromSource(iu)
 			if err != nil {
 				c.Logger.Error("error loading provider", "url", iu, "error", err)
 			}
@@ -264,29 +266,38 @@ func (c *ProviderClient) loadProviderURLsFromSource(providerUrls []string) error
 }
 
 // loadProviderDataFromSource fetches the data from the source and caches it for individual urls
-func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix, error) {
-	hf := ipu.HttpFile{
-		Client: c.HTTPClient,
+func (c *ProviderClient) loadProviderURLFromSource(sURL string) error {
+	ic := ipu.New()
+	ic.HTTPClient = c.HTTPClient
+
+	var requests []ipu.Request
+
+	var pURL *url.URL
+
+	var err error
+
+	if pURL, err = url.Parse(sURL); err != nil {
+		return fmt.Errorf("error parsing ipurl provider url: %w", err)
+	}
+
+	requests = append(requests, ipu.Request{
 		URL:    pURL,
-	}
+		Method: http.MethodGet,
+	})
 
-	if c.Config.Global.LogLevel == "debug" {
-		hf.Debug = true
-	}
-
-	hfPrefixes, err := hf.FetchPrefixes()
+	hfPrefixes, err := ic.FetchPrefixes(requests)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching ipurl data: %w", err)
+		return fmt.Errorf("error fetching ipurl data: %w", err)
 	}
 
 	// cache the prefixes for this url
 	var mHfPrefixes []byte
 
 	if mHfPrefixes, err = json.Marshal(hfPrefixes); err != nil {
-		return nil, fmt.Errorf("error marshalling ipurl provider doc: %w", err)
+		return fmt.Errorf("error marshalling ipurl provider doc: %w", err)
 	}
 
-	uh := generateURLHash(pURL)
+	uh := generateURLHash(sURL)
 
 	docCacheTTL := CacheTTL
 	if c.Providers.IPURL.DocumentCacheTTL != 0 {
@@ -300,10 +311,10 @@ func (c *ProviderClient) loadProviderURLFromSource(pURL string) ([]netip.Prefix,
 		Version:    "-",
 		Created:    time.Now(),
 	}, docCacheTTL); err != nil {
-		return nil, fmt.Errorf("error upserting ipurl provider data: %w", err)
+		return fmt.Errorf("error upserting ipurl provider data: %w", err)
 	}
 
-	return hfPrefixes, nil
+	return nil
 }
 
 func (c *ProviderClient) loadProviderURLDataFromCache(pURL string) ([]netip.Prefix, error) {
