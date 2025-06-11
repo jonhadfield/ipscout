@@ -711,45 +711,20 @@ func initLogging(cmd *cobra.Command) error {
 	return nil
 }
 
+func setProviderAPIKey(v *viper.Viper, envKey string, apiKey *string, enabled **bool) {
+	if *apiKey == "" {
+		*apiKey = v.GetString(envKey)
+	}
+	if *apiKey == "" {
+		*enabled = ToPtr(false)
+	}
+}
+
 func readProviderAuthKeys(v *viper.Viper) {
 	// read provider auth keys from env if not set in session
-	if sess.Providers.AbuseIPDB.APIKey == "" {
-		sess.Providers.AbuseIPDB.APIKey = v.GetString("abuseipdb_api_key")
-	}
-
-	if sess.Providers.AbuseIPDB.APIKey == "" {
-		sess.Providers.AbuseIPDB.Enabled = ToPtr(false)
-	}
-
-	if sess.Providers.CriminalIP.APIKey == "" {
-		sess.Providers.CriminalIP.APIKey = v.GetString("criminal_ip_api_key")
-	}
-
-	if sess.Providers.CriminalIP.APIKey == "" {
-		sess.Providers.CriminalIP.Enabled = ToPtr(false)
-	}
-
-	if sess.Providers.IPQS.APIKey == "" {
-		sess.Providers.IPQS.APIKey = v.GetString("ipqs_api_key")
-	}
-
-	if sess.Providers.IPQS.APIKey == "" {
-		sess.Providers.IPQS.Enabled = ToPtr(false)
-	}
-
-	if sess.Providers.Shodan.APIKey == "" {
-		sess.Providers.Shodan.APIKey = v.GetString("shodan_api_key")
-	}
-
-	if sess.Providers.Shodan.APIKey == "" {
-		sess.Providers.Shodan.Enabled = ToPtr(false)
-	}
-
-	if sess.Providers.VirusTotal.APIKey == "" {
-		sess.Providers.VirusTotal.APIKey = v.GetString("virustotal_api_key")
-	}
-
-	if sess.Providers.VirusTotal.APIKey == "" {
-		sess.Providers.VirusTotal.Enabled = ToPtr(false)
-	}
+	setProviderAPIKey(v, "abuseipdb_api_key", &sess.Providers.AbuseIPDB.APIKey, &sess.Providers.AbuseIPDB.Enabled)
+	setProviderAPIKey(v, "criminal_ip_api_key", &sess.Providers.CriminalIP.APIKey, &sess.Providers.CriminalIP.Enabled)
+	setProviderAPIKey(v, "ipqs_api_key", &sess.Providers.IPQS.APIKey, &sess.Providers.IPQS.Enabled)
+	setProviderAPIKey(v, "shodan_api_key", &sess.Providers.Shodan.APIKey, &sess.Providers.Shodan.Enabled)
+	setProviderAPIKey(v, "virustotal_api_key", &sess.Providers.VirusTotal.APIKey, &sess.Providers.VirusTotal.Enabled)
 }
