@@ -208,6 +208,17 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), linodeEnabled})
 
+	// ovh
+	tw.AppendRow(table.Row{color.HiCyanString("%sOVH", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
+
+	ovhEnabled := false
+
+	if c.Sess.Providers.OVH.Enabled != nil {
+		ovhEnabled = *c.Sess.Providers.OVH.Enabled
+	}
+
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), ovhEnabled})
+
 	// ptr
 	tw.AppendRow(table.Row{color.HiCyanString("%sPTR", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
 

@@ -248,6 +248,12 @@ type Providers struct {
 		URL              string
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"linode"`
+	OVH struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"ovh"`
 	Shodan struct {
 		APIKey         string
 		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`

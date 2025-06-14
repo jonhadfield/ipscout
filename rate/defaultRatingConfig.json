@@ -75,6 +75,9 @@
     "linode": {
       "defaultMatchScore": 8.0
     },
+    "ovh": {
+      "defaultMatchScore": 8.0
+    },
     "shodan": {
       "openPortsScore": 5.0,
       "highThreatCountryMatchScore": 10.0,

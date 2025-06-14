@@ -452,6 +452,9 @@ type RatingConfig struct {
 		Linode struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"linode"`
+		OVH struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"ovh"`
 		Shodan struct {
 			OpenPortsScore                float64 `json:"openPortsScore,omitempty"`
 			HighThreatCountryMatchScore   float64 `json:"highThreatCountryMatchScore,omitempty"`

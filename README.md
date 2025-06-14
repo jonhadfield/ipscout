@@ -66,6 +66,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [IPQualityScore](#IPQualityScore)                         |  IP Reputation   | Registration required |
 | [IPURL](#IPURL)                                           |  User Provided   |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
+| [OVH](#OVH)                                               | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
@@ -304,6 +305,11 @@ Prefixes
 
 [Linode](https://www.linode.com/) is a hosting provider
 that [publishes](https://geoip.linode.com/) network prefixes used by their services.
+
+### OVH
+
+[OVH](https://www.ovhcloud.com/) is a hosting provider
+that [publishes](https://vps.ovh.net/ips.txt) network prefixes used by their services.
 
 ### PTR
 
