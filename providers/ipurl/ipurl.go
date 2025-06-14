@@ -290,13 +290,27 @@ func (c *ProviderClient) loadProviderURLFromSource(sURL string) error {
 		return fmt.Errorf("error fetching ipurl data: %w", err)
 	}
 
-	// cache the prefixes for this url
-	var mHfPrefixes []byte
+	if len(hfPrefixes) == 0 {
+		c.Logger.Warn("no prefixes found for url", "url", sURL)
 
-	if mHfPrefixes, err = json.Marshal(hfPrefixes); err != nil {
-		return fmt.Errorf("error marshalling ipurl provider doc: %w", err)
+		return nil
 	}
 
+	// log the number of prefixes found
+	c.Logger.Debug("found prefixes for url", "url", sURL, "prefixes", len(hfPrefixes))
+	// get a list of keys from the prefixes map
+	var sPrefixes []netip.Prefix
+
+	for prefix := range hfPrefixes {
+		sPrefixes = append(sPrefixes, prefix)
+	}
+
+	jPrefix, err := json.Marshal(sPrefixes)
+	if err != nil {
+		return fmt.Errorf("error marshalling ipurl provider prefixes: %w", err)
+	}
+
+	// cache the prefixes for this url
 	uh := generateURLHash(sURL)
 
 	docCacheTTL := CacheTTL
@@ -307,7 +321,7 @@ func (c *ProviderClient) loadProviderURLFromSource(sURL string) error {
 	if err = cache.UpsertWithTTL(c.Logger, c.Cache, cache.Item{
 		AppVersion: c.App.SemVer,
 		Key:        providers.CacheProviderPrefix + ProviderName + "_" + uh,
-		Value:      mHfPrefixes,
+		Value:      jPrefix,
 		Version:    "-",
 		Created:    time.Now(),
 	}, docCacheTTL); err != nil {
@@ -328,8 +342,17 @@ func (c *ProviderClient) loadProviderURLDataFromCache(pURL string) ([]netip.Pref
 		return nil, fmt.Errorf("error reading ipurl provider cache: %w", err)
 	}
 
-	prefixes, uErr := unmarshalProviderData(item.Value)
-	if uErr != nil {
+	if item == nil {
+		return nil, fmt.Errorf("no cached data found for %s", cacheKey)
+	}
+
+	var prefixes []netip.Prefix
+	if err = json.Unmarshal(item.Value, &prefixes); err != nil {
+		// if we can't unmarshal the data, it may be an old cache item that needs to be removed
+		c.Logger.Warn("error unmarshalling cached ipurl provider doc", "cacheKey", cacheKey, "error", err)
+	}
+
+	if err != nil {
 		defer func() {
 			// remove any data that can't be unmarshalled
 			_ = cache.Delete(c.Logger, c.Cache, cacheKey)
@@ -358,16 +381,6 @@ func (c *ProviderClient) loadProviderDataFromCache(pwp map[netip.Prefix][]string
 	c.Stats.Mu.Unlock()
 
 	return nil
-}
-
-func unmarshalProviderData(rBody []byte) ([]netip.Prefix, error) {
-	var prefixes []netip.Prefix
-
-	if err := json.Unmarshal(rBody, &prefixes); err != nil {
-		return nil, fmt.Errorf("error unmarshalling ipurl api response: %w", err)
-	}
-
-	return prefixes, nil
 }
 
 type HostSearchResult map[netip.Prefix][]string

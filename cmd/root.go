@@ -715,6 +715,7 @@ func setProviderAPIKey(v *viper.Viper, envKey string, apiKey *string, enabled **
 	if *apiKey == "" {
 		*apiKey = v.GetString(envKey)
 	}
+
 	if *apiKey == "" {
 		*enabled = ToPtr(false)
 	}
