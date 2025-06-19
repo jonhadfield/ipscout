@@ -271,7 +271,7 @@ func unmarshalResponse(data []byte) (*HostSearchResult, error) {
 	return &res, nil
 }
 
-func loadResultsFile(path string) (res *HostSearchResult, err error) {
+func loadResultsFile(path string) (*HostSearchResult, error) {
 	// get raw data
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -286,16 +286,16 @@ func loadResultsFile(path string) (res *HostSearchResult, err error) {
 
 	defer jf.Close()
 
+	var res HostSearchResult
 	decoder := json.NewDecoder(jf)
 
-	err = decoder.Decode(&res)
-	if err != nil {
-		return res, fmt.Errorf("error decoding virustotal file: %w", err)
+	if err = decoder.Decode(&res); err != nil {
+		return nil, fmt.Errorf("error decoding virustotal file: %w", err)
 	}
 
 	res.Raw = raw
 
-	return res, nil
+	return &res, nil
 }
 
 func (ssr *HostSearchResult) CreateTable() *table.Writer {
