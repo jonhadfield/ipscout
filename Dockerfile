@@ -28,7 +28,7 @@ RUN echo "Building version: [$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC"
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -X \"github.com/jonhadfield/ipscout/cmd.version=[${BUILD_TAG}-${BUILD_SHA}] ${BUILD_DATE} UTC\" -X \"github.com/jonhadfield/ipscout/cmd.semver=${BUILD_TAG}\"" -o /out/ipscout \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -X \"github.com/jonhadfield/ipscout/helpers.Version=[${BUILD_TAG}-${BUILD_SHA}] ${BUILD_DATE} UTC\" -X \"github.com/jonhadfield/ipscout/helpers.SemVer=${BUILD_TAG}\"" -o /out/ipscout \
     && chmod +x /out/ipscout
 
 FROM --platform=linux/amd64 gcr.io/distroless/static-debian12:nonroot-amd64

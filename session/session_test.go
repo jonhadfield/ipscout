@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/jonhadfield/ipscout/constants"
+
 	"github.com/mitchellh/go-homedir"
 	"github.com/stretchr/testify/require"
 )
@@ -66,7 +68,7 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 	t.Run("PathExists", func(t *testing.T) {
 		tempDir := t.TempDir()
 
-		configRoot := GetConfigRoot(tempDir, "", AppName)
+		configRoot := GetConfigRoot(tempDir, "", constants.AppName)
 
 		// create session root (required for cache path)
 		created, err := CreateDefaultConfigIfMissing(configRoot)
@@ -92,7 +94,7 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 
 	t.Run("PathDoesNotExist", func(t *testing.T) {
 		tempDir := t.TempDir()
-		configRoot := GetConfigRoot(tempDir, "", AppName)
+		configRoot := GetConfigRoot(tempDir, "", constants.AppName)
 
 		// create session root (required for cache path)
 		created, err := CreateDefaultConfigIfMissing(configRoot)

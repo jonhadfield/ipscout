@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jonhadfield/ipscout/constants"
+
 	"github.com/jedib0t/go-pretty/v6/text"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -87,7 +89,7 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 	var rateResult providers.RateResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
+		return providers.RateResult{}, fmt.Errorf(constants.ErrUnmarshalFindResultFmt, err)
 	}
 
 	if doc.Data.IsTor {
@@ -124,7 +126,7 @@ func (c *Client) ExtractThreatIndicators(findRes []byte) (*providers.ThreatIndic
 	var doc HostSearchResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return nil, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
+		return nil, fmt.Errorf(constants.ErrUnmarshalFindResultFmt, err)
 	}
 
 	threatIndicators := providers.ThreatIndicators{

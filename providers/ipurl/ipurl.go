@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jonhadfield/ipscout/constants"
+
 	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/v6/table"
 	ipu "github.com/jonhadfield/ip-fetcher/providers/url"
@@ -58,7 +60,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	var ratingConfig providers.RatingConfig
 
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
-		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalRatingConfigFmt, err)
+		return providers.RateResult{}, fmt.Errorf(constants.ErrUnmarshalRatingConfigFmt, err)
 	}
 
 	var doc HostSearchResult
@@ -66,7 +68,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	var rateResult providers.RateResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
+		return providers.RateResult{}, fmt.Errorf(constants.ErrUnmarshalFindResultFmt, err)
 	}
 
 	rateResult.Score = 0

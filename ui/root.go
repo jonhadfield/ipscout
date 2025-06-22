@@ -1,143 +1,19 @@
-package cmd
+package ui
 
 import (
-	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"log/slog"
 	"os"
 	"strings"
 
-	"github.com/mitchellh/go-homedir"
-
 	c "github.com/jonhadfield/ipscout/constants"
-	"github.com/jonhadfield/ipscout/process"
+	h "github.com/jonhadfield/ipscout/helpers"
+
 	"github.com/jonhadfield/ipscout/session"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
-const (
-	AppName = "ipscout"
-)
-
 var sess *session.Session
-
-var ErrSilent = errors.New("ErrSilent")
-
-//nolint:funlen
-func newRootCommand() *cobra.Command {
-	var (
-		useTestData   bool
-		ports         []string
-		maxValueChars int32
-		maxAge        string
-		maxReports    int
-		logLevel      string
-		output        string
-		style         string
-		disableCache  bool
-	)
-
-	rootCmd := &cobra.Command{
-		Use:           "ipscout [options] <host>",
-		Short:         "ipscout [command]",
-		Long:          `IPScout searches providers for information about hosts`,
-		Args:          cobra.MinimumNArgs(0),
-		SilenceErrors: true,
-		SilenceUsage:  true,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
-			return initConfig(cmd)
-		},
-	}
-
-	cacheCommand := newCacheCommand()
-	configCommand := newConfigCommand()
-	rateCommand := newRateCommand()
-
-	rootCmd.AddCommand(cacheCommand)
-	rootCmd.AddCommand(configCommand)
-	rootCmd.AddCommand(rateCommand)
-	rootCmd.AddCommand(versionCmd)
-	rootCmd.AddCommand(uiCmd)
-	rootCmd.SetFlagErrorFunc(func(cmd *cobra.Command, err error) error {
-		cmd.Println(err)
-		cmd.Println(cmd.UsageString())
-
-		return ErrSilent
-	})
-
-	rootCmd.RunE = func(cmd *cobra.Command, args []string) error {
-		// using test data doesn't require a host be provided
-		// but command does so use placeholder
-		if useTestData {
-			args = []string{"8.8.8.8"}
-		}
-
-		if len(args) == 0 {
-			_ = cmd.Help()
-
-			os.Exit(0)
-		}
-
-		var err error
-
-		if sess.Host, err = helpers.ParseHost(args[0]); err != nil {
-			return fmt.Errorf("invalid host: %w", err)
-		}
-
-		processor, err := process.New(sess)
-		if err != nil {
-			os.Exit(1)
-		}
-
-		if err = processor.Run(); err != nil {
-			fmt.Println(err.Error())
-
-			os.Exit(1)
-		}
-
-		return nil
-	}
-
-	// Define cobra flags, the default value has the lowest (least significant) precedence
-	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "WARN", "set log level as: ERROR, WARN, INFO, DEBUG")
-	rootCmd.PersistentFlags().StringVar(&output, "output", "table", "output format: table, json")
-	rootCmd.PersistentFlags().StringVar(&style, "style", "", "output style: ascii, cyan, red, yellow, green, blue")
-	rootCmd.PersistentFlags().StringVar(&maxAge, "max-age", "", "max age of data to consider")
-	rootCmd.PersistentFlags().IntVar(&maxReports, "max-reports", session.DefaultMaxReports, "max reports to output for each provider")
-	rootCmd.PersistentFlags().BoolVar(&useTestData, "use-test-data", false, "use test data")
-	rootCmd.PersistentFlags().BoolVar(&disableCache, "disable-cache", false, "disable cache")
-	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", nil, "limit ports")
-	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
-
-	return rootCmd
-}
-
-func Execute() error {
-	// setup session
-	rootCmd := newRootCommand()
-	if err := rootCmd.Execute(); err != nil {
-		return fmt.Errorf("error: %w", err)
-	}
-
-	return nil
-}
-
-func bindFlags(cmd *cobra.Command, v *viper.Viper) {
-	cmd.Flags().VisitAll(func(flg *pflag.Flag) {
-		configName := flg.Name
-		v.Set(configName, flg.Value)
-
-		if !flg.Changed && v.IsSet(configName) {
-			val := v.Get(configName)
-			if err := cmd.Flags().Set(flg.Name, fmt.Sprintf("%v", val)); err != nil {
-				fmt.Printf("error setting flag %s: %v\n", flg.Name, err)
-			}
-		}
-	})
-}
 
 func ToPtr[T any](v T) *T {
 	return &v
@@ -148,31 +24,6 @@ func addProviderConfigMessage(sess *session.Session, provider string) {
 	sess.Messages.Info = append(sess.Messages.Info, fmt.Sprintf(c.ProviderNotDefinedFmt, provider))
 	sess.Messages.Mu.Unlock()
 }
-
-const (
-	defaultAbuseIPDBOutputPriority    = 50
-	defaultAnnotatedOutputPriority    = 30
-	defaultAWSOutputPriority          = 200
-	defaultAzureOutputPriority        = 200
-	defaultAzureWAFOutputPriority     = 20
-	defaultBingbotOutputPriority      = 180
-	defaultCriminalIPOutputPriority   = 60
-	defaultDigitalOceanOutputPriority = 200
-	defaultGCPOutputPriority          = 200
-	defaultGoogleOutputPriority       = 200
-	defaultGooglebotOutputPriority    = 190
-	defaultGoogleSCOutputPriority     = 190
-	defaultHetznerOutputPriority      = 70
-	defaultiCloudPROutputPriority     = 100
-	defaultIPAPIOutputPriority        = 90
-	defaultIPQSOutputPriority         = 50
-	defaultIPURLOutputPriority        = 20
-	defaultLinodeOutputPriority       = 140
-	defaultPtrOutputPriority          = 120
-	defaultShodanOutputPriority       = 70
-	defaultVirusTotalOutputPriority   = 40
-	defaultZscalerOutputPriority      = 40
-)
 
 func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	// IP API
@@ -189,7 +40,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.abuseipdb.output_priority") {
 		sess.Providers.AbuseIPDB.OutputPriority = ToPtr(v.GetInt32("providers.abuseipdb.output_priority"))
 	} else {
-		sess.Providers.AbuseIPDB.OutputPriority = ToPtr(int32(defaultAbuseIPDBOutputPriority))
+		sess.Providers.AbuseIPDB.OutputPriority = ToPtr(int32(c.DefaultAbuseIPDBOutputPriority))
 	}
 
 	sess.Providers.AbuseIPDB.MaxAge = v.GetInt("providers.abuseipdb.max_age")
@@ -204,7 +55,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.annotated.output_priority") {
 		sess.Providers.Annotated.OutputPriority = ToPtr(v.GetInt32("providers.annotated.output_priority"))
 	} else {
-		sess.Providers.Annotated.OutputPriority = ToPtr(int32(defaultAnnotatedOutputPriority))
+		sess.Providers.Annotated.OutputPriority = ToPtr(int32(c.DefaultAnnotatedOutputPriority))
 	}
 
 	sess.Providers.Annotated.Paths = v.GetStringSlice("providers.annotated.paths")
@@ -219,7 +70,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.aws.output_priority") {
 		sess.Providers.AWS.OutputPriority = ToPtr(v.GetInt32("providers.aws.output_priority"))
 	} else {
-		sess.Providers.AWS.OutputPriority = ToPtr(int32(defaultAWSOutputPriority))
+		sess.Providers.AWS.OutputPriority = ToPtr(int32(c.DefaultAWSOutputPriority))
 	}
 
 	sess.Providers.AWS.URL = v.GetString("providers.aws.url")
@@ -235,7 +86,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.azure.output_priority") {
 		sess.Providers.Azure.OutputPriority = ToPtr(v.GetInt32("providers.azure.output_priority"))
 	} else {
-		sess.Providers.Azure.OutputPriority = ToPtr(int32(defaultAzureOutputPriority))
+		sess.Providers.Azure.OutputPriority = ToPtr(int32(c.DefaultAzureOutputPriority))
 	}
 
 	sess.Providers.Azure.URL = v.GetString("providers.azure.url")
@@ -252,7 +103,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.azurewaf.output_priority") {
 		sess.Providers.AzureWAF.OutputPriority = ToPtr(v.GetInt32("providers.azurewaf.output_priority"))
 	} else {
-		sess.Providers.AzureWAF.OutputPriority = ToPtr(int32(defaultAzureWAFOutputPriority))
+		sess.Providers.AzureWAF.OutputPriority = ToPtr(int32(c.DefaultAzureWAFOutputPriority))
 	}
 
 	sess.Providers.AzureWAF.ResourceIDs = v.GetStringSlice("providers.azurewaf.resource_ids")
@@ -269,7 +120,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.criminalip.output_priority") {
 		sess.Providers.CriminalIP.OutputPriority = ToPtr(v.GetInt32("providers.criminalip.output_priority"))
 	} else {
-		sess.Providers.CriminalIP.OutputPriority = ToPtr(int32(defaultCriminalIPOutputPriority))
+		sess.Providers.CriminalIP.OutputPriority = ToPtr(int32(c.DefaultCriminalIPOutputPriority))
 	}
 
 	sess.Providers.CriminalIP.ResultCacheTTL = v.GetInt64("providers.criminalip.result_cache_ttl")
@@ -284,7 +135,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.bingbot.output_priority") {
 		sess.Providers.Bingbot.OutputPriority = ToPtr(v.GetInt32("providers.bingbot.output_priority"))
 	} else {
-		sess.Providers.Bingbot.OutputPriority = ToPtr(int32(defaultBingbotOutputPriority))
+		sess.Providers.Bingbot.OutputPriority = ToPtr(int32(c.DefaultBingbotOutputPriority))
 	}
 
 	sess.Providers.Bingbot.URL = v.GetString("providers.bingbot.url")
@@ -301,7 +152,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.digitalocean.output_priority") {
 		sess.Providers.DigitalOcean.OutputPriority = ToPtr(v.GetInt32("providers.digitalocean.output_priority"))
 	} else {
-		sess.Providers.DigitalOcean.OutputPriority = ToPtr(int32(defaultDigitalOceanOutputPriority))
+		sess.Providers.DigitalOcean.OutputPriority = ToPtr(int32(c.DefaultDigitalOceanOutputPriority))
 	}
 
 	sess.Providers.DigitalOcean.URL = v.GetString("providers.digitalocean.url")
@@ -317,7 +168,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.gcp.output_priority") {
 		sess.Providers.GCP.OutputPriority = ToPtr(v.GetInt32("providers.gcp.output_priority"))
 	} else {
-		sess.Providers.GCP.OutputPriority = ToPtr(int32(defaultGCPOutputPriority))
+		sess.Providers.GCP.OutputPriority = ToPtr(int32(c.DefaultGCPOutputPriority))
 	}
 
 	sess.Providers.GCP.URL = v.GetString("providers.gcp.url")
@@ -333,7 +184,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.google.output_priority") {
 		sess.Providers.Google.OutputPriority = ToPtr(v.GetInt32("providers.google.output_priority"))
 	} else {
-		sess.Providers.Google.OutputPriority = ToPtr(int32(defaultGoogleOutputPriority))
+		sess.Providers.Google.OutputPriority = ToPtr(int32(c.DefaultGoogleOutputPriority))
 	}
 
 	// Googlebot
@@ -346,7 +197,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.googlebot.output_priority") {
 		sess.Providers.Googlebot.OutputPriority = ToPtr(v.GetInt32("providers.Googlebot.output_priority"))
 	} else {
-		sess.Providers.Googlebot.OutputPriority = ToPtr(int32(defaultGooglebotOutputPriority))
+		sess.Providers.Googlebot.OutputPriority = ToPtr(int32(c.DefaultGooglebotOutputPriority))
 	}
 
 	sess.Providers.Googlebot.URL = v.GetString("providers.googlebot.url")
@@ -361,7 +212,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.googlesc.output_priority") {
 		sess.Providers.GoogleSC.OutputPriority = ToPtr(v.GetInt32("providers.GoogleSC.output_priority"))
 	} else {
-		sess.Providers.GoogleSC.OutputPriority = ToPtr(int32(defaultGoogleSCOutputPriority))
+		sess.Providers.GoogleSC.OutputPriority = ToPtr(int32(c.DefaultGoogleSCOutputPriority))
 	}
 
 	sess.Providers.GoogleSC.URL = v.GetString("providers.googlesc.url")
@@ -378,7 +229,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.hetzner.output_priority") {
 		sess.Providers.Hetzner.OutputPriority = ToPtr(v.GetInt32("providers.hetzner.output_priority"))
 	} else {
-		sess.Providers.Hetzner.OutputPriority = ToPtr(int32(defaultHetznerOutputPriority))
+		sess.Providers.Hetzner.OutputPriority = ToPtr(int32(c.DefaultHetznerOutputPriority))
 	}
 
 	// iCloud Private Relay
@@ -391,7 +242,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.icloudpr.output_priority") {
 		sess.Providers.ICloudPR.OutputPriority = ToPtr(v.GetInt32("providers.icloudpr.output_priority"))
 	} else {
-		sess.Providers.ICloudPR.OutputPriority = ToPtr(int32(defaultiCloudPROutputPriority))
+		sess.Providers.ICloudPR.OutputPriority = ToPtr(int32(c.DefaultiCloudPROutputPriority))
 	}
 
 	sess.Providers.ICloudPR.URL = v.GetString("providers.icloudpr.url")
@@ -407,7 +258,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.ipqs.output_priority") {
 		sess.Providers.IPQS.OutputPriority = ToPtr(v.GetInt32("providers.ipqs.output_priority"))
 	} else {
-		sess.Providers.IPQS.OutputPriority = ToPtr(int32(defaultIPQSOutputPriority))
+		sess.Providers.IPQS.OutputPriority = ToPtr(int32(c.DefaultIPQSOutputPriority))
 	}
 
 	if v.IsSet("providers.ipqs.api_key") {
@@ -426,7 +277,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.ipurl.output_priority") {
 		sess.Providers.IPURL.OutputPriority = ToPtr(v.GetInt32("providers.ipurl.output_priority"))
 	} else {
-		sess.Providers.IPURL.OutputPriority = ToPtr(int32(defaultIPURLOutputPriority))
+		sess.Providers.IPURL.OutputPriority = ToPtr(int32(c.DefaultIPURLOutputPriority))
 	}
 
 	sess.Providers.IPURL.URLs = v.GetStringSlice("providers.ipurl.urls")
@@ -442,7 +293,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.linode.output_priority") {
 		sess.Providers.Linode.OutputPriority = ToPtr(v.GetInt32("providers.linode.output_priority"))
 	} else {
-		sess.Providers.Linode.OutputPriority = ToPtr(int32(defaultLinodeOutputPriority))
+		sess.Providers.Linode.OutputPriority = ToPtr(int32(c.DefaultLinodeOutputPriority))
 	}
 
 	sess.Providers.Linode.DocumentCacheTTL = v.GetInt64("providers.linode.document_cache_ttl")
@@ -476,7 +327,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.shodan.output_priority") {
 		sess.Providers.Shodan.OutputPriority = ToPtr(v.GetInt32("providers.shodan.output_priority"))
 	} else {
-		sess.Providers.Shodan.OutputPriority = ToPtr(int32(defaultShodanOutputPriority))
+		sess.Providers.Shodan.OutputPriority = ToPtr(int32(c.DefaultShodanOutputPriority))
 	}
 
 	if v.IsSet("providers.shodan.api_key") {
@@ -493,7 +344,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.ptr.output_priority") {
 		sess.Providers.PTR.OutputPriority = ToPtr(v.GetInt32("providers.ptr.output_priority"))
 	} else {
-		sess.Providers.PTR.OutputPriority = ToPtr(int32(defaultPtrOutputPriority))
+		sess.Providers.PTR.OutputPriority = ToPtr(int32(c.DefaultPtrOutputPriority))
 	}
 
 	sess.Providers.PTR.ResultCacheTTL = v.GetInt64("providers.ptr.result_cache_ttl")
@@ -509,7 +360,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.ipapi.output_priority") {
 		sess.Providers.IPAPI.OutputPriority = ToPtr(v.GetInt32("providers.ipapi.output_priority"))
 	} else {
-		sess.Providers.IPAPI.OutputPriority = ToPtr(int32(defaultIPAPIOutputPriority))
+		sess.Providers.IPAPI.OutputPriority = ToPtr(int32(c.DefaultIPAPIOutputPriority))
 	}
 
 	// VirusTotal
@@ -527,7 +378,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.virustotal.output_priority") {
 		sess.Providers.VirusTotal.OutputPriority = ToPtr(v.GetInt32("providers.virustotal.output_priority"))
 	} else {
-		sess.Providers.VirusTotal.OutputPriority = ToPtr(int32(defaultVirusTotalOutputPriority))
+		sess.Providers.VirusTotal.OutputPriority = ToPtr(int32(c.DefaultVirusTotalOutputPriority))
 	}
 
 	// Zscaler
@@ -540,36 +391,14 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.zscaler.output_priority") {
 		sess.Providers.Zscaler.OutputPriority = ToPtr(v.GetInt32("providers.zscaler.output_priority"))
 	} else {
-		sess.Providers.Zscaler.OutputPriority = ToPtr(int32(defaultZscalerOutputPriority))
+		sess.Providers.Zscaler.OutputPriority = ToPtr(int32(c.DefaultZscalerOutputPriority))
 	}
 
 	sess.Providers.Zscaler.DocumentCacheTTL = v.GetInt64("providers.zscaler.document_cache_ttl")
 	sess.Providers.Zscaler.URL = v.GetString("providers.zscaler.url")
 }
 
-func initHomeDirConfig(sess *session.Session, v *viper.Viper) error {
-	var err error
-
-	homeDir := v.GetString("home_dir")
-	if homeDir == "" {
-		homeDir, err = homedir.Dir()
-		if err != nil {
-			return fmt.Errorf("failed to get home directory: %w", err)
-		}
-	}
-
-	// check home directory exists
-	_, err = os.Stat(homeDir)
-	if err != nil && os.IsNotExist(err) {
-		return fmt.Errorf("home directory %s does not exist: %w", homeDir, err)
-	}
-
-	sess.Config.Global.HomeDir = homeDir
-
-	return nil
-}
-
-func initSessionConfig(sess *session.Session, v *viper.Viper) error {
+func initSessionConfig(sess *session.Session, v *viper.Viper) {
 	initProviderConfig(sess, v)
 
 	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
@@ -587,95 +416,88 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) error {
 	sess.Config.Rating.ConfigPath = v.GetString("rating.config_path")
 	sess.Config.Rating.UseAI = v.GetBool("rating.use_ai")
 	sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai_api_key")
-
-	return nil
 }
 
-func initConfig(cmd *cobra.Command) error {
+func initConfig() (*session.Session, error) {
 	v := viper.New()
 
 	// create session
 	sess = session.New()
 
 	// get home dir to be used for config and cache
-	if err := initHomeDirConfig(sess, v); err != nil {
-		return err
+	if err := h.InitHomeDirConfig(sess, v); err != nil {
+		return sess, fmt.Errorf("home dir initialization error: %w", err)
 	}
 
-	configRoot := session.GetConfigRoot("", sess.Config.Global.HomeDir, AppName)
-	sess.App.Version = helpers.Version
-	sess.App.SemVer = helpers.SemVer
+	configRoot := session.GetConfigRoot("", sess.Config.Global.HomeDir, c.AppName)
+	sess.App.Version = h.Version
+	sess.App.SemVer = h.SemVer
 
 	if _, err := session.CreateDefaultConfigIfMissing(configRoot); err != nil {
-		return fmt.Errorf("cannot create default session: %w", err)
+		return sess, fmt.Errorf("cannot create default session: %w", err)
 	}
 
 	v.AddConfigPath(configRoot)
 	v.SetConfigName("config")
 
 	if err := v.ReadInConfig(); err != nil {
-		return fmt.Errorf("cannot read session: %w", err)
+		return sess, fmt.Errorf("cannot read session: %w", err)
 	}
 
 	v.AutomaticEnv()
 
 	if err := session.CreateConfigPathStructure(configRoot); err != nil {
-		return fmt.Errorf("can't create cache directory: %w", err)
+		return sess, fmt.Errorf("can't create cache directory: %w", err)
 	}
 
 	readProviderAuthKeys(v)
 
-	// set cmd flags to those learned by viper if cmd flag is not set and viper's is
-	bindFlags(cmd, v)
-
 	sess.Target = os.Stderr
 
-	if err := initSessionConfig(sess, v); err != nil {
-		return err
-	}
+	initSessionConfig(sess, v)
 
 	// initialise logging
-	if err := initLogging(cmd); err != nil {
-		return err
+	if err := initLogging(); err != nil {
+		return sess, err
 	}
 
-	sess.HTTPClient = helpers.GetHTTPClient()
+	sess.HTTPClient = h.GetHTTPClient()
 
-	utd, err := cmd.Flags().GetBool("use-test-data")
-	if err != nil {
-		return fmt.Errorf("error getting use-test-data: %w", err)
-	}
+	// utd, err := cmd.Flags().GetBool("use-test-data")
+	// if err != nil {
+	// 	return sess, fmt.Errorf("error getting use-test-data: %w", err)
+	// }
+	//
+	// sess.UseTestData = utd
 
-	sess.UseTestData = utd
-
-	ports, _ := cmd.Flags().GetStringSlice("ports")
-	if len(ports) == 1 && ports[0] == "[]" {
-		ports = nil
-	}
-	// if no ports specified on cli then default to global ports
-	if len(ports) > 0 {
-		sess.Config.Global.Ports = ports
-	}
-
-	maxAge, _ := cmd.Flags().GetString("max-age")
-	if maxAge != "" {
-		sess.Config.Global.MaxAge = maxAge
-	}
-
-	disableCache, _ := cmd.Flags().GetBool("disable-cache")
-	if disableCache {
-		sess.Config.Global.DisableCache = disableCache
-	}
-
-	output, _ := cmd.Flags().GetString("output")
-	if output != "" {
-		sess.Config.Global.Output = output
-	}
-
-	maxValueChars, _ := cmd.Flags().GetInt32("max-value-chars")
-	if maxValueChars > 0 {
-		sess.Config.Global.MaxValueChars = maxValueChars
-	}
+	// ports, _ := cmd.Flags().GetStringSlice("ports")
+	// if len(ports) == 1 && ports[0] == "[]" {
+	// 	ports = nil
+	// }
+	// // if no ports specified on cli then default to global ports
+	// if len(ports) > 0 {
+	// 	sess.Config.Global.Ports = ports
+	// }
+	//
+	// maxAge, _ := cmd.Flags().GetString("max-age")
+	// if maxAge != "" {
+	// 	sess.Config.Global.MaxAge = maxAge
+	// }
+	//
+	// disableCache, _ := cmd.Flags().GetBool("disable-cache")
+	// if disableCache {
+	// 	sess.Config.Global.DisableCache = disableCache
+	// }
+	//
+	// output, _ := cmd.Flags().GetString("output")
+	// if output != "" {
+	// 	sess.Config.Global.Output = output
+	// }
+	//
+	// maxValueChars, _ := cmd.Flags().GetInt32("max-value-chars")
+	// if maxValueChars > 0 {
+	// 	sess.Config.Global.MaxValueChars = maxValueChars
+	// }
 
 	sess.Config.Global.IndentSpaces = c.DefaultIndentSpaces
 
@@ -683,25 +505,20 @@ func initConfig(cmd *cobra.Command) error {
 	sess.Config.Global.Style = v.GetString("global.style")
 
 	// override with cli flag if set
-	outputStyle, _ := cmd.Flags().GetString("style")
-	if outputStyle != "" {
-		sess.Config.Global.Style = outputStyle
-	}
+	// outputStyle, _ := cmd.Flags().GetString("style")
+	// if outputStyle != "" {
+	// 	sess.Config.Global.Style = outputStyle
+	// }
 
-	return nil
+	return sess, nil
 }
 
 var ProgramLevel = new(slog.LevelVar) // Info by default
 
-func initLogging(cmd *cobra.Command) error {
+func initLogging() error {
 	hOptions := slog.HandlerOptions{AddSource: false}
 
-	ll, err := cmd.Flags().GetString("log-level")
-	if err != nil {
-		return fmt.Errorf("error getting log-level: %w", err)
-	}
-
-	sess.Config.Global.LogLevel = ll
+	ll := "DEBUG"
 
 	// set log level
 	switch strings.ToUpper(ll) {
@@ -725,7 +542,13 @@ func initLogging(cmd *cobra.Command) error {
 
 	hOptions.Level = ProgramLevel
 
-	sess.Logger = slog.New(slog.NewTextHandler(sess.Target, &hOptions))
+	// Open log file for session logger
+	logFile, err := os.OpenFile(LogFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, LogFilePerms)
+	if err != nil {
+		return fmt.Errorf("failed to open log file for session logger: %w", err)
+	}
+
+	sess.Logger = slog.New(slog.NewTextHandler(logFile, &hOptions))
 
 	return nil
 }

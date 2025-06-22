@@ -29,8 +29,8 @@ builds:
       - -trimpath
     ldflags:
       - -s -w
-      - '-X github.com/jonhadfield/ipscout/cmd.version={{ .Version }}_{{ .Date }}_UTC'
-      - '-X github.com/jonhadfield/ipscout/cmd.semver={{ .Tag }}'
+      - '-X github.com/jonhadfield/ipscout/helpers.Version={{ .Version }}_{{ .Date }}_UTC'
+      - '-X github.com/jonhadfield/ipscout/helpers.SemVer={{ .Tag }}'
 
 archives:
   - id: default

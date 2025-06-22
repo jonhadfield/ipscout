@@ -14,6 +14,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jonhadfield/ipscout/constants"
+
 	"github.com/jedib0t/go-pretty/v6/text"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -72,7 +74,7 @@ func loadRatingConfig(ratingConfigJSON []byte) (providers.RatingConfig, error) {
 	var ratingConfig providers.RatingConfig
 
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
-		return providers.RatingConfig{}, fmt.Errorf(providers.ErrUnmarshalRatingConfigFmt, err)
+		return providers.RatingConfig{}, fmt.Errorf(constants.ErrUnmarshalRatingConfigFmt, err)
 	}
 
 	return ratingConfig, nil
@@ -82,7 +84,7 @@ func loadFindHostResults(in []byte) (HostSearchResult, error) {
 	var doc HostSearchResult
 
 	if err := json.Unmarshal(in, &doc); err != nil {
-		return HostSearchResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
+		return HostSearchResult{}, fmt.Errorf(constants.ErrUnmarshalFindResultFmt, err)
 	}
 
 	return doc, nil
@@ -146,7 +148,7 @@ func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.Thr
 	var doc HostSearchResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return nil, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
+		return nil, fmt.Errorf(constants.ErrUnmarshalFindResultFmt, err)
 	}
 
 	threatIndicators := providers.ThreatIndicators{
