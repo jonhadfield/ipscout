@@ -154,10 +154,10 @@ func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadResponse(c session.Session) (*HostSearchResult, error) {
+func FetchResponse(l *slog.Logger, host string, nameServers []string) (*HostSearchResult, error) {
 	res := &HostSearchResult{}
 
-	target := c.Host.String()
+	target := host
 
 	arpa, err := dns.ReverseAddr(target)
 	if err != nil {
@@ -168,11 +168,11 @@ func loadResponse(c session.Session) (*HostSearchResult, error) {
 	m := dns.Msg{}
 	m.SetQuestion(arpa, dns.TypePTR)
 
-	if len(c.Providers.PTR.Nameservers) == 0 {
-		c.Providers.PTR.Nameservers = append(c.Providers.PTR.Nameservers, DefaultNameserver)
+	if len(nameServers) == 0 {
+		nameServers = append(nameServers, DefaultNameserver)
 	}
 
-	for _, nameserver := range c.Providers.PTR.Nameservers {
+	for _, nameserver := range nameServers {
 		if !strings.Contains(nameserver, ":") {
 			nameserver += ":53"
 		}
@@ -181,7 +181,9 @@ func loadResponse(c session.Session) (*HostSearchResult, error) {
 
 		r, _, err = dc.Exchange(&m, nameserver)
 		if err != nil {
-			c.Logger.Info("ptr query failure", "nameserver", nameserver, "error", err)
+			if l != nil {
+				l.Info("ptr query failure", "nameserver", nameserver, "error", err)
+			}
 
 			continue
 		}
@@ -215,6 +217,15 @@ func loadResponse(c session.Session) (*HostSearchResult, error) {
 		}
 
 		res.Raw = rd
+	}
+
+	return res, nil
+}
+
+func loadResponse(c session.Session) (*HostSearchResult, error) {
+	res, err := FetchResponse(c.Logger, c.Host.String(), c.Providers.PTR.Nameservers)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching ptr response: %w", err)
 	}
 
 	return res, nil

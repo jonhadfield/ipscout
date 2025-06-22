@@ -116,14 +116,20 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 	return res, nil
 }
 
-func unmarshalProviderData(data []byte) ([]netip.Prefix, error) {
-	var res []netip.Prefix
+func unmarshalProviderData(data []byte) (Doc, error) {
+	var res Doc
 
 	if err := json.Unmarshal(data, &res); err != nil {
-		return nil, fmt.Errorf("error unmarshalling ovh data: %w", err)
+		return Doc{}, fmt.Errorf("error unmarshalling ovh data: %w", err)
 	}
 
 	return res, nil
+}
+
+type Doc struct {
+	ASNs         []string
+	IPv4Prefixes []netip.Prefix `json:"IPv4Prefixes"`
+	IPv6Prefixes []netip.Prefix `json:"IPv6Prefixes"`
 }
 
 func (c *ProviderClient) loadProviderData() error {
@@ -135,14 +141,14 @@ func (c *ProviderClient) loadProviderData() error {
 		c.Logger.Debug("overriding ovh source", "url", oc.DownloadURL)
 	}
 
-	prefixes, err := oc.Fetch()
+	doc, err := oc.Fetch()
 	if err != nil {
 		return fmt.Errorf("error fetching ovh data: %w", err)
 	}
 
-	data, err := json.Marshal(prefixes)
+	data, err := json.Marshal(doc)
 	if err != nil {
-		return fmt.Errorf("error marshalling ovh provider doc: %w", err)
+		return fmt.Errorf("error marshalling ovh provider Doc: %w", err)
 	}
 
 	docCacheTTL := DocTTL
@@ -178,7 +184,8 @@ func (c *ProviderClient) Initialise() error {
 	c.Logger.Debug("initialising ovh client")
 
 	// load provider data into cache if not already present and fresh
-	ok, err := cache.CheckExists(c.Logger, c.Cache, providers.CacheProviderPrefix+ProviderName)
+	ok, err := cache.CheckExists(c.Logger, c.Cache,
+		providers.CacheProviderPrefix+ProviderName)
 	if err != nil {
 		return fmt.Errorf("checking ovh cache: %w", err)
 	}
@@ -199,33 +206,33 @@ func (c *ProviderClient) Initialise() error {
 	return nil
 }
 
-func (c *ProviderClient) loadProviderDataFromCache() ([]netip.Prefix, error) {
+func (c *ProviderClient) loadProviderDataFromCache() (Doc, error) {
 	c.Logger.Info("loading ovh provider data from cache")
 
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 
-	var prefixes []netip.Prefix
+	var doc Doc
 
 	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
 		var uErr error
 
-		prefixes, uErr = unmarshalProviderData(item.Value)
+		doc, uErr = unmarshalProviderData(item.Value)
 		if uErr != nil {
 			defer func() {
 				_ = cache.Delete(c.Logger, c.Cache, cacheKey)
 			}()
 
-			return nil, fmt.Errorf("error unmarshalling cached ovh provider doc: %w", uErr)
+			return Doc{}, fmt.Errorf("error unmarshalling cached ovh provider Doc: %w", uErr)
 		}
 	} else {
-		return nil, fmt.Errorf("error reading ovh cache: %w", err)
+		return Doc{}, fmt.Errorf("error reading ovh cache: %w", err)
 	}
 
 	c.Stats.Mu.Lock()
 	c.Stats.FindHostUsedCache[ProviderName] = true
 	c.Stats.Mu.Unlock()
 
-	return prefixes, nil
+	return doc, nil
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
@@ -262,12 +269,22 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return loadTestData(c)
 	}
 
-	prefixes, err := c.loadProviderDataFromCache()
+	doc, err := c.loadProviderDataFromCache()
 	if err != nil {
 		return nil, fmt.Errorf("loading ovh host data from cache: %w", err)
 	}
 
-	for _, p := range prefixes {
+	for _, p := range doc.IPv4Prefixes {
+		if p.Contains(c.Host) {
+			result = &HostSearchResult{Prefix: p}
+
+			c.Logger.Debug("returning ovh host match data")
+
+			break
+		}
+	}
+
+	for _, p := range doc.IPv6Prefixes {
 		if p.Contains(c.Host) {
 			result = &HostSearchResult{Prefix: p}
 

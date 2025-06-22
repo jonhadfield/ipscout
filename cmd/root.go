@@ -166,6 +166,7 @@ const (
 	defaultIPQSOutputPriority         = 50
 	defaultIPURLOutputPriority        = 20
 	defaultLinodeOutputPriority       = 140
+	defaultOVHOutputPriority          = 40
 	defaultPtrOutputPriority          = 120
 	defaultShodanOutputPriority       = 70
 	defaultVirusTotalOutputPriority   = 40
@@ -445,6 +446,23 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.Linode.DocumentCacheTTL = v.GetInt64("providers.linode.document_cache_ttl")
 	sess.Providers.Linode.URL = v.GetString("providers.linode.url")
+	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
+
+	// OVH
+	if v.IsSet("providers.ovh.enabled") {
+		sess.Providers.OVH.Enabled = ToPtr(v.GetBool("providers.ovh.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "OVH")
+	}
+
+	if v.IsSet("providers.ovh.output_priority") {
+		sess.Providers.OVH.OutputPriority = ToPtr(v.GetInt32("providers.ovh.output_priority"))
+	} else {
+		sess.Providers.OVH.OutputPriority = ToPtr(int32(defaultOVHOutputPriority))
+	}
+
+	sess.Providers.OVH.DocumentCacheTTL = v.GetInt64("providers.ovh.document_cache_ttl")
+	sess.Providers.OVH.URL = v.GetString("providers.ovh.url")
 	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
 
 	// Shodan
