@@ -17,8 +17,6 @@ import (
 )
 
 const (
-	AppName                = "ipscout"
-	DefaultIndentSpaces    = 2
 	DefaultMaxReports      = 5
 	DefaultConfigFileName  = "config.yaml"
 	defaultDIRPermissions  = 0o700

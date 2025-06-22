@@ -14,6 +14,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jonhadfield/ipscout/constants"
+
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -241,7 +243,7 @@ func (c *ProviderClient) ExtractThreatIndicators(findRes []byte) (*providers.Thr
 	var doc HostSearchResult
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return nil, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
+		return nil, fmt.Errorf(constants.ErrUnmarshalFindResultFmt, err)
 	}
 
 	threatIndicators := providers.ThreatIndicators{
@@ -262,11 +264,11 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 
 	var ratingConfig providers.RatingConfig
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
-		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalRatingConfigFmt, err)
+		return providers.RateResult{}, fmt.Errorf(constants.ErrUnmarshalRatingConfigFmt, err)
 	}
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
+		return providers.RateResult{}, fmt.Errorf(constants.ErrUnmarshalFindResultFmt, err)
 	}
 
 	geoResult := rateGeolocation(doc, ratingConfig)
@@ -351,11 +353,18 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 }
 
 func (c *ProviderClient) Initialise() error {
+	c.Logger.Info("Initialising cache:", "provider", ProviderName, "host", c.Host.String(), "cache", c.Cache == nil)
+
 	if c.Cache == nil {
 		return session.ErrCacheNotSet
 	}
 
+	if c.Host == (netip.Addr{}) {
+		return fmt.Errorf("shodan provider requires a host to be set")
+	}
+
 	start := time.Now()
+
 	defer func() {
 		c.Stats.Mu.Lock()
 		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)

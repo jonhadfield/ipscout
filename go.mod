@@ -9,12 +9,14 @@ require (
 	github.com/dgraph-io/badger/v4 v4.7.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
+	github.com/gdamore/tcell/v2 v2.8.1
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/jonhadfield/azwaf v0.0.0-20250613214312-e73e9da7c0d1
 	github.com/jonhadfield/ip-fetcher v0.0.0-20250614142742-bfed072c3a3e
 	github.com/miekg/dns v1.1.66
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/rivo/tview v0.0.0-20250501113434-0c592cd31026
 	github.com/sashabaranov/go-openai v1.40.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
@@ -46,6 +48,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgraph-io/ristretto/v2 v2.2.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
+	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
@@ -62,6 +65,7 @@ require (
 	github.com/jszwec/csvutil v1.10.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-ieproxy v0.0.12 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

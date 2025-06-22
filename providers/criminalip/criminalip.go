@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jonhadfield/ipscout/constants"
+
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -57,11 +59,11 @@ func (c *Client) RateHostData(findRes []byte, ratingConfigJSON []byte) (provider
 
 	var ratingConfig providers.RatingConfig
 	if err := json.Unmarshal(ratingConfigJSON, &ratingConfig); err != nil {
-		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalRatingConfigFmt, err)
+		return providers.RateResult{}, fmt.Errorf(constants.ErrUnmarshalRatingConfigFmt, err)
 	}
 
 	if err := json.Unmarshal(findRes, &doc); err != nil {
-		return providers.RateResult{}, fmt.Errorf(providers.ErrUnmarshalFindResultFmt, err)
+		return providers.RateResult{}, fmt.Errorf(constants.ErrUnmarshalFindResultFmt, err)
 	}
 
 	var reasons []string

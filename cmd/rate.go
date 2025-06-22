@@ -5,6 +5,8 @@ import (
 	"net/netip"
 	"os"
 
+	"github.com/jonhadfield/ipscout/constants"
+
 	"github.com/jonhadfield/ipscout/providers"
 
 	"github.com/jonhadfield/ipscout/rate"
@@ -37,7 +39,7 @@ func newRateCommand() *cobra.Command {
 			var err error
 
 			if sess.Host, err = netip.ParseAddr(args[0]); err != nil {
-				fmt.Printf(providers.MsgInvalidHostFmt, err.Error())
+				fmt.Printf(constants.MsgInvalidHostFmt, err.Error())
 
 				os.Exit(1)
 			}
