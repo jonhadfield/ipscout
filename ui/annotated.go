@@ -64,7 +64,7 @@ func createAnnotatedTable(ip string, result *annotated.HostSearchResult) *tview.
 	// Records
 	if len(*result) > 0 {
 		for p, annotations := range *result {
-			table.SetCell(row, 0, tview.NewTableCell(" Records").
+			table.SetCell(row, 0, tview.NewTableCell(" Prefix").
 				SetTextColor(tcell.ColorWhite).
 				SetSelectable(false))
 			table.SetCell(row, 1, tview.NewTableCell(p.String()).
@@ -74,7 +74,7 @@ func createAnnotatedTable(ip string, result *annotated.HostSearchResult) *tview.
 			row++
 
 			for _, annotation := range annotations {
-				table.SetCell(row, 0, tview.NewTableCell("   - Hostname").
+				table.SetCell(row, 0, tview.NewTableCell("   - Annotations").
 					SetTextColor(tcell.ColorWhite).
 					SetSelectable(false))
 
