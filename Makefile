@@ -25,7 +25,13 @@ lint:
 	golangci-lint run
 ci: lint test
 
-BUILD_TAG := $(shell git describe --tags 2>/dev/null)
+#BUILD_TAG := $(shell git describe --tags 2>/dev/null)
+BUILD_TAG := $(shell bash -c '\
+  if git describe --tags --exact-match > /dev/null 2>&1; then \
+    git describe --tags --abbrev=0; \
+  else \
+    printf "%s-dev\n" "$$(git describe --tags --abbrev=0)"; \
+  fi')
 BUILD_SHA := $(shell git rev-parse --short HEAD)
 BUILD_DATE := $(shell date -u '+%Y/%m/%d:%H:%M:%S')
 LATEST_TAG := $(shell git describe --abbrev=0 2>/dev/null)
