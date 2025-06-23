@@ -289,6 +289,7 @@ func loadResultsFile(path string) (*HostSearchResult, error) {
 	defer jf.Close()
 
 	var res HostSearchResult
+
 	decoder := json.NewDecoder(jf)
 
 	if err = decoder.Decode(&res); err != nil {

@@ -3,10 +3,11 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"log/slog"
 	"os"
 	"strings"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/mitchellh/go-homedir"
 

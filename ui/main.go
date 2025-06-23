@@ -6,6 +6,9 @@ import (
 	"os"
 	"strings"
 
+	c "github.com/jonhadfield/ipscout/constants"
+	"github.com/jonhadfield/ipscout/helpers"
+
 	"github.com/jonhadfield/ipscout/session"
 
 	"github.com/gdamore/tcell/v2"
@@ -39,7 +42,6 @@ const (
 	PressEnterMsg   = "Press enter to load"
 	PlaceholderText = "  Enter IP address or hostname"
 	FooterText      = "(i) input | (p) providers | (q) quit | Ctrl+C confirm quit"
-	AppTitle        = "IPScout v0.0.1"
 	ProvidersHeader = "Providers"
 	ResultsHeader   = "Results"
 	LogFileName     = "app.log"
@@ -152,7 +154,7 @@ func OpenUI() {
 	}))
 	slog.SetDefault(logger)
 
-	slog.Info("Application starting")
+	slog.Info(c.AppNameSC + " " + helpers.SemVer + " starting")
 
 	app := tview.NewApplication()
 
@@ -170,7 +172,7 @@ func OpenUI() {
 	tview.Styles.ContrastSecondaryTextColor = tcell.ColorDarkGray
 
 	title := tview.NewTextView()
-	title.SetText(AppTitle)
+	title.SetText(c.AppNameSC + " " + helpers.SemVer)
 	title.SetTextAlign(tview.AlignCenter)
 	title.SetTextColor(tcell.ColorWhite)
 	title.SetBackgroundColor(tcell.ColorBlack)
@@ -507,5 +509,5 @@ func OpenUI() {
 		panic(err)
 	}
 
-	slog.Info("Application shutdown complete")
+	slog.Info(c.AppNameSC + " " + helpers.SemVer + " shutdown complete")
 }

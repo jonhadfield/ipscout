@@ -3,7 +3,8 @@ package constants
 import "time"
 
 const (
-	AppName = "ipscout"
+	AppName   = "ipscout"
+	AppNameSC = "IPScout"
 
 	ProviderNotDefinedFmt = "%s provider not defined in config"
 
