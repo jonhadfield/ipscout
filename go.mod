@@ -10,7 +10,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/gdamore/tcell/v2 v2.8.1
-	github.com/hashicorp/go-retryablehttp v0.7.7
+	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/jonhadfield/azwaf v0.0.0-20250613214312-e73e9da7c0d1
 	github.com/jonhadfield/ip-fetcher v0.0.0-20250614142742-bfed072c3a3e
