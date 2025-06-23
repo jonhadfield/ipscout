@@ -21,7 +21,7 @@ func fetchShodan(ip string, sess *session.Session) providerResult {
 	if err != nil {
 		slog.Error("Error parsing host for Shodan", "ip", ip, "error", err)
 
-		return providerResult{text: fmt.Sprintf("Error parsing host for Shodan: %v", err)}
+		return providerResult{text: simplifyError(err, "shodan", ip)}
 	}
 
 	processor := New(sess)
@@ -31,7 +31,7 @@ func fetchShodan(ip string, sess *session.Session) providerResult {
 	if err != nil {
 		slog.Error("Error fetching data from Shodan", "ip", ip, "error", err)
 
-		return providerResult{text: fmt.Sprintf("Error fetching data for %s from Shodan: %v", ip, err)}
+		return providerResult{text: simplifyError(err, "shodan", ip)}
 	}
 
 	slog.Info("Fetching data from Shodan", "ip", ip)
@@ -41,24 +41,29 @@ func fetchShodan(ip string, sess *session.Session) providerResult {
 	if err := json.Unmarshal([]byte(res), &shodanResult); err != nil {
 		slog.Error("Failed to parse Shodan JSON", "error", err)
 
-		return providerResult{text: res} // fallback to raw data
+		return providerResult{text: simplifyError(err, "shodan", ip)}
 	}
 
-	// Create tview table
-	table := createShodanTable(&shodanResult)
+	// Create tview table without arrow (arrow will be added at display time if active)
+	table := createShodanTable(&shodanResult, false)
 
 	return providerResult{table: table}
 }
 
-func createShodanTable(result *shodan.HostSearchResult) *tview.Table {
+func createShodanTable(result *shodan.HostSearchResult, isActive bool) *tview.Table {
 	table := tview.NewTable()
 	table.SetBorder(false)
 	table.SetBackgroundColor(tcell.ColorBlack)
 
 	row := 0
 
-	// Header
-	table.SetCell(row, 0, tview.NewTableCell(" SHODAN | Host: "+result.IPStr).
+	// Header with active indicator
+	headerText := " SHODAN | Host: " + result.IPStr
+	if isActive {
+		headerText = " ▶ SHODAN | Host: " + result.IPStr
+	}
+
+	table.SetCell(row, 0, tview.NewTableCell(headerText).
 		SetTextColor(tcell.ColorLightCyan).
 		SetSelectable(false))
 

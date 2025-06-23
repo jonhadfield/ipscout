@@ -47,13 +47,15 @@ const (
 	// Icon alternation
 	emojiGlobe   = "🌐" // Globe icon
 	emojiInvader = "👾" // Network icon
-	emojiShield  = "🌐" // Shield icon
+	emojiLaptop  = "💻" // Shield icon
 )
 
 var providerIcons = map[string]string{
-	"annotated": emojiShield,
+	"annotated": emojiLaptop,
 	"ptr":       emojiGlobe,
 	"shodan":    emojiInvader,
+	"ipapi":     emojiGlobe,
+	"ipurl":     emojiGlobe,
 }
 
 type providerResult struct {
@@ -62,6 +64,65 @@ type providerResult struct {
 }
 
 type providerFunc func(string, *session.Session) providerResult
+
+// isNoDataResult checks if the result indicates no data was found
+func isNoDataResult(result providerResult) bool {
+	if result.table != nil {
+		return false // If we have a table, we have some data structure
+	}
+
+	// Check for common "no data" text patterns
+	text := result.text
+
+	return text == "No data found" ||
+		text == "No data available" ||
+		text == "Service error" ||
+		text == "Connection failed" ||
+		text == ErrMsgInvalidDataFormat ||
+		text == "Provider not configured" ||
+		text == "Authentication required" ||
+		text == "Service temporarily unavailable" ||
+		text == "Invalid IP address"
+}
+
+// getProviderIndex returns the index of the provider in the providers slice
+func getProviderIndex(providerName string, providers []string) int {
+	for i, p := range providers {
+		if p == providerName {
+			return i
+		}
+	}
+
+	return 0 // Default to first provider if not found
+}
+
+// addActiveIndicatorToTable adds the ▶ arrow to the table header
+func addActiveIndicatorToTable(table *tview.Table, providerName string) {
+	if table == nil {
+		return
+	}
+
+	// Get the current header cell
+	headerCell := table.GetCell(0, 0)
+	if headerCell == nil {
+		return
+	}
+
+	currentText := headerCell.Text
+	// Only add arrow if it's not already there
+	if !strings.HasPrefix(currentText, " ▶") {
+		newText := strings.Replace(currentText, " "+strings.ToUpper(providerName), " ▶ "+strings.ToUpper(providerName), 1)
+		// Handle special cases
+		switch providerName {
+		case "ipapi":
+			newText = strings.Replace(currentText, " IPAPI", " ▶ IPAPI", 1)
+		case "ipurl":
+			newText = strings.Replace(currentText, " IP URL", " ▶ IP URL", 1)
+		}
+
+		headerCell.SetText(newText)
+	}
+}
 
 func OpenUI() {
 	// Setup logging to app.log
@@ -122,8 +183,10 @@ func OpenUI() {
 		"annotated": fetchAnnotated,
 		"ptr":       fetchPTR,
 		"shodan":    fetchShodan,
+		"ipapi":     fetchIPAPI,
+		"ipurl":     fetchIPURL,
 	}
-	providers := []string{"ptr", "annotated", "shodan"}
+	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl"}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()
@@ -205,43 +268,70 @@ func OpenUI() {
 		}
 	}
 
+	// Helper function to handle provider not found error
+	handleProviderError := func(providerName string) {
+		errMsg := "Provider not available"
+
+		slog.Error("Unknown provider requested", "provider", providerName, "ip", currentIP)
+		textBox.SetText(errMsg)
+		resultsContainer.Clear()
+		resultsContainer.AddItem(textBox, 0, 1, true)
+		// Switch focus back to provider list since this is an error and maintain selection
+		providerIndex := getProviderIndex(providerName, providers)
+		providerList.SetCurrentItem(providerIndex)
+		app.SetFocus(providerList)
+	}
+
+	// Helper function to handle text results
+	handleTextResult := func(result providerResult, providerName string) {
+		textBox.SetText(result.text)
+		resultsContainer.AddItem(textBox, 0, 1, true)
+
+		// If no data was found, switch focus back to provider list and maintain selection
+		if isNoDataResult(result) {
+			providerIndex := getProviderIndex(providerName, providers)
+			providerList.SetCurrentItem(providerIndex)
+			app.SetFocus(providerList)
+		} else {
+			app.SetFocus(textBox)
+		}
+	}
+
 	// Now define fetchAndShow function
 	fetchAndShow = func(providerName, ip string) {
 		slog.Info("Fetching data", "ip", ip, "provider", providerName)
 
-		if fn, ok := providerFuncs[providerName]; ok {
-			if ip == "" {
-				slog.Error("Empty IP provided for fetchAndShow", "provider", providerName)
+		fn, ok := providerFuncs[providerName]
+		if !ok {
+			handleProviderError(providerName)
 
-				return
-			}
+			return
+		}
 
-			result := fn(ip, sess)
-			providerInfo[providerName] = result
+		if ip == "" {
+			slog.Error("Empty IP provided for fetchAndShow", "provider", providerName)
 
-			// Update current provider and refresh provider list with arrow
-			currentProvider = providerName
-			updateProviderList(currentProvider)
+			return
+		}
 
-			// Clear the results container
-			resultsContainer.Clear()
+		result := fn(ip, sess)
+		providerInfo[providerName] = result
 
-			// Show either table or text based on result type
-			if result.table != nil {
-				resultsContainer.AddItem(result.table, 0, 1, true)
-				app.SetFocus(result.table)
-			} else {
-				textBox.SetText(result.text)
-				resultsContainer.AddItem(textBox, 0, 1, true)
-				app.SetFocus(textBox)
-			}
+		// Update current provider and refresh provider list with arrow
+		currentProvider = providerName
+		updateProviderList(currentProvider)
+
+		// Clear the results container
+		resultsContainer.Clear()
+
+		// Show either table or text based on result type and handle focus
+		if result.table != nil {
+			// Add active indicator since this table will receive focus
+			addActiveIndicatorToTable(result.table, providerName)
+			resultsContainer.AddItem(result.table, 0, 1, true)
+			app.SetFocus(result.table)
 		} else {
-			errMsg := fmt.Sprintf("no provider for %s", providerName)
-			slog.Error("Unknown provider requested", "provider", providerName, "ip", ip)
-			textBox.SetText(errMsg)
-			resultsContainer.Clear()
-			resultsContainer.AddItem(textBox, 0, 1, true)
-			app.SetFocus(textBox)
+			handleTextResult(result, providerName)
 		}
 	}
 

@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/gdamore/tcell/v2"
@@ -17,7 +16,7 @@ func fetchPTR(ip string, sess *session.Session) providerResult { //nolint:revive
 	if err != nil {
 		sess.Logger.Error("Error fetching PTR data", "ip", ip, "error", err)
 
-		return providerResult{text: fmt.Sprintf("Error fetching PTR data for %s: %v", ip, err)}
+		return providerResult{text: simplifyError(err, "ptr", ip)}
 	}
 
 	var records []string
@@ -29,21 +28,26 @@ func fetchPTR(ip string, sess *session.Session) providerResult { //nolint:revive
 		}
 	}
 
-	// Create PTR table
-	table := createPTRTable(ip, records)
+	// Create PTR table without arrow (arrow will be added at display time if active)
+	table := createPTRTable(ip, records, false)
 
 	return providerResult{table: table}
 }
 
-func createPTRTable(ip string, records []string) *tview.Table { //nolint:dupl
+func createPTRTable(ip string, records []string, isActive bool) *tview.Table { //nolint:dupl
 	table := tview.NewTable()
 	table.SetBorder(false)
 	table.SetBackgroundColor(tcell.ColorBlack)
 
 	row := 0
 
-	// Header
-	table.SetCell(row, 0, tview.NewTableCell(" PTR | Host: "+ip).
+	// Header with active indicator
+	headerText := " PTR | Host: " + ip
+	if isActive {
+		headerText = " ▶ PTR | Host: " + ip
+	}
+
+	table.SetCell(row, 0, tview.NewTableCell(headerText).
 		SetTextColor(tcell.ColorLightCyan).
 		SetSelectable(false))
 

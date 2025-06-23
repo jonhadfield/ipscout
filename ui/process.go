@@ -11,10 +11,10 @@ import (
 
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/providers/ipapi"
+	"github.com/jonhadfield/ipscout/providers/ipurl"
 
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
-	"github.com/jonhadfield/ipscout/providers/ipurl"
 	"github.com/jonhadfield/ipscout/providers/shodan"
 	"github.com/jonhadfield/ipscout/session"
 )
@@ -51,6 +51,13 @@ func getProviderClient(sess session.Session, providerName string) (providers.Pro
 			pc, err = ipapi.NewProviderClient(sess)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create IPAPI client: %w", err)
+			}
+		}
+	case ipurl.ProviderName:
+		if *sess.Providers.IPURL.Enabled {
+			pc, err = ipurl.NewProviderClient(sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create IPURL client: %w", err)
 			}
 		}
 		// {Name: abuseipdb.ProviderName, Enabled: sess.Providers.AbuseIPDB.Enabled, APIKey: sess.Providers.AbuseIPDB.APIKey, NewClient: abuseipdb.NewClient},

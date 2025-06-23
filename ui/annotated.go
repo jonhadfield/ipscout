@@ -2,7 +2,6 @@ package ui
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/jonhadfield/ipscout/helpers"
@@ -18,7 +17,7 @@ func fetchAnnotated(ip string, sess *session.Session) providerResult { //nolint:
 	if err != nil {
 		sess.Logger.Error("Error parsing host for Annotated", "ip", ip, "error", err)
 
-		return providerResult{text: fmt.Sprintf("Error parsing host for Annotated: %v", err)}
+		return providerResult{text: simplifyError(err, "annotated", ip)}
 	}
 
 	processor := New(sess)
@@ -28,7 +27,7 @@ func fetchAnnotated(ip string, sess *session.Session) providerResult { //nolint:
 	if err != nil {
 		sess.Logger.Error("Error fetching data from Annotated", "ip", ip, "error", err)
 
-		return providerResult{text: fmt.Sprintf("Error fetching data for %s from Annotated: %v", ip, err)}
+		return providerResult{text: simplifyError(err, "annotated", ip)}
 	}
 
 	sess.Logger.Info("Fetching data from Annotated", "ip", ip)
@@ -38,24 +37,29 @@ func fetchAnnotated(ip string, sess *session.Session) providerResult { //nolint:
 	if err := json.Unmarshal([]byte(res), &annotatedResult); err != nil {
 		sess.Logger.Error("Failed to parse Annotated JSON", "error", err)
 
-		return providerResult{text: res} // fallback to raw data
+		return providerResult{text: simplifyError(err, "annotated", ip)}
 	}
 
-	// Create tview table
-	table := createAnnotatedTable(sess.Host.String(), &annotatedResult)
+	// Create tview table without arrow (arrow will be added at display time if active)
+	table := createAnnotatedTable(sess.Host.String(), &annotatedResult, false)
 
 	return providerResult{table: table}
 }
 
-func createAnnotatedTable(ip string, result *annotated.HostSearchResult) *tview.Table { //nolint:dupl
+func createAnnotatedTable(ip string, result *annotated.HostSearchResult, isActive bool) *tview.Table { //nolint:dupl
 	table := tview.NewTable()
 	table.SetBorder(false)
 	table.SetBackgroundColor(tcell.ColorBlack)
 
 	row := 0
 
-	// Header
-	table.SetCell(row, 0, tview.NewTableCell(" Annotated | Host: "+ip).
+	// Header with active indicator
+	headerText := " Annotated | Host: " + ip
+	if isActive {
+		headerText = " ▶ Annotated | Host: " + ip
+	}
+
+	table.SetCell(row, 0, tview.NewTableCell(headerText).
 		SetTextColor(tcell.ColorLightCyan).
 		SetSelectable(false))
 
