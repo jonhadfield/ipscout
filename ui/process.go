@@ -10,8 +10,14 @@ import (
 	"github.com/jonhadfield/ipscout/providers/annotated"
 
 	"github.com/jonhadfield/ipscout/providers"
+	"github.com/jonhadfield/ipscout/providers/abuseipdb"
+	"github.com/jonhadfield/ipscout/providers/aws"
+	"github.com/jonhadfield/ipscout/providers/googlebot"
+	"github.com/jonhadfield/ipscout/providers/hetzner"
 	"github.com/jonhadfield/ipscout/providers/ipapi"
+	"github.com/jonhadfield/ipscout/providers/ipqs"
 	"github.com/jonhadfield/ipscout/providers/ipurl"
+	"github.com/jonhadfield/ipscout/providers/virustotal"
 
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
@@ -60,30 +66,48 @@ func getProviderClient(sess session.Session, providerName string) (providers.Pro
 				return nil, fmt.Errorf("failed to create IPURL client: %w", err)
 			}
 		}
-		// {Name: abuseipdb.ProviderName, Enabled: sess.Providers.AbuseIPDB.Enabled, APIKey: sess.Providers.AbuseIPDB.APIKey, NewClient: abuseipdb.NewClient},
-		// {Name: annotated.ProviderName, Enabled: sess.Providers.Annotated.Enabled, APIKey: "", NewClient: annotated.NewProviderClient},
-		// {Name: aws.ProviderName, Enabled: sess.Providers.AWS.Enabled, APIKey: "", NewClient: aws.NewProviderClient},
-		// {Name: azure.ProviderName, Enabled: sess.Providers.Azure.Enabled, APIKey: "", NewClient: azure.NewProviderClient},
-		// {Name: azurewaf.ProviderName, Enabled: sess.Providers.AzureWAF.Enabled, APIKey: "", NewClient: azurewaf.NewProviderClient},
-		// {Name: bingbot.ProviderName, Enabled: sess.Providers.Bingbot.Enabled, APIKey: "", NewClient: bingbot.NewProviderClient},
-		// {Name: criminalip.ProviderName, Enabled: sess.Providers.CriminalIP.Enabled, APIKey: sess.Providers.CriminalIP.APIKey, NewClient: criminalip.NewProviderClient},
-		// {Name: digitalocean.ProviderName, Enabled: sess.Providers.DigitalOcean.Enabled, APIKey: "", NewClient: digitalocean.NewProviderClient},
-		// {Name: gcp.ProviderName, Enabled: sess.Providers.GCP.Enabled, APIKey: "", NewClient: gcp.NewProviderClient},
-		// {Name: google.ProviderName, Enabled: sess.Providers.Google.Enabled, APIKey: "", NewClient: google.NewProviderClient},
-		// {Name: googlebot.ProviderName, Enabled: sess.Providers.Googlebot.Enabled, APIKey: "", NewClient: googlebot.NewProviderClient},
-		// {Name: googlesc.ProviderName, Enabled: sess.Providers.GoogleSC.Enabled, APIKey: "", NewClient: googlesc.NewProviderClient},
-		// {Name: hetzner.ProviderName, Enabled: sess.Providers.Hetzner.Enabled, APIKey: "", NewClient: hetzner.NewProviderClient},
-		// {Name: ipapi.ProviderName, Enabled: sess.Providers.IPAPI.Enabled, APIKey: "", NewClient: ipapi.NewProviderClient},
-		// {Name: ipqs.ProviderName, Enabled: sess.Providers.IPQS.Enabled, APIKey: sess.Providers.IPQS.APIKey, NewClient: ipqs.NewProviderClient},
-		// {Name: ipurl.ProviderName, Enabled: sess.Providers.IPURL.Enabled, APIKey: "", NewClient: ipurl.NewProviderClient},
-		// {Name: icloudpr.ProviderName, Enabled: sess.Providers.ICloudPR.Enabled, APIKey: "", NewClient: icloudpr.NewProviderClient},
-		// {Name: linode.ProviderName, Enabled: sess.Providers.Linode.Enabled, APIKey: "", NewClient: linode.NewProviderClient},
-		// {Name: ovh.ProviderName, Enabled: sess.Providers.OVH.Enabled, APIKey: "", NewClient: ovh.NewProviderClient},
-		// {Name: ptr.ProviderName, Enabled: sess.Providers.PTR.Enabled, APIKey: "", NewClient: ptr.NewProviderClient},
-		// {Name: shodan.ProviderName, Enabled: sess.Providers.Shodan.Enabled, APIKey: sess.Providers.Shodan.APIKey, NewClient: shodan.NewProviderClient},
-		// {Name: virustotal.ProviderName, Enabled: sess.Providers.VirusTotal.Enabled, APIKey: sess.Providers.VirusTotal.APIKey, NewClient: virustotal.NewProviderClient},
-		// {Name: zscaler.ProviderName, Enabled: sess.Providers.Zscaler.Enabled, APIKey: "", NewClient: zscaler.NewProviderClient},
-		return pc, nil
+	case googlebot.ProviderName:
+		if *sess.Providers.Googlebot.Enabled {
+			pc, err = googlebot.NewProviderClient(sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create Googlebot client: %w", err)
+			}
+		}
+	case hetzner.ProviderName:
+		if *sess.Providers.Hetzner.Enabled {
+			pc, err = hetzner.NewProviderClient(sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create Hetzner client: %w", err)
+			}
+		}
+	case ipqs.ProviderName:
+		if *sess.Providers.IPQS.Enabled {
+			pc, err = ipqs.NewProviderClient(sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create IPQS client: %w", err)
+			}
+		}
+	case abuseipdb.ProviderName:
+		if *sess.Providers.AbuseIPDB.Enabled {
+			pc, err = abuseipdb.NewClient(sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create AbuseIPDB client: %w", err)
+			}
+		}
+	case virustotal.ProviderName:
+		if *sess.Providers.VirusTotal.Enabled {
+			pc, err = virustotal.NewProviderClient(sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create VirusTotal client: %w", err)
+			}
+		}
+	case aws.ProviderName:
+		if *sess.Providers.AWS.Enabled {
+			pc, err = aws.NewProviderClient(sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create AWS client: %w", err)
+			}
+		}
 	}
 
 	if pc != nil && !pc.Enabled() {

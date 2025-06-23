@@ -53,11 +53,17 @@ const (
 )
 
 var providerIcons = map[string]string{
-	"annotated": emojiLaptop,
-	"ptr":       emojiGlobe,
-	"shodan":    emojiInvader,
-	"ipapi":     emojiGlobe,
-	"ipurl":     emojiGlobe,
+	"annotated":  emojiLaptop,
+	"ptr":        emojiGlobe,
+	"shodan":     emojiInvader,
+	"ipapi":      emojiGlobe,
+	"ipurl":      emojiGlobe,
+	"googlebot":  emojiInvader,
+	"hetzner":    emojiLaptop,
+	"ipqs":       emojiInvader,
+	"abuseipdb":  emojiInvader,
+	"virustotal": emojiInvader,
+	"aws":        emojiLaptop,
 }
 
 type providerResult struct {
@@ -120,6 +126,18 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 			newText = strings.Replace(currentText, " IPAPI", " ▶ IPAPI", 1)
 		case "ipurl":
 			newText = strings.Replace(currentText, " IP URL", " ▶ IP URL", 1)
+		case "googlebot":
+			newText = strings.Replace(currentText, " GOOGLEBOT", " ▶ GOOGLEBOT", 1)
+		case "hetzner":
+			newText = strings.Replace(currentText, " HETZNER", " ▶ HETZNER", 1)
+		case "ipqs":
+			newText = strings.Replace(currentText, " IPQS", " ▶ IPQS", 1)
+		case "abuseipdb":
+			newText = strings.Replace(currentText, " ABUSEIPDB", " ▶ ABUSEIPDB", 1)
+		case "virustotal":
+			newText = strings.Replace(currentText, " VIRUSTOTAL", " ▶ VIRUSTOTAL", 1)
+		case "aws":
+			newText = strings.Replace(currentText, " AWS", " ▶ AWS", 1)
 		}
 
 		headerCell.SetText(newText)
@@ -182,13 +200,19 @@ func OpenUI() {
 	// 	panic(fmt.Sprintf("Failed to initialize processor: %v", err))
 	// }
 	providerFuncs := map[string]providerFunc{
-		"annotated": fetchAnnotated,
-		"ptr":       fetchPTR,
-		"shodan":    fetchShodan,
-		"ipapi":     fetchIPAPI,
-		"ipurl":     fetchIPURL,
+		"annotated":  fetchAnnotated,
+		"ptr":        fetchPTR,
+		"shodan":     fetchShodan,
+		"ipapi":      fetchIPAPI,
+		"ipurl":      fetchIPURL,
+		"googlebot":  fetchGooglebot,
+		"hetzner":    fetchHetzner,
+		"ipqs":       fetchIPQS,
+		"abuseipdb":  fetchAbuseIPDB,
+		"virustotal": fetchVirusTotal,
+		"aws":        fetchAWS,
 	}
-	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl"}
+	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "virustotal", "aws"}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()
