@@ -174,7 +174,7 @@ func OpenUI() {
 
 	slog.Info(c.AppNameSC + " " + helpers.SemVer + " starting")
 
-	app := tview.NewApplication()
+	app := tview.NewApplication().EnableMouse(true)
 
 	// Set k9s-inspired dark theme
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorBlack
@@ -514,6 +514,14 @@ func OpenUI() {
 
 				return nil
 			case 'p':
+				app.SetFocus(providerList)
+
+				return nil
+			}
+
+			// Handle arrow keys
+			switch event.Key() {
+			case tcell.KeyLeft:
 				app.SetFocus(providerList)
 
 				return nil
