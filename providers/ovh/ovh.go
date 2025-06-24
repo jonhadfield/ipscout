@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jonhadfield/ipscout/helpers"
 	"net/netip"
 	"time"
 
@@ -178,12 +179,7 @@ func (c *ProviderClient) Initialise() error {
 		return session.ErrCacheNotSet
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.InitialiseDuration, ProviderName)()
 
 	c.Logger.Debug("initialising ovh client")
 
@@ -257,12 +253,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 
 // FindHost searches for the host in the ovh data
 func (c *ProviderClient) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.FindHostDuration, ProviderName)()
 
 	var result *HostSearchResult
 
@@ -315,12 +306,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 }
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.CreateTableDuration, ProviderName)()
 
 	result, err := unmarshalResponse(data)
 	if err != nil {

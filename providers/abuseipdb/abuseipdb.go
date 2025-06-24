@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/jonhadfield/ipscout/helpers"
 	"io"
 	"net/http"
 	"net/netip"
@@ -155,12 +156,7 @@ func (c *Client) Initialise() error {
 		return session.ErrCacheNotSet
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.InitialiseDuration, ProviderName)()
 
 	c.Logger.Debug("initialising abuseipdb client")
 
@@ -168,12 +164,7 @@ func (c *Client) Initialise() error {
 }
 
 func (c *Client) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.FindHostDuration, ProviderName)()
 
 	result, err := fetchData(c.Session)
 	if err != nil {
@@ -186,12 +177,7 @@ func (c *Client) FindHost() ([]byte, error) {
 }
 
 func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.CreateTableDuration, ProviderName)()
 
 	rowEmphasisColor := providers.RowEmphasisColor(c.Session)
 

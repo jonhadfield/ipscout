@@ -3,6 +3,7 @@ package ipapi
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jonhadfield/ipscout/helpers"
 	"log/slog"
 	"net/netip"
 	"os"
@@ -130,12 +131,7 @@ func (c *Client) Initialise() error {
 		return session.ErrCacheNotSet
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.InitialiseDuration, ProviderName)()
 
 	c.Logger.Debug("initialising ipapi client")
 
@@ -143,12 +139,7 @@ func (c *Client) Initialise() error {
 }
 
 func (c *Client) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.FindHostDuration, ProviderName)()
 
 	result, err := fetchData(c.Session)
 	if err != nil {
@@ -161,12 +152,7 @@ func (c *Client) FindHost() ([]byte, error) {
 }
 
 func (c *Client) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.CreateTableDuration, ProviderName)()
 
 	if data == nil {
 		return nil, nil

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jonhadfield/ipscout/helpers"
 	"log/slog"
 	"net/netip"
 	"os"
@@ -252,12 +253,7 @@ func (c *ProviderClient) Initialise() error {
 		return errors.New("no paths provided for annotated provider")
 	}
 
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.InitialiseDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.InitialiseDuration, ProviderName)()
 
 	c.Logger.Debug("initialising annotated client")
 
@@ -319,12 +315,7 @@ func generateURLsHash(urls []string) string {
 type HostSearchResult map[netip.Prefix][]annotation
 
 func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.CreateTableDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.CreateTableDuration, ProviderName)()
 
 	var err error
 
@@ -423,12 +414,7 @@ func loadResultsFile(path string) (*HostSearchResult, error) {
 }
 
 func (c *ProviderClient) FindHost() ([]byte, error) {
-	start := time.Now()
-	defer func() {
-		c.Stats.Mu.Lock()
-		c.Stats.FindHostDuration[ProviderName] = time.Since(start)
-		c.Stats.Mu.Unlock()
-	}()
+	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.FindHostDuration, ProviderName)()
 
 	var err error
 
