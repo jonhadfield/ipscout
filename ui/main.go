@@ -126,14 +126,16 @@ func isNoDataResult(result providerResult) bool {
 	}
 
 	// For table results, use simpler logic
+	const minRowsWithData = 2
+
 	table := result.table
-	if table.GetRowCount() < 2 {
+	if table.GetRowCount() < minRowsWithData {
 		return true // Only header row means no data
 	}
 
 	// Check for specific "no data" patterns in table cells
 	for row := 1; row < table.GetRowCount(); row++ {
-		for col := 0; col < table.GetColumnCount(); col++ {
+		for col := 0; col < table.GetColumnCount(); col++ { //nolint:intrange // Maintain compatibility
 			cell := table.GetCell(row, col)
 			if cell != nil {
 				cellText := cell.Text
@@ -155,6 +157,8 @@ func isNoDataResult(result providerResult) bool {
 
 // createLoadingSpinner creates an animated loading spinner
 func createLoadingSpinner(app *tview.Application, text string) (*tview.TextView, chan bool) {
+	const spinnerIntervalMs = 120
+
 	spinnerChars := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 
 	spinnerView := tview.NewTextView()
@@ -171,7 +175,8 @@ func createLoadingSpinner(app *tview.Application, text string) (*tview.TextView,
 
 	go func() {
 		index := 0
-		ticker := time.NewTicker(120 * time.Millisecond)
+		ticker := time.NewTicker(spinnerIntervalMs * time.Millisecond)
+
 		defer ticker.Stop()
 
 		for {
@@ -180,10 +185,12 @@ func createLoadingSpinner(app *tview.Application, text string) (*tview.TextView,
 				return
 			case <-ticker.C:
 				currentIndex := index
+
 				app.QueueUpdateDraw(func() {
 					spinnerView.SetText(fmt.Sprintf("[lightcyan]%s %s[-]",
 						spinnerChars[currentIndex], text))
 				})
+
 				index = (index + 1) % len(spinnerChars)
 			}
 		}
@@ -471,6 +478,7 @@ func OpenUI() {
 				textBox.SetText("Failed to parse host")
 				resultsContainer.AddItem(textBox, 0, 1, true)
 			})
+
 			return
 		}
 
@@ -485,6 +493,7 @@ func OpenUI() {
 				providerDataStatus[providerName] = &hasData
 				providerInfo[providerName] = providerResult{text: "Provider not available"}
 				providerDataStatusMutex.Unlock()
+
 				continue
 			}
 
@@ -517,6 +526,7 @@ func OpenUI() {
 
 						currentProvider = p
 						fetchAndShow(p, ip)
+
 						return
 					}
 				}
@@ -598,6 +608,7 @@ func OpenUI() {
 			} else {
 				handleTextResult(cachedResult, providerName)
 			}
+
 			return
 		}
 		providerDataStatusMutex.RUnlock()
@@ -691,6 +702,7 @@ func OpenUI() {
 			if len(providers) > 0 {
 				// Show animated loading spinner
 				spinner, stopSpinner := createLoadingSpinner(app, LoadingMsg)
+
 				resultsContainer.Clear()
 				resultsContainer.AddItem(spinner, 0, 1, false)
 
@@ -699,6 +711,7 @@ func OpenUI() {
 				go func() {
 					loadAllProviders(currentIP)
 					stopSpinner <- true
+
 					slog.Info("Finished loading all providers")
 				}()
 			} else {
@@ -837,7 +850,7 @@ func OpenUI() {
 			}
 
 			// Handle arrow keys
-			switch event.Key() {
+			switch event.Key() { //nolint:exhaustive // Only handle specific keys we care about
 			case tcell.KeyLeft:
 				// Return to the last selected provider if we have one
 				if currentProvider != "" {
@@ -848,6 +861,7 @@ func OpenUI() {
 				app.SetFocus(providerList)
 
 				return nil
+			default:
 			}
 		}
 
