@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/helpers"
@@ -53,6 +54,9 @@ const (
 	emojiInvader  = "👾"      // Network icon
 	emojiLaptop   = "💻"      // Shield icon
 	emojiCloud    = "\u2601" // Cloud icon
+
+	// Loading spinner
+	LoadingMsg = "Loading provider data..."
 )
 
 var providerIcons = map[string]string{
@@ -147,6 +151,45 @@ func isNoDataResult(result providerResult) bool {
 	}
 
 	return false // Table has actual data
+}
+
+// createLoadingSpinner creates an animated loading spinner
+func createLoadingSpinner(app *tview.Application, text string) (*tview.TextView, chan bool) {
+	spinnerChars := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+
+	spinnerView := tview.NewTextView()
+	spinnerView.SetBackgroundColor(tcell.ColorBlack)
+	spinnerView.SetTextColor(tcell.ColorLightCyan)
+	spinnerView.SetTextAlign(tview.AlignCenter)
+	spinnerView.SetBorder(false)
+	spinnerView.SetDynamicColors(true)
+
+	// Set initial text
+	spinnerView.SetText(fmt.Sprintf("[lightcyan]%s %s[-]", spinnerChars[0], text))
+
+	stopChan := make(chan bool, 1)
+
+	go func() {
+		index := 0
+		ticker := time.NewTicker(120 * time.Millisecond)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-stopChan:
+				return
+			case <-ticker.C:
+				currentIndex := index
+				app.QueueUpdateDraw(func() {
+					spinnerView.SetText(fmt.Sprintf("[lightcyan]%s %s[-]",
+						spinnerChars[currentIndex], text))
+				})
+				index = (index + 1) % len(spinnerChars)
+			}
+		}
+	}()
+
+	return spinnerView, stopChan
 }
 
 // getProviderIndex returns the index of the provider in the providers slice
@@ -423,7 +466,11 @@ func OpenUI() {
 		host, err := helpers.ParseHost(ip)
 		if err != nil {
 			slog.Error("Failed to parse host for loading", "ip", ip, "error", err)
-
+			app.QueueUpdateDraw(func() {
+				resultsContainer.Clear()
+				textBox.SetText("Failed to parse host")
+				resultsContainer.AddItem(textBox, 0, 1, true)
+			})
 			return
 		}
 
@@ -454,28 +501,32 @@ func OpenUI() {
 			providerDataStatusMutex.Unlock()
 
 			// Update the provider list after each provider loads
-			updateProviderList(currentProvider)
+			app.QueueUpdateDraw(func() {
+				updateProviderList(currentProvider)
+			})
 		}
 
 		// After all providers are loaded, show the first one with data or PTR as fallback
-		if currentProvider == "" {
-			providerDataStatusMutex.RLock()
+		app.QueueUpdateDraw(func() {
+			if currentProvider == "" {
+				providerDataStatusMutex.RLock()
 
-			for _, p := range providers {
-				if status := providerDataStatus[p]; status != nil && *status {
-					providerDataStatusMutex.RUnlock()
+				for _, p := range providers {
+					if status := providerDataStatus[p]; status != nil && *status {
+						providerDataStatusMutex.RUnlock()
 
-					currentProvider = p
-					fetchAndShow(p, ip)
-					return
+						currentProvider = p
+						fetchAndShow(p, ip)
+						return
+					}
 				}
-			}
-			providerDataStatusMutex.RUnlock()
-			// Fallback to PTR
-			currentProvider = "ptr"
+				providerDataStatusMutex.RUnlock()
+				// Fallback to PTR
+				currentProvider = "ptr"
 
-			fetchAndShow("ptr", ip)
-		}
+				fetchAndShow("ptr", ip)
+			}
+		})
 
 		slog.Info("Finished loading all providers")
 	}
@@ -525,6 +576,31 @@ func OpenUI() {
 
 			return
 		}
+
+		// Check if we already have cached data for this provider
+		providerDataStatusMutex.RLock()
+		if cachedResult, exists := providerInfo[providerName]; exists {
+			providerDataStatusMutex.RUnlock()
+
+			// Update current provider and refresh provider list with arrow
+			currentProvider = providerName
+			updateProviderList(currentProvider)
+
+			// Clear the results container
+			resultsContainer.Clear()
+
+			// Show cached result
+			if cachedResult.table != nil {
+				// Add active indicator since this table will receive focus
+				addActiveIndicatorToTable(cachedResult.table, providerName)
+				resultsContainer.AddItem(cachedResult.table, 0, 1, true)
+				app.SetFocus(cachedResult.table)
+			} else {
+				handleTextResult(cachedResult, providerName)
+			}
+			return
+		}
+		providerDataStatusMutex.RUnlock()
 
 		result := fn(ip, sess)
 
@@ -613,10 +689,18 @@ func OpenUI() {
 			providerDataStatus = make(map[string]*bool)
 
 			if len(providers) > 0 {
+				// Show animated loading spinner
+				spinner, stopSpinner := createLoadingSpinner(app, LoadingMsg)
+				resultsContainer.Clear()
+				resultsContainer.AddItem(spinner, 0, 1, false)
+
 				slog.Info("Provider list", "providers", providers)
-				// Load all providers sequentially to populate status
-				loadAllProviders(currentIP)
-				slog.Info("Finished loading all providers")
+				// Load all providers in background to avoid blocking UI
+				go func() {
+					loadAllProviders(currentIP)
+					stopSpinner <- true
+					slog.Info("Finished loading all providers")
+				}()
 			} else {
 				slog.Error("No providers available")
 			}
