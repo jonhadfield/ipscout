@@ -12,8 +12,8 @@ require (
 	github.com/gdamore/tcell/v2 v2.8.1
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/jedib0t/go-pretty/v6 v6.6.7
-	github.com/jonhadfield/azwaf v0.0.0-20250613214312-e73e9da7c0d1
-	github.com/jonhadfield/ip-fetcher v0.0.0-20250614142742-bfed072c3a3e
+	github.com/jonhadfield/azwaf v0.0.0-20250620202316-f182c807c0c0
+	github.com/jonhadfield/ip-fetcher v0.0.0-20250623160518-dbeb79c11268
 	github.com/miekg/dns v1.1.66
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rivo/tview v0.0.0-20250501113434-0c592cd31026
@@ -42,7 +42,7 @@ require (
 	github.com/Danny-Dasilva/CycleTLS/cycletls v1.0.26 // indirect
 	github.com/Danny-Dasilva/fhttp v0.0.0-20240217042913-eeeb0b347ce1 // indirect
 	github.com/alexeyco/simpletable v1.0.0 // indirect
-	github.com/andybalholm/brotli v1.1.1 // indirect
+	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -51,7 +51,7 @@ require (
 	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/google/flatbuffers v25.2.10+incompatible // indirect
