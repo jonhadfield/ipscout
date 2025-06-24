@@ -6,6 +6,8 @@ import (
 	"net"
 	"net/netip"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
 	c "github.com/jonhadfield/ipscout/constants"
@@ -77,4 +79,17 @@ func InitHomeDirConfig(sess *session.Session, v *viper.Viper) error {
 	sess.Config.Global.HomeDir = homeDir
 
 	return nil
+}
+
+// TrackDuration returns a closure that records the duration since it was created
+// in the supplied map using provider as the key. It is designed for use with
+// defer when timing operations.
+func TrackDuration(mu *sync.Mutex, m map[string]time.Duration, provider string) func() {
+	start := time.Now()
+
+	return func() {
+		mu.Lock()
+		m[provider] = time.Since(start)
+		mu.Unlock()
+	}
 }
