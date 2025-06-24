@@ -114,6 +114,9 @@ func getProviderClient(sess session.Session, providerName string) (providers.Pro
 		return nil, fmt.Errorf("provider %s is not enabled", providerName)
 	}
 
+	if pc == nil {
+		return nil, fmt.Errorf("provider %s is not supported", providerName)
+	}
 	if pc.GetConfig().Host == (netip.Addr{}) {
 		return nil, fmt.Errorf("providerAAAAA %s has no host configured", providerName)
 	}
@@ -147,8 +150,6 @@ func (p *Processor) Run(providerName string) (string, error) {
 	defer db.Close()
 
 	// get provider clients
-	sess.Logger.Warn("debug", "sess", p.Session, " providerName", providerName)
-
 	providerClient, err := getProviderClient(*p.Session, providerName)
 	if err != nil {
 		_ = db.Close()

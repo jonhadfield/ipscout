@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"sync"
 
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/helpers"
@@ -47,23 +48,37 @@ const (
 	LogFileName     = "app.log"
 
 	// Icon alternation
-	emojiGlobe   = "🌐" // Globe icon
-	emojiInvader = "👾" // Network icon
-	emojiLaptop  = "💻" // Shield icon
+	emojiDocument = "📄"
+	emojiGlobe    = "🌐"      // Globe icon
+	emojiInvader  = "👾"      // Network icon
+	emojiLaptop   = "💻"      // Shield icon
+	emojiCloud    = "\u2601" // Cloud icon
 )
 
 var providerIcons = map[string]string{
-	"annotated":  emojiLaptop,
-	"ptr":        emojiGlobe,
-	"shodan":     emojiInvader,
-	"ipapi":      emojiGlobe,
-	"ipurl":      emojiGlobe,
-	"googlebot":  emojiInvader,
-	"hetzner":    emojiLaptop,
-	"ipqs":       emojiInvader,
-	"abuseipdb":  emojiInvader,
-	"virustotal": emojiInvader,
-	"aws":        emojiLaptop,
+	"annotated":    emojiDocument,
+	"ptr":          emojiGlobe,
+	"shodan":       emojiInvader,
+	"ipapi":        emojiGlobe,
+	"ipurl":        emojiGlobe,
+	"googlebot":    emojiInvader,
+	"hetzner":      emojiCloud,
+	"ipqs":         emojiInvader,
+	"abuseipdb":    emojiInvader,
+	"virustotal":   emojiInvader,
+	"aws":          emojiCloud,
+	"azure":        emojiCloud,
+	"azurewaf":     emojiCloud,
+	"bingbot":      emojiInvader,
+	"criminalip":   emojiInvader,
+	"digitalocean": emojiLaptop,
+	"gcp":          emojiCloud,
+	"google":       emojiLaptop,
+	"googlesc":     emojiLaptop,
+	"icloudpr":     emojiLaptop,
+	"linode":       emojiCloud,
+	"ovh":          emojiCloud,
+	"zscaler":      emojiCloud,
 }
 
 type providerResult struct {
@@ -75,22 +90,63 @@ type providerFunc func(string, *session.Session) providerResult
 
 // isNoDataResult checks if the result indicates no data was found
 func isNoDataResult(result providerResult) bool {
-	if result.table != nil {
-		return false // If we have a table, we have some data structure
+	// Check text-based results first - these are usually errors
+	if result.table == nil {
+		text := result.text
+		// Check for exact matches
+		if text == "No data found" ||
+			text == "No data available" ||
+			text == "Service error" ||
+			text == "Connection failed" ||
+			text == ErrMsgInvalidDataFormat ||
+			text == "Provider not configured" ||
+			text == "Authentication required" ||
+			text == "Service temporarily unavailable" ||
+			text == "Invalid IP address" {
+			return true
+		}
+
+		// Check for provider-prefixed "no data" messages (e.g., "annotated: No data found")
+		if strings.Contains(text, ": No data found") ||
+			strings.Contains(text, ": No data available") ||
+			strings.Contains(text, ": Service error") ||
+			strings.Contains(text, ": Connection failed") ||
+			strings.Contains(text, ": Provider not configured") ||
+			strings.Contains(text, ": Authentication required") ||
+			strings.Contains(text, ": Service temporarily unavailable") ||
+			strings.Contains(text, ": Invalid IP address") {
+			return true
+		}
+
+		return false
 	}
 
-	// Check for common "no data" text patterns
-	text := result.text
+	// For table results, use simpler logic
+	table := result.table
+	if table.GetRowCount() < 2 {
+		return true // Only header row means no data
+	}
 
-	return text == "No data found" ||
-		text == "No data available" ||
-		text == "Service error" ||
-		text == "Connection failed" ||
-		text == ErrMsgInvalidDataFormat ||
-		text == "Provider not configured" ||
-		text == "Authentication required" ||
-		text == "Service temporarily unavailable" ||
-		text == "Invalid IP address"
+	// Check for specific "no data" patterns in table cells
+	for row := 1; row < table.GetRowCount(); row++ {
+		for col := 0; col < table.GetColumnCount(); col++ {
+			cell := table.GetCell(row, col)
+			if cell != nil {
+				cellText := cell.Text
+				// Look for explicit "no data" patterns
+				if strings.Contains(cellText, "No ") &&
+					(strings.Contains(cellText, "prefix found") ||
+						strings.Contains(cellText, "network found") ||
+						strings.Contains(cellText, "records found") ||
+						strings.Contains(cellText, "URL prefixes found") ||
+						strings.Contains(cellText, "data available")) {
+					return true
+				}
+			}
+		}
+	}
+
+	return false // Table has actual data
 }
 
 // getProviderIndex returns the index of the provider in the providers slice
@@ -138,6 +194,16 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 			newText = strings.Replace(currentText, " VIRUSTOTAL", " ▶ VIRUSTOTAL", 1)
 		case "aws":
 			newText = strings.Replace(currentText, " AWS", " ▶ AWS", 1)
+		case "azure":
+			newText = strings.Replace(currentText, " Azure", " ▶ Azure", 1)
+		case "azurewaf":
+			newText = strings.Replace(currentText, " Azure WAF", " ▶ Azure WAF", 1)
+		case "gcp":
+			newText = strings.Replace(currentText, " GCP", " ▶ GCP", 1)
+		case "digitalocean":
+			newText = strings.Replace(currentText, " DigitalOcean", " ▶ DigitalOcean", 1)
+		case "criminalip":
+			newText = strings.Replace(currentText, " CriminalIP", " ▶ CriminalIP", 1)
 		}
 
 		headerCell.SetText(newText)
@@ -200,19 +266,31 @@ func OpenUI() {
 	// 	panic(fmt.Sprintf("Failed to initialize processor: %v", err))
 	// }
 	providerFuncs := map[string]providerFunc{
-		"annotated":  fetchAnnotated,
-		"ptr":        fetchPTR,
-		"shodan":     fetchShodan,
-		"ipapi":      fetchIPAPI,
-		"ipurl":      fetchIPURL,
-		"googlebot":  fetchGooglebot,
-		"hetzner":    fetchHetzner,
-		"ipqs":       fetchIPQS,
-		"abuseipdb":  fetchAbuseIPDB,
-		"virustotal": fetchVirusTotal,
-		"aws":        fetchAWS,
+		"annotated":    fetchAnnotated,
+		"ptr":          fetchPTR,
+		"shodan":       fetchShodan,
+		"ipapi":        fetchIPAPI,
+		"ipurl":        fetchIPURL,
+		"googlebot":    fetchGooglebot,
+		"hetzner":      fetchHetzner,
+		"ipqs":         fetchIPQS,
+		"abuseipdb":    fetchAbuseIPDB,
+		"virustotal":   fetchVirusTotal,
+		"aws":          fetchAWS,
+		"azure":        fetchAzure,
+		"azurewaf":     fetchAzureWAF,
+		"bingbot":      fetchBingbot,
+		"criminalip":   fetchCriminalIP,
+		"digitalocean": fetchDigitalOcean,
+		"gcp":          fetchGCP,
+		"google":       fetchGoogle,
+		"googlesc":     fetchGoogleSC,
+		"icloudpr":     fetchICloudPR,
+		"linode":       fetchLinode,
+		"ovh":          fetchOVH,
+		"zscaler":      fetchZscaler,
 	}
-	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "virustotal", "aws"}
+	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "virustotal", "aws", "azure", "azurewaf", "bingbot", "criminalip", "digitalocean", "gcp", "google", "googlesc", "icloudpr", "linode", "ovh", "zscaler"}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()
@@ -248,8 +326,15 @@ func OpenUI() {
 
 	var currentProvider string
 
+	// Track provider data status: true = has data, false = no data, nil = not queried
+	providerDataStatus := make(map[string]*bool)
+
+	var providerDataStatusMutex sync.RWMutex
+
 	// Declare fetchAndShow variable first, define it later after updateProviderList
 	var fetchAndShow func(string, string)
+
+	var loadAllProviders func(string)
 
 	providerList := tview.NewList()
 	providerList.SetBorder(false)
@@ -258,16 +343,40 @@ func OpenUI() {
 	providerList.SetSelectedTextColor(tcell.ColorBlack)
 	providerList.SetSelectedBackgroundColor(tcell.ColorLightCyan)
 	providerList.SetHighlightFullLine(true)
+	// Enable style tags for color markup in provider names
+	providerList.SetUseStyleTags(true, false)
 	// Add selection prefix
 	providerList.SetSelectedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
 		// This will be called when enter is pressed, handled by individual item callbacks
 	})
 
-	// Function to update provider list with arrow indicator
+	// Function to update provider list with arrow indicator and data status colors
 	updateProviderList := func(activeProvider string) {
 		providerList.Clear()
 
+		// Separate providers into successful and failed groups, maintaining original order within groups
+		var successfulProviders []string
+
+		var failedProviders []string
+
+		providerDataStatusMutex.RLock()
 		for _, p := range providers {
+			dataStatus := providerDataStatus[p]
+			if dataStatus != nil && !*dataStatus {
+				// Provider was queried but has no data - add to failed list
+				failedProviders = append(failedProviders, p)
+			} else {
+				// Provider has data or hasn't been queried yet - add to successful list
+				successfulProviders = append(successfulProviders, p)
+			}
+		}
+		providerDataStatusMutex.RUnlock()
+
+		// Combine lists: successful first, then failed
+		orderedProviders := successfulProviders
+		orderedProviders = append(orderedProviders, failedProviders...)
+
+		for _, p := range orderedProviders {
 			var prefix string
 			if p == activeProvider {
 				prefix = "▶ " // Arrow for active provider
@@ -275,7 +384,19 @@ func OpenUI() {
 				prefix = "  "
 			}
 
-			displayName := fmt.Sprintf("%s%s %s", prefix, providerIcons[p], p)
+			// Check provider data status and adjust display with color markup
+			var displayName string
+
+			providerDataStatusMutex.RLock()
+			dataStatus := providerDataStatus[p]
+			providerDataStatusMutex.RUnlock()
+			if dataStatus != nil && !*dataStatus {
+				// Provider was queried but has no data - use grey text with tview color markup
+				displayName = fmt.Sprintf("[gray]%s%s %s[-]", prefix, providerIcons[p], p)
+			} else {
+				// Provider has data or hasn't been queried yet - normal white
+				displayName = fmt.Sprintf("%s%s %s", prefix, providerIcons[p], p)
+			}
 
 			providerList.AddItem(displayName, "", 0, func(pname string) func() {
 				return func() {
@@ -292,6 +413,71 @@ func OpenUI() {
 				}
 			}(p))
 		}
+	}
+
+	// Function to load all providers sequentially to avoid cache lock issues
+	loadAllProviders = func(ip string) {
+		slog.Info("Loading all providers sequentially", "ip", ip)
+
+		// Parse host once for all providers
+		host, err := helpers.ParseHost(ip)
+		if err != nil {
+			slog.Error("Failed to parse host for loading", "ip", ip, "error", err)
+
+			return
+		}
+
+		// Load each provider sequentially to avoid cache lock contention
+		for _, providerName := range providers {
+			fn, ok := providerFuncs[providerName]
+			if !ok {
+				// Provider function not found
+				hasData := false
+
+				providerDataStatusMutex.Lock()
+				providerDataStatus[providerName] = &hasData
+				providerInfo[providerName] = providerResult{text: "Provider not available"}
+				providerDataStatusMutex.Unlock()
+				continue
+			}
+
+			// Create a session copy for this provider
+			sessCopy := *sess
+			sessCopy.Host = host
+			result := fn(ip, &sessCopy)
+
+			// Store result in thread-safe manner
+			providerDataStatusMutex.Lock()
+			providerInfo[providerName] = result
+			hasData := !isNoDataResult(result)
+			providerDataStatus[providerName] = &hasData
+			providerDataStatusMutex.Unlock()
+
+			// Update the provider list after each provider loads
+			updateProviderList(currentProvider)
+		}
+
+		// After all providers are loaded, show the first one with data or PTR as fallback
+		if currentProvider == "" {
+			providerDataStatusMutex.RLock()
+
+			for _, p := range providers {
+				if status := providerDataStatus[p]; status != nil && *status {
+					providerDataStatusMutex.RUnlock()
+
+					currentProvider = p
+					fetchAndShow(p, ip)
+					return
+				}
+			}
+			providerDataStatusMutex.RUnlock()
+			// Fallback to PTR
+			currentProvider = "ptr"
+
+			fetchAndShow("ptr", ip)
+		}
+
+		slog.Info("Finished loading all providers")
 	}
 
 	// Helper function to handle provider not found error
@@ -341,7 +527,14 @@ func OpenUI() {
 		}
 
 		result := fn(ip, sess)
+
+		// Store result in thread-safe manner
+		providerDataStatusMutex.Lock()
 		providerInfo[providerName] = result
+		// Track whether this provider has data or not
+		hasData := !isNoDataResult(result)
+		providerDataStatus[providerName] = &hasData
+		providerDataStatusMutex.Unlock()
 
 		// Update current provider and refresh provider list with arrow
 		currentProvider = providerName
@@ -378,21 +571,52 @@ func OpenUI() {
 
 	input.SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEnter {
-			currentIP = strings.TrimSpace(input.GetText())
-			if currentIP == "" {
-				slog.Error("Empty IP entered by user")
+			inputText := strings.TrimSpace(input.GetText())
+			if inputText == "" {
+				slog.Error("Empty input entered by user")
 
 				return
 			}
 
-			slog.Info("User entered IP", "ip", currentIP)
+			slog.Info("User entered input", "input", inputText)
+
+			// Validate and resolve the input (IP address or hostname)
+			_, err := helpers.ParseHost(inputText)
+			if err != nil {
+				slog.Error("Failed to resolve input", "input", inputText, "error", err)
+
+				// Show error in results pane
+				textBox.SetText("Invalid input")
+				resultsContainer.Clear()
+				resultsContainer.AddItem(textBox, 0, 1, true)
+
+				// Reset input to placeholder
+				input.SetText("")
+
+				currentIP = ""
+				currentProvider = ""
+
+				// Reset provider data status
+				providerDataStatus = make(map[string]*bool)
+
+				updateProviderList("") // Clear arrow indicators
+
+				// Keep focus on input for user to try again
+				app.SetFocus(input)
+
+				return
+			}
+
+			currentIP = inputText
+
+			// Reset provider data status for new IP
+			providerDataStatus = make(map[string]*bool)
 
 			if len(providers) > 0 {
 				slog.Info("Provider list", "providers", providers)
-				// Always default to PTR (first provider) and load it
-				providerList.SetCurrentItem(PTRProviderIndex)
-				fetchAndShow("ptr", currentIP)
-				slog.Info("Finished fetchAndShow with PTR provider")
+				// Load all providers sequentially to populate status
+				loadAllProviders(currentIP)
+				slog.Info("Finished loading all providers")
 			} else {
 				slog.Error("No providers available")
 			}
@@ -440,7 +664,7 @@ func OpenUI() {
 	pages.AddPage("main", grid, true, true)
 
 	quitModal := tview.NewModal()
-	quitModal.SetText("󰗼 Do you want to quit? (Y/N)")
+	quitModal.SetText("🚪Do you want to quit? (Y/N)")
 	quitModal.SetTextColor(tcell.ColorWhite)
 	quitModal.SetBackgroundColor(tcell.ColorBlack)
 	quitModal.AddButtons([]string{"Yes", "No"})
@@ -506,6 +730,9 @@ func OpenUI() {
 				currentIP = ""
 				currentProvider = ""
 
+				// Reset provider data status
+				providerDataStatus = make(map[string]*bool)
+
 				updateProviderList("") // Clear arrow indicators
 
 				resultsContainer.Clear()
@@ -514,6 +741,12 @@ func OpenUI() {
 
 				return nil
 			case 'p':
+				// Return to the last selected provider if we have one
+				if currentProvider != "" {
+					providerIndex := getProviderIndex(currentProvider, providers)
+					providerList.SetCurrentItem(providerIndex)
+				}
+
 				app.SetFocus(providerList)
 
 				return nil
@@ -522,6 +755,12 @@ func OpenUI() {
 			// Handle arrow keys
 			switch event.Key() {
 			case tcell.KeyLeft:
+				// Return to the last selected provider if we have one
+				if currentProvider != "" {
+					providerIndex := getProviderIndex(currentProvider, providers)
+					providerList.SetCurrentItem(providerIndex)
+				}
+
 				app.SetFocus(providerList)
 
 				return nil

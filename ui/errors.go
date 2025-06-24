@@ -2,6 +2,7 @@ package ui
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/jonhadfield/ipscout/providers"
@@ -21,7 +22,7 @@ var (
 )
 
 // simplifyError converts complex error chains into user-friendly messages
-func simplifyError(err error, _, _ string) string {
+func simplifyError(err error, provider, _ string) string {
 	if err == nil {
 		return ""
 	}
@@ -32,7 +33,7 @@ func simplifyError(err error, _, _ string) string {
 	if errors.Is(err, providers.ErrNoMatchFound) ||
 		strings.Contains(errStr, "no match found") ||
 		strings.Contains(errStr, "not found") {
-		return "No data found"
+		return fmt.Sprintf("%s: No data found", provider)
 	}
 
 	if errors.Is(err, providers.ErrNoDataFound) ||
