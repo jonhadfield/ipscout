@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"net/netip"
 	"os"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -231,7 +232,12 @@ func (c *ProviderClient) loadProviderDataFromCache() (*digitalocean.Doc, error) 
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	tdf, err := loadResultsFile("providers/digitalocean/testdata/digitalocean_165_232_46_239_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/digitalocean/testdata/digitalocean_165_232_46_239_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting digitalocean test data file path: %w", err)
+	}
+
+	tdf, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

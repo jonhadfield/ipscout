@@ -3,13 +3,14 @@ package ipapi
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"log/slog"
 	"net/netip"
 	"os"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 

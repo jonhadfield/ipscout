@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"net/netip"
 	"os"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -285,7 +286,12 @@ func (c *ProviderClient) loadProviderDataFromCache(is4, is6 bool) (*icloudpr.Doc
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	tdf, err := loadResultsFile("providers/icloudpr/testdata/icloudpr_172_224_224_60_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/icloudpr/testdata/icloudpr_172_224_224_60_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting icloudpr test data file path: %w", err)
+	}
+
+	tdf, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

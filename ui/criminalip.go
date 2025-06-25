@@ -13,7 +13,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func fetchCriminalIP(ip string, sess *session.Session) providerResult {
+func fetchCriminalIP(ip string, sess *session.Session) providerResult { // nolint:dupl
 	slog.Info("Fetching data from CriminalIP", "ip", ip)
 
 	var err error
@@ -97,12 +97,15 @@ func createCriminalIPTable(ip string, result *criminalip.HostSearchResult, isAct
 	if result.Issues.IsCloud {
 		issues = append(issues, "Cloud")
 	}
+
 	if result.Issues.IsTor {
 		issues = append(issues, "Tor")
 	}
+
 	if result.Issues.IsProxy {
 		issues = append(issues, "Proxy")
 	}
+
 	if result.Issues.IsHosting {
 		issues = append(issues, "Hosting")
 	}
@@ -110,6 +113,7 @@ func createCriminalIPTable(ip string, result *criminalip.HostSearchResult, isAct
 	if result.Issues.IsScanner {
 		issues = append(issues, "Scanner")
 	}
+
 	if result.Issues.IsAnonymousVpn {
 		issues = append(issues, "Anonymous VPN")
 	}

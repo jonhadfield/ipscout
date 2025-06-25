@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"net/netip"
 	"os"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ip-fetcher/providers/hetzner"
 
@@ -210,7 +211,12 @@ func (c *ProviderClient) loadProviderDataFromCache() (*hetzner.Doc, error) {
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	tdf, err := loadResultsFile("providers/hetzner/testdata/hetzner.txt")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/hetzner/testdata/hetzner.txt")
+	if err != nil {
+		return nil, fmt.Errorf("error getting hetzner special crawlers test data file path: %w", err)
+	}
+
+	tdf, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

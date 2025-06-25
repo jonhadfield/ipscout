@@ -11,7 +11,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func fetchBingbot(ip string, sess *session.Session) providerResult {
+func fetchBingbot(ip string, sess *session.Session) providerResult { // nolint:dupl
 	slog.Info("Fetching data from Bingbot", "ip", ip)
 
 	var err error

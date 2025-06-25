@@ -340,7 +340,7 @@ func OpenUI() {
 		"ovh":          fetchOVH,
 		"zscaler":      fetchZscaler,
 	}
-	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "virustotal", "aws", "azure", "azurewaf", "bingbot", "criminalip", "digitalocean", "gcp", "google", "googlesc", "icloudpr", "linode", "ovh", "zscaler"}
+	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "virustotal", "aws", "azure", "bingbot", "criminalip", "digitalocean", "gcp", "google", "googlesc", "icloudpr", "linode", "ovh", "zscaler"}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()
@@ -440,6 +440,7 @@ func OpenUI() {
 			providerDataStatusMutex.RLock()
 			dataStatus := providerDataStatus[p]
 			providerDataStatusMutex.RUnlock()
+
 			if dataStatus != nil && !*dataStatus {
 				// Provider was queried but has no data - use grey text with tview color markup
 				displayName = fmt.Sprintf("[gray]%s%s %s[-]", prefix, providerIcons[p], p)

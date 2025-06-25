@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"net/netip"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -186,7 +187,12 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func loadTestData() ([]byte, error) {
-	tdf, err := providers.LoadResultsFile[HostSearchResult]("providers/aws/testdata/aws_18_164_52_75_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/aws/testdata/aws_18_164_52_75_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting aws test data file path: %w", err)
+	}
+
+	tdf, err := providers.LoadResultsFile[HostSearchResult](resultsFile)
 	if err != nil {
 		return nil, err
 	}
