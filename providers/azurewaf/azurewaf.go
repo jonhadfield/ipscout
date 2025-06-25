@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/netip"
 	"os"
 	"slices"
@@ -167,13 +168,13 @@ func (c *ProviderClient) Initialise() error {
 	return nil
 }
 
-func loadTestData() ([]byte, error) {
+func loadTestData(l *slog.Logger) ([]byte, error) {
 	resultsFile, err := helpers.PrefixProjectRoot("providers/azurewaf/testdata/azurewaf_report.json")
 	if err != nil {
 		return nil, fmt.Errorf("error getting azurewaf test data file path: %w", err)
 	}
 
-	tdf, err := loadResultsFile(resultsFile)
+	tdf, err := loadResultsFile(l, resultsFile)
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +225,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 	if c.UseTestData {
 		var loadErr error
 
-		out, loadErr = loadTestData()
+		out, loadErr = loadTestData(c.Logger)
 		if loadErr != nil {
 			return nil, loadErr
 		}
@@ -401,7 +402,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	return &tw, nil
 }
 
-func loadResultsFile(path string) (*HostSearchResult, error) {
+func loadResultsFile(l *slog.Logger, path string) (*HostSearchResult, error) {
 	jf, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening file: %w", err)
@@ -409,7 +410,7 @@ func loadResultsFile(path string) (*HostSearchResult, error) {
 
 	defer func() {
 		if err = jf.Close(); err != nil {
-			fmt.Printf("error closing file: %s", err.Error())
+			l.Error("error closing file", "error", err.Error())
 		}
 	}()
 

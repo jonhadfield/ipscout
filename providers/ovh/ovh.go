@@ -40,8 +40,6 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 		Session: c,
 	}
 
-	fmt.Println(tc.Host)
-
 	return tc, nil
 }
 
