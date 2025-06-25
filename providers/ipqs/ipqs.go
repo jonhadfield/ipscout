@@ -486,7 +486,12 @@ func loadResponse(c session.Session) (*HostSearchResult, error) {
 }
 
 func loadTestData(l *slog.Logger) (*HostSearchResult, error) {
-	tdf, err := providers.LoadResultsFile[HostSearchResult]("providers/ipqs/testdata/ipqs_74_125_219_32_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/ipqs/testdata/ipqs_74_125_219_32_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting ipqs test data file path: %w", err)
+	}
+
+	tdf, err := providers.LoadResultsFile[HostSearchResult](resultsFile)
 	if err != nil {
 		return nil, err
 	}

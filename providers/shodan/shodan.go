@@ -298,7 +298,14 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	var err error
 
 	if c.UseTestData {
-		result, err = loadResultsFile("providers/shodan/testdata/shodan_google_dns_resp.json")
+		var resultsFile string
+
+		resultsFile, err = helpers.PrefixProjectRoot("providers/shodan/testdata/shodan_google_dns_resp.json")
+		if err != nil {
+			return nil, fmt.Errorf("error getting shodan test data file path: %w", err)
+		}
+
+		result, err = loadResultsFile(resultsFile)
 		if err != nil {
 			return nil, fmt.Errorf("error loading shodan test data: %w", err)
 		}

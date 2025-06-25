@@ -280,7 +280,12 @@ func loadResultsFile(path string) (*HostSearchResult, error) {
 }
 
 func loadTestData(l *slog.Logger) (*HostSearchResult, error) {
-	tdf, err := loadResultsFile("providers/ipapi/testdata/ipapi_8_8_4_4_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/ipapi/testdata/ipapi_8_8_4_4_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting ipapi test data file path: %w", err)
+	}
+
+	tdf, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}
