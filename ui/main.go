@@ -199,17 +199,6 @@ func createLoadingSpinner(app *tview.Application, text string) (*tview.TextView,
 	return spinnerView, stopChan
 }
 
-// getProviderIndex returns the index of the provider in the providers slice
-func getProviderIndex(providerName string, providers []string) int {
-	for i, p := range providers {
-		if p == providerName {
-			return i
-		}
-	}
-
-	return 0 // Default to first provider if not found
-}
-
 // addActiveIndicatorToTable adds the ▶ arrow to the table header
 func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 	if table == nil {
@@ -400,6 +389,26 @@ func OpenUI() {
 		// This will be called when enter is pressed, handled by individual item callbacks
 	})
 
+	// Store the current display order for proper index lookup
+	var currentProviderOrder []string
+
+	// getProviderIndex returns the index of the provider in the current display order
+	getProviderIndex := func(providerName string, providers []string) int {
+		// Use currentProviderOrder if available (after reordering), otherwise fallback to original order
+		searchList := currentProviderOrder
+		if len(searchList) == 0 {
+			searchList = providers
+		}
+
+		for i, p := range searchList {
+			if p == providerName {
+				return i
+			}
+		}
+
+		return 0 // Default to first provider if not found
+	}
+
 	// Function to update provider list with arrow indicator and data status colors
 	updateProviderList := func(activeProvider string) {
 		providerList.Clear()
@@ -425,6 +434,10 @@ func OpenUI() {
 		// Combine lists: successful first, then failed
 		orderedProviders := successfulProviders
 		orderedProviders = append(orderedProviders, failedProviders...)
+
+		// Store the current display order for index lookup
+		currentProviderOrder = make([]string, len(orderedProviders))
+		copy(currentProviderOrder, orderedProviders)
 
 		for _, p := range orderedProviders {
 			var prefix string
