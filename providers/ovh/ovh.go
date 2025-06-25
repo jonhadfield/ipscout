@@ -237,7 +237,12 @@ func (c *ProviderClient) loadProviderDataFromCache() (Doc, error) {
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	tdf, err := providers.LoadResultsFile[HostSearchResult]("providers/ovh/testdata/ovh_192_0_2_1_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/ovh/testdata/ovh_192_0_2_1_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting ovh test data file path: %w", err)
+	}
+
+	tdf, err := providers.LoadResultsFile[HostSearchResult](resultsFile)
 	if err != nil {
 		return nil, err
 	}
