@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"io"
 	"net/http"
 	"net/netip"
@@ -13,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -356,7 +357,14 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	var err error
 
 	if c.UseTestData {
-		result, err = loadResultsFile("providers/abuseipdb/testdata/abuseipdb_194_169_175_35_report.json")
+		var resultsFile string
+
+		resultsFile, err = helpers.PrefixProjectRoot("providers/abuseipdb/testdata/abuseipdb_194_169_175_35_report.json")
+		if err != nil {
+			return nil, fmt.Errorf("error getting abuseipdb test data file path: %w", err)
+		}
+
+		result, err = loadResultsFile(resultsFile)
 		if err != nil {
 			return nil, fmt.Errorf("error loading abuseipdb test data: %w", err)
 		}

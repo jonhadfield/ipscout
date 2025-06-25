@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"io"
 	"net/http"
 	"net/netip"
@@ -14,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -323,7 +324,12 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 	var err error
 
 	if c.UseTestData {
-		result, err = loadResultsFile("providers/virustotal/testdata/virustotal_183_81_169_238_resp.json")
+		resultsFile, err := helpers.PrefixProjectRoot("providers/virustotal/testdata/virustotal_183_81_169_238_resp.json")
+		if err != nil {
+			return nil, fmt.Errorf("error getting virustotal special crawlers test data file path: %w", err)
+		}
+
+		result, err = loadResultsFile(resultsFile)
 		if err != nil {
 			return nil, fmt.Errorf("error loading virustotal test data: %w", err)
 		}
@@ -648,7 +654,12 @@ func (c *Client) GetConfig() *session.Session {
 }
 
 func (c *Client) GetData() (result *HostSearchResult, err error) {
-	result, err = loadResultsFile("virustotal/testdata/virustotal_183_81_169_238_resp.json")
+	resultsFile, err := helpers.PrefixProjectRoot("virustotal/testdata/virustotal_183_81_169_238_resp.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting virustotal special crawlers test data file path: %w", err)
+	}
+
+	result, err = loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

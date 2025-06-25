@@ -12,7 +12,6 @@ linters:
     - copyloopvar
     - decorder
     - dogsled
-    - dupl
     - durationcheck
     - errchkjson
     - errname

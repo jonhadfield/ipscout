@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"log/slog"
 	"net/netip"
 	"os"
@@ -16,6 +15,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -381,7 +382,12 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 }
 
 func loadTestData() ([]byte, error) {
-	tdf, err := loadResultsFile("providers/annotated/testdata/annotated_20_20_20_20_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/annotated/testdata/annotated_20_20_20_20_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting annotated test data file path: %w", err)
+	}
+
+	tdf, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

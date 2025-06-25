@@ -12,6 +12,11 @@ import (
 	"github.com/rivo/tview"
 )
 
+const (
+	minWarningReputationScore  = 50
+	minCriticalReputationScore = 0
+)
+
 func fetchVirusTotal(ip string, sess *session.Session) providerResult {
 	slog.Info("Fetching data from VirusTotal", "ip", ip)
 
@@ -226,9 +231,9 @@ func createVirusTotalTable(ip string, result *virustotal.HostSearchResult, isAct
 			SetSelectable(false))
 
 		repColor := tcell.ColorGreen
-		if result.Data.Attributes.Reputation < 0 {
+		if result.Data.Attributes.Reputation < minCriticalReputationScore {
 			repColor = tcell.ColorRed
-		} else if result.Data.Attributes.Reputation < 50 {
+		} else if result.Data.Attributes.Reputation < minWarningReputationScore {
 			repColor = tcell.ColorYellow
 		}
 

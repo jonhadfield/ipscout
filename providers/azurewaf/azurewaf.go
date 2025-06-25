@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"net/netip"
 	"os"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/fatih/color"
 
@@ -167,7 +168,12 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func loadTestData() ([]byte, error) {
-	tdf, err := loadResultsFile("providers/azurewaf/testdata/azurewaf_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/azurewaf/testdata/azurewaf_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting azurewaf test data file path: %w", err)
+	}
+
+	tdf, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

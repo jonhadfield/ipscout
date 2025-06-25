@@ -13,11 +13,11 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/jonhadfield/azwaf v0.0.0-20250620202316-f182c807c0c0
-	github.com/jonhadfield/ip-fetcher v0.0.0-20250623160518-dbeb79c11268
+	github.com/jonhadfield/ip-fetcher v0.0.0-20250625174408-7fec5d3bffbb
 	github.com/miekg/dns v1.1.66
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/rivo/tview v0.0.0-20250501113434-0c592cd31026
-	github.com/sashabaranov/go-openai v1.40.2
+	github.com/rivo/tview v0.0.0-20250625164341-a4a78f1e05cb
+	github.com/sashabaranov/go-openai v1.40.3
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
 	github.com/spf13/viper v1.20.1
@@ -94,9 +94,9 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/ztrue/tracerr v0.4.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
-	go.opentelemetry.io/otel v1.36.0 // indirect
-	go.opentelemetry.io/otel/metric v1.36.0 // indirect
-	go.opentelemetry.io/otel/trace v1.36.0 // indirect
+	go.opentelemetry.io/otel v1.37.0 // indirect
+	go.opentelemetry.io/otel/metric v1.37.0 // indirect
+	go.opentelemetry.io/otel/trace v1.37.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go4.org/netipx v0.0.0-20231129151722-fdeea329fbba // indirect
 	golang.org/x/crypto v0.39.0 // indirect

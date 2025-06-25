@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"io"
 	"net/http"
 	"net/netip"
@@ -14,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -690,7 +691,12 @@ func (c *Client) GetConfig() *session.Session {
 }
 
 func (c *Client) GetData() (*HostSearchResult, error) {
-	result, err := loadResultsFile("shodan/testdata/shodan_google_dns_resp.json")
+	resultsFile, err := helpers.PrefixProjectRoot("shodan/testdata/shodan_google_dns_resp.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting shodan test data file path: %w", err)
+	}
+
+	result, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

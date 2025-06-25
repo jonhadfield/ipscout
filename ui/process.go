@@ -7,10 +7,16 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/jonhadfield/ipscout/providers/abuseipdb"
+	"github.com/jonhadfield/ipscout/providers/bingbot"
+	"github.com/jonhadfield/ipscout/providers/icloudpr"
+	"github.com/jonhadfield/ipscout/providers/linode"
+	"github.com/jonhadfield/ipscout/providers/ovh"
+	"github.com/jonhadfield/ipscout/providers/zscaler"
+
 	"github.com/jonhadfield/ipscout/providers/annotated"
 
 	"github.com/jonhadfield/ipscout/providers"
-	"github.com/jonhadfield/ipscout/providers/abuseipdb"
 	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/providers/googlebot"
 	"github.com/jonhadfield/ipscout/providers/hetzner"
@@ -32,80 +38,132 @@ type Provider struct {
 	NewClient func(c session.Session) (providers.ProviderClient, error)
 }
 
-func getProviderClient(sess session.Session, providerName string) (providers.ProviderClient, error) {
+func getProviderClient(sess *session.Session, providerName string) (providers.ProviderClient, error) {
+	if sess == nil {
+		return nil, fmt.Errorf("getProviderClient: session is nil")
+	}
+
 	var pc providers.ProviderClient
 
 	var err error
 
 	switch providerName {
+	case abuseipdb.ProviderName:
+		if *sess.Providers.AbuseIPDB.Enabled {
+			pc, err = abuseipdb.NewClient(*sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create AbuseIPDB client: %w", err)
+			}
+		}
 	case annotated.ProviderName:
 		if *sess.Providers.Annotated.Enabled {
-			pc, err = annotated.NewProviderClient(sess)
+			pc, err = annotated.NewProviderClient(*sess)
 			if err != nil {
-				return nil, fmt.Errorf("failed to create aQnnotated client: %w", err)
+				return nil, fmt.Errorf("failed to create annotated client: %w", err)
 			}
 		}
-	case shodan.ProviderName:
-		if *sess.Providers.Shodan.Enabled {
-			pc, err = shodan.NewProviderClient(sess)
+	case aws.ProviderName:
+		if *sess.Providers.AWS.Enabled {
+			pc, err = aws.NewProviderClient(*sess)
 			if err != nil {
-				return nil, fmt.Errorf("failed to create Shodan client: %w", err)
+				return nil, fmt.Errorf("failed to create AWS client: %w", err)
 			}
 		}
+	case bingbot.ProviderName:
+		if sess.Providers.Bingbot.Enabled == nil {
+			return nil, fmt.Errorf("getProviderClient: bingbot provider enabled is nil")
+		}
+
+		if *sess.Providers.Bingbot.Enabled {
+			pc, err = bingbot.NewProviderClient(*sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create bingbot client: %w", err)
+			}
+		}
+
 	case ipapi.ProviderName:
+		if sess.Providers.IPAPI.Enabled == nil {
+			return nil, fmt.Errorf("getProviderClient: ipapi provider enabled is nil")
+		}
+
 		if *sess.Providers.IPAPI.Enabled {
-			pc, err = ipapi.NewProviderClient(sess)
+			pc, err = ipapi.NewProviderClient(*sess)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create IPAPI client: %w", err)
 			}
 		}
 	case ipurl.ProviderName:
 		if *sess.Providers.IPURL.Enabled {
-			pc, err = ipurl.NewProviderClient(sess)
+			pc, err = ipurl.NewProviderClient(*sess)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create IPURL client: %w", err)
 			}
 		}
 	case googlebot.ProviderName:
 		if *sess.Providers.Googlebot.Enabled {
-			pc, err = googlebot.NewProviderClient(sess)
+			pc, err = googlebot.NewProviderClient(*sess)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create Googlebot client: %w", err)
 			}
 		}
 	case hetzner.ProviderName:
 		if *sess.Providers.Hetzner.Enabled {
-			pc, err = hetzner.NewProviderClient(sess)
+			pc, err = hetzner.NewProviderClient(*sess)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create Hetzner client: %w", err)
 			}
 		}
+	case icloudpr.ProviderName:
+		if *sess.Providers.ICloudPR.Enabled {
+			pc, err = icloudpr.NewProviderClient(*sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create ICloudPR client: %w", err)
+			}
+		}
 	case ipqs.ProviderName:
 		if *sess.Providers.IPQS.Enabled {
-			pc, err = ipqs.NewProviderClient(sess)
+			pc, err = ipqs.NewProviderClient(*sess)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create IPQS client: %w", err)
 			}
 		}
-	case abuseipdb.ProviderName:
-		if *sess.Providers.AbuseIPDB.Enabled {
-			pc, err = abuseipdb.NewClient(sess)
+	case linode.ProviderName:
+		if *sess.Providers.Linode.Enabled {
+			pc, err = linode.NewProviderClient(*sess)
 			if err != nil {
-				return nil, fmt.Errorf("failed to create AbuseIPDB client: %w", err)
+				return nil, fmt.Errorf("failed to create Linode client: %w", err)
+			}
+		}
+	case ovh.ProviderName:
+		if *sess.Providers.OVH.Enabled {
+			pc, err = ovh.NewProviderClient(*sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create OVH client: %w", err)
+			}
+		}
+	case shodan.ProviderName:
+		if sess.Providers.Shodan.Enabled == nil {
+			return nil, fmt.Errorf("getProviderClient: Shodan provider enabled is nil")
+		}
+
+		if *sess.Providers.Shodan.Enabled {
+			pc, err = shodan.NewProviderClient(*sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create Shodan client: %w", err)
 			}
 		}
 	case virustotal.ProviderName:
 		if *sess.Providers.VirusTotal.Enabled {
-			pc, err = virustotal.NewProviderClient(sess)
+			pc, err = virustotal.NewProviderClient(*sess)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create VirusTotal client: %w", err)
 			}
 		}
-	case aws.ProviderName:
-		if *sess.Providers.AWS.Enabled {
-			pc, err = aws.NewProviderClient(sess)
+	case zscaler.ProviderName:
+		if *sess.Providers.Zscaler.Enabled {
+			pc, err = zscaler.NewProviderClient(*sess)
 			if err != nil {
-				return nil, fmt.Errorf("failed to create AWS client: %w", err)
+				return nil, fmt.Errorf("failed to create ZScaler client: %w", err)
 			}
 		}
 	}
@@ -117,8 +175,9 @@ func getProviderClient(sess session.Session, providerName string) (providers.Pro
 	if pc == nil {
 		return nil, fmt.Errorf("provider %s is not supported", providerName)
 	}
+
 	if pc.GetConfig().Host == (netip.Addr{}) {
-		return nil, fmt.Errorf("providerAAAAA %s has no host configured", providerName)
+		return nil, fmt.Errorf("provider %s has no host configured", providerName)
 	}
 
 	return pc, nil
@@ -150,7 +209,7 @@ func (p *Processor) Run(providerName string) (string, error) {
 	defer db.Close()
 
 	// get provider clients
-	providerClient, err := getProviderClient(*p.Session, providerName)
+	providerClient, err := getProviderClient(p.Session, providerName)
 	if err != nil {
 		_ = db.Close()
 

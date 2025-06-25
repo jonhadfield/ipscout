@@ -37,7 +37,7 @@ func fetchICloudPR(ip string, sess *session.Session) providerResult {
 
 	// Parse iCloud Private Relay JSON response
 	var icloudprResult icloudpr.HostSearchResult
-	if err := json.Unmarshal([]byte(res), &icloudprResult); err != nil {
+	if err = json.Unmarshal([]byte(res), &icloudprResult); err != nil {
 		slog.Error("Failed to parse iCloud Private Relay JSON", "error", err)
 
 		return providerResult{text: simplifyError(err, "icloudpr", ip)}

@@ -11,7 +11,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func fetchAzureWAF(ip string, sess *session.Session) providerResult {
+func fetchAzureWAF(ip string, sess *session.Session) providerResult { // nolint:dupl
 	slog.Info("Fetching data from Azure WAF", "ip", ip)
 
 	var err error

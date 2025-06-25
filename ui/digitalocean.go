@@ -11,7 +11,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func fetchDigitalOcean(ip string, sess *session.Session) providerResult {
+func fetchDigitalOcean(ip string, sess *session.Session) providerResult { // nolint:dupl
 	slog.Info("Fetching data from DigitalOcean", "ip", ip)
 
 	var err error

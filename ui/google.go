@@ -11,7 +11,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func fetchGoogle(ip string, sess *session.Session) providerResult {
+func fetchGoogle(ip string, sess *session.Session) providerResult { // nolint:dupl
 	slog.Info("Fetching data from Google", "ip", ip)
 
 	var err error

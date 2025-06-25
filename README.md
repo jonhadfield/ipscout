@@ -1,9 +1,15 @@
 # IPScout
 
-## Overview
-
 IPScout is a command-line tool for security analysts to enrich IP addresses with their origin and threat ratings.
 All of the host reputation providers require registration but each of them offers a free tier.
+
+<img src="docs/logo.png" alt="logo" width="200"/>
+
+---
+
+[![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout)
+[![Tests on Linux, MacOS and Windows](https://github.com/jonhadfield/ipscout/workflows/Test/badge.svg)](https://github.com/jonhadfield/ipscout/actions?query=workflow%3ATest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
 
 ## Table of Contents
 
@@ -358,7 +364,7 @@ can be overridden in the configuration file.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for release notes.
+See [CHANGELOG.md](docs/CHANGELOG.md) for release notes.
 
 ## License
 

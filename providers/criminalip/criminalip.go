@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"io"
 	"net/http"
 	"net/netip"
@@ -13,6 +12,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -242,7 +243,12 @@ func unmarshalResponse(rBody []byte) (*HostSearchResult, error) {
 }
 
 func loadTestData(c *Client) ([]byte, error) {
-	tdf, err := loadResultsFile("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/criminalip/testdata/criminalip_9_9_9_9_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting bingbot test data file path: %w", err)
+	}
+
+	tdf, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

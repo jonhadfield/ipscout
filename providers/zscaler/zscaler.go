@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"net"
 	"net/netip"
 	"reflect"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -228,7 +229,12 @@ func (c *ProviderClient) loadProviderDataFromCache() (*ipfetcher.Doc, error) {
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	tdf, err := providers.LoadResultsFile[HostSearchResult]("providers/zscaler/testdata/zscaler_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/zscaler/testdata/zscaler_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting zscaler test data file path: %w", err)
+	}
+
+	tdf, err := providers.LoadResultsFile[HostSearchResult](resultsFile)
 	if err != nil {
 		return nil, err
 	}

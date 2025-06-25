@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"log"
 	"log/slog"
 	"net/netip"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/providers"
 
@@ -237,7 +238,12 @@ func loadResultsFile(path string) (*HostSearchResult, error) {
 }
 
 func loadTestData(l *slog.Logger) (*HostSearchResult, error) {
-	tdf, err := loadResultsFile("providers/ptr/testdata/ptr_8_8_8_8_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/ptr/testdata/ptr_8_8_8_8_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting ptr test data file path: %w", err)
+	}
+
+	tdf, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func fetchGCP(ip string, sess *session.Session) providerResult {
+func fetchGCP(ip string, sess *session.Session) providerResult { // nolint:dupl
 	slog.Info("Fetching data from GCP", "ip", ip)
 
 	var err error

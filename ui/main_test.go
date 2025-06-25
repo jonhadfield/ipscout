@@ -85,6 +85,7 @@ func createTestAWSTableWithNoData() *tview.Table {
 	table := tview.NewTable()
 	table.SetCell(0, 0, tview.NewTableCell(" AWS | Host: 8.8.8.8").SetTextColor(tcell.ColorWhite))
 	table.SetCell(1, 0, tview.NewTableCell(" No AWS prefix found").SetTextColor(tcell.ColorYellow))
+
 	return table
 }
 
@@ -93,6 +94,7 @@ func createTestAWSTableWithData() *tview.Table {
 	table.SetCell(0, 0, tview.NewTableCell(" AWS | Host: 3.5.140.1").SetTextColor(tcell.ColorWhite))
 	table.SetCell(1, 0, tview.NewTableCell("Region").SetTextColor(tcell.ColorWhite))
 	table.SetCell(1, 1, tview.NewTableCell("us-east-1").SetTextColor(tcell.ColorLightCyan))
+
 	return table
 }
 
@@ -102,6 +104,7 @@ func createTestVirusTotalTable() *tview.Table {
 	table.SetCell(1, 0, tview.NewTableCell("Detection Results").SetTextColor(tcell.ColorWhite))
 	table.SetCell(2, 0, tview.NewTableCell("  - Harmless").SetTextColor(tcell.ColorWhite))
 	table.SetCell(2, 1, tview.NewTableCell("85").SetTextColor(tcell.ColorGreen))
+
 	return table
 }
 
@@ -110,6 +113,7 @@ func createTestAbuseIPDBTable() *tview.Table {
 	table.SetCell(0, 0, tview.NewTableCell(" ABUSEIPDB | Host: 8.8.8.8").SetTextColor(tcell.ColorWhite))
 	table.SetCell(1, 0, tview.NewTableCell("Abuse Score").SetTextColor(tcell.ColorWhite))
 	table.SetCell(1, 1, tview.NewTableCell("0%").SetTextColor(tcell.ColorGreen))
+
 	return table
 }
 
@@ -119,5 +123,6 @@ func createTestIPAPITable() *tview.Table {
 	table.SetCell(1, 0, tview.NewTableCell("Location").SetTextColor(tcell.ColorWhite))
 	table.SetCell(2, 0, tview.NewTableCell("  - Country").SetTextColor(tcell.ColorWhite))
 	table.SetCell(2, 1, tview.NewTableCell("United States (US)").SetTextColor(tcell.ColorWhite))
+
 	return table
 }

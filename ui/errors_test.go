@@ -16,7 +16,7 @@ func TestSimplifyError(t *testing.T) {
 		{
 			name:     "ErrNoMatchFound",
 			err:      providers.ErrNoMatchFound,
-			expected: "No data found",
+			expected: "test: No data found",
 		},
 		{
 			name:     "ErrNoDataFound",
@@ -31,7 +31,7 @@ func TestSimplifyError(t *testing.T) {
 		{
 			name:     "Complex error chain with no match found",
 			err:      errors.New("failed to find hosts: failed to find hosts: annotated match failed: no match found"),
-			expected: "No data found",
+			expected: "test: No data found",
 		},
 		{
 			name:     "Complex error chain with parsing error",

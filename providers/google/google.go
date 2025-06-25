@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"net/netip"
 	"os"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -207,7 +208,12 @@ func (c *ProviderClient) loadProviderDataFromCache() (*google.Doc, error) {
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	tdf, err := loadResultsFile("providers/google/testdata/google_34_3_8_8_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/google/testdata/google_34_3_8_8_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting google test data file path: %w", err)
+	}
+
+	tdf, err := loadResultsFile(resultsFile)
 	if err != nil {
 		return nil, err
 	}

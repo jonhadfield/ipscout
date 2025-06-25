@@ -5,12 +5,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/jonhadfield/ipscout/helpers"
 	"net/http"
 	"net/netip"
 	"net/url"
 	"sync"
 	"time"
+
+	"github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/constants"
 
@@ -85,7 +86,12 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 }
 
 func loadTestData() ([]byte, error) {
-	tdf, err := providers.LoadResultsFile[HostSearchResult]("providers/ipurl/testdata/ipurl_5_105_62_60_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/ipurl/testdata/ipurl_5_105_62_60_report.json")
+	if err != nil {
+		return nil, fmt.Errorf("error getting abuseipdb test data file path: %w", err)
+	}
+
+	tdf, err := providers.LoadResultsFile[HostSearchResult](resultsFile)
 	if err != nil {
 		return nil, err
 	}

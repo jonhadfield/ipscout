@@ -2,10 +2,12 @@ package helpers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/netip"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -92,4 +94,44 @@ func TrackDuration(mu *sync.Mutex, m map[string]time.Duration, provider string) 
 		m[provider] = time.Since(start)
 		mu.Unlock()
 	}
+}
+
+// FindProjectRoot walks up the file tree to find the directory containing `go.mod`
+func FindProjectRoot() (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("failed to get current working directory: %w", err)
+	}
+
+	for {
+		if _, err = os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, nil
+		}
+
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break // reached filesystem root
+		}
+
+		dir = parent
+	}
+
+	return "", errors.New("project root with go.mod not found")
+}
+
+func PrefixProjectRoot(prefix string) (string, error) {
+	root, err := FindProjectRoot()
+	if err != nil {
+		return "", fmt.Errorf("failed to find project root: %w", err)
+	}
+
+	if prefix == "" {
+		return root, nil
+	}
+
+	if !filepath.IsAbs(prefix) {
+		prefix = filepath.Join(root, prefix)
+	}
+
+	return prefix, nil
 }
