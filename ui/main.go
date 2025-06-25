@@ -42,7 +42,7 @@ const (
 
 	// UI Messages
 	PressEnterMsg   = "Press enter to load"
-	PlaceholderText = "  Enter IP address or hostname"
+	PlaceholderText = "  Enter IP address or FQDN/hostname"
 	FooterText      = "(i) input | (p) providers | (q) quit | Ctrl+C confirm quit"
 	ProvidersHeader = "Providers"
 	ResultsHeader   = "Results"
@@ -681,13 +681,13 @@ func OpenUI() {
 
 			slog.Info("User entered input", "input", inputText)
 
-			// Validate and resolve the input (IP address or hostname)
-			_, err := helpers.ParseHost(inputText)
+			// Validate and resolve the input (IP address or hostname) - keep it simple and synchronous for now
+			resolvedAddr, err := helpers.ParseHost(inputText)
 			if err != nil {
 				slog.Error("Failed to resolve input", "input", inputText, "error", err)
 
 				// Show error in results pane
-				textBox.SetText("Invalid input")
+				textBox.SetText("Invalid input: Please enter a valid IP address or hostname/FQDN")
 				resultsContainer.Clear()
 				resultsContainer.AddItem(textBox, 0, 1, true)
 
@@ -708,7 +708,8 @@ func OpenUI() {
 				return
 			}
 
-			currentIP = inputText
+			// Use the resolved IP address (works for both IPs and hostnames)
+			currentIP = resolvedAddr.String()
 
 			// Reset provider data status for new IP
 			providerDataStatus = make(map[string]*bool)
