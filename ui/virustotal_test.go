@@ -58,7 +58,7 @@ func TestCreateVirusTotalTable(t *testing.T) {
 			name: "Error result",
 			ip:   "invalid",
 			result: &virustotal.HostSearchResult{
-				Error: "Invalid IP address",
+				Error: ErrMsgInvalidIPAddress,
 			},
 		},
 	}
