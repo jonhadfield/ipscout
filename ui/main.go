@@ -98,27 +98,27 @@ func isNoDataResult(result providerResult) bool {
 	if result.table == nil {
 		text := result.text
 		// Check for exact matches
-		if text == "No data found" ||
-			text == "No data available" ||
-			text == "Service error" ||
-			text == "Connection failed" ||
+		if text == ErrMsgNoDataFound ||
+			text == ErrMsgNoDataAvailable ||
+			text == ErrMsgServiceError ||
+			text == ErrMsgConnectionFailed ||
 			text == ErrMsgInvalidDataFormat ||
-			text == "Provider not configured" ||
-			text == "Authentication required" ||
-			text == "Service temporarily unavailable" ||
-			text == "Invalid IP address" {
+			text == ErrMsgProviderNotConfigured ||
+			text == ErrMsgAuthenticationRequired ||
+			text == ErrMsgServiceTemporarilyUnavailable ||
+			text == ErrMsgInvalidIPAddress {
 			return true
 		}
 
 		// Check for provider-prefixed "no data" messages (e.g., "annotated: No data found")
-		if strings.Contains(text, ": No data found") ||
-			strings.Contains(text, ": No data available") ||
-			strings.Contains(text, ": Service error") ||
-			strings.Contains(text, ": Connection failed") ||
-			strings.Contains(text, ": Provider not configured") ||
-			strings.Contains(text, ": Authentication required") ||
-			strings.Contains(text, ": Service temporarily unavailable") ||
-			strings.Contains(text, ": Invalid IP address") {
+		if strings.Contains(text, ": "+ErrMsgNoDataFound) ||
+			strings.Contains(text, ": "+ErrMsgNoDataAvailable) ||
+			strings.Contains(text, ": "+ErrMsgServiceError) ||
+			strings.Contains(text, ": "+ErrMsgConnectionFailed) ||
+			strings.Contains(text, ": "+ErrMsgProviderNotConfigured) ||
+			strings.Contains(text, ": "+ErrMsgAuthenticationRequired) ||
+			strings.Contains(text, ": "+ErrMsgServiceTemporarilyUnavailable) ||
+			strings.Contains(text, ": "+ErrMsgInvalidIPAddress) {
 			return true
 		}
 

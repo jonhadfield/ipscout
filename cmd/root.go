@@ -371,9 +371,7 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.hetzner.enabled") {
 		sess.Providers.Hetzner.Enabled = ToPtr(v.GetBool("providers.hetzner.enabled"))
 	} else {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, "Hetzner provider not defined in config")
-		sess.Messages.Mu.Unlock()
+		addProviderConfigMessage(sess, "Hetzner")
 	}
 
 	if v.IsSet("providers.hetzner.output_priority") {

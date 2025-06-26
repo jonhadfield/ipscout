@@ -16,14 +16,14 @@ func TestIsNoDataResult(t *testing.T) {
 		{
 			name: "Text result with no data",
 			result: providerResult{
-				text: "No data found",
+				text: ErrMsgNoDataFound,
 			},
 			expected: true,
 		},
 		{
 			name: "Provider-prefixed no data result",
 			result: providerResult{
-				text: "annotated: No data found",
+				text: "annotated: " + ErrMsgNoDataFound,
 			},
 			expected: true,
 		},

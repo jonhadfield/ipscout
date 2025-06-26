@@ -10,7 +10,15 @@ import (
 
 // Error message constants
 const (
-	ErrMsgInvalidDataFormat = "Invalid data format"
+	ErrMsgInvalidDataFormat             = "Invalid data format"
+	ErrMsgNoDataFound                   = "No data found"
+	ErrMsgNoDataAvailable               = "No data available"
+	ErrMsgServiceTemporarilyUnavailable = "Service temporarily unavailable"
+	ErrMsgInvalidIPAddress              = "Invalid IP address"
+	ErrMsgConnectionFailed              = "Connection failed"
+	ErrMsgProviderNotConfigured         = "Provider not configured"
+	ErrMsgAuthenticationRequired        = "Authentication required"
+	ErrMsgServiceError                  = "Service error"
 )
 
 // Common UI error variables for simplified user messages
@@ -33,25 +41,25 @@ func simplifyError(err error, provider, _ string) string {
 	if errors.Is(err, providers.ErrNoMatchFound) ||
 		strings.Contains(errStr, "no match found") ||
 		strings.Contains(errStr, "not found") {
-		return fmt.Sprintf("%s: No data found", provider)
+		return fmt.Sprintf("%s: %s", provider, ErrMsgNoDataFound)
 	}
 
 	if errors.Is(err, providers.ErrNoDataFound) ||
 		strings.Contains(errStr, "no data found") {
-		return "No data available"
+		return ErrMsgNoDataAvailable
 	}
 
 	if errors.Is(err, providers.ErrForbiddenByProvider) ||
 		strings.Contains(errStr, "forbidden") ||
 		strings.Contains(errStr, "quota") ||
 		strings.Contains(errStr, "rate limit") {
-		return "Service temporarily unavailable"
+		return ErrMsgServiceTemporarilyUnavailable
 	}
 
 	// Check for invalid host/IP first (more specific)
 	if strings.Contains(errStr, "invalid") &&
 		(strings.Contains(errStr, "host") || strings.Contains(errStr, "ip")) {
-		return "Invalid IP address"
+		return ErrMsgInvalidIPAddress
 	}
 
 	// Check for network/connection errors
@@ -60,7 +68,7 @@ func simplifyError(err error, provider, _ string) string {
 		strings.Contains(errStr, "network") ||
 		strings.Contains(errStr, "dial") ||
 		strings.Contains(errStr, "deadline exceeded") {
-		return "Connection failed"
+		return ErrMsgConnectionFailed
 	}
 
 	// Check for parsing errors
@@ -79,14 +87,14 @@ func simplifyError(err error, provider, _ string) string {
 	if strings.Contains(errStr, "unauthorized") ||
 		strings.Contains(errStr, "authentication") ||
 		strings.Contains(errStr, "api key") {
-		return "Authentication required"
+		return ErrMsgAuthenticationRequired
 	}
 
 	// Check for provider not enabled
 	if strings.Contains(errStr, "not enabled") {
-		return "Provider not configured"
+		return ErrMsgProviderNotConfigured
 	}
 
 	// Default fallback for unknown errors
-	return "Service error"
+	return ErrMsgServiceError
 }
