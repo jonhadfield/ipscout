@@ -249,11 +249,11 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 	}
 }
 
-func OpenUI() {
+func OpenUI() error {
 	// Setup logging to app.log
 	logFile, err := os.OpenFile(LogFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, LogFilePerms)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to open log file: %v", err))
+		return fmt.Errorf("failed to open log file: %w", err)
 	}
 
 	defer func() {
@@ -265,7 +265,7 @@ func OpenUI() {
 	sess, err = initConfig()
 	if err != nil {
 		slog.Error("Failed to initialise session", "error", err)
-		panic(fmt.Sprintf("Failed to initialise session: %v", err))
+		return fmt.Errorf("failed to initialise session: %w", err)
 	}
 
 	// sess.Logger.
@@ -890,8 +890,9 @@ func OpenUI() {
 
 	if err := app.SetRoot(pages, true).Run(); err != nil {
 		slog.Error("Application error", "error", err)
-		panic(err)
+		return err
 	}
 
 	slog.Info(c.AppNameSC + " " + helpers.SemVer + " shutdown complete")
+	return nil
 }

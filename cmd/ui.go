@@ -12,6 +12,8 @@ var uiCmd = &cobra.Command{
 	Long:  `Open the IPScout user interface`,
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) { //nolint:revive
-		ui.OpenUI()
+		if err := ui.OpenUI(); err != nil {
+			cmd.PrintErrln(err)
+		}
 	},
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/netip"
 	"os"
@@ -148,7 +147,10 @@ func FetchResponse(l *slog.Logger, host string, nameServers []string) (*HostSear
 
 	arpa, err := dns.ReverseAddr(target)
 	if err != nil {
-		log.Fatal(err)
+		if l != nil {
+			l.Error("failed to build reverse address", "error", err)
+		}
+		return nil, fmt.Errorf("reverse addr failed: %w", err)
 	}
 
 	dc := dns.Client{}
