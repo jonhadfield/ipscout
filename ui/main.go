@@ -43,7 +43,7 @@ const (
 	// UI Messages
 	PressEnterMsg   = "Press enter to load"
 	PlaceholderText = "  Enter IP address or FQDN/hostname"
-	FooterText      = "(i) input | (p) providers | (q) quit | Ctrl+C confirm quit"
+	FooterText      = "(i) input | (p) providers | (←) back to providers | (→) focus results | (q) quit | Ctrl+C confirm quit"
 	ProvidersHeader = "Providers"
 	ResultsHeader   = "Results"
 	LogFileName     = "app.log"
