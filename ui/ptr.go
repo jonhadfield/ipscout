@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/jonhadfield/ipscout/providers/ptr"
@@ -19,22 +19,24 @@ func fetchPTR(ip string, sess *session.Session) providerResult { //nolint:revive
 		return providerResult{text: simplifyError(err, "ptr", ip)}
 	}
 
-	var records []string
-
-	for _, rr := range fr.RR {
-		if rr.Ptr != "" {
-			sess.Logger.Info("Found PTR record", "ip", ip, "ptr", rr.Ptr)
-			records = append(records, rr.Ptr)
-		}
-	}
-
-	// Create PTR table without arrow (arrow will be added at display time if active)
-	table := createPTRTable(ip, records, false)
+	// Pass the full DNS records to the table for detailed display
+	table := createPTRTable(ip, fr.RR, false)
 
 	return providerResult{table: table}
 }
 
-func createPTRTable(ip string, records []string, isActive bool) *tview.Table { //nolint:dupl
+const (
+	colPTR        = "PTR"
+	colNAME       = "NAME"
+	colTTL        = "TTL"
+	colRDLEN      = "RDLEN"
+	colCLASS      = "CLASS"
+	colTYPE       = "TYPE"
+	maxPTRLength  = 22
+	maxNAMELength = 30
+)
+
+func createPTRTable(ip string, records []*ptr.Ptr, isActive bool) *tview.Table { //nolint:dupl
 	table := tview.NewTable()
 	table.SetBorder(false)
 	table.SetBackgroundColor(tcell.ColorBlack)
@@ -53,26 +55,44 @@ func createPTRTable(ip string, records []string, isActive bool) *tview.Table { /
 
 	row++
 
-	// Records
-	if len(records) > 0 {
-		table.SetCell(row, 0, tview.NewTableCell(" Records").
-			SetTextColor(tcell.ColorWhite).
-			SetSelectable(false))
-		table.SetCell(row, 1, tview.NewTableCell(strconv.Itoa(len(records))).
-			SetTextColor(tcell.ColorWhite).
+	if len(records) > 0 { //nolint:nestif
+		// Create formatted text display instead of multi-column table
+		headerLine := fmt.Sprintf("%-22s %-30s %8s %6s %5s %4s", colPTR, colNAME, colTTL, colRDLEN, colCLASS, colTYPE)
+		table.SetCell(row, 0, tview.NewTableCell(headerLine).
+			SetTextColor(tcell.ColorYellow).
 			SetSelectable(false))
 
 		row++
 
+		// Data rows as formatted text
 		for _, record := range records {
-			table.SetCell(row, 0, tview.NewTableCell("   - Hostname").
-				SetTextColor(tcell.ColorWhite).
-				SetSelectable(false))
-			table.SetCell(row, 1, tview.NewTableCell(record).
-				SetTextColor(tcell.ColorWhite).
-				SetSelectable(false))
+			if record.Ptr != "" {
+				// Truncate PTR value if too long
+				ptrValue := record.Ptr
+				if len(ptrValue) > maxPTRLength {
+					ptrValue = ptrValue[:maxPTRLength-3] + "..."
+				}
 
-			row++
+				// Truncate NAME value if too long
+				nameValue := record.Header.Name
+				if len(nameValue) > maxNAMELength {
+					nameValue = nameValue[:maxNAMELength-3] + "..."
+				}
+
+				dataLine := fmt.Sprintf("%-22s %-30s %8d %6d %5d %4d",
+					ptrValue,
+					nameValue,
+					record.Header.Ttl,
+					record.Header.Rdlength,
+					record.Header.Class,
+					record.Header.Rrtype)
+
+				table.SetCell(row, 0, tview.NewTableCell(dataLine).
+					SetTextColor(tcell.ColorWhite).
+					SetSelectable(false))
+
+				row++
+			}
 		}
 	} else {
 		table.SetCell(row, 0, tview.NewTableCell(" No PTR records found").

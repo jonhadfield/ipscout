@@ -204,8 +204,6 @@ github.com/jonhadfield/azwaf v0.0.0-20250620202316-f182c807c0c0 h1:jNOjPTYtByhJU
 github.com/jonhadfield/azwaf v0.0.0-20250620202316-f182c807c0c0/go.mod h1:p9Ry3+sX/kgCTfb2gZZjGmSbyk87zEfY5/9GWASFSZw=
 github.com/jonhadfield/findexec v0.0.0-20190902195615-78db24cd4e77 h1:U1mtIepXhvIq0cLDLO6z1hZYS80lDXzmsZJwMgzwaf8=
 github.com/jonhadfield/findexec v0.0.0-20190902195615-78db24cd4e77/go.mod h1:9Q9pFtVLzvgKEi8++fNhmSR7HpD9+9+dPy/SECsNB6k=
-github.com/jonhadfield/ip-fetcher v0.0.0-20250623160518-dbeb79c11268 h1:7XdFEocq9YKJgUDzY8vYhyLpaIMmUWRkSuJxOncNhPM=
-github.com/jonhadfield/ip-fetcher v0.0.0-20250623160518-dbeb79c11268/go.mod h1:Sx0VN/WJkXmIYBaRvr1hAA1RIz7k3KJBn960Gb9hX3s=
 github.com/jonhadfield/ip-fetcher v0.0.0-20250625174408-7fec5d3bffbb h1:euYQeStG2gnQFGnLAJ3v/qinsCjNR/hpLxA2A8RYuSM=
 github.com/jonhadfield/ip-fetcher v0.0.0-20250625174408-7fec5d3bffbb/go.mod h1:Sx0VN/WJkXmIYBaRvr1hAA1RIz7k3KJBn960Gb9hX3s=
 github.com/json-iterator/go v1.1.6/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
