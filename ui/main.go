@@ -265,6 +265,7 @@ func OpenUI() error {
 	sess, err = initConfig()
 	if err != nil {
 		slog.Error("Failed to initialise session", "error", err)
+
 		return fmt.Errorf("failed to initialise session: %w", err)
 	}
 
@@ -888,11 +889,13 @@ func OpenUI() error {
 		fetchAndShow(providers[0], currentIP)
 	}
 
-	if err := app.SetRoot(pages, true).Run(); err != nil {
+	if err = app.SetRoot(pages, true).Run(); err != nil {
 		slog.Error("Application error", "error", err)
-		return err
+
+		return fmt.Errorf("failed to run application: %w", err)
 	}
 
 	slog.Info(c.AppNameSC + " " + helpers.SemVer + " shutdown complete")
+
 	return nil
 }

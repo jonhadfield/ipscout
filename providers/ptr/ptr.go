@@ -150,6 +150,7 @@ func FetchResponse(l *slog.Logger, host string, nameServers []string) (*HostSear
 		if l != nil {
 			l.Error("failed to build reverse address", "error", err)
 		}
+
 		return nil, fmt.Errorf("reverse addr failed: %w", err)
 	}
 
@@ -183,20 +184,32 @@ func FetchResponse(l *slog.Logger, host string, nameServers []string) (*HostSear
 
 		for _, ans := range r.Answer {
 			if ans != nil {
-				rRes := ans.(*dns.PTR)
-
-				var newPtr Ptr
-
-				newPtr.Ptr = rRes.Ptr
-				rHeader := rRes.Header()
-				newPtr.Header = Header{
-					Name:     rHeader.Name,
-					Ttl:      rHeader.Ttl,
-					Rdlength: rHeader.Rdlength,
-					Class:    rHeader.Class,
-					Rrtype:   rHeader.Rrtype,
+				switch rRes := ans.(type) {
+				case *dns.PTR:
+					var newPtr Ptr
+					newPtr.Ptr = rRes.Ptr
+					rHeader := rRes.Header()
+					newPtr.Header = Header{
+						Name:     rHeader.Name,
+						Ttl:      rHeader.Ttl,
+						Rdlength: rHeader.Rdlength,
+						Class:    rHeader.Class,
+						Rrtype:   rHeader.Rrtype,
+					}
+					res.RR = append(res.RR, &newPtr)
+				case *dns.CNAME:
+					var newPtr Ptr
+					newPtr.Ptr = rRes.Target
+					rHeader := rRes.Header()
+					newPtr.Header = Header{
+						Name:     rHeader.Name,
+						Ttl:      rHeader.Ttl,
+						Rdlength: rHeader.Rdlength,
+						Class:    rHeader.Class,
+						Rrtype:   rHeader.Rrtype,
+					}
+					res.RR = append(res.RR, &newPtr)
 				}
-				res.RR = append(res.RR, &newPtr)
 			}
 		}
 
