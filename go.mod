@@ -14,7 +14,7 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/jonhadfield/azwaf v0.0.0-20250620202316-f182c807c0c0
 	github.com/jonhadfield/ip-fetcher v0.0.0-20250625174408-7fec5d3bffbb
-	github.com/miekg/dns v1.1.66
+	github.com/miekg/dns v1.1.67
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rivo/tview v0.0.0-20250625164341-a4a78f1e05cb
 	github.com/sashabaranov/go-openai v1.40.3
