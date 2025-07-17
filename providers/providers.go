@@ -452,6 +452,9 @@ type RatingConfig struct {
 		Linode struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"linode"`
+		M247 struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"m247"`
 		OVH struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"ovh"`

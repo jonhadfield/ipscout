@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"github.com/jonhadfield/ipscout/providers/m247"
 	"log/slog"
 	"net/netip"
 	"path/filepath"
@@ -132,6 +133,13 @@ func getProviderClient(sess *session.Session, providerName string) (providers.Pr
 			pc, err = linode.NewProviderClient(*sess)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create Linode client: %w", err)
+			}
+		}
+	case m247.ProviderName:
+		if *sess.Providers.M247.Enabled {
+			pc, err = m247.NewProviderClient(*sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create M247 client: %w", err)
 			}
 		}
 	case ovh.ProviderName:

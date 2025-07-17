@@ -448,6 +448,22 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	sess.Providers.Linode.URL = v.GetString("providers.linode.url")
 	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
 
+	// M247
+	if v.IsSet("providers.m247.enabled") {
+		sess.Providers.M247.Enabled = ToPtr(v.GetBool("providers.m247.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "M247")
+	}
+
+	if v.IsSet("providers.m247.output_priority") {
+		sess.Providers.M247.OutputPriority = ToPtr(v.GetInt32("providers.m247.output_priority"))
+	} else {
+		sess.Providers.M247.OutputPriority = ToPtr(int32(c.DefaultM247OutputPriority))
+	}
+
+	sess.Providers.M247.DocumentCacheTTL = v.GetInt64("providers.m247.document_cache_ttl")
+	sess.Providers.M247.URL = v.GetString("providers.m247.url")
+
 	// OVH
 	if v.IsSet("providers.ovh.enabled") {
 		sess.Providers.OVH.Enabled = ToPtr(v.GetBool("providers.ovh.enabled"))

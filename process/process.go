@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jonhadfield/ipscout/providers/m247"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -90,6 +91,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		{Name: ipurl.ProviderName, Enabled: sess.Providers.IPURL.Enabled, APIKey: "", NewClient: ipurl.NewProviderClient},
 		{Name: icloudpr.ProviderName, Enabled: sess.Providers.ICloudPR.Enabled, APIKey: "", NewClient: icloudpr.NewProviderClient},
 		{Name: linode.ProviderName, Enabled: sess.Providers.Linode.Enabled, APIKey: "", NewClient: linode.NewProviderClient},
+		{Name: m247.ProviderName, Enabled: sess.Providers.M247.Enabled, APIKey: "", NewClient: m247.NewProviderClient},
 		{Name: ovh.ProviderName, Enabled: sess.Providers.OVH.Enabled, APIKey: "", NewClient: ovh.NewProviderClient},
 		{Name: ptr.ProviderName, Enabled: sess.Providers.PTR.Enabled, APIKey: "", NewClient: ptr.NewProviderClient},
 		{Name: shodan.ProviderName, Enabled: sess.Providers.Shodan.Enabled, APIKey: sess.Providers.Shodan.APIKey, NewClient: shodan.NewProviderClient},

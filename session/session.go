@@ -246,6 +246,12 @@ type Providers struct {
 		URL              string
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"linode"`
+	M247 struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"m247"`
 	OVH struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`

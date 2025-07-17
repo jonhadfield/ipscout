@@ -296,7 +296,22 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.Linode.DocumentCacheTTL = v.GetInt64("providers.linode.document_cache_ttl")
 	sess.Providers.Linode.URL = v.GetString("providers.linode.url")
-	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
+
+	// M247
+	if v.IsSet("providers.m247.enabled") {
+		sess.Providers.M247.Enabled = ToPtr(v.GetBool("providers.m247.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "M247")
+	}
+
+	if v.IsSet("providers.m247.output_priority") {
+		sess.Providers.M247.OutputPriority = ToPtr(v.GetInt32("providers.m247.output_priority"))
+	} else {
+		sess.Providers.M247.OutputPriority = ToPtr(int32(c.DefaultM247OutputPriority))
+	}
+
+	sess.Providers.M247.DocumentCacheTTL = v.GetInt64("providers.m247.document_cache_ttl")
+	sess.Providers.M247.URL = v.GetString("providers.m247.url")
 
 	// OVH
 	if v.IsSet("providers.ovh.enabled") {
@@ -313,7 +328,6 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.OVH.DocumentCacheTTL = v.GetInt64("providers.ovh.document_cache_ttl")
 	sess.Providers.OVH.URL = v.GetString("providers.ovh.url")
-	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
 
 	// Shodan
 	if v.IsSet("providers.shodan.enabled") {
@@ -331,6 +345,8 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	if v.IsSet("providers.shodan.api_key") {
 		sess.Providers.Shodan.APIKey = v.GetString("providers.shodan.api_key")
 	}
+
+	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
 
 	// PTR
 	if v.IsSet("providers.ptr.enabled") {

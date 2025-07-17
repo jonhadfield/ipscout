@@ -63,6 +63,8 @@ providers:
   #      - "https://iplists.firehol.org/files/tor_exits_7d.ipset"
   linode:
     enabled: true
+  m247:
+    enabled: true
   ovh:
     enabled: true
   ptr:

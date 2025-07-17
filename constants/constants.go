@@ -45,6 +45,8 @@ const DefaultIPURLOutputPriority = 20
 
 const DefaultLinodeOutputPriority = 140
 
+const DefaultM247OutputPriority = 140
+
 const DefaultOVHOutputPriority = 40
 
 const DefaultPtrOutputPriority = 120
