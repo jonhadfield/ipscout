@@ -39,6 +39,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/gcp"
 	"github.com/jonhadfield/ipscout/providers/linode"
 	"github.com/jonhadfield/ipscout/providers/ovh"
+	"github.com/jonhadfield/ipscout/providers/scaleway"
 
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
@@ -96,6 +97,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		{Name: linode.ProviderName, Enabled: sess.Providers.Linode.Enabled, APIKey: "", NewClient: linode.NewProviderClient},
 		{Name: m247.ProviderName, Enabled: sess.Providers.M247.Enabled, APIKey: "", NewClient: m247.NewProviderClient},
 		{Name: ovh.ProviderName, Enabled: sess.Providers.OVH.Enabled, APIKey: "", NewClient: ovh.NewProviderClient},
+		{Name: scaleway.ProviderName, Enabled: sess.Providers.Scaleway.Enabled, APIKey: "", NewClient: scaleway.NewProviderClient},
 		{Name: ptr.ProviderName, Enabled: sess.Providers.PTR.Enabled, APIKey: "", NewClient: ptr.NewProviderClient},
 		{Name: shodan.ProviderName, Enabled: sess.Providers.Shodan.Enabled, APIKey: sess.Providers.Shodan.APIKey, NewClient: shodan.NewProviderClient},
 		{Name: virustotal.ProviderName, Enabled: sess.Providers.VirusTotal.Enabled, APIKey: sess.Providers.VirusTotal.APIKey, NewClient: virustotal.NewProviderClient},

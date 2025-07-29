@@ -74,6 +74,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
+| [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
@@ -316,6 +317,11 @@ that [publishes](https://geoip.linode.com/) network prefixes used by their servi
 
 [OVH](https://www.ovhcloud.com/) is a hosting provider
 that [publishes](https://vps.ovh.net/ips.txt) network prefixes used by their services.
+
+### Scaleway
+
+[Scaleway](https://www.scaleway.com/) is a European hosting provider.
+IP ranges are retrieved from the BGPView API and checked for matches against the target host.
 
 ### PTR
 

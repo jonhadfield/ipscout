@@ -461,6 +461,9 @@ type RatingConfig struct {
 		OVH struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"ovh"`
+		Scaleway struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"scaleway"`
 		Shodan struct {
 			OpenPortsScore                float64 `json:"openPortsScore,omitempty"`
 			HighThreatCountryMatchScore   float64 `json:"highThreatCountryMatchScore,omitempty"`

@@ -264,6 +264,12 @@ type Providers struct {
 		URL              string `mapstructure:"url"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"ovh"`
+	Scaleway struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"scaleway"`
 	Shodan struct {
 		APIKey         string
 		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`

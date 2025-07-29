@@ -171,6 +171,7 @@ const (
 	defaultIPURLOutputPriority        = 20
 	defaultLinodeOutputPriority       = 140
 	defaultPtrOutputPriority          = 120
+	defaultScalewayOutputPriority     = 140
 	defaultShodanOutputPriority       = 70
 	defaultVirusTotalOutputPriority   = 40
 	defaultZscalerOutputPriority      = 40
@@ -496,6 +497,23 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.OVH.DocumentCacheTTL = v.GetInt64("providers.ovh.document_cache_ttl")
 	sess.Providers.OVH.URL = v.GetString("providers.ovh.url")
+
+	// Scaleway
+	if v.IsSet("providers.scaleway.enabled") {
+		sess.Providers.Scaleway.Enabled = ToPtr(v.GetBool("providers.scaleway.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Scaleway")
+	}
+
+	if v.IsSet("providers.scaleway.output_priority") {
+		sess.Providers.Scaleway.OutputPriority = ToPtr(v.GetInt32("providers.scaleway.output_priority"))
+	} else {
+		sess.Providers.Scaleway.OutputPriority = ToPtr(int32(defaultScalewayOutputPriority))
+	}
+
+	sess.Providers.Scaleway.URL = v.GetString("providers.scaleway.url")
+	sess.Providers.Scaleway.DocumentCacheTTL = v.GetInt64("providers.scaleway.document_cache_ttl")
+
 	sess.Providers.Shodan.ResultCacheTTL = v.GetInt64("providers.shodan.result_cache_ttl")
 
 	// Shodan
