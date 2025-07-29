@@ -144,6 +144,12 @@ type Providers struct {
 		MaxAge         int    `mapstructure:"max-age"`
 		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"abuseipdb"`
+	Alibaba struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"alibaba"`
 	Annotated struct {
 		Enabled          *bool    `mapstructure:"enabled"`
 		DocumentCacheTTL int64    `mapstructure:"document_cache_ttl"`

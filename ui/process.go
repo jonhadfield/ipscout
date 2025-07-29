@@ -2,11 +2,12 @@ package ui
 
 import (
 	"fmt"
-	"github.com/jonhadfield/ipscout/providers/m247"
 	"log/slog"
 	"net/netip"
 	"path/filepath"
 	"strings"
+
+	"github.com/jonhadfield/ipscout/providers/m247"
 
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
 	"github.com/jonhadfield/ipscout/providers/bingbot"

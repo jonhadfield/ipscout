@@ -362,7 +362,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 }
 
 func (c *ProviderClient) Initialise() error {
-	c.Logger.Info("Initialising cache:", "provider", ProviderName, "host", c.Host.String(), "cache", c.Cache == nil)
+	c.Logger.Info("initialising cache", "provider", ProviderName, "host", c.Host.String(), "cache", c.Cache == nil)
 
 	if c.Cache == nil {
 		return session.ErrCacheNotSet

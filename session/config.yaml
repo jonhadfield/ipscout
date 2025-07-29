@@ -16,6 +16,8 @@ rating:
 providers:
   abuseipdb:
     enabled: true
+  alibaba:
+    enabled: true
   annotated:
     enabled: true
     paths:

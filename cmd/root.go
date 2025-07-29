@@ -152,6 +152,7 @@ func addProviderConfigMessage(sess *session.Session, provider string) {
 
 const (
 	defaultAbuseIPDBOutputPriority    = 50
+	defaultAlibabaOutputPriority      = 60
 	defaultAnnotatedOutputPriority    = 30
 	defaultAWSOutputPriority          = 200
 	defaultAzureOutputPriority        = 200
@@ -195,6 +196,22 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.AbuseIPDB.MaxAge = v.GetInt("providers.abuseipdb.max_age")
 	sess.Providers.AbuseIPDB.ResultCacheTTL = v.GetInt64("providers.abuseipdb.result_cache_ttl")
+
+	// Alibaba
+	if v.IsSet("providers.alibaba.enabled") {
+		sess.Providers.Alibaba.Enabled = ToPtr(v.GetBool("providers.alibaba.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Alibaba")
+	}
+
+	if v.IsSet("providers.alibaba.output_priority") {
+		sess.Providers.Alibaba.OutputPriority = ToPtr(v.GetInt32("providers.alibaba.output_priority"))
+	} else {
+		sess.Providers.Alibaba.OutputPriority = ToPtr(int32(defaultAlibabaOutputPriority))
+	}
+
+	sess.Providers.Alibaba.URL = v.GetString("providers.alibaba.url")
+	sess.Providers.Alibaba.DocumentCacheTTL = v.GetInt64("providers.alibaba.document_cache_ttl")
 
 	if v.IsSet("providers.annotated.enabled") {
 		sess.Providers.Annotated.Enabled = ToPtr(v.GetBool("providers.annotated.enabled"))

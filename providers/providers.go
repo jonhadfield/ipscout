@@ -404,6 +404,9 @@ type RatingConfig struct {
 		AWS struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"aws"`
+		Alibaba struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"alibaba"`
 		Azure struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"azure"`

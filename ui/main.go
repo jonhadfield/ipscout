@@ -316,6 +316,7 @@ func OpenUI() error {
 		"hetzner":      fetchHetzner,
 		"ipqs":         fetchIPQS,
 		"abuseipdb":    fetchAbuseIPDB,
+		"alibaba":      fetchAlibaba,
 		"virustotal":   fetchVirusTotal,
 		"aws":          fetchAWS,
 		"azure":        fetchAzure,
@@ -332,7 +333,7 @@ func OpenUI() error {
 		"ovh":          fetchOVH,
 		"zscaler":      fetchZscaler,
 	}
-	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "virustotal", "aws", "azure", "bingbot", "criminalip", "digitalocean", "gcp", "google", "googlesc", "icloudpr", "linode", "m247", "ovh", "zscaler"}
+	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "alibaba", "virustotal", "aws", "azure", "bingbot", "criminalip", "digitalocean", "gcp", "google", "googlesc", "icloudpr", "linode", "m247", "ovh", "zscaler"}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()

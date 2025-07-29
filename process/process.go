@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jonhadfield/ipscout/providers/m247"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jonhadfield/ipscout/providers/m247"
 
 	"github.com/jonhadfield/ipscout/providers/zscaler"
 
@@ -41,6 +42,7 @@ import (
 
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
+	"github.com/jonhadfield/ipscout/providers/alibaba"
 	"github.com/jonhadfield/ipscout/providers/annotated"
 	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/providers/azure"
@@ -74,6 +76,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 
 	pros := []Provider{
 		{Name: abuseipdb.ProviderName, Enabled: sess.Providers.AbuseIPDB.Enabled, APIKey: sess.Providers.AbuseIPDB.APIKey, NewClient: abuseipdb.NewClient},
+		{Name: alibaba.ProviderName, Enabled: sess.Providers.Alibaba.Enabled, APIKey: "", NewClient: alibaba.NewProviderClient},
 		{Name: annotated.ProviderName, Enabled: sess.Providers.Annotated.Enabled, APIKey: "", NewClient: annotated.NewProviderClient},
 		{Name: aws.ProviderName, Enabled: sess.Providers.AWS.Enabled, APIKey: "", NewClient: aws.NewProviderClient},
 		{Name: azure.ProviderName, Enabled: sess.Providers.Azure.Enabled, APIKey: "", NewClient: azure.NewProviderClient},
