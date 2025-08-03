@@ -473,6 +473,9 @@ type RatingConfig struct {
 			SuspiciousScore *float64 `json:"suspiciousScore,omitempty"`
 			MaliciousScore  *float64 `json:"maliciousScore,omitempty"`
 		} `json:"virustotal"`
+		Vultr struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"vultr"`
 		Zscaler struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"zscaler"`

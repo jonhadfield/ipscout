@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ## [Unreleased]
 ### Added
 - Scaleway provider for European hosting service IP detection
+- Vultr provider for cloud hosting service IP detection
 
 ## [0.2.10] - 2025-06-10
 ### Changed

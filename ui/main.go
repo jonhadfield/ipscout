@@ -84,6 +84,7 @@ var providerIcons = map[string]string{
 	"m247":         emojiCloud,
 	"ovh":          emojiCloud,
 	"scaleway":     emojiCloud,
+	"vultr":        emojiCloud,
 	"zscaler":      emojiCloud,
 }
 
@@ -333,9 +334,10 @@ func OpenUI() error {
 		"m247":         fetchM247,
 		"ovh":          fetchOVH,
 		"scaleway":     fetchScaleway,
+		"vultr":        fetchVultr,
 		"zscaler":      fetchZscaler,
 	}
-	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "alibaba", "virustotal", "aws", "azure", "bingbot", "criminalip", "digitalocean", "gcp", "google", "googlesc", "icloudpr", "linode", "m247", "ovh", "scaleway", "zscaler"}
+	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "alibaba", "virustotal", "aws", "azure", "bingbot", "criminalip", "digitalocean", "gcp", "google", "googlesc", "icloudpr", "linode", "m247", "ovh", "scaleway", "vultr", "zscaler"}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()

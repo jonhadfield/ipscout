@@ -174,6 +174,7 @@ const (
 	defaultScalewayOutputPriority     = 140
 	defaultShodanOutputPriority       = 70
 	defaultVirusTotalOutputPriority   = 40
+	defaultVultrOutputPriority        = 140
 	defaultZscalerOutputPriority      = 40
 )
 
@@ -579,6 +580,22 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	} else {
 		sess.Providers.VirusTotal.OutputPriority = ToPtr(int32(defaultVirusTotalOutputPriority))
 	}
+
+	// Vultr
+	if v.IsSet("providers.vultr.enabled") {
+		sess.Providers.Vultr.Enabled = ToPtr(v.GetBool("providers.vultr.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Vultr")
+	}
+
+	if v.IsSet("providers.vultr.output_priority") {
+		sess.Providers.Vultr.OutputPriority = ToPtr(v.GetInt32("providers.vultr.output_priority"))
+	} else {
+		sess.Providers.Vultr.OutputPriority = ToPtr(int32(defaultVultrOutputPriority))
+	}
+
+	sess.Providers.Vultr.URL = v.GetString("providers.vultr.url")
+	sess.Providers.Vultr.DocumentCacheTTL = v.GetInt64("providers.vultr.document_cache_ttl")
 
 	// Zscaler
 	if v.IsSet("providers.zscaler.enabled") {

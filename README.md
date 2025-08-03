@@ -75,6 +75,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
+| [Vultr](#Vultr)                                           | Hosting Provider |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
@@ -321,6 +322,11 @@ that [publishes](https://vps.ovh.net/ips.txt) network prefixes used by their ser
 ### Scaleway
 
 [Scaleway](https://www.scaleway.com/) is a European hosting provider.
+IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+
+### Vultr
+
+[Vultr](https://www.vultr.com/) is a cloud hosting provider.
 IP ranges are retrieved from the BGPView API and checked for matches against the target host.
 
 ### PTR

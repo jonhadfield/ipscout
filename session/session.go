@@ -292,6 +292,12 @@ type Providers struct {
 		Enabled        *bool  `mapstructure:"enabled"`
 		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"virustotal"`
+	Vultr struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"vultr"`
 	Zscaler struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`

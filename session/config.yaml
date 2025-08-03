@@ -84,5 +84,7 @@ providers:
     show_unrated: true
     show_harmless: true
     show_clean: true
+  vultr:
+    enabled: true
   zscaler:
     enabled: true

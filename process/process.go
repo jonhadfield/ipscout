@@ -40,6 +40,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/linode"
 	"github.com/jonhadfield/ipscout/providers/ovh"
 	"github.com/jonhadfield/ipscout/providers/scaleway"
+	"github.com/jonhadfield/ipscout/providers/vultr"
 
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
@@ -101,6 +102,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 		{Name: ptr.ProviderName, Enabled: sess.Providers.PTR.Enabled, APIKey: "", NewClient: ptr.NewProviderClient},
 		{Name: shodan.ProviderName, Enabled: sess.Providers.Shodan.Enabled, APIKey: sess.Providers.Shodan.APIKey, NewClient: shodan.NewProviderClient},
 		{Name: virustotal.ProviderName, Enabled: sess.Providers.VirusTotal.Enabled, APIKey: sess.Providers.VirusTotal.APIKey, NewClient: virustotal.NewProviderClient},
+		{Name: vultr.ProviderName, Enabled: sess.Providers.Vultr.Enabled, APIKey: "", NewClient: vultr.NewProviderClient},
 		{Name: zscaler.ProviderName, Enabled: sess.Providers.Zscaler.Enabled, APIKey: "", NewClient: zscaler.NewProviderClient},
 	}
 
