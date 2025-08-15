@@ -54,11 +54,13 @@ func TestVirusTotalHostQuery(t *testing.T) {
 
 	jf, err := os.Open("testdata/virustotal_183_81_169_238_resp.json")
 	require.NoError(t, err)
+
 	defer jf.Close()
 
 	decoder := json.NewDecoder(jf)
 
 	var vtr HostSearchResult
+
 	err = decoder.Decode(&vtr)
 	require.NoError(t, err)
 	require.Equal(t, "183.81.169.238", vtr.Data.ID)

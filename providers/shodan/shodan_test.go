@@ -15,11 +15,13 @@ func TestShodanHostDNSQuery(t *testing.T) {
 
 	jf, err := os.Open("testdata/shodan_google_dns_resp.json")
 	require.NoError(t, err)
+
 	defer jf.Close()
 
 	decoder := json.NewDecoder(jf)
 
 	var sr HostSearchResult
+
 	err = decoder.Decode(&sr)
 	require.NoError(t, err)
 
@@ -58,6 +60,7 @@ func TestShodanHostDNSQuery(t *testing.T) {
 	require.Equal(t, "Mountain View", sr.Data[0].Location.City)
 	require.Equal(t, "CA", sr.Data[0].Location.RegionCode)
 	require.Nil(t, sr.Data[0].Location.AreaCode)
+
 	require.Equal(t, -122.0775, sr.Data[0].Location.Longitude)
 	require.Equal(t, 37.4056, sr.Data[0].Location.Latitude)
 	require.Equal(t, "United States", sr.Data[0].Location.CountryName)

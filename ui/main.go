@@ -427,6 +427,7 @@ func OpenUI() error {
 		var failedProviders []string
 
 		providerDataStatusMutex.RLock()
+
 		for _, p := range providers {
 			dataStatus := providerDataStatus[p]
 			if dataStatus != nil && !*dataStatus {
@@ -437,6 +438,7 @@ func OpenUI() error {
 				successfulProviders = append(successfulProviders, p)
 			}
 		}
+
 		providerDataStatusMutex.RUnlock()
 
 		// Combine lists: successful first, then failed
@@ -459,7 +461,9 @@ func OpenUI() error {
 			var displayName string
 
 			providerDataStatusMutex.RLock()
+
 			dataStatus := providerDataStatus[p]
+
 			providerDataStatusMutex.RUnlock()
 
 			if dataStatus != nil && !*dataStatus {
@@ -512,8 +516,10 @@ func OpenUI() error {
 				hasData := false
 
 				providerDataStatusMutex.Lock()
+
 				providerDataStatus[providerName] = &hasData
 				providerInfo[providerName] = providerResult{text: "Provider not available"}
+
 				providerDataStatusMutex.Unlock()
 
 				continue
@@ -526,9 +532,13 @@ func OpenUI() error {
 
 			// Store result in thread-safe manner
 			providerDataStatusMutex.Lock()
+
 			providerInfo[providerName] = result
+
 			hasData := !isNoDataResult(result)
+
 			providerDataStatus[providerName] = &hasData
+
 			providerDataStatusMutex.Unlock()
 
 			// Update the provider list after each provider loads
@@ -552,6 +562,7 @@ func OpenUI() error {
 						return
 					}
 				}
+
 				providerDataStatusMutex.RUnlock()
 				// Fallback to PTR
 				currentProvider = "ptr"
@@ -611,6 +622,7 @@ func OpenUI() error {
 
 		// Check if we already have cached data for this provider
 		providerDataStatusMutex.RLock()
+
 		if cachedResult, exists := providerInfo[providerName]; exists {
 			providerDataStatusMutex.RUnlock()
 
@@ -633,16 +645,19 @@ func OpenUI() error {
 
 			return
 		}
+
 		providerDataStatusMutex.RUnlock()
 
 		result := fn(ip, sess)
 
 		// Store result in thread-safe manner
 		providerDataStatusMutex.Lock()
+
 		providerInfo[providerName] = result
 		// Track whether this provider has data or not
 		hasData := !isNoDataResult(result)
 		providerDataStatus[providerName] = &hasData
+
 		providerDataStatusMutex.Unlock()
 
 		// Update current provider and refresh provider list with arrow
@@ -733,6 +748,7 @@ func OpenUI() error {
 				// Load all providers in background to avoid blocking UI
 				go func() {
 					loadAllProviders(currentIP)
+
 					stopSpinner <- true
 
 					slog.Info("Finished loading all providers")

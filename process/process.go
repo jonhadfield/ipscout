@@ -411,6 +411,7 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 
 		go func() {
 			defer w.Done()
+
 			results.RLock()
 
 			if results.m[name] == nil {
@@ -450,6 +451,7 @@ func generateJSON(results *findHostsResults) (json.RawMessage, error) {
 
 	for name, b := range results.m {
 		results.RLock()
+
 		if b == nil {
 			results.RUnlock()
 
@@ -457,6 +459,7 @@ func generateJSON(results *findHostsResults) (json.RawMessage, error) {
 		}
 
 		data[name] = json.RawMessage(b)
+
 		results.RUnlock()
 	}
 

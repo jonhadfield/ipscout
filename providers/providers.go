@@ -267,7 +267,6 @@ func isPort(in any) bool {
 		var cint int
 
 		var err error
-
 		if cint, err = strconv.Atoi(v); err != nil {
 			return false
 		}

@@ -187,6 +187,7 @@ func FetchResponse(l *slog.Logger, host string, nameServers []string) (*HostSear
 				switch rRes := ans.(type) {
 				case *dns.PTR:
 					var newPtr Ptr
+
 					newPtr.Ptr = rRes.Ptr
 					rHeader := rRes.Header()
 					newPtr.Header = Header{
@@ -199,6 +200,7 @@ func FetchResponse(l *slog.Logger, host string, nameServers []string) (*HostSear
 					res.RR = append(res.RR, &newPtr)
 				case *dns.CNAME:
 					var newPtr Ptr
+
 					newPtr.Ptr = rRes.Target
 					rHeader := rRes.Header()
 					newPtr.Header = Header{

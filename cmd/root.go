@@ -83,7 +83,6 @@ func newRootCommand() *cobra.Command {
 		}
 
 		var err error
-
 		if sess.Host, err = helpers.ParseHost(args[0]); err != nil {
 			return fmt.Errorf("invalid host: %w", err)
 		}

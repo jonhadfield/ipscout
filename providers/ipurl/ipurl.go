@@ -274,7 +274,6 @@ func (c *ProviderClient) loadProviderURLFromSource(sURL string) error {
 	var pURL *url.URL
 
 	var err error
-
 	if pURL, err = url.Parse(sURL); err != nil {
 		return fmt.Errorf("error parsing ipurl provider url: %w", err)
 	}
@@ -336,7 +335,6 @@ func (c *ProviderClient) loadProviderURLDataFromCache(pURL string) ([]netip.Pref
 	var item *cache.Item
 
 	var err error
-
 	if item, err = cache.Read(c.Logger, c.Cache, cacheKey); err != nil {
 		return nil, fmt.Errorf("error reading ipurl provider cache: %w", err)
 	}

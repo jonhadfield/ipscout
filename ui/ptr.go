@@ -12,7 +12,7 @@ import (
 func fetchPTR(ip string, sess *session.Session) providerResult { //nolint:revive
 	sess.Logger.Info("Fetching data from PTR", "ip", ip)
 
-	fr, err := ptr.FetchResponse(nil, ip, nil)
+	fr, err := ptr.FetchResponse(sess.Logger, ip, nil)
 	if err != nil {
 		sess.Logger.Error("Error fetching PTR data", "ip", ip, "error", err)
 

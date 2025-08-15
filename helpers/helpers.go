@@ -91,7 +91,9 @@ func TrackDuration(mu *sync.Mutex, m map[string]time.Duration, provider string) 
 
 	return func() {
 		mu.Lock()
+
 		m[provider] = time.Since(start)
+
 		mu.Unlock()
 	}
 }

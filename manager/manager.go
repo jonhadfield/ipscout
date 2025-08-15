@@ -137,6 +137,7 @@ func (c *Client) Get(key string, raw bool) error {
 	}
 
 	var pItem PresentationItem
+
 	pItem.Key = item.Key
 	pItem.AppVersion = item.AppVersion
 	pItem.Version = item.Version

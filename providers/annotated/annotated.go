@@ -174,9 +174,9 @@ func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 	return tc, nil
 }
 
-func LoadAnnotatedIPPrefixesFromPaths(paths []string, prefixesWithAnnotations PrefixesWithAnnotations) error {
+func LoadAnnotatedIPPrefixesFromPaths(l *slog.Logger, paths []string, prefixesWithAnnotations PrefixesWithAnnotations) error {
 	for _, path := range paths {
-		if err := LoadFilePrefixesWithAnnotationsFromPath(path, prefixesWithAnnotations); err != nil {
+		if err := LoadFilePrefixesWithAnnotationsFromPath(l, path, prefixesWithAnnotations); err != nil {
 			return err
 		}
 	}
@@ -206,7 +206,7 @@ func ReadAnnotatedPrefixesFromFile(l *slog.Logger, path string, prefixesWithAnno
 		// parse and repack annotations
 		annotationSource := path
 
-		annotations := parseAndRepackYAMLAnnotations(nil, annotationSource, pwar.Annotations)
+		annotations := parseAndRepackYAMLAnnotations(l, annotationSource, pwar.Annotations)
 
 		for _, p := range pwar.Prefixes {
 			var parsedPrefix netip.Prefix
@@ -275,7 +275,7 @@ func (c *ProviderClient) Initialise() error {
 	// load data from source and store in cache
 	prefixesWithAnnotations := make(map[netip.Prefix][]annotation)
 
-	err = LoadAnnotatedIPPrefixesFromPaths(c.Providers.Annotated.Paths, prefixesWithAnnotations)
+	err = LoadAnnotatedIPPrefixesFromPaths(c.Logger, c.Providers.Annotated.Paths, prefixesWithAnnotations)
 	if err != nil {
 		return fmt.Errorf("loading annotated files: %w", err)
 	}
@@ -544,7 +544,7 @@ func getValidFilePathsFromDir(l *slog.Logger, dir string) []os.DirEntry {
 	return paths
 }
 
-func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotations map[netip.Prefix][]annotation) error {
+func LoadFilePrefixesWithAnnotationsFromPath(l *slog.Logger, path string, prefixesWithAnnotations map[netip.Prefix][]annotation) error {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return err // nolint: wrapcheck
@@ -562,7 +562,7 @@ func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotation
 	pathIsDir := info.IsDir()
 	if pathIsDir {
 		// if directory, then retrieve all dirEntries within
-		dirEntries := getValidFilePathsFromDir(nil, path)
+		dirEntries := getValidFilePathsFromDir(l, path)
 		for _, file := range dirEntries {
 			// only read up to one level deep
 			if !file.IsDir() {
@@ -582,7 +582,7 @@ func LoadFilePrefixesWithAnnotationsFromPath(path string, prefixesWithAnnotation
 		}
 
 		// Get annotations from entry
-		err = ReadAnnotatedPrefixesFromFile(nil, fPath, prefixesWithAnnotations)
+		err = ReadAnnotatedPrefixesFromFile(l, fPath, prefixesWithAnnotations)
 		if err != nil {
 			return err
 		}
