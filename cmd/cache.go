@@ -19,6 +19,7 @@ func newCacheCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				_ = cmd.Help()
+
 				os.Exit(0)
 			}
 
