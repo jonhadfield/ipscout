@@ -1,6 +1,6 @@
 module github.com/jonhadfield/ipscout
 
-go 1.25.1
+go 1.24.7
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor v1.4.0
