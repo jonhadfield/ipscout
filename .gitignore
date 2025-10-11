@@ -2,4 +2,6 @@ dist/
 coverage.txt
 .claude/
 CLAUDE.md
-ui/.config
+ui/.config.
+AGENTS.md
+.fleet
