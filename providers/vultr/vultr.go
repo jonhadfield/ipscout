@@ -209,21 +209,16 @@ func (c *ProviderClient) loadProviderDataFromCache() (Doc, error) {
 
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 
-	var doc Doc
-
-	if item, err := cache.Read(c.Logger, c.Cache, cacheKey); err == nil {
-		var uErr error
-
-		doc, uErr = unmarshalProviderData(item.Value)
-		if uErr != nil {
-			defer func() {
-				_ = cache.Delete(c.Logger, c.Cache, cacheKey)
-			}()
-
-			return Doc{}, fmt.Errorf("error unmarshalling cached vultr provider Doc: %w", uErr)
-		}
-	} else {
+	item, err := cache.Read(c.Logger, c.Cache, cacheKey)
+	if err != nil {
 		return Doc{}, fmt.Errorf("error reading vultr cache: %w", err)
+	}
+
+	doc, err := unmarshalProviderData(item.Value)
+	if err != nil {
+		_ = cache.Delete(c.Logger, c.Cache, cacheKey)
+
+		return Doc{}, fmt.Errorf("error unmarshalling cached vultr provider Doc: %w", err)
 	}
 
 	c.Stats.Mu.Lock()
@@ -255,12 +250,25 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 }
 
 // FindHost searches for the host in the vultr data
+
+func findMatchingPrefix(host netip.Addr, doc Doc) (netip.Prefix, bool) {
+	for _, p := range doc.IPv4Prefixes {
+		if p.Contains(host) {
+			return p, true
+		}
+	}
+
+	for _, p := range doc.IPv6Prefixes {
+		if p.Contains(host) {
+			return p, true
+		}
+	}
+
+	return netip.Prefix{}, false
+}
+
 func (c *ProviderClient) FindHost() ([]byte, error) {
 	defer helpers.TrackDuration(&c.Stats.Mu, c.Stats.FindHostDuration, ProviderName)()
-
-	var result *HostSearchResult
-
-	var err error
 
 	// return cached report if test data is enabled
 	if c.UseTestData {
@@ -272,38 +280,19 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, fmt.Errorf("loading vultr host data from cache: %w", err)
 	}
 
-	for _, p := range doc.IPv4Prefixes {
-		if p.Contains(c.Host) {
-			result = &HostSearchResult{Prefix: p}
-
-			c.Logger.Debug("returning vultr host match data")
-
-			break
-		}
-	}
-
-	for _, p := range doc.IPv6Prefixes {
-		if p.Contains(c.Host) {
-			result = &HostSearchResult{Prefix: p}
-
-			c.Logger.Debug("returning vultr host match data")
-
-			break
-		}
-	}
-
-	if result == nil {
+	prefix, found := findMatchingPrefix(c.Host, doc)
+	if !found {
 		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
-	var raw []byte
+	result := HostSearchResult{Prefix: prefix}
 
-	raw, err = json.Marshal(result)
+	result.Raw, err = json.Marshal(result)
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling response: %w", err)
 	}
 
-	result.Raw = raw
+	c.Logger.Debug("returning vultr host match data")
 
 	return result.Raw, nil
 }
@@ -318,11 +307,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw := table.NewWriter()
 
-	var rows []table.Row
-
 	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Prefix.String())})
-
-	tw.AppendRows(rows)
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: providers.DataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
