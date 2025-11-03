@@ -11,7 +11,7 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/gdamore/tcell/v2 v2.9.0
 	github.com/hashicorp/go-retryablehttp v0.7.8
-	github.com/jedib0t/go-pretty/v6 v6.6.8
+	github.com/jedib0t/go-pretty/v6 v6.6.9
 	github.com/jonhadfield/azwaf v0.0.0-20250818171126-71d219dd177d
 	github.com/jonhadfield/ip-fetcher v0.0.0-20251010174513-0d224f8c9985
 	github.com/miekg/dns v1.1.68
