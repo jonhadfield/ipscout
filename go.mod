@@ -11,9 +11,9 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/gdamore/tcell/v2 v2.9.0
 	github.com/hashicorp/go-retryablehttp v0.7.8
-	github.com/jedib0t/go-pretty/v6 v6.6.8
+	github.com/jedib0t/go-pretty/v6 v6.7.0
 	github.com/jonhadfield/azwaf v0.0.0-20250818171126-71d219dd177d
-	github.com/jonhadfield/ip-fetcher v0.0.0-20251018181103-89e6003b73be
+	github.com/jonhadfield/ip-fetcher v0.0.0-20251108125457-4108efd87b56
 	github.com/miekg/dns v1.1.68
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rivo/tview v0.42.0
@@ -22,7 +22,7 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/sync v0.17.0
+	golang.org/x/sync v0.18.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
