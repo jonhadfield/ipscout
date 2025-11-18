@@ -130,7 +130,8 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 	}
 
 	type args struct {
-		session.Session
+		useCustomSession bool
+		sess             *session.Session
 	}
 
 	tests := []struct {
@@ -139,7 +140,6 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 		args   args
 		want   bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "show clean not harmless",
 			args: args{},
@@ -153,9 +153,7 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 		},
 		{
 			name: "show harmless not clean",
-			args: args{
-				*s,
-			},
+			args: args{},
 			want: true,
 			fields: fields{
 				Method:     "blacklist",
@@ -166,9 +164,7 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 		},
 		{
 			name: "show harmless and clean",
-			args: args{
-				*s,
-			},
+			args: args{},
 			want: true,
 			fields: fields{
 				Method:     "blacklist",
@@ -179,9 +175,7 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 		},
 		{
 			name: "show neither",
-			args: args{
-				*s,
-			},
+			args: args{},
 			want: false,
 			fields: fields{
 				Method:     "blacklist",
@@ -192,15 +186,85 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 		},
 		{
 			name: "show neither with unrated",
-			args: args{
-				*s,
-			},
+			args: args{},
 			want: false,
 			fields: fields{
 				Method:     "blacklist",
 				EngineName: "Acronis",
 				Category:   "harmless",
 				Result:     "unrated",
+			},
+		},
+		{
+			name: "show suspicious always shown",
+			args: args{},
+			want: true,
+			fields: fields{
+				Method:     "blacklist",
+				EngineName: "Kaspersky",
+				Category:   "suspicious",
+				Result:     "suspicous",
+			},
+		},
+		{
+			name: "show malicious always shown",
+			args: args{},
+			want: true,
+			fields: fields{
+				Method:     "blacklist",
+				EngineName: "CriminalIP",
+				Category:   "malicious",
+				Result:     "malicious",
+			},
+		},
+		{
+			name: "show providers disabled returns false",
+			args: args{
+				useCustomSession: true,
+				sess: func() *session.Session {
+					sess := session.New()
+					sess.Providers.VirusTotal.ShowProviders = ToPtr(false)
+
+					return sess
+				}(),
+			},
+			want: false,
+			fields: fields{
+				Method:     "blacklist",
+				EngineName: "Test",
+				Category:   "malicious",
+				Result:     "malicious",
+			},
+		},
+		{
+			name: "show unrated when configured",
+			args: args{
+				useCustomSession: true,
+				sess: func() *session.Session {
+					sess := session.New()
+					sess.Providers.VirusTotal.ShowProviders = ToPtr(true)
+					sess.Providers.VirusTotal.ShowUnrated = ToPtr(true)
+
+					return sess
+				}(),
+			},
+			want: true,
+			fields: fields{
+				Method:     "blacklist",
+				EngineName: "Test",
+				Category:   "unrated",
+				Result:     "unrated",
+			},
+		},
+		{
+			name: "default result not shown",
+			args: args{},
+			want: false,
+			fields: fields{
+				Method:     "blacklist",
+				EngineName: "Test",
+				Category:   "unknown",
+				Result:     "unknown",
 			},
 		},
 	}
@@ -213,7 +277,14 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 				Category:   tt.fields.Category,
 				Result:     tt.fields.Result,
 			}
-			if got := ard.ShouldOutput(s); got != tt.want {
+
+			sess := s
+
+			if tt.args.useCustomSession {
+				sess = tt.args.sess
+			}
+
+			if got := ard.ShouldOutput(sess); got != tt.want {
 				t.Errorf("ShouldOutput() = %v, want %v", got, tt.want)
 			}
 		})
