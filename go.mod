@@ -9,7 +9,7 @@ require (
 	github.com/dgraph-io/badger/v4 v4.8.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
-	github.com/gdamore/tcell/v2 v2.10.0
+	github.com/gdamore/tcell/v2 v2.13.2
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/jedib0t/go-pretty/v6 v6.7.5
 	github.com/jonhadfield/azwaf v0.0.0-20251120114716-6b2935ec7428
