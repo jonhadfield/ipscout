@@ -12,7 +12,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.13.8
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/jedib0t/go-pretty/v6 v6.7.8
-	github.com/jonhadfield/azwaf v0.0.0-20251207163444-9426662ad4f7
+	github.com/jonhadfield/azwaf v0.2.0
 	github.com/jonhadfield/ip-fetcher v0.0.0-20251108125457-4108efd87b56
 	github.com/miekg/dns v1.1.72
 	github.com/mitchellh/go-homedir v1.1.0
@@ -31,13 +31,12 @@ require (
 // replace github.com/jonhadfield/azwaf => ../azwaf
 
 require (
-	github.com/Azure/azure-pipeline-go v0.2.3 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.21.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.13.1 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.11.2 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources v1.2.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage v1.8.1 // indirect
-	github.com/Azure/azure-storage-blob-go v0.15.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.4 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.6.0 // indirect
 	github.com/Danny-Dasilva/CycleTLS/cycletls v1.0.30 // indirect
 	github.com/Danny-Dasilva/fhttp v0.0.0-20260106165651-41258808b131 // indirect
@@ -73,7 +72,6 @@ require (
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-ieproxy v0.0.12 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
 	github.com/onsi/ginkgo/v2 v2.27.5 // indirect
