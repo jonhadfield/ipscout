@@ -61,10 +61,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const (
-	spinnerStartupMS  = 50
-	spinnerIntervalMS = 100
-)
+const spinnerIntervalMS = 100
 
 type Provider struct {
 	Name      string
@@ -281,8 +278,6 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 
 		return
 	}
-	// allow time to output spinner
-	time.Sleep(spinnerStartupMS * time.Millisecond)
 }
 
 func stopSpinnerIfActive(s *spinner.Spinner) {
@@ -340,8 +335,6 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	}
 
 	w.Wait()
-	// allow time to output spinner
-	time.Sleep(spinnerStartupMS * time.Millisecond)
 
 	return &results
 }
@@ -413,13 +406,12 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 			defer w.Done()
 
 			results.RLock()
-
-			if results.m[name] == nil {
-				return
-			}
-
 			createTableData := results.m[name]
 			results.RUnlock()
+
+			if createTableData == nil {
+				return
+			}
 
 			tbl, err := runner.CreateTable(createTableData)
 			if err != nil {
@@ -440,8 +432,6 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 	}
 
 	w.Wait()
-	// allow time to output spinner
-	time.Sleep(spinnerStartupMS * time.Millisecond)
 
 	return tables.m
 }

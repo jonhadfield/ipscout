@@ -192,8 +192,6 @@ func loadAPIResponse(ctx context.Context, conf *session.Session, apiKey string) 
 		return nil, fmt.Errorf("error creating criminal ip request: %w", err)
 	}
 
-	conf.HTTPClient.HTTPClient.Timeout = APITimeout
-
 	req.Header.Add("x-api-key", apiKey) //nolint:canonicalheader
 
 	resp, err := conf.HTTPClient.Do(req)

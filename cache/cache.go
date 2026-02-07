@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/dgraph-io/badger/v4"
+	"github.com/dgraph-io/badger/v4/options"
 )
 
 type Item struct {
@@ -19,6 +20,11 @@ type Item struct {
 	AppVersion string
 	Created    time.Time
 }
+
+const (
+	numLevelZeroTablesStall = 2
+	valueLogFileSize        = 16 << 20 // 16 MB
+)
 
 var (
 	ErrUpsertFailed      = errors.New("upsert failed")
@@ -35,7 +41,18 @@ func Create(logger *slog.Logger, path string) (*badger.DB, error) {
 		return nil, errors.New("path is empty")
 	}
 
-	db, err := badger.Open(badger.DefaultOptions(filepath.Join(path, "cache")).WithLogger(nil))
+	opts := badger.DefaultOptions(filepath.Join(path, "cache")).
+		WithLogger(nil).
+		WithNumVersionsToKeep(1).
+		WithNumMemtables(1).
+		WithNumLevelZeroTables(1).
+		WithNumLevelZeroTablesStall(numLevelZeroTablesStall).
+		WithValueLogFileSize(valueLogFileSize).
+		WithCompactL0OnClose(false).
+		WithCompression(options.None).
+		WithBlockCacheSize(0)
+
+	db, err := badger.Open(opts)
 	if err != nil {
 		return nil, fmt.Errorf("error creating cache: %w", err)
 	}

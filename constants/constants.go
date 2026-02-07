@@ -17,9 +17,9 @@ const (
 const DefaultIndentSpaces = 2
 
 const (
-	RetryWaitMin    = 3 * time.Second
-	RetryWaitMax    = 5 * time.Second
-	RetryMax        = 3
+	RetryWaitMin    = 1 * time.Second
+	RetryWaitMax    = 2 * time.Second
+	RetryMax        = 1
 	NameLookupDelay = 5 * time.Second
 )
 
