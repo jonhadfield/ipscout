@@ -118,6 +118,7 @@ type GlobalConfig struct {
 	DisableCache        bool     `mapstructure:"disable-cache"`
 	Style               string   `mapstructure:"style"`
 	InitialiseCacheOnly bool
+	FilterProviders     []string `mapstructure:"filter-providers"`
 }
 
 type Session struct {

@@ -11,114 +11,39 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jonhadfield/ipscout/providers/m247"
-
-	"github.com/jonhadfield/ipscout/providers/zscaler"
-
-	"github.com/jonhadfield/ipscout/providers/hetzner"
-
-	"github.com/jonhadfield/ipscout/providers/ipqs"
-
-	"github.com/jonhadfield/ipscout/providers/azurewaf"
-	"github.com/jonhadfield/ipscout/providers/googlesc"
-
-	"github.com/jonhadfield/ipscout/providers/bingbot"
-
-	"github.com/jonhadfield/ipscout/providers/virustotal"
-
-	"github.com/jonhadfield/ipscout/providers/google"
-
 	"github.com/jedib0t/go-pretty/v6/text"
-
-	"github.com/jonhadfield/ipscout/providers/googlebot"
-
-	"github.com/jonhadfield/ipscout/providers/ipapi"
-
-	"github.com/jonhadfield/ipscout/providers/icloudpr"
-
-	"github.com/jonhadfield/ipscout/providers/gcp"
-	"github.com/jonhadfield/ipscout/providers/linode"
-	"github.com/jonhadfield/ipscout/providers/ovh"
-	"github.com/jonhadfield/ipscout/providers/scaleway"
-	"github.com/jonhadfield/ipscout/providers/vultr"
-
-	"github.com/jonhadfield/ipscout/providers"
-	"github.com/jonhadfield/ipscout/providers/abuseipdb"
-	"github.com/jonhadfield/ipscout/providers/alibaba"
-	"github.com/jonhadfield/ipscout/providers/annotated"
-	"github.com/jonhadfield/ipscout/providers/aws"
-	"github.com/jonhadfield/ipscout/providers/azure"
-	"github.com/jonhadfield/ipscout/providers/digitalocean"
-	"github.com/jonhadfield/ipscout/providers/ptr"
 
 	"github.com/briandowns/spinner"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/present"
-	"github.com/jonhadfield/ipscout/providers/criminalip"
-	"github.com/jonhadfield/ipscout/providers/ipurl"
-	"github.com/jonhadfield/ipscout/providers/shodan"
+	"github.com/jonhadfield/ipscout/providers"
+	"github.com/jonhadfield/ipscout/registry"
 	"github.com/jonhadfield/ipscout/session"
 	"golang.org/x/sync/errgroup"
 )
 
 const spinnerIntervalMS = 100
 
-type Provider struct {
-	Name      string
-	Enabled   *bool
-	APIKey    string
-	NewClient func(c session.Session) (providers.ProviderClient, error)
-}
-
 func getEnabledProviderClients(sess session.Session) (map[string]providers.ProviderClient, error) {
 	runners := make(map[string]providers.ProviderClient)
 
-	pros := []Provider{
-		{Name: abuseipdb.ProviderName, Enabled: sess.Providers.AbuseIPDB.Enabled, APIKey: sess.Providers.AbuseIPDB.APIKey, NewClient: abuseipdb.NewClient},
-		{Name: alibaba.ProviderName, Enabled: sess.Providers.Alibaba.Enabled, APIKey: "", NewClient: alibaba.NewProviderClient},
-		{Name: annotated.ProviderName, Enabled: sess.Providers.Annotated.Enabled, APIKey: "", NewClient: annotated.NewProviderClient},
-		{Name: aws.ProviderName, Enabled: sess.Providers.AWS.Enabled, APIKey: "", NewClient: aws.NewProviderClient},
-		{Name: azure.ProviderName, Enabled: sess.Providers.Azure.Enabled, APIKey: "", NewClient: azure.NewProviderClient},
-		{Name: azurewaf.ProviderName, Enabled: sess.Providers.AzureWAF.Enabled, APIKey: "", NewClient: azurewaf.NewProviderClient},
-		{Name: bingbot.ProviderName, Enabled: sess.Providers.Bingbot.Enabled, APIKey: "", NewClient: bingbot.NewProviderClient},
-		{Name: criminalip.ProviderName, Enabled: sess.Providers.CriminalIP.Enabled, APIKey: sess.Providers.CriminalIP.APIKey, NewClient: criminalip.NewProviderClient},
-		{Name: digitalocean.ProviderName, Enabled: sess.Providers.DigitalOcean.Enabled, APIKey: "", NewClient: digitalocean.NewProviderClient},
-		{Name: gcp.ProviderName, Enabled: sess.Providers.GCP.Enabled, APIKey: "", NewClient: gcp.NewProviderClient},
-		{Name: google.ProviderName, Enabled: sess.Providers.Google.Enabled, APIKey: "", NewClient: google.NewProviderClient},
-		{Name: googlebot.ProviderName, Enabled: sess.Providers.Googlebot.Enabled, APIKey: "", NewClient: googlebot.NewProviderClient},
-		{Name: googlesc.ProviderName, Enabled: sess.Providers.GoogleSC.Enabled, APIKey: "", NewClient: googlesc.NewProviderClient},
-		{Name: hetzner.ProviderName, Enabled: sess.Providers.Hetzner.Enabled, APIKey: "", NewClient: hetzner.NewProviderClient},
-		{Name: ipapi.ProviderName, Enabled: sess.Providers.IPAPI.Enabled, APIKey: "", NewClient: ipapi.NewProviderClient},
-		{Name: ipqs.ProviderName, Enabled: sess.Providers.IPQS.Enabled, APIKey: sess.Providers.IPQS.APIKey, NewClient: ipqs.NewProviderClient},
-		{Name: ipurl.ProviderName, Enabled: sess.Providers.IPURL.Enabled, APIKey: "", NewClient: ipurl.NewProviderClient},
-		{Name: icloudpr.ProviderName, Enabled: sess.Providers.ICloudPR.Enabled, APIKey: "", NewClient: icloudpr.NewProviderClient},
-		{Name: linode.ProviderName, Enabled: sess.Providers.Linode.Enabled, APIKey: "", NewClient: linode.NewProviderClient},
-		{Name: m247.ProviderName, Enabled: sess.Providers.M247.Enabled, APIKey: "", NewClient: m247.NewProviderClient},
-		{Name: ovh.ProviderName, Enabled: sess.Providers.OVH.Enabled, APIKey: "", NewClient: ovh.NewProviderClient},
-		{Name: scaleway.ProviderName, Enabled: sess.Providers.Scaleway.Enabled, APIKey: "", NewClient: scaleway.NewProviderClient},
-		{Name: ptr.ProviderName, Enabled: sess.Providers.PTR.Enabled, APIKey: "", NewClient: ptr.NewProviderClient},
-		{Name: shodan.ProviderName, Enabled: sess.Providers.Shodan.Enabled, APIKey: sess.Providers.Shodan.APIKey, NewClient: shodan.NewProviderClient},
-		{Name: virustotal.ProviderName, Enabled: sess.Providers.VirusTotal.Enabled, APIKey: sess.Providers.VirusTotal.APIKey, NewClient: virustotal.NewProviderClient},
-		{Name: vultr.ProviderName, Enabled: sess.Providers.Vultr.Enabled, APIKey: "", NewClient: vultr.NewProviderClient},
-		{Name: zscaler.ProviderName, Enabled: sess.Providers.Zscaler.Enabled, APIKey: "", NewClient: zscaler.NewProviderClient},
-	}
-
 	var enabled int
 
-	for _, provider := range pros {
-		if provider.Enabled == nil || !*provider.Enabled {
+	for _, entry := range registry.All() {
+		entryEnabled := entry.Enabled(sess)
+		if entryEnabled == nil || !*entryEnabled {
 			continue
 		}
 
 		enabled++
 
-		client, err := provider.NewClient(sess)
+		client, err := entry.NewClient(sess)
 		if err != nil {
-			return nil, fmt.Errorf("error creating %s client: %w", provider.Name, err)
+			return nil, fmt.Errorf("error creating %s client: %w", entry.Name, err)
 		}
 
 		if client != nil && client.Enabled() || sess.UseTestData {
-			runners[provider.Name] = client
+			runners[entry.Name] = client
 		}
 	}
 
@@ -145,13 +70,6 @@ func getEnabledProviders(runners map[string]providers.ProviderClient) map[string
 	return res
 }
 
-type Config struct {
-	session.Session
-	Shodan     shodan.Config
-	CriminalIP criminalip.Config
-	IPURL      ipurl.Config
-}
-
 type Processor struct {
 	Session *session.Session
 }
@@ -175,6 +93,14 @@ func (p *Processor) Run() error {
 	}
 
 	enabledProviders := getEnabledProviders(providerClients)
+
+	// apply provider filter if specified
+	if len(p.Session.Config.Global.FilterProviders) > 0 {
+		enabledProviders = filterProvidersByName(enabledProviders, p.Session.Config.Global.FilterProviders)
+		if len(enabledProviders) == 0 {
+			return fmt.Errorf("no matching providers found for filter: %s", strings.Join(p.Session.Config.Global.FilterProviders, ", "))
+		}
+	}
 
 	// initialise providers
 	initialiseProviders(p.Session.Logger, enabledProviders, p.Session.HideProgress)
@@ -222,6 +148,23 @@ func (p *Processor) Run() error {
 	}
 
 	return nil
+}
+
+func filterProvidersByName(runners map[string]providers.ProviderClient, names []string) map[string]providers.ProviderClient {
+	nameSet := make(map[string]bool, len(names))
+	for _, n := range names {
+		nameSet[strings.ToLower(n)] = true
+	}
+
+	filtered := make(map[string]providers.ProviderClient)
+
+	for k, v := range runners {
+		if nameSet[strings.ToLower(k)] {
+			filtered[k] = v
+		}
+	}
+
+	return filtered
 }
 
 func mapsKeys[K comparable, V any](m map[K]V) []K {
@@ -361,6 +304,17 @@ func output(sess *session.Session, runners map[string]providers.ProviderClient, 
 
 		if err = present.JSON(&jo); err != nil {
 			return fmt.Errorf("error outputting JSON: %w", err)
+		}
+
+		outputMessages(sess)
+	case "csv":
+		jo, err := generateJSON(results)
+		if err != nil {
+			return err
+		}
+
+		if err = present.CSV(&jo); err != nil {
+			return fmt.Errorf("error outputting CSV: %w", err)
 		}
 
 		outputMessages(sess)

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -30,15 +31,17 @@ var ErrSilent = errors.New("ErrSilent")
 //nolint:funlen
 func newRootCommand() *cobra.Command {
 	var (
-		useTestData   bool
-		ports         []string
-		maxValueChars int32
-		maxAge        string
-		maxReports    int
-		logLevel      string
-		output        string
-		style         string
-		disableCache  bool
+		useTestData     bool
+		ports           []string
+		maxValueChars   int32
+		maxAge          string
+		maxReports      int
+		logLevel        string
+		output          string
+		style           string
+		disableCache    bool
+		filterProviders []string
+		inputFile       string
 	)
 
 	rootCmd := &cobra.Command{
@@ -76,26 +79,34 @@ func newRootCommand() *cobra.Command {
 			args = []string{"8.8.8.8"}
 		}
 
-		if len(args) == 0 {
+		hosts, err := collectHosts(cmd, args)
+		if err != nil {
+			return err
+		}
+
+		if len(hosts) == 0 {
 			_ = cmd.Help()
 
 			os.Exit(0)
 		}
 
-		var err error
-		if sess.Host, err = helpers.ParseHost(args[0]); err != nil {
-			return fmt.Errorf("invalid host: %w", err)
-		}
+		for _, host := range hosts {
+			if sess.Host, err = helpers.ParseHost(host); err != nil {
+				fmt.Fprintf(os.Stderr, "skipping invalid host %q: %s\n", host, err)
 
-		processor, err := process.New(sess)
-		if err != nil {
-			os.Exit(1)
-		}
+				continue
+			}
 
-		if err = processor.Run(); err != nil {
-			fmt.Println(err.Error())
+			processor, pErr := process.New(sess)
+			if pErr != nil {
+				fmt.Fprintf(os.Stderr, "error creating processor for %s: %s\n", host, pErr)
 
-			os.Exit(1)
+				continue
+			}
+
+			if pErr = processor.Run(); pErr != nil {
+				fmt.Fprintf(os.Stderr, "error processing %s: %s\n", host, pErr)
+			}
 		}
 
 		return nil
@@ -103,7 +114,7 @@ func newRootCommand() *cobra.Command {
 
 	// Define cobra flags, the default value has the lowest (least significant) precedence
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "WARN", "set log level as: ERROR, WARN, INFO, DEBUG")
-	rootCmd.PersistentFlags().StringVar(&output, "output", "table", "output format: table, json")
+	rootCmd.PersistentFlags().StringVar(&output, "output", "table", "output format: table, json, csv")
 	rootCmd.PersistentFlags().StringVar(&style, "style", "", "output style: ascii, cyan, red, yellow, green, blue")
 	rootCmd.PersistentFlags().StringVar(&maxAge, "max-age", "", "max age of data to consider")
 	rootCmd.PersistentFlags().IntVar(&maxReports, "max-reports", session.DefaultMaxReports, "max reports to output for each provider")
@@ -111,8 +122,55 @@ func newRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVar(&disableCache, "disable-cache", false, "disable cache")
 	rootCmd.PersistentFlags().StringSliceVarP(&ports, "ports", "p", nil, "limit ports")
 	rootCmd.PersistentFlags().Int32Var(&maxValueChars, "max-value-chars", 0, "max characters to output for any value")
+	rootCmd.PersistentFlags().StringSliceVar(&filterProviders, "filter-providers", nil, "limit to specific providers (comma-separated)")
+	rootCmd.PersistentFlags().StringVarP(&inputFile, "file", "f", "", "file containing IPs/hostnames (one per line)")
 
 	return rootCmd
+}
+
+// collectHosts gathers hosts from CLI args, --file flag, or stdin.
+func collectHosts(cmd *cobra.Command, args []string) ([]string, error) {
+	// check --file flag
+	filePath, _ := cmd.Flags().GetString("file")
+	if filePath != "" {
+		return readHostsFromFile(filePath)
+	}
+
+	// check stdin (only if no args and stdin is piped)
+	if len(args) == 0 {
+		stat, _ := os.Stdin.Stat()
+		if (stat.Mode() & os.ModeCharDevice) == 0 {
+			return readHostsFromReader(bufio.NewScanner(os.Stdin)), nil
+		}
+	}
+
+	return args, nil
+}
+
+func readHostsFromFile(path string) ([]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("error opening file %s: %w", path, err)
+	}
+
+	defer f.Close()
+
+	return readHostsFromReader(bufio.NewScanner(f)), nil
+}
+
+func readHostsFromReader(scanner *bufio.Scanner) []string {
+	var hosts []string
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		hosts = append(hosts, line)
+	}
+
+	return hosts
 }
 
 func Execute() error {
@@ -741,6 +799,15 @@ func initConfig(cmd *cobra.Command) error {
 	maxValueChars, _ := cmd.Flags().GetInt32("max-value-chars")
 	if maxValueChars > 0 {
 		sess.Config.Global.MaxValueChars = maxValueChars
+	}
+
+	filterProviders, _ := cmd.Flags().GetStringSlice("filter-providers")
+	if len(filterProviders) == 1 && filterProviders[0] == "[]" {
+		filterProviders = nil
+	}
+
+	if len(filterProviders) > 0 {
+		sess.Config.Global.FilterProviders = filterProviders
 	}
 
 	sess.Config.Global.IndentSpaces = c.DefaultIndentSpaces

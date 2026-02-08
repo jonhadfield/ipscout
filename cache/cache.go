@@ -153,23 +153,30 @@ func DeleteMultiple(logger *slog.Logger, db *badger.DB, keys []string) error {
 
 	var missingKeys []string
 
-	for _, key := range keys {
-		found, err := CheckExists(logger, db, key)
-		if err != nil {
-			return err
+	err := db.Update(func(txn *badger.Txn) error {
+		for _, key := range keys {
+			_, gErr := txn.Get([]byte(key))
+			if gErr != nil {
+				if errors.Is(gErr, badger.ErrKeyNotFound) {
+					missingKeys = append(missingKeys, key)
+
+					continue
+				}
+
+				return fmt.Errorf("error checking cache key %s: %w", key, gErr)
+			}
+
+			if dErr := txn.Delete([]byte(key)); dErr != nil {
+				return fmt.Errorf("error deleting cache key %s: %w", key, dErr)
+			}
+
+			deletedKeys = append(deletedKeys, key)
 		}
 
-		if !found {
-			missingKeys = append(missingKeys, key)
-
-			continue
-		}
-
-		if err = Delete(logger, db, key); err != nil {
-			return err
-		}
-
-		deletedKeys = append(deletedKeys, key)
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error in batch delete transaction: %w", err)
 	}
 
 	if len(deletedKeys) == 0 {

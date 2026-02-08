@@ -50,6 +50,51 @@ func RowEmphasisColor(sess session.Session) func(format string, a ...interface{}
 	}
 }
 
+// ErrorCategory classifies provider errors for programmatic handling.
+type ErrorCategory int
+
+const (
+	ErrCategoryNetwork   ErrorCategory = iota // network/connectivity issues
+	ErrCategoryAuth                           // authentication/authorization failures
+	ErrCategoryRateLimit                      // rate limiting
+	ErrCategoryNotFound                       // data not found
+	ErrCategoryParse                          // response parsing errors
+	ErrCategoryInternal                       // internal/unexpected errors
+)
+
+// ProviderError wraps provider failures with structured metadata.
+type ProviderError struct {
+	Provider string
+	Category ErrorCategory
+	Err      error
+}
+
+func (e *ProviderError) Error() string {
+	return fmt.Sprintf("%s: %s", e.Provider, e.Err.Error())
+}
+
+func (e *ProviderError) Unwrap() error {
+	return e.Err
+}
+
+// NewProviderError creates a new ProviderError.
+func NewProviderError(provider string, category ErrorCategory, err error) *ProviderError {
+	return &ProviderError{
+		Provider: provider,
+		Category: category,
+		Err:      err,
+	}
+}
+
+// WrapProviderError wraps an existing error as a ProviderError.
+func WrapProviderError(provider string, category ErrorCategory, msg string, err error) *ProviderError {
+	return &ProviderError{
+		Provider: provider,
+		Category: category,
+		Err:      fmt.Errorf("%s: %w", msg, err),
+	}
+}
+
 var (
 	ErrFailedToFetchData   = errors.New("failed to fetch data")
 	ErrNoDataFound         = errors.New("no data found")

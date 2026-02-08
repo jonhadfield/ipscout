@@ -35,21 +35,22 @@ BUILD_TAG := $(shell bash -c '\
 BUILD_SHA := $(shell git rev-parse --short HEAD)
 BUILD_DATE := $(shell date -u '+%Y/%m/%d:%H:%M:%S')
 LATEST_TAG := $(shell git describe --abbrev=0 2>/dev/null)
+LDFLAGS := -s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"
 
 build:
-	CGO_ENABLED=0 go build -mod=mod -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout"
+	CGO_ENABLED=0 go build -mod=mod -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout"
 
 build-all: fmt
-	GOOS=darwin  CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_darwin_amd64"
-	GOOS=darwin  CGO_ENABLED=0 GOARCH=arm64 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_darwin_arm64"
-	GOOS=linux   CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_linux_amd64"
-	GOOS=linux   CGO_ENABLED=0 GOARCH=386 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_linux_386"
-	GOOS=linux   CGO_ENABLED=0 GOARCH=arm go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_linux_arm"
-	GOOS=linux   CGO_ENABLED=0 GOARCH=arm64 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_linux_arm64"
-	GOOS=netbsd  CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_netbsd_amd64"
-	GOOS=openbsd CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_openbsd_amd64"
-	GOOS=freebsd CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_freebsd_amd64"
-	GOOS=windows CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"' -o ".local_dist/ipscout_windows_amd64.exe"
+	GOOS=darwin  CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_darwin_amd64"
+	GOOS=darwin  CGO_ENABLED=0 GOARCH=arm64 go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_darwin_arm64"
+	GOOS=linux   CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_linux_amd64"
+	GOOS=linux   CGO_ENABLED=0 GOARCH=386   go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_linux_386"
+	GOOS=linux   CGO_ENABLED=0 GOARCH=arm   go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_linux_arm"
+	GOOS=linux   CGO_ENABLED=0 GOARCH=arm64 go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_linux_arm64"
+	GOOS=netbsd  CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_netbsd_amd64"
+	GOOS=openbsd CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_openbsd_amd64"
+	GOOS=freebsd CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_freebsd_amd64"
+	GOOS=windows CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '$(LDFLAGS)' -o ".local_dist/ipscout_windows_amd64.exe"
 
 critic:
 	gocritic check  ./...
@@ -72,7 +73,7 @@ IMG    := ${NAME}:${TAG}
 LATEST := ${NAME}:latest
 
 build-docker:
-	docker build --platform=linux/amd64 --build-arg BUILD_TAG="$(BUILD_TAG)" --build-arg BUILD_SHA="$(BUILD_SHA)" --build-arg BUILD_DATE="$(BUILD_DATE) UTC" -t ${IMG} .
+	docker build --platform=linux/amd64 --build-arg BUILD_TAG="$(BUILD_TAG)" --build-arg BUILD_SHA="$(BUILD_SHA)" --build-arg BUILD_DATE="$(BUILD_DATE)" -t ${IMG} .
 	docker tag ${IMG} ${LATEST}
 	docker tag ${LATEST} ipscout:latest
 	docker tag ${LATEST} docker.io/jonhadfield/ipscout:latest

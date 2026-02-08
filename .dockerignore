@@ -1,0 +1,11 @@
+.git
+.github
+.local_dist
+.idea
+.vscode
+*.md
+!go.md
+LICENSE
+coverage.txt
+coverage.xml
+cover.out

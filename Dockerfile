@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 golang:1.22-bookworm AS base
+FROM --platform=linux/amd64 golang:1.24-bookworm AS base
 ARG BUILD_SHA
 ARG BUILD_TAG
 ARG BUILD_DATE

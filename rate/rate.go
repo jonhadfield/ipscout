@@ -14,46 +14,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jonhadfield/ipscout/providers/zscaler"
-
-	"github.com/jonhadfield/ipscout/providers/hetzner"
-
 	"github.com/sashabaranov/go-openai"
-
-	"github.com/jonhadfield/ipscout/providers/ipqs"
 
 	"github.com/fatih/color"
 
-	"github.com/jonhadfield/ipscout/providers/ipapi"
-
 	"github.com/jedib0t/go-pretty/v6/table"
-
-	"github.com/jonhadfield/ipscout/providers/bingbot"
-
-	"github.com/jonhadfield/ipscout/providers/virustotal"
-
-	"github.com/jonhadfield/ipscout/providers/google"
-
-	"github.com/jonhadfield/ipscout/providers/googlebot"
-
-	"github.com/jonhadfield/ipscout/providers/icloudpr"
-
-	"github.com/jonhadfield/ipscout/providers/gcp"
-	"github.com/jonhadfield/ipscout/providers/linode"
-	"github.com/jonhadfield/ipscout/providers/ovh"
 
 	"github.com/briandowns/spinner"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/providers"
-	"github.com/jonhadfield/ipscout/providers/abuseipdb"
-	"github.com/jonhadfield/ipscout/providers/annotated"
-	"github.com/jonhadfield/ipscout/providers/aws"
-	"github.com/jonhadfield/ipscout/providers/azure"
-	"github.com/jonhadfield/ipscout/providers/criminalip"
-	"github.com/jonhadfield/ipscout/providers/digitalocean"
-	"github.com/jonhadfield/ipscout/providers/ipurl"
-	"github.com/jonhadfield/ipscout/providers/shodan"
+	"github.com/jonhadfield/ipscout/registry"
 	"github.com/jonhadfield/ipscout/session"
 	"golang.org/x/sync/errgroup"
 )
@@ -62,57 +33,34 @@ import (
 var DefaultRatingConfigJSON string
 
 const (
-	txtAllow          = "allow"
-	txtBlock          = "block"
-	spinnerStartupMS  = 50
-	spinnerIntervalMS = 100
-	maxTokens         = 300
+	txtAllow            = "allow"
+	txtBlock            = "block"
+	spinnerStartupMS    = 50
+	spinnerIntervalMS   = 100
+	maxCompletionTokens = 1024
+	aiModel             = openai.GPT4oMini
 )
-
-type Provider struct {
-	Name      string
-	Enabled   *bool
-	APIKey    string
-	NewClient func(c session.Session) (providers.ProviderClient, error)
-}
 
 func getEnabledProviderClients(sess session.Session) (map[string]providers.ProviderClient, error) {
 	runners := make(map[string]providers.ProviderClient)
 
-	pros := []Provider{
-		{Name: abuseipdb.ProviderName, Enabled: sess.Providers.AbuseIPDB.Enabled, APIKey: sess.Providers.AbuseIPDB.APIKey, NewClient: abuseipdb.NewClient},
-		{Name: annotated.ProviderName, Enabled: sess.Providers.Annotated.Enabled, APIKey: "", NewClient: annotated.NewProviderClient},
-		{Name: aws.ProviderName, Enabled: sess.Providers.AWS.Enabled, APIKey: "", NewClient: aws.NewProviderClient},
-		{Name: azure.ProviderName, Enabled: sess.Providers.Azure.Enabled, APIKey: "", NewClient: azure.NewProviderClient},
-		// {Name: azurewaf.ProviderName, Enabled: sess.Providers.AzureWAF.Enabled, APIKey: "", NewClient: azurewaf.NewProviderClient},
-		{Name: bingbot.ProviderName, Enabled: sess.Providers.Bingbot.Enabled, APIKey: "", NewClient: bingbot.NewProviderClient},
-		{Name: criminalip.ProviderName, Enabled: sess.Providers.CriminalIP.Enabled, APIKey: sess.Providers.CriminalIP.APIKey, NewClient: criminalip.NewProviderClient},
-		{Name: digitalocean.ProviderName, Enabled: sess.Providers.DigitalOcean.Enabled, APIKey: "", NewClient: digitalocean.NewProviderClient},
-		{Name: gcp.ProviderName, Enabled: sess.Providers.GCP.Enabled, APIKey: "", NewClient: gcp.NewProviderClient},
-		{Name: google.ProviderName, Enabled: sess.Providers.Google.Enabled, APIKey: "", NewClient: google.NewProviderClient},
-		{Name: googlebot.ProviderName, Enabled: sess.Providers.Googlebot.Enabled, APIKey: "", NewClient: googlebot.NewProviderClient},
-		{Name: hetzner.ProviderName, Enabled: sess.Providers.Hetzner.Enabled, APIKey: "", NewClient: hetzner.NewProviderClient},
-		{Name: ipapi.ProviderName, Enabled: sess.Providers.IPAPI.Enabled, APIKey: "", NewClient: ipapi.NewProviderClient},
-		{Name: ipqs.ProviderName, Enabled: sess.Providers.IPQS.Enabled, APIKey: sess.Providers.IPQS.APIKey, NewClient: ipqs.NewProviderClient},
-		{Name: ipurl.ProviderName, Enabled: sess.Providers.IPURL.Enabled, APIKey: "", NewClient: ipurl.NewProviderClient},
-		{Name: icloudpr.ProviderName, Enabled: sess.Providers.ICloudPR.Enabled, APIKey: "", NewClient: icloudpr.NewProviderClient},
-		{Name: linode.ProviderName, Enabled: sess.Providers.Linode.Enabled, APIKey: "", NewClient: linode.NewProviderClient},
-		{Name: ovh.ProviderName, Enabled: sess.Providers.OVH.Enabled, APIKey: "", NewClient: ovh.NewProviderClient},
-		// PTR does not help us determine if an IP is malicious?
-		// {Name: ptr.ProviderName, Enabled: sess.Providers.PTR.Enabled, APIKey: "", NewClient: ptr.NewProviderClient},
-		{Name: shodan.ProviderName, Enabled: sess.Providers.Shodan.Enabled, APIKey: sess.Providers.Shodan.APIKey, NewClient: shodan.NewProviderClient},
-		{Name: virustotal.ProviderName, Enabled: sess.Providers.VirusTotal.Enabled, APIKey: sess.Providers.VirusTotal.APIKey, NewClient: virustotal.NewProviderClient},
-		{Name: zscaler.ProviderName, Enabled: sess.Providers.Zscaler.Enabled, APIKey: "", NewClient: zscaler.NewProviderClient},
-	}
+	for _, entry := range registry.All() {
+		if !entry.SupportsRating {
+			continue
+		}
 
-	for _, provider := range pros {
-		client, err := provider.NewClient(sess)
+		entryEnabled := entry.Enabled(sess)
+		if entryEnabled == nil || !*entryEnabled {
+			continue
+		}
+
+		client, err := entry.NewClient(sess)
 		if err != nil {
-			return nil, fmt.Errorf("error creating %s client: %w", provider.Name, err)
+			return nil, fmt.Errorf("error creating %s client: %w", entry.Name, err)
 		}
 
 		if client != nil && client.Enabled() || sess.UseTestData {
-			runners[provider.Name] = client
+			runners[entry.Name] = client
 		}
 	}
 
@@ -133,13 +81,6 @@ func getEnabledProviders(runners map[string]providers.ProviderClient) map[string
 	}
 
 	return res
-}
-
-type Config struct {
-	session.Session
-	Shodan     shodan.Config
-	CriminalIP criminalip.Config
-	IPURL      ipurl.Config
 }
 
 type Rater struct {
@@ -274,22 +215,31 @@ func aiRate(r *Rater, enabledProviders map[string]providers.ProviderClient, resu
 
 	client := openai.NewClient(r.Session.Config.Rating.OpenAIAPIKey)
 
-	resp, err := client.CreateCompletion(
+	resp, err := client.CreateChatCompletion(
 		context.Background(),
-		openai.CompletionRequest{
-			Model:     openai.GPT3Dot5TurboInstruct,
-			MaxTokens: maxTokens,
-			Prompt: "You are evaluating threat indicators from various providers in order to provide a single paragraph summary and recommendation on whether or not the source should be blocked." +
-				"You do not need to mention every indicator." +
-				"An annotated indicator containing 'threat:noblock' means you will recommend the source is not blocked." +
-				"Each provider's threat indicators are in the provided JSON data:\n\n" + string(mj),
+		openai.ChatCompletionRequest{
+			Model:     aiModel,
+			MaxTokens: maxCompletionTokens,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role: openai.ChatMessageRoleSystem,
+					Content: "You are a cybersecurity analyst evaluating threat indicators from various providers. " +
+						"Provide a single paragraph summary and recommendation on whether the source should be blocked. " +
+						"You do not need to mention every indicator. " +
+						"An annotated indicator containing 'threat:noblock' means you will recommend the source is not blocked.",
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: "Evaluate the following threat indicators and provide your recommendation:\n\n" + string(mj),
+				},
+			},
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("OpenAI completion error: %w", err)
+		return fmt.Errorf("OpenAI chat completion error: %w", err)
 	}
 
-	color.White("Recommendation: %s", resp.Choices[0].Text)
+	color.White("Recommendation: %s", resp.Choices[0].Message.Content)
 
 	return nil
 }
