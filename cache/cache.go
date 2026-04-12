@@ -23,7 +23,7 @@ type Item struct {
 
 const (
 	numLevelZeroTablesStall = 2
-	valueLogFileSize        = 16 << 20 // 16 MB
+	valueLogFileSize        = 128 << 20 // 128 MB
 )
 
 var (
