@@ -42,7 +42,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 			return nil, fmt.Errorf("error creating %s client: %w", entry.Name, err)
 		}
 
-		if client != nil && client.Enabled() || sess.UseTestData {
+		if client != nil && (client.Enabled() || sess.UseTestData) {
 			runners[entry.Name] = client
 		}
 	}
@@ -393,18 +393,15 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 func generateJSON(results *findHostsResults) (json.RawMessage, error) {
 	data := make(map[string]json.RawMessage)
 
+	results.RLock()
+	defer results.RUnlock()
+
 	for name, b := range results.m {
-		results.RLock()
-
 		if b == nil {
-			results.RUnlock()
-
 			return nil, fmt.Errorf("no data found for %s", name)
 		}
 
 		data[name] = json.RawMessage(b)
-
-		results.RUnlock()
 	}
 
 	out, err := json.Marshal(data)

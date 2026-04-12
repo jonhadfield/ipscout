@@ -59,7 +59,7 @@ func getEnabledProviderClients(sess session.Session) (map[string]providers.Provi
 			return nil, fmt.Errorf("error creating %s client: %w", entry.Name, err)
 		}
 
-		if client != nil && client.Enabled() || sess.UseTestData {
+		if client != nil && (client.Enabled() || sess.UseTestData) {
 			runners[entry.Name] = client
 		}
 	}
@@ -237,6 +237,10 @@ func aiRate(r *Rater, enabledProviders map[string]providers.ProviderClient, resu
 	)
 	if err != nil {
 		return fmt.Errorf("OpenAI chat completion error: %w", err)
+	}
+
+	if len(resp.Choices) == 0 {
+		return errors.New("OpenAI returned no choices")
 	}
 
 	color.White("Recommendation: %s", resp.Choices[0].Message.Content)

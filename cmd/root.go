@@ -140,7 +140,7 @@ func collectHosts(cmd *cobra.Command, args []string) ([]string, error) {
 	if len(args) == 0 {
 		stat, _ := os.Stdin.Stat()
 		if (stat.Mode() & os.ModeCharDevice) == 0 {
-			return readHostsFromReader(bufio.NewScanner(os.Stdin)), nil
+			return readHostsFromReader(bufio.NewScanner(os.Stdin))
 		}
 	}
 
@@ -155,10 +155,10 @@ func readHostsFromFile(path string) ([]string, error) {
 
 	defer f.Close()
 
-	return readHostsFromReader(bufio.NewScanner(f)), nil
+	return readHostsFromReader(bufio.NewScanner(f))
 }
 
-func readHostsFromReader(scanner *bufio.Scanner) []string {
+func readHostsFromReader(scanner *bufio.Scanner) ([]string, error) {
 	var hosts []string
 
 	for scanner.Scan() {
@@ -170,7 +170,11 @@ func readHostsFromReader(scanner *bufio.Scanner) []string {
 		hosts = append(hosts, line)
 	}
 
-	return hosts
+	if err := scanner.Err(); err != nil {
+		return hosts, fmt.Errorf("error reading hosts: %w", err)
+	}
+
+	return hosts, nil
 }
 
 func Execute() error {

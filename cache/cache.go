@@ -68,6 +68,11 @@ func UpsertWithTTL(logger *slog.Logger, db *badger.DB, item Item, ttl time.Durat
 
 	logger.Info("upserting item", "key", item.Key, "value len", len(mItem), "ttl", ttl.String())
 
+	if int64(len(mItem)) > db.Opts().ValueLogFileSize {
+		return fmt.Errorf("cache value too large for key %s: %d bytes exceeds %d byte limit",
+			item.Key, len(mItem), db.Opts().ValueLogFileSize)
+	}
+
 	err = db.Update(func(txn *badger.Txn) error {
 		e := badger.NewEntry([]byte(item.Key), mItem).WithTTL(ttl)
 
