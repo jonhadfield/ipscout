@@ -31,6 +31,13 @@ func ParseHost(arg string) (netip.Addr, error) {
 		return addr, nil
 	}
 
+	// handle single-host CIDR notation (e.g. 1.2.3.4/32 or ::1/128)
+	if prefix, err := netip.ParsePrefix(arg); err == nil {
+		if prefix.IsSingleIP() {
+			return prefix.Addr(), nil
+		}
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), c.NameLookupDelay)
 	defer cancel()
 
