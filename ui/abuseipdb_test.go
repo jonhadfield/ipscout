@@ -7,6 +7,12 @@ import (
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
 )
 
+const (
+	testIPGoogleDNS  = "8.8.8.8"
+	testIPExample    = "1.2.3.4"
+	testISPGoogleLLC = "Google LLC"
+)
+
 func TestCreateAbuseIPDBTable(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -15,7 +21,7 @@ func TestCreateAbuseIPDBTable(t *testing.T) {
 	}{
 		{
 			name: "Clean IP",
-			ip:   "8.8.8.8",
+			ip:   testIPGoogleDNS,
 			result: &abuseipdb.HostSearchResult{
 				Data: struct {
 					IPAddress            string    `json:"ipAddress,omitempty"`
@@ -42,12 +48,12 @@ func TestCreateAbuseIPDBTable(t *testing.T) {
 						ReporterCountryName string    `json:"reporterCountryName,omitempty"`
 					} `json:"reports,omitempty"`
 				}{
-					IPAddress:            "8.8.8.8",
+					IPAddress:            testIPGoogleDNS,
 					AbuseConfidenceScore: 0,
 					CountryCode:          "US",
 					CountryName:          "United States",
 					UsageType:            "Data Center/Web Hosting/Transit",
-					Isp:                  "Google LLC",
+					Isp:                  testISPGoogleLLC,
 					IsWhitelisted:        true,
 					TotalReports:         0,
 				},
@@ -55,7 +61,7 @@ func TestCreateAbuseIPDBTable(t *testing.T) {
 		},
 		{
 			name: "Malicious IP",
-			ip:   "1.2.3.4",
+			ip:   testIPExample,
 			result: &abuseipdb.HostSearchResult{
 				Data: struct {
 					IPAddress            string    `json:"ipAddress,omitempty"`
@@ -82,7 +88,7 @@ func TestCreateAbuseIPDBTable(t *testing.T) {
 						ReporterCountryName string    `json:"reporterCountryName,omitempty"`
 					} `json:"reports,omitempty"`
 				}{
-					IPAddress:            "1.2.3.4",
+					IPAddress:            testIPExample,
 					AbuseConfidenceScore: 85,
 					CountryCode:          "CN",
 					CountryName:          "China",
@@ -155,11 +161,11 @@ func TestCreateAbuseIPDBTableActiveState(t *testing.T) {
 				ReporterCountryName string    `json:"reporterCountryName,omitempty"`
 			} `json:"reports,omitempty"`
 		}{
-			IPAddress:            "8.8.8.8",
+			IPAddress:            testIPGoogleDNS,
 			AbuseConfidenceScore: 50,
 		},
 	}
-	ip := "8.8.8.8"
+	ip := testIPGoogleDNS
 
 	// Test inactive state
 	inactiveTable := createAbuseIPDBTable(ip, result, false)

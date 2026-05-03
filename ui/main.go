@@ -59,33 +59,63 @@ const (
 	LoadingMsg = "Loading provider data..."
 )
 
+const (
+	providerAnnotated    = "annotated"
+	providerPTR          = "ptr"
+	providerShodan       = "shodan"
+	providerIPAPI        = "ipapi"
+	providerIPURL        = "ipurl"
+	providerGooglebot    = "googlebot"
+	providerHetzner      = "hetzner"
+	providerIPQS         = "ipqs"
+	providerAbuseIPDB    = "abuseipdb"
+	providerAlibaba      = "alibaba"
+	providerVirusTotal   = "virustotal"
+	providerAWS          = "aws"
+	providerAzure        = "azure"
+	providerAzureWAF     = "azurewaf"
+	providerBingbot      = "bingbot"
+	providerCriminalIP   = "criminalip"
+	providerDigitalOcean = "digitalocean"
+	providerGCP          = "gcp"
+	providerGoogle       = "google"
+	providerGoogleSC     = "googlesc"
+	providerICloudPR     = "icloudpr"
+	providerLinode       = "linode"
+	providerM247         = "m247"
+	providerOVH          = "ovh"
+	providerScaleway     = "scaleway"
+	providerVultr        = "vultr"
+	providerZscaler      = "zscaler"
+)
+
 var providerIcons = map[string]string{
-	"annotated":    emojiDocument,
-	"ptr":          emojiGlobe,
-	"shodan":       emojiInvader,
-	"ipapi":        emojiGlobe,
-	"ipurl":        emojiGlobe,
-	"googlebot":    emojiInvader,
-	"hetzner":      emojiCloud,
-	"ipqs":         emojiInvader,
-	"abuseipdb":    emojiInvader,
-	"virustotal":   emojiInvader,
-	"aws":          emojiCloud,
-	"azure":        emojiCloud,
-	"azurewaf":     emojiCloud,
-	"bingbot":      emojiInvader,
-	"criminalip":   emojiInvader,
-	"digitalocean": emojiLaptop,
-	"gcp":          emojiCloud,
-	"google":       emojiLaptop,
-	"googlesc":     emojiLaptop,
-	"icloudpr":     emojiLaptop,
-	"linode":       emojiCloud,
-	"m247":         emojiCloud,
-	"ovh":          emojiCloud,
-	"scaleway":     emojiCloud,
-	"vultr":        emojiCloud,
-	"zscaler":      emojiCloud,
+	providerAnnotated:    emojiDocument,
+	providerPTR:          emojiGlobe,
+	providerShodan:       emojiInvader,
+	providerIPAPI:        emojiGlobe,
+	providerIPURL:        emojiGlobe,
+	providerGooglebot:    emojiInvader,
+	providerHetzner:      emojiCloud,
+	providerIPQS:         emojiInvader,
+	providerAbuseIPDB:    emojiInvader,
+	providerVirusTotal:   emojiInvader,
+	providerAWS:          emojiCloud,
+	providerAzure:        emojiCloud,
+	providerAzureWAF:     emojiCloud,
+	providerBingbot:      emojiInvader,
+	providerCriminalIP:   emojiInvader,
+	providerDigitalOcean: emojiLaptop,
+	providerGCP:          emojiCloud,
+	providerGoogle:       emojiLaptop,
+	providerGoogleSC:     emojiLaptop,
+	providerICloudPR:     emojiLaptop,
+	providerLinode:       emojiCloud,
+	providerM247:         emojiCloud,
+	providerOVH:          emojiCloud,
+	providerScaleway:     emojiCloud,
+	providerVultr:        emojiCloud,
+	providerZscaler:      emojiCloud,
 }
 
 type providerResult struct {
@@ -220,31 +250,31 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 		newText := strings.Replace(currentText, " "+strings.ToUpper(providerName), " ▶ "+strings.ToUpper(providerName), 1)
 		// Handle special cases
 		switch providerName {
-		case "ipapi":
+		case providerIPAPI:
 			newText = strings.Replace(currentText, " IPAPI", " ▶ IPAPI", 1)
-		case "ipurl":
+		case providerIPURL:
 			newText = strings.Replace(currentText, " IP URL", " ▶ IP URL", 1)
-		case "googlebot":
+		case providerGooglebot:
 			newText = strings.Replace(currentText, " GOOGLEBOT", " ▶ GOOGLEBOT", 1)
-		case "hetzner":
+		case providerHetzner:
 			newText = strings.Replace(currentText, " HETZNER", " ▶ HETZNER", 1)
-		case "ipqs":
+		case providerIPQS:
 			newText = strings.Replace(currentText, " IPQS", " ▶ IPQS", 1)
-		case "abuseipdb":
+		case providerAbuseIPDB:
 			newText = strings.Replace(currentText, " ABUSEIPDB", " ▶ ABUSEIPDB", 1)
-		case "virustotal":
+		case providerVirusTotal:
 			newText = strings.Replace(currentText, " VIRUSTOTAL", " ▶ VIRUSTOTAL", 1)
-		case "aws":
+		case providerAWS:
 			newText = strings.Replace(currentText, " AWS", " ▶ AWS", 1)
-		case "azure":
+		case providerAzure:
 			newText = strings.Replace(currentText, " Azure", " ▶ Azure", 1)
-		case "azurewaf":
+		case providerAzureWAF:
 			newText = strings.Replace(currentText, " Azure WAF", " ▶ Azure WAF", 1)
-		case "gcp":
+		case providerGCP:
 			newText = strings.Replace(currentText, " GCP", " ▶ GCP", 1)
-		case "digitalocean":
+		case providerDigitalOcean:
 			newText = strings.Replace(currentText, " DigitalOcean", " ▶ DigitalOcean", 1)
-		case "criminalip":
+		case providerCriminalIP:
 			newText = strings.Replace(currentText, " CriminalIP", " ▶ CriminalIP", 1)
 		}
 
@@ -309,35 +339,35 @@ func OpenUI() error {
 	// 	panic(fmt.Sprintf("Failed to initialize processor: %v", err))
 	// }
 	providerFuncs := map[string]providerFunc{
-		"annotated":    fetchAnnotated,
-		"ptr":          fetchPTR,
-		"shodan":       fetchShodan,
-		"ipapi":        fetchIPAPI,
-		"ipurl":        fetchIPURL,
-		"googlebot":    fetchGooglebot,
-		"hetzner":      fetchHetzner,
-		"ipqs":         fetchIPQS,
-		"abuseipdb":    fetchAbuseIPDB,
-		"alibaba":      fetchAlibaba,
-		"virustotal":   fetchVirusTotal,
-		"aws":          fetchAWS,
-		"azure":        fetchAzure,
-		"azurewaf":     fetchAzureWAF,
-		"bingbot":      fetchBingbot,
-		"criminalip":   fetchCriminalIP,
-		"digitalocean": fetchDigitalOcean,
-		"gcp":          fetchGCP,
-		"google":       fetchGoogle,
-		"googlesc":     fetchGoogleSC,
-		"icloudpr":     fetchICloudPR,
-		"linode":       fetchLinode,
-		"m247":         fetchM247,
-		"ovh":          fetchOVH,
-		"scaleway":     fetchScaleway,
-		"vultr":        fetchVultr,
-		"zscaler":      fetchZscaler,
+		providerAnnotated:    fetchAnnotated,
+		providerPTR:          fetchPTR,
+		providerShodan:       fetchShodan,
+		providerIPAPI:        fetchIPAPI,
+		providerIPURL:        fetchIPURL,
+		providerGooglebot:    fetchGooglebot,
+		providerHetzner:      fetchHetzner,
+		providerIPQS:         fetchIPQS,
+		providerAbuseIPDB:    fetchAbuseIPDB,
+		providerAlibaba:      fetchAlibaba,
+		providerVirusTotal:   fetchVirusTotal,
+		providerAWS:          fetchAWS,
+		providerAzure:        fetchAzure,
+		providerAzureWAF:     fetchAzureWAF,
+		providerBingbot:      fetchBingbot,
+		providerCriminalIP:   fetchCriminalIP,
+		providerDigitalOcean: fetchDigitalOcean,
+		providerGCP:          fetchGCP,
+		providerGoogle:       fetchGoogle,
+		providerGoogleSC:     fetchGoogleSC,
+		providerICloudPR:     fetchICloudPR,
+		providerLinode:       fetchLinode,
+		providerM247:         fetchM247,
+		providerOVH:          fetchOVH,
+		providerScaleway:     fetchScaleway,
+		providerVultr:        fetchVultr,
+		providerZscaler:      fetchZscaler,
 	}
-	providers := []string{"ptr", "annotated", "shodan", "ipapi", "ipurl", "googlebot", "hetzner", "ipqs", "abuseipdb", "alibaba", "virustotal", "aws", "azure", "bingbot", "criminalip", "digitalocean", "gcp", "google", "googlesc", "icloudpr", "linode", "m247", "ovh", "scaleway", "vultr", "zscaler"}
+	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerCriminalIP, providerDigitalOcean, providerGCP, providerGoogle, providerGoogleSC, providerICloudPR, providerLinode, providerM247, providerOVH, providerScaleway, providerVultr, providerZscaler}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()
@@ -482,7 +512,7 @@ func OpenUI() error {
 					} else {
 						slog.Error("Provider selected but no IP available", "provider", pname)
 
-						if pname != "ptr" {
+						if pname != providerPTR {
 							textBox.SetText(PressEnterMsg)
 						}
 					}
@@ -565,9 +595,9 @@ func OpenUI() error {
 
 				providerDataStatusMutex.RUnlock()
 				// Fallback to PTR
-				currentProvider = "ptr"
+				currentProvider = providerPTR
 
-				fetchAndShow("ptr", ip)
+				fetchAndShow(providerPTR, ip)
 			}
 		})
 

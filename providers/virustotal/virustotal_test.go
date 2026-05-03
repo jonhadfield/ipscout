@@ -11,6 +11,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	testEngineAcronis   = "Acronis"
+	testMethodBlacklist = "blacklist"
+	testEngineGeneric   = "Test"
+)
+
 func TestRateHost(t *testing.T) {
 	rc := providers.RatingConfig{}
 	rc.Global.HighThreatCountryCodes = []string{"CN"}
@@ -82,34 +88,34 @@ func TestVirusTotalHostQuery(t *testing.T) {
 	require.Equal(t, 24, vtr.Data.Attributes.LastAnalysisStats.Undetected)
 	require.Equal(t, 51, vtr.Data.Attributes.LastAnalysisStats.Harmless)
 	require.Equal(t, 0, vtr.Data.Attributes.LastAnalysisStats.Timeout)
-	require.Equal(t, "blacklist", vtr.Data.Attributes.LastAnalysisResults.Acronis.Method)
-	require.Equal(t, "Acronis", vtr.Data.Attributes.LastAnalysisResults.Acronis.EngineName)
-	require.Equal(t, "harmless", vtr.Data.Attributes.LastAnalysisResults.Acronis.Category)
-	require.Equal(t, "clean", vtr.Data.Attributes.LastAnalysisResults.Acronis.Result)
-	require.Equal(t, "blacklist", vtr.Data.Attributes.LastAnalysisResults.ZeroXSIF33D.Method)
+	require.Equal(t, testMethodBlacklist, vtr.Data.Attributes.LastAnalysisResults.Acronis.Method)
+	require.Equal(t, testEngineAcronis, vtr.Data.Attributes.LastAnalysisResults.Acronis.EngineName)
+	require.Equal(t, analysisResultHarmless, vtr.Data.Attributes.LastAnalysisResults.Acronis.Category)
+	require.Equal(t, analysisResultClean, vtr.Data.Attributes.LastAnalysisResults.Acronis.Result)
+	require.Equal(t, testMethodBlacklist, vtr.Data.Attributes.LastAnalysisResults.ZeroXSIF33D.Method)
 	require.Equal(t, "0xSI_f33d", vtr.Data.Attributes.LastAnalysisResults.ZeroXSIF33D.EngineName)
 	require.Equal(t, "undetected", vtr.Data.Attributes.LastAnalysisResults.ZeroXSIF33D.Category)
-	require.Equal(t, "unrated", vtr.Data.Attributes.LastAnalysisResults.ZeroXSIF33D.Result)
-	require.Equal(t, "blacklist", vtr.Data.Attributes.LastAnalysisResults.Abusix.Method)
+	require.Equal(t, analysisResultUnrated, vtr.Data.Attributes.LastAnalysisResults.ZeroXSIF33D.Result)
+	require.Equal(t, testMethodBlacklist, vtr.Data.Attributes.LastAnalysisResults.Abusix.Method)
 	require.Equal(t, "Abusix", vtr.Data.Attributes.LastAnalysisResults.Abusix.EngineName)
-	require.Equal(t, "harmless", vtr.Data.Attributes.LastAnalysisResults.Abusix.Category)
-	require.Equal(t, "clean", vtr.Data.Attributes.LastAnalysisResults.Abusix.Result)
-	require.Equal(t, "blacklist", vtr.Data.Attributes.LastAnalysisResults.ADMINUSLabs.Method)
+	require.Equal(t, analysisResultHarmless, vtr.Data.Attributes.LastAnalysisResults.Abusix.Category)
+	require.Equal(t, analysisResultClean, vtr.Data.Attributes.LastAnalysisResults.Abusix.Result)
+	require.Equal(t, testMethodBlacklist, vtr.Data.Attributes.LastAnalysisResults.ADMINUSLabs.Method)
 	require.Equal(t, "ADMINUSLabs", vtr.Data.Attributes.LastAnalysisResults.ADMINUSLabs.EngineName)
-	require.Equal(t, "harmless", vtr.Data.Attributes.LastAnalysisResults.ADMINUSLabs.Category)
-	require.Equal(t, "clean", vtr.Data.Attributes.LastAnalysisResults.ADMINUSLabs.Result)
-	require.Equal(t, "blacklist", vtr.Data.Attributes.LastAnalysisResults.CriminalIP.Method)
+	require.Equal(t, analysisResultHarmless, vtr.Data.Attributes.LastAnalysisResults.ADMINUSLabs.Category)
+	require.Equal(t, analysisResultClean, vtr.Data.Attributes.LastAnalysisResults.ADMINUSLabs.Result)
+	require.Equal(t, testMethodBlacklist, vtr.Data.Attributes.LastAnalysisResults.CriminalIP.Method)
 	require.Equal(t, "Criminal IP", vtr.Data.Attributes.LastAnalysisResults.CriminalIP.EngineName)
-	require.Equal(t, "malicious", vtr.Data.Attributes.LastAnalysisResults.CriminalIP.Category)
-	require.Equal(t, "malicious", vtr.Data.Attributes.LastAnalysisResults.CriminalIP.Result)
-	require.Equal(t, "blacklist", vtr.Data.Attributes.LastAnalysisResults.AILabsMONITORAPP.Method)
+	require.Equal(t, analysisResultMalicious, vtr.Data.Attributes.LastAnalysisResults.CriminalIP.Category)
+	require.Equal(t, analysisResultMalicious, vtr.Data.Attributes.LastAnalysisResults.CriminalIP.Result)
+	require.Equal(t, testMethodBlacklist, vtr.Data.Attributes.LastAnalysisResults.AILabsMONITORAPP.Method)
 	require.Equal(t, "AILabs (MONITORAPP)", vtr.Data.Attributes.LastAnalysisResults.AILabsMONITORAPP.EngineName)
-	require.Equal(t, "harmless", vtr.Data.Attributes.LastAnalysisResults.AILabsMONITORAPP.Category)
-	require.Equal(t, "clean", vtr.Data.Attributes.LastAnalysisResults.AILabsMONITORAPP.Result)
+	require.Equal(t, analysisResultHarmless, vtr.Data.Attributes.LastAnalysisResults.AILabsMONITORAPP.Category)
+	require.Equal(t, analysisResultClean, vtr.Data.Attributes.LastAnalysisResults.AILabsMONITORAPP.Result)
 	require.Equal(t, "suspicious", vtr.Data.Attributes.LastAnalysisResults.AlphaMountainAi.Result)
-	require.Equal(t, "unrated", vtr.Data.Attributes.LastAnalysisResults.AutoShun.Result)
-	require.Equal(t, "clean", vtr.Data.Attributes.LastAnalysisResults.BforeAiPreCrime.Result)
-	require.Equal(t, "clean", vtr.Data.Attributes.LastAnalysisResults.Blueliv.Result)
+	require.Equal(t, analysisResultUnrated, vtr.Data.Attributes.LastAnalysisResults.AutoShun.Result)
+	require.Equal(t, analysisResultClean, vtr.Data.Attributes.LastAnalysisResults.BforeAiPreCrime.Result)
+	require.Equal(t, analysisResultClean, vtr.Data.Attributes.LastAnalysisResults.Blueliv.Result)
 }
 
 func ToPtr[T any](v T) *T {
@@ -145,10 +151,10 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			args: args{},
 			want: true,
 			fields: fields{
-				Method:     "blacklist",
-				EngineName: "Acronis",
-				Category:   "harmless",
-				Result:     "clean",
+				Method:     testMethodBlacklist,
+				EngineName: testEngineAcronis,
+				Category:   analysisResultHarmless,
+				Result:     analysisResultClean,
 			},
 		},
 		{
@@ -156,10 +162,10 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			args: args{},
 			want: true,
 			fields: fields{
-				Method:     "blacklist",
-				EngineName: "Acronis",
-				Category:   "harmless",
-				Result:     "harmless",
+				Method:     testMethodBlacklist,
+				EngineName: testEngineAcronis,
+				Category:   analysisResultHarmless,
+				Result:     analysisResultHarmless,
 			},
 		},
 		{
@@ -167,10 +173,10 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			args: args{},
 			want: true,
 			fields: fields{
-				Method:     "blacklist",
-				EngineName: "Acronis",
-				Category:   "harmless",
-				Result:     "clean",
+				Method:     testMethodBlacklist,
+				EngineName: testEngineAcronis,
+				Category:   analysisResultHarmless,
+				Result:     analysisResultClean,
 			},
 		},
 		{
@@ -178,9 +184,9 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			args: args{},
 			want: false,
 			fields: fields{
-				Method:     "blacklist",
-				EngineName: "Acronis",
-				Category:   "harmless",
+				Method:     testMethodBlacklist,
+				EngineName: testEngineAcronis,
+				Category:   analysisResultHarmless,
 				Result:     "none",
 			},
 		},
@@ -189,10 +195,10 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			args: args{},
 			want: false,
 			fields: fields{
-				Method:     "blacklist",
-				EngineName: "Acronis",
-				Category:   "harmless",
-				Result:     "unrated",
+				Method:     testMethodBlacklist,
+				EngineName: testEngineAcronis,
+				Category:   analysisResultHarmless,
+				Result:     analysisResultUnrated,
 			},
 		},
 		{
@@ -200,7 +206,7 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			args: args{},
 			want: true,
 			fields: fields{
-				Method:     "blacklist",
+				Method:     testMethodBlacklist,
 				EngineName: "Kaspersky",
 				Category:   "suspicious",
 				Result:     "suspicous",
@@ -211,10 +217,10 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			args: args{},
 			want: true,
 			fields: fields{
-				Method:     "blacklist",
+				Method:     testMethodBlacklist,
 				EngineName: "CriminalIP",
-				Category:   "malicious",
-				Result:     "malicious",
+				Category:   analysisResultMalicious,
+				Result:     analysisResultMalicious,
 			},
 		},
 		{
@@ -230,10 +236,10 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			},
 			want: false,
 			fields: fields{
-				Method:     "blacklist",
-				EngineName: "Test",
-				Category:   "malicious",
-				Result:     "malicious",
+				Method:     testMethodBlacklist,
+				EngineName: testEngineGeneric,
+				Category:   analysisResultMalicious,
+				Result:     analysisResultMalicious,
 			},
 		},
 		{
@@ -250,10 +256,10 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			},
 			want: true,
 			fields: fields{
-				Method:     "blacklist",
-				EngineName: "Test",
-				Category:   "unrated",
-				Result:     "unrated",
+				Method:     testMethodBlacklist,
+				EngineName: testEngineGeneric,
+				Category:   analysisResultUnrated,
+				Result:     analysisResultUnrated,
 			},
 		},
 		{
@@ -261,8 +267,8 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 			args: args{},
 			want: false,
 			fields: fields{
-				Method:     "blacklist",
-				EngineName: "Test",
+				Method:     testMethodBlacklist,
+				EngineName: testEngineGeneric,
 				Category:   "unknown",
 				Result:     "unknown",
 			},

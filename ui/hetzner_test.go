@@ -8,6 +8,10 @@ import (
 	"github.com/jonhadfield/ipscout/providers/hetzner"
 )
 
+const (
+	testIPHetzner = "5.9.10.123"
+)
+
 func TestCreateHetznerTable(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -15,15 +19,15 @@ func TestCreateHetznerTable(t *testing.T) {
 		result *hetzner.HostSearchResult
 	}{
 		{
-			name: "Empty result",
-			ip:   "1.2.3.4",
+			name: testCaseEmptyResult,
+			ip:   testIPExample,
 			result: &hetzner.HostSearchResult{
 				Prefix: netip.Prefix{}, // Invalid prefix
 			},
 		},
 		{
 			name: "Valid hetzner result",
-			ip:   "5.9.10.123",
+			ip:   testIPHetzner,
 			result: &hetzner.HostSearchResult{
 				Prefix:       netip.MustParsePrefix("5.9.0.0/16"),
 				CreationTime: time.Date(2024, 4, 30, 22, 0, 38, 0, time.UTC),
@@ -74,7 +78,7 @@ func TestCreateHetznerTableActiveState(t *testing.T) {
 	result := &hetzner.HostSearchResult{
 		Prefix: netip.MustParsePrefix("5.9.0.0/16"),
 	}
-	ip := "5.9.10.123"
+	ip := testIPHetzner
 
 	// Test inactive state
 	inactiveTable := createHetznerTable(ip, result, false)
@@ -121,7 +125,7 @@ func TestAddActiveIndicatorToHetznerTable(t *testing.T) {
 	result := &hetzner.HostSearchResult{
 		Prefix: netip.MustParsePrefix("5.9.0.0/16"),
 	}
-	ip := "5.9.10.123"
+	ip := testIPHetzner
 
 	// Create table without arrow
 	table := createHetznerTable(ip, result, false)

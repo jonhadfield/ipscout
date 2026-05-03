@@ -80,13 +80,13 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 		require.NoError(t, err)
 
 		// check cache path does not exist
-		_, err = os.Stat(filepath.Join(configRoot, "cache"))
+		_, err = os.Stat(filepath.Join(configRoot, cacheDirName))
 		require.ErrorIs(t, err, os.ErrNotExist)
 
 		// create cache path
 		require.NoError(t, CreateConfigPathStructure(configRoot))
 		// check cache path exists
-		for _, dir := range []string{"cache"} {
+		for _, dir := range []string{cacheDirName} {
 			_, err = os.Stat(filepath.Join(configRoot, dir))
 			require.NoError(t, err)
 		}
@@ -104,7 +104,7 @@ func TestCreateCachePathIfNotExist(t *testing.T) {
 		err = CreateConfigPathStructure(configRoot)
 		require.NoError(t, err)
 
-		for _, dir := range []string{"cache"} {
+		for _, dir := range []string{cacheDirName} {
 			_, err = os.Stat(filepath.Join(configRoot, dir))
 			require.NoError(t, err)
 		}

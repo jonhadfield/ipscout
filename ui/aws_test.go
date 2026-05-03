@@ -17,7 +17,7 @@ func TestCreateAWSTable(t *testing.T) {
 	}{
 		{
 			name:   "No AWS prefix",
-			ip:     "8.8.8.8",
+			ip:     testIPGoogleDNS,
 			result: &aws.HostSearchResult{
 				// Empty result
 			},

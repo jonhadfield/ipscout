@@ -40,6 +40,11 @@ const (
 	defaultMediumThreatCountryMatchScore = 6.0
 	defaultHighThreatCountryMatchScore   = 9.0
 	APITimeout                           = 10 * time.Second
+
+	analysisResultClean     = "clean"
+	analysisResultUnrated   = "unrated"
+	analysisResultHarmless  = "harmless"
+	analysisResultMalicious = "malicious"
 )
 
 type Config struct {
@@ -446,24 +451,24 @@ func (ard AnalysisResultData) ShouldOutput(sess *session.Session) bool {
 	}
 
 	switch ard.Result {
-	case "clean":
+	case analysisResultClean:
 		if sess.Providers.VirusTotal.ShowClean != nil && *sess.Providers.VirusTotal.ShowClean {
 			return true
 		}
 
-	case "unrated":
+	case analysisResultUnrated:
 		if sess.Providers.VirusTotal.ShowUnrated != nil && *sess.Providers.VirusTotal.ShowUnrated {
 			return true
 		}
 
-	case "harmless":
+	case analysisResultHarmless:
 		if sess.Providers.VirusTotal.ShowHarmless != nil && *sess.Providers.VirusTotal.ShowHarmless {
 			return true
 		}
 
 	case "suspicous":
 		return true
-	case "malicious":
+	case analysisResultMalicious:
 		return true
 	default:
 		return false

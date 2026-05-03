@@ -31,6 +31,12 @@ const (
 	MinTableWidth  = 20
 )
 
+const (
+	transportTCP  = "tcp"
+	transportUDP  = "udp"
+	transportICMP = "icmp"
+)
+
 func RowEmphasisColor(sess session.Session) func(format string, a ...interface{}) string {
 	switch sess.Config.Global.Style {
 	case "ascii":
@@ -302,7 +308,7 @@ func splitPortTransport(portTransport string) (pt PortTransport) {
 }
 
 var (
-	validTransports = []string{"tcp", "udp", "icmp"}
+	validTransports = []string{transportTCP, transportUDP, transportICMP}
 	maxPortNumber   = 65535
 )
 

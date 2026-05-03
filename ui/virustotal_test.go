@@ -27,7 +27,7 @@ func TestCreateVirusTotalTable(t *testing.T) {
 						Country:   "US",
 						Continent: "NA",
 						Asn:       15169,
-						AsOwner:   "Google LLC",
+						AsOwner:   testISPGoogleLLC,
 						Network:   "8.8.8.0/24",
 					},
 				},
@@ -35,7 +35,7 @@ func TestCreateVirusTotalTable(t *testing.T) {
 		},
 		{
 			name: "Malicious result",
-			ip:   "1.2.3.4",
+			ip:   testIPExample,
 			result: &virustotal.HostSearchResult{
 				Data: virustotal.HostSearchResultData{
 					Attributes: virustotal.HostSearchResultDataAttributes{

@@ -6,6 +6,10 @@ import (
 	"github.com/jonhadfield/ipscout/providers/ipqs"
 )
 
+const (
+	testIPGoogle = "74.125.219.32"
+)
+
 func TestCreateIPQSTable(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -14,7 +18,7 @@ func TestCreateIPQSTable(t *testing.T) {
 	}{
 		{
 			name: "Failed result",
-			ip:   "1.2.3.4",
+			ip:   testIPExample,
 			result: func() *ipqs.HostSearchResult {
 				r := &ipqs.HostSearchResult{}
 				r.Success = false
@@ -25,7 +29,7 @@ func TestCreateIPQSTable(t *testing.T) {
 		},
 		{
 			name: "Valid IPQS result",
-			ip:   "74.125.219.32",
+			ip:   testIPGoogle,
 			result: func() *ipqs.HostSearchResult {
 				r := &ipqs.HostSearchResult{}
 				r.Success = true
@@ -33,7 +37,7 @@ func TestCreateIPQSTable(t *testing.T) {
 				r.CountryCode = "US"
 				r.Region = "California"
 				r.City = "Mountain View"
-				r.Isp = "Google LLC"
+				r.Isp = testISPGoogleLLC
 				r.Asn = 15169
 				r.Host = "rate-limited-proxy-74-125-219-32.google.com"
 				r.Proxy = true
@@ -47,13 +51,13 @@ func TestCreateIPQSTable(t *testing.T) {
 		},
 		{
 			name: "Low risk result",
-			ip:   "8.8.8.8",
+			ip:   testIPGoogleDNS,
 			result: func() *ipqs.HostSearchResult {
 				r := &ipqs.HostSearchResult{}
 				r.Success = true
 				r.FraudScore = 25
 				r.CountryCode = "US"
-				r.Isp = "Google LLC"
+				r.Isp = testISPGoogleLLC
 				r.Asn = 15169
 
 				return r
@@ -97,7 +101,7 @@ func TestCreateIPQSTableActiveState(t *testing.T) {
 	result := &ipqs.HostSearchResult{}
 	result.Success = true
 	result.FraudScore = 50
-	ip := "74.125.219.32"
+	ip := testIPGoogle
 
 	// Test inactive state
 	inactiveTable := createIPQSTable(ip, result, false)
@@ -144,7 +148,7 @@ func TestAddActiveIndicatorToIPQSTable(t *testing.T) {
 	result := &ipqs.HostSearchResult{}
 	result.Success = true
 	result.FraudScore = 30
-	ip := "74.125.219.32"
+	ip := testIPGoogle
 
 	// Create table without arrow
 	table := createIPQSTable(ip, result, false)

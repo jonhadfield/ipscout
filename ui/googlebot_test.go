@@ -8,6 +8,11 @@ import (
 	"github.com/jonhadfield/ipscout/providers/googlebot"
 )
 
+const (
+	testCaseEmptyResult = "Empty result"
+	testIPGooglebot     = "66.249.77.135"
+)
+
 func TestCreateGooglebotTable(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -15,15 +20,15 @@ func TestCreateGooglebotTable(t *testing.T) {
 		result *googlebot.HostSearchResult
 	}{
 		{
-			name: "Empty result",
-			ip:   "1.2.3.4",
+			name: testCaseEmptyResult,
+			ip:   testIPExample,
 			result: &googlebot.HostSearchResult{
 				Prefix: netip.Prefix{}, // Invalid prefix
 			},
 		},
 		{
 			name: "Valid googlebot result",
-			ip:   "66.249.77.135",
+			ip:   testIPGooglebot,
 			result: &googlebot.HostSearchResult{
 				Prefix:       netip.MustParsePrefix("66.249.77.128/27"),
 				CreationTime: time.Date(2024, 4, 30, 22, 0, 38, 0, time.UTC),
@@ -74,7 +79,7 @@ func TestCreateGooglebotTableActiveState(t *testing.T) {
 	result := &googlebot.HostSearchResult{
 		Prefix: netip.MustParsePrefix("66.249.77.128/27"),
 	}
-	ip := "66.249.77.135"
+	ip := testIPGooglebot
 
 	// Test inactive state
 	inactiveTable := createGooglebotTable(ip, result, false)
@@ -121,7 +126,7 @@ func TestAddActiveIndicatorToGooglebotTable(t *testing.T) {
 	result := &googlebot.HostSearchResult{
 		Prefix: netip.MustParsePrefix("66.249.77.128/27"),
 	}
-	ip := "66.249.77.135"
+	ip := testIPGooglebot
 
 	// Create table without arrow
 	table := createGooglebotTable(ip, result, false)

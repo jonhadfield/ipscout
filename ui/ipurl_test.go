@@ -14,8 +14,8 @@ func TestCreateIPURLTable(t *testing.T) {
 		result *ipurl.HostSearchResult
 	}{
 		{
-			name: "Empty result",
-			ip:   "1.2.3.4",
+			name: testCaseEmptyResult,
+			ip:   testIPExample,
 			result: func() *ipurl.HostSearchResult {
 				r := make(ipurl.HostSearchResult)
 

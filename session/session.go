@@ -21,6 +21,7 @@ const (
 	DefaultConfigFileName  = "config.yaml"
 	defaultDIRPermissions  = 0o700
 	defaultFilePermissions = 0o600
+	cacheDirName           = "cache"
 )
 
 //go:embed config.yaml
@@ -368,7 +369,7 @@ func CreateConfigPathStructure(configRoot string) error {
 		}
 	}
 
-	for _, dir := range []string{"cache"} {
+	for _, dir := range []string{cacheDirName} {
 		_, err = os.Stat(filepath.Join(configRoot, dir))
 		if err != nil {
 			if os.IsNotExist(err) {
