@@ -327,7 +327,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 				return nil, fmt.Errorf("error unmarshalling cached ipapi response: %w", err)
 			}
 
-			c.Logger.Info("ipapi response found in cache", "host", c.Host.String())
+			c.Logger.Debug("ipapi response found in cache", "host", c.Host.String())
 
 			result.Raw = item.Value
 

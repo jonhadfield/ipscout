@@ -189,12 +189,12 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("vultr provider data found in cache")
+		c.Logger.Debug("vultr provider data found in cache")
 
 		return nil
 	}
 
-	c.Logger.Info("loading vultr provider data from source")
+	c.Logger.Debug("loading vultr provider data from source")
 
 	err = c.loadProviderData()
 	if err != nil {
@@ -205,7 +205,7 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func (c *ProviderClient) loadProviderDataFromCache() (Doc, error) {
-	c.Logger.Info("loading vultr provider data from cache")
+	c.Logger.Debug("loading vultr provider data from cache")
 
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 

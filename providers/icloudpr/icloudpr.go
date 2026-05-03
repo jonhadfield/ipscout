@@ -220,7 +220,7 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("icloudpr provider ipv4 data found in cache")
+		c.Logger.Debug("icloudpr provider ipv4 data found in cache")
 
 		return nil
 	}
@@ -232,12 +232,12 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("icloudpr provider ipv6 data found in cache")
+		c.Logger.Debug("icloudpr provider ipv6 data found in cache")
 
 		return nil
 	}
 
-	c.Logger.Info("loading icloudpr provider data from source")
+	c.Logger.Debug("loading icloudpr provider data from source")
 
 	err = c.loadProviderData()
 	if err != nil {
@@ -248,7 +248,7 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func (c *ProviderClient) loadProviderDataFromCache(is4, is6 bool) (*icloudpr.Doc, error) {
-	c.Logger.Info("loading icloudpr provider data from cache")
+	c.Logger.Debug("loading icloudpr provider data from cache")
 
 	var cacheKey string
 

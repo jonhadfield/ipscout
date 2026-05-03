@@ -533,7 +533,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 				return nil, fmt.Errorf("error unmarshalling cached ipqs response: %w", err)
 			}
 
-			c.Logger.Info("ipqs response found in cache", "host", c.Host.String())
+			c.Logger.Debug("ipqs response found in cache", "host", c.Host.String())
 
 			result.Raw = item.Value
 

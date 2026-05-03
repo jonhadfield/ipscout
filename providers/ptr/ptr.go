@@ -302,7 +302,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 				return nil, fmt.Errorf("error unmarshalling cached ptr response: %w", err)
 			}
 
-			c.Logger.Info("ptr response found in cache", "host", c.Host.String())
+			c.Logger.Debug("ptr response found in cache", "host", c.Host.String())
 
 			result.Raw = item.Value
 

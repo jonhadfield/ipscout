@@ -186,12 +186,12 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("bingbot provider data found in cache")
+		c.Logger.Debug("bingbot provider data found in cache")
 
 		return nil
 	}
 
-	c.Logger.Info("loading bingbot provider data from source")
+	c.Logger.Debug("loading bingbot provider data from source")
 
 	err = c.loadProviderData()
 	if err != nil {
@@ -202,7 +202,7 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func (c *ProviderClient) loadProviderDataFromCache() (*bingbot.Doc, error) {
-	c.Logger.Info("loading bingbot provider data from cache")
+	c.Logger.Debug("loading bingbot provider data from cache")
 
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 

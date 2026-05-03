@@ -172,7 +172,7 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("aws provider data found in cache")
+		c.Logger.Debug("aws provider data found in cache")
 
 		return nil
 	}

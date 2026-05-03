@@ -270,7 +270,7 @@ func fetchData(client session.Session) (*HostSearchResult, error) {
 				return nil, uErr
 			}
 
-			client.Logger.Info("criminal ip response found in cache", "host", client.Host.String())
+			client.Logger.Debug("criminal ip response found in cache", "host", client.Host.String())
 
 			result.Raw = item.Value
 
@@ -355,7 +355,7 @@ func (c *Client) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("criminalip provider data found in cache")
+		c.Logger.Debug("criminalip provider data found in cache")
 
 		return nil
 	}

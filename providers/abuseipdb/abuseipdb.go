@@ -393,7 +393,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 				return nil, fmt.Errorf("error unmarshalling cached abuseipdb response: %w", err)
 			}
 
-			c.Logger.Info("abuseipdb response found in cache", "host", c.Host.String())
+			c.Logger.Debug("abuseipdb response found in cache", "host", c.Host.String())
 
 			result.Raw = item.Value
 

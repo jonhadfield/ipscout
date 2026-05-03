@@ -10,6 +10,7 @@ import (
 	h "github.com/jonhadfield/ipscout/helpers"
 
 	"github.com/jonhadfield/ipscout/session"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -538,18 +539,22 @@ func initLogging() error {
 	switch strings.ToUpper(ll) {
 	case "ERROR":
 		ProgramLevel.Set(slog.LevelError)
+		logrus.SetLevel(logrus.ErrorLevel)
 
 		sess.HideProgress = false
 	case "WARN":
 		ProgramLevel.Set(slog.LevelWarn)
+		logrus.SetLevel(logrus.WarnLevel)
 
 		sess.HideProgress = false
 	case "INFO":
 		ProgramLevel.Set(slog.LevelInfo)
+		logrus.SetLevel(logrus.InfoLevel)
 
 		sess.HideProgress = true
 	case "DEBUG":
 		ProgramLevel.Set(slog.LevelDebug)
+		logrus.SetLevel(logrus.DebugLevel)
 
 		sess.HideProgress = true
 	}

@@ -267,7 +267,7 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("annotated provider data found in cache")
+		c.Logger.Debug("annotated provider data found in cache")
 
 		return nil
 	}
@@ -500,7 +500,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (map[netip.Prefix][]annotat
 				return nil, fmt.Errorf("error unmarshalling cached annotated response: %w", err)
 			}
 
-			c.Logger.Info("annotated response found in cache", "host", c.Host.String())
+			c.Logger.Debug("annotated response found in cache", "host", c.Host.String())
 
 			c.Stats.Mu.Lock()
 			c.Stats.FindHostUsedCache[ProviderName] = true

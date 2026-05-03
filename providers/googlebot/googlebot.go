@@ -186,12 +186,12 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("googlebot provider data found in cache")
+		c.Logger.Debug("googlebot provider data found in cache")
 
 		return nil
 	}
 
-	c.Logger.Info("loading googlebot provider data from source")
+	c.Logger.Debug("loading googlebot provider data from source")
 
 	err = c.loadProviderData()
 	if err != nil {
@@ -202,7 +202,7 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func (c *ProviderClient) loadProviderDataFromCache() (*googlebot.Doc, error) {
-	c.Logger.Info("loading googlebot provider data from cache")
+	c.Logger.Debug("loading googlebot provider data from cache")
 
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 

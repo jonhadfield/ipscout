@@ -177,7 +177,7 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("azure provider data found in cache")
+		c.Logger.Debug("azure provider data found in cache")
 
 		return nil
 	}
@@ -212,7 +212,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 }
 
 func (c *ProviderClient) loadProviderDataFromCache() (*azure.Doc, error) {
-	c.Logger.Info("loading azure provider data from cache")
+	c.Logger.Debug("loading azure provider data from cache")
 
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 
@@ -255,8 +255,6 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		if loadErr != nil {
 			return nil, loadErr
 		}
-
-		c.Logger.Info("azure match returned from test data", "host", c.Host.String())
 
 		return out, nil
 	}

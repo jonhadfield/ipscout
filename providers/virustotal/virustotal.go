@@ -349,7 +349,7 @@ func fetchData(c session.Session) (*HostSearchResult, error) {
 				return nil, fmt.Errorf("error unmarshalling cached virustotal response: %w", err)
 			}
 
-			c.Logger.Info("virustotal response found in cache", "host", c.Host.String())
+			c.Logger.Debug("virustotal response found in cache", "host", c.Host.String())
 
 			result.Raw = item.Value
 

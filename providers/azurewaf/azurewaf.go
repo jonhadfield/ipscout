@@ -154,7 +154,7 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("azurewaf provider data found in cache")
+		c.Logger.Debug("azurewaf provider data found in cache")
 
 		return nil
 	}

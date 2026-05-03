@@ -166,12 +166,12 @@ func (c *ProviderClient) Initialise() error {
 	}
 
 	if ok {
-		c.Logger.Info("hetzner provider data found in cache")
+		c.Logger.Debug("hetzner provider data found in cache")
 
 		return nil
 	}
 
-	c.Logger.Info("loading hetzner provider data from source")
+	c.Logger.Debug("loading hetzner provider data from source")
 
 	err = c.loadProviderData()
 	if err != nil {
@@ -182,7 +182,7 @@ func (c *ProviderClient) Initialise() error {
 }
 
 func (c *ProviderClient) loadProviderDataFromCache() (*hetzner.Doc, error) {
-	c.Logger.Info("loading hetzner provider data from cache")
+	c.Logger.Debug("loading hetzner provider data from cache")
 
 	cacheKey := providers.CacheProviderPrefix + ProviderName
 
