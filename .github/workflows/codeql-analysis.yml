@@ -33,7 +33,7 @@ jobs:
 
     - uses: actions/setup-go@v6
       with:
-        go-version: '>=1.25.2'
+        go-version: 'stable'
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v4
