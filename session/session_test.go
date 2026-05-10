@@ -7,7 +7,6 @@ import (
 
 	"github.com/jonhadfield/ipscout/constants"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/stretchr/testify/require"
 )
 
@@ -127,7 +126,7 @@ func TestGetConfigRoot(t *testing.T) {
 
 	t.Run("EmptyAppName", func(t *testing.T) {
 		appName := ""
-		dir, err := homedir.Dir()
+		dir, err := os.UserHomeDir()
 		require.NoError(t, err)
 
 		path := GetConfigRoot("", dir, appName)

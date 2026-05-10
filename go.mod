@@ -15,7 +15,6 @@ require (
 	github.com/jonhadfield/azwaf v0.2.0
 	github.com/jonhadfield/ip-fetcher v0.0.0-20260504110000-0bb336d4ce96
 	github.com/miekg/dns v1.1.72
-	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rivo/tview v0.42.0
 	github.com/sashabaranov/go-openai v1.41.2
 	github.com/sirupsen/logrus v1.9.4
@@ -75,6 +74,7 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.28.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect

@@ -10,8 +10,6 @@ import (
 
 	"github.com/jonhadfield/ipscout/helpers"
 
-	"github.com/mitchellh/go-homedir"
-
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/process"
 	"github.com/jonhadfield/ipscout/session"
@@ -681,7 +679,7 @@ func initHomeDirConfig(sess *session.Session, v *viper.Viper) error {
 
 	homeDir := v.GetString("home_dir")
 	if homeDir == "" {
-		homeDir, err = homedir.Dir()
+		homeDir, err = os.UserHomeDir()
 		if err != nil {
 			return fmt.Errorf("failed to get home directory: %w", err)
 		}

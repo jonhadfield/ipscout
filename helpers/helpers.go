@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/session"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
@@ -73,7 +72,7 @@ func InitHomeDirConfig(sess *session.Session, v *viper.Viper) error {
 
 	homeDir := v.GetString("home_dir")
 	if homeDir == "" {
-		homeDir, err = homedir.Dir()
+		homeDir, err = os.UserHomeDir()
 		if err != nil {
 			return fmt.Errorf("failed to get home directory: %w", err)
 		}
