@@ -37,7 +37,7 @@ const (
 	transportICMP = "icmp"
 )
 
-func RowEmphasisColor(sess session.Session) func(format string, a ...interface{}) string {
+func RowEmphasisColor(sess session.Session) func(format string, a ...any) string {
 	switch sess.Config.Global.Style {
 	case "ascii":
 		return fmt.Sprintf
@@ -344,7 +344,7 @@ func isTransport(in any) bool {
 	return false
 }
 
-func DashIfEmpty(value interface{}) string {
+func DashIfEmpty(value any) string {
 	switch v := value.(type) {
 	case time.Time:
 		if v.IsZero() || v.Equal(time.Date(0o001, time.January, 1, 0, 0, 0, 0, time.UTC)) {

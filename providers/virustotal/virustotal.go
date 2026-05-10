@@ -485,7 +485,7 @@ func (lra LastAnalysisResults) ShouldOutput(sess *session.Session) bool {
 	return true
 }
 
-func (lra LastAnalysisResults) GetTableRows(sess *session.Session, tw table.Writer, rowEmphasisColour func(format string, a ...interface{}) string) {
+func (lra LastAnalysisResults) GetTableRows(sess *session.Session, tw table.Writer, rowEmphasisColour func(format string, a ...any) string) {
 	provs := map[string]struct {
 		ard AnalysisResultData
 	}{

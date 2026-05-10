@@ -36,7 +36,7 @@ func outputTables(c *session.Session, tws []providers.TableWithPriority) {
 		t := *tw.Table
 		t.SetIndexColumn(1)
 		t.SetStyle(InnerTableStyle(*c))
-		twOuter.AppendRow([]interface{}{t.Render()})
+		twOuter.AppendRow([]any{t.Render()})
 	}
 
 	fmt.Println(twOuter.Render())

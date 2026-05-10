@@ -526,7 +526,7 @@ func appendDNSRows(dns DNS, globalIndentSpaces int, tw *table.Writer) {
 	}
 }
 
-func appendSSLRows(ssl Ssl, globalIndentSpaces int, rowEmphasisColor func(format string, a ...interface{}) string, tw *table.Writer) {
+func appendSSLRows(ssl Ssl, globalIndentSpaces int, rowEmphasisColor func(format string, a ...any) string, tw *table.Writer) {
 	if len(ssl.Versions) > 0 {
 		twc := *tw
 
