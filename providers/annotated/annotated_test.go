@@ -35,7 +35,7 @@ func TestLoadFilePrefixesWithAnnotationsFromPath(t *testing.T) {
 }
 
 func TestInitialise(t *testing.T) {
-	c, err := initialiseSetup(t.TempDir())
+	c, err := initialiseSetup(t, t.TempDir())
 	require.NoError(t, err)
 	require.NoError(t, err)
 
@@ -53,13 +53,17 @@ func TestInitialise(t *testing.T) {
 	require.NotEqual(t, "null", string(res))
 }
 
-func initialiseSetup(homeDir string) (providers.ProviderClient, error) {
+func initialiseSetup(t *testing.T, homeDir string) (providers.ProviderClient, error) {
+	t.Helper()
+
 	lg := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	db, err := cache.Create(lg, filepath.Join(homeDir, ".config", "ipscout"))
 	if err != nil {
 		return nil, fmt.Errorf("error creating cache: %w", err)
 	}
+
+	t.Cleanup(func() { require.NoError(t, db.Close()) })
 
 	c, err := NewProviderClient(session.Session{
 		Logger: slog.New(slog.NewTextHandler(os.Stdout, nil)),
@@ -89,7 +93,7 @@ func initialiseSetup(homeDir string) (providers.ProviderClient, error) {
 }
 
 func TestLoadProviderDataFromCache(t *testing.T) {
-	c, err := initialiseSetup(t.TempDir())
+	c, err := initialiseSetup(t, t.TempDir())
 	require.NoError(t, err)
 
 	config := c.GetConfig()
