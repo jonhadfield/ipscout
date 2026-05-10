@@ -43,6 +43,7 @@ func TestUpsert(t *testing.T) {
 
 	d, err := Create(l, tempDir)
 	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, d.Close()) })
 
 	now := time.Now()
 	require.NoError(t, UpsertWithTTL(l, d, Item{
@@ -78,6 +79,7 @@ func TestCheckExists(t *testing.T) {
 
 	d, err := Create(l, tempDir)
 	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, d.Close()) })
 
 	now := time.Now()
 	require.NoError(t, UpsertWithTTL(l, d, Item{
@@ -102,6 +104,7 @@ func TestDeleteOne(t *testing.T) {
 
 	d, err := Create(l, tempDir)
 	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, d.Close()) })
 
 	now := time.Now()
 	require.NoError(t, UpsertWithTTL(l, d, Item{
@@ -138,6 +141,7 @@ func TestDeleteMultiple(t *testing.T) {
 
 	d, err := Create(l, tempDir)
 	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, d.Close()) })
 
 	now := time.Now()
 	require.NoError(t, UpsertWithTTL(l, d, Item{
