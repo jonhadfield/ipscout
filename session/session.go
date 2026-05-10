@@ -351,7 +351,7 @@ func CreateDefaultConfigIfMissing(path string) (bool, error) {
 		if err = os.WriteFile(filepath.Join(path, DefaultConfigFileName), []byte(DefaultConfig), defaultFilePermissions); err != nil {
 			return false, fmt.Errorf("failed to write default session: %w", err)
 		}
-	case err != nil:
+	default:
 		return false, fmt.Errorf("failed to stat session directory: %w", err)
 	}
 
