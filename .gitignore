@@ -5,3 +5,5 @@ CLAUDE.md
 ui/.config/
 AGENTS.md
 .fleet
+.devcontainer/
+claudedocs/
