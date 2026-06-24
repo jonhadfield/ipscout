@@ -1,5 +1,6 @@
 dist/
 coverage.txt
+cover.out
 .claude/
 CLAUDE.md
 ui/.config/

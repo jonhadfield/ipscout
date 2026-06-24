@@ -27,6 +27,17 @@ jobs:
           go mod tidy
           go test -cover -v -failfast -p 1 $(go list ./...) -coverprofile cover.out
       -
+        name: Coverage threshold gate
+        # Ratchet: fail if total coverage drops below MIN_COVERAGE. Raise this as
+        # coverage improves so it can only move up. Linux-only to avoid duplication.
+        if: runner.os == 'Linux'
+        env:
+          MIN_COVERAGE: "35.0"
+        run: |
+          total=$(go tool cover -func=cover.out | awk '/^total:/ {gsub(/%/,"",$3); print $3}')
+          echo "total coverage: ${total}% (minimum: ${MIN_COVERAGE}%)"
+          awk -v t="$total" -v m="$MIN_COVERAGE" 'BEGIN { if (t+0 < m+0) { printf "coverage %.1f%% is below minimum %.1f%%\n", t, m; exit 1 } }'
+      -
         name: Codacy Coverage Reporter
         uses: codacy/codacy-coverage-reporter-action@v1.3.0
         with:
