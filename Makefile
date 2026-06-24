@@ -18,6 +18,14 @@ test:
 cover: test
 	go tool cover -html=coverage.txt
 
+# Ratchet gate: fail if total statement coverage drops below MIN_COVERAGE.
+# Raise MIN_COVERAGE as coverage improves so it can only move up.
+MIN_COVERAGE?=35.0
+cover-check:
+	@total=$$(go tool cover -func=coverage.txt | awk '/^total:/ {gsub(/%/,"",$$3); print $$3}'); \
+	echo "total coverage: $$total% (minimum: $(MIN_COVERAGE)%)"; \
+	awk -v t="$$total" -v m="$(MIN_COVERAGE)" 'BEGIN { if (t+0 < m+0) { printf "coverage %.1f%% is below minimum %.1f%%\n", t, m; exit 1 } }'
+
 fmt:
 	goimports -w . && gofumpt -l -w .
 
