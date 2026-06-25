@@ -96,7 +96,7 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 		return providers.RateResult{}, fmt.Errorf(constants.ErrUnmarshalFindResultFmt, err)
 	}
 
-	if doc.IPPrefix.String() == "" {
+	if !doc.IPPrefix.IsValid() && !doc.IPv6Prefix.IPv6Prefix.IsValid() {
 		return rateResult, errors.New("no prefix found in aws data")
 	}
 
@@ -219,9 +219,9 @@ func (c *ProviderClient) loadProviderDataFromCache() (*aws.Doc, error) {
 				_ = cache.Delete(c.Logger, c.Cache, cacheKey)
 			}()
 
-			return nil, fmt.Errorf("error unmarshalling cached aws provider doc: %w", err)
+			return nil, fmt.Errorf("error unmarshalling cached aws provider doc: %w", uErr)
 		}
-	} else if err != nil {
+	} else {
 		return nil, fmt.Errorf("error reading aws provider cache: %w", err)
 	}
 

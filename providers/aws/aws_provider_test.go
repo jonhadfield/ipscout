@@ -180,6 +180,16 @@ func TestRateHostDataInvalidRatingConfig(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestRateHostDataNoPrefix(t *testing.T) {
+	t.Parallel()
+
+	c := newTestProviderClient(t)
+
+	// A result with no valid prefix should return the "no prefix found" error.
+	_, err := c.RateHostData([]byte(`{}`), []byte(`{"providers":{"aws":{"defaultMatchScore":7.5}}}`))
+	require.ErrorContains(t, err, "no prefix found")
+}
+
 func TestUnmarshalProviderData(t *testing.T) {
 	t.Parallel()
 
