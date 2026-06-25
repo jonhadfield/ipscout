@@ -121,7 +121,9 @@ func TestPrefixProjectRootRelative(t *testing.T) {
 func TestPrefixProjectRootAbsolute(t *testing.T) {
 	t.Parallel()
 
-	abs := filepath.Join(string(filepath.Separator), "tmp", "ipscout-abs")
+	// t.TempDir returns an absolute path on every platform (a bare "/tmp/..."
+	// style path is not absolute on Windows, where IsAbs needs a drive letter).
+	abs := t.TempDir()
 
 	prefixed, err := PrefixProjectRoot(abs)
 	require.NoError(t, err)
