@@ -1,0 +1,20 @@
+{
+  "syncToken": "1700000000",
+  "createDate": "2023-11-14-00-00-00",
+  "prefixes": [
+    {
+      "ip_prefix": "18.164.0.0/15",
+      "region": "GLOBAL",
+      "service": "AMAZON",
+      "network_border_group": "GLOBAL"
+    }
+  ],
+  "ipv6_prefixes": [
+    {
+      "ipv6_prefix": "2600:1f00::/24",
+      "region": "GLOBAL",
+      "service": "AMAZON",
+      "network_border_group": "GLOBAL"
+    }
+  ]
+}
