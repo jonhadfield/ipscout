@@ -1,0 +1,30 @@
+{
+  "status": "ok",
+  "status_message": "Query was successful",
+  "data": {
+    "ipv4_prefixes": [
+      {
+        "prefix": "5.102.113.0/24",
+        "ip": "5.102.113.0",
+        "cidr": 24,
+        "roa_status": "Valid",
+        "name": "VULTR",
+        "description": "Vultr Holdings",
+        "country_code": "DE",
+        "parent": {
+          "prefix": "5.102.113.0/24",
+          "ip": "5.102.113.0",
+          "cidr": 24,
+          "rir_name": "RIPE",
+          "allocation_status": "allocated"
+        }
+      }
+    ],
+    "ipv6_prefixes": []
+  },
+  "@meta": {
+    "time_zone": "UTC",
+    "api_version": 1,
+    "execution_time": "53.15 ms"
+  }
+}

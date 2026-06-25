@@ -1,0 +1,3 @@
+# iCloud Private Relay egress IP ranges (headerless data rows)
+172.224.224.0/24,GB,GB-EN,London,
+2a04:4e41:c000::/40,GB,GB-EN,London,

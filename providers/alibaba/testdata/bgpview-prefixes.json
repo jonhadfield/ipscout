@@ -1,0 +1,30 @@
+{
+  "status": "ok",
+  "status_message": "Query was successful",
+  "data": {
+    "ipv4_prefixes": [
+      {
+        "prefix": "47.246.0.0/16",
+        "ip": "47.246.0.0",
+        "cidr": 16,
+        "roa_status": "Valid",
+        "name": "ALIBABA",
+        "description": "Alibaba (US) Technology Co., Ltd.",
+        "country_code": "CN",
+        "parent": {
+          "prefix": "47.246.0.0/16",
+          "ip": "47.246.0.0",
+          "cidr": 16,
+          "rir_name": "APNIC",
+          "allocation_status": "unknown"
+        }
+      }
+    ],
+    "ipv6_prefixes": []
+  },
+  "@meta": {
+    "time_zone": "UTC",
+    "api_version": 1,
+    "execution_time": "30.00 ms"
+  }
+}

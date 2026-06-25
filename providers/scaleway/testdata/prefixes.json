@@ -1,0 +1,30 @@
+{
+  "status": "ok",
+  "status_message": "Query was successful",
+  "data": {
+    "ipv4_prefixes": [
+      {
+        "prefix": "51.15.0.0/16",
+        "ip": "51.15.0.0",
+        "cidr": 16,
+        "roa_status": "None",
+        "name": "SCALEWAY",
+        "description": "Scaleway - Paris, France",
+        "country_code": "FR",
+        "parent": {
+          "prefix": "51.15.0.0/16",
+          "ip": "51.15.0.0",
+          "cidr": 16,
+          "rir_name": "RIPE",
+          "allocation_status": "unknown"
+        }
+      }
+    ],
+    "ipv6_prefixes": []
+  },
+  "@meta": {
+    "time_zone": "UTC",
+    "api_version": 1,
+    "execution_time": "0ms"
+  }
+}
