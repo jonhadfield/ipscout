@@ -149,19 +149,22 @@ func TestFindHostUsesTestData(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, res)
 
-	// The bytes returned should re-parse as a HostSearchResult.
+	// The bytes returned should re-parse as a populated HostSearchResult
+	// matching the flat test-data fixture.
 	parsed, err := unmarshalResponse(res)
 	require.NoError(t, err)
 	require.NotNil(t, parsed)
+	require.Equal(t, "165.225.240.0/23", parsed.Range)
+	require.Equal(t, "Amsterdam II", parsed.City)
 }
 
-// seedProviderDoc loads the testdata fixture (which is in ipfetcher.Doc format),
+// seedProviderDoc loads the nested upstream fixture (ipfetcher.Doc format),
 // marshals it, and stores it in the cache exactly as loadProviderData would, so
 // the real cache-backed FindHost reflection path can be exercised offline.
 func seedProviderDoc(t *testing.T, c *ProviderClient) {
 	t.Helper()
 
-	raw, err := providers.LoadResultsFile[ipfetcher.Doc]("testdata/zscaler_report.json")
+	raw, err := providers.LoadResultsFile[ipfetcher.Doc]("testdata/zscaler_doc.json")
 	require.NoError(t, err)
 
 	data, err := json.Marshal(raw)

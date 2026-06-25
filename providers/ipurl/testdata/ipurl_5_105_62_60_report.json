@@ -1,1 +1,5 @@
-"5.105.62.0/24"
+{
+  "5.105.62.0/24": [
+    "https://example.com/blocklist.txt"
+  ]
+}

@@ -215,14 +215,19 @@ func TestFindHostNoMatch(t *testing.T) {
 }
 
 // TestFindHostUseTestData drives the UseTestData branch of FindHost. The bundled
-// fixture is a bare CIDR string (not a HostSearchResult map), so this asserts the
-// real decode-error path rather than a successful result.
+// fixture is a HostSearchResult map (prefix -> source URLs), so FindHost returns
+// it verbatim and it re-parses to include the test prefix.
 func TestFindHostUseTestData(t *testing.T) {
 	client := newTestProviderClient(t)
 	client.UseTestData = true
 
-	_, err := client.FindHost()
-	require.Error(t, err)
+	res, err := client.FindHost()
+	require.NoError(t, err)
+	require.NotEmpty(t, res)
+
+	parsed, err := unmarshalResponse(res)
+	require.NoError(t, err)
+	require.Contains(t, parsed, netip.MustParsePrefix(testPrefixCIDR))
 }
 
 func TestUnmarshalResponse(t *testing.T) {

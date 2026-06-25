@@ -871,11 +871,10 @@ type HostSearchResult struct {
 	IPCategory struct {
 		Count int `json:"count"`
 		Data  []struct {
-			DetectSource  string   `json:"detect_source"`
-			Type          string   `json:"type"`
-			DetectInfo    struct{} `json:"detect_info,omitempty"`
-			ConfirmedTime string   `json:"confirmed_time"`
-			DetectInfo0   struct { //nolint:govet
+			DetectSource  string `json:"detect_source"`
+			Type          string `json:"type"`
+			ConfirmedTime string `json:"confirmed_time"`
+			DetectInfo    struct {
 				Md5    string `json:"md5"`
 				Domain string `json:"domain"`
 			} `json:"detect_info,omitempty"`
