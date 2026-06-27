@@ -57,6 +57,16 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), abuseipdbEnabled})
 
+	// alibaba
+	tw.AppendRow(table.Row{color.HiCyanString("%sAlibaba", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
+
+	alibabaEnabled := false
+	if c.Sess.Providers.Alibaba.Enabled != nil {
+		alibabaEnabled = *c.Sess.Providers.Alibaba.Enabled
+	}
+
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), alibabaEnabled})
+
 	// annotated
 
 	tw.AppendRow(table.Row{color.HiCyanString("%sAnnotated", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
@@ -240,6 +250,16 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), ptrEnabled})
 
+	// scaleway
+	tw.AppendRow(table.Row{color.HiCyanString("%sScaleway", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
+
+	scalewayEnabled := false
+	if c.Sess.Providers.Scaleway.Enabled != nil {
+		scalewayEnabled = *c.Sess.Providers.Scaleway.Enabled
+	}
+
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), scalewayEnabled})
+
 	// shodan
 	tw.AppendRow(table.Row{color.HiCyanString("%sShodan", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
 
@@ -259,6 +279,16 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	}
 
 	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), virustotalEnabled})
+
+	// vultr
+	tw.AppendRow(table.Row{color.HiCyanString("%sVultr", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
+
+	vultrEnabled := false
+	if c.Sess.Providers.Vultr.Enabled != nil {
+		vultrEnabled = *c.Sess.Providers.Vultr.Enabled
+	}
+
+	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), vultrEnabled})
 
 	// zscaler
 	tw.AppendRow(table.Row{color.HiCyanString("%sZscaler", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})

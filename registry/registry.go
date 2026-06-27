@@ -46,7 +46,7 @@ type Entry struct {
 func All() []Entry {
 	return []Entry{
 		{Name: abuseipdb.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.AbuseIPDB.Enabled }, APIKey: func(s session.Session) string { return s.Providers.AbuseIPDB.APIKey }, NewClient: abuseipdb.NewClient, SupportsRating: true},
-		{Name: alibaba.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Alibaba.Enabled }, APIKey: noKey, NewClient: alibaba.NewProviderClient, SupportsRating: false},
+		{Name: alibaba.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Alibaba.Enabled }, APIKey: noKey, NewClient: alibaba.NewProviderClient, SupportsRating: true},
 		{Name: annotated.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Annotated.Enabled }, APIKey: noKey, NewClient: annotated.NewProviderClient, SupportsRating: true},
 		{Name: aws.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.AWS.Enabled }, APIKey: noKey, NewClient: aws.NewProviderClient, SupportsRating: true},
 		{Name: azure.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Azure.Enabled }, APIKey: noKey, NewClient: azure.NewProviderClient, SupportsRating: true},
@@ -64,13 +64,13 @@ func All() []Entry {
 		{Name: ipurl.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.IPURL.Enabled }, APIKey: noKey, NewClient: ipurl.NewProviderClient, SupportsRating: true},
 		{Name: icloudpr.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.ICloudPR.Enabled }, APIKey: noKey, NewClient: icloudpr.NewProviderClient, SupportsRating: true},
 		{Name: linode.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Linode.Enabled }, APIKey: noKey, NewClient: linode.NewProviderClient, SupportsRating: true},
-		{Name: m247.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.M247.Enabled }, APIKey: noKey, NewClient: m247.NewProviderClient, SupportsRating: false},
+		{Name: m247.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.M247.Enabled }, APIKey: noKey, NewClient: m247.NewProviderClient, SupportsRating: true},
 		{Name: ovh.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.OVH.Enabled }, APIKey: noKey, NewClient: ovh.NewProviderClient, SupportsRating: true},
-		{Name: scaleway.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Scaleway.Enabled }, APIKey: noKey, NewClient: scaleway.NewProviderClient, SupportsRating: false},
+		{Name: scaleway.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Scaleway.Enabled }, APIKey: noKey, NewClient: scaleway.NewProviderClient, SupportsRating: true},
 		{Name: ptr.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.PTR.Enabled }, APIKey: noKey, NewClient: ptr.NewProviderClient, SupportsRating: false},
 		{Name: shodan.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Shodan.Enabled }, APIKey: func(s session.Session) string { return s.Providers.Shodan.APIKey }, NewClient: shodan.NewProviderClient, SupportsRating: true},
 		{Name: virustotal.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.VirusTotal.Enabled }, APIKey: func(s session.Session) string { return s.Providers.VirusTotal.APIKey }, NewClient: virustotal.NewProviderClient, SupportsRating: true},
-		{Name: vultr.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Vultr.Enabled }, APIKey: noKey, NewClient: vultr.NewProviderClient, SupportsRating: false},
+		{Name: vultr.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Vultr.Enabled }, APIKey: noKey, NewClient: vultr.NewProviderClient, SupportsRating: true},
 		{Name: zscaler.ProviderName, Enabled: func(s session.Session) *bool { return s.Providers.Zscaler.Enabled }, APIKey: noKey, NewClient: zscaler.NewProviderClient, SupportsRating: true},
 	}
 }

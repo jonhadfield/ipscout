@@ -23,3 +23,17 @@ func TestLoadDefaultConfig(t *testing.T) {
 	require.Equal(t, float64(1), ratingConfig.ProviderRatingsConfigs.Googlebot.DefaultMatchScore)
 	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.Linode.DefaultMatchScore)
 }
+
+// TestDefaultConfigHostingProviderScores verifies that the hosting providers
+// whose rating was newly activated are present in the embedded default config
+// with a non-zero match score, so that `ipscout rate` actually scores matches
+// instead of silently producing a zero score.
+func TestDefaultConfigHostingProviderScores(t *testing.T) {
+	var ratingConfig providers.RatingConfig
+
+	require.NoError(t, json.Unmarshal([]byte(DefaultRatingConfigJSON), &ratingConfig))
+	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.Alibaba.DefaultMatchScore)
+	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.M247.DefaultMatchScore)
+	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.Scaleway.DefaultMatchScore)
+	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.Vultr.DefaultMatchScore)
+}
