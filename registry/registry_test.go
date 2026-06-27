@@ -126,7 +126,7 @@ func TestSupportsRatingFlags(t *testing.T) {
 		"vultr":      true,
 		"ptr":        false,
 		"M247":       true,
-		"googlesc":   false,
+		"googlesc":   true,
 		"aws":        true,
 		"virustotal": true,
 	}
@@ -147,6 +147,28 @@ func TestSupportsRatingFlags(t *testing.T) {
 		if actual != expected {
 			t.Errorf("provider %q SupportsRating = %v, want %v", name, actual, expected)
 		}
+	}
+}
+
+// TestEveryEntryHasDisplayName guards the registry-driven `ipscout config`
+// output: a provider without a DisplayName would render with a blank header,
+// so every entry must supply one. This is the guardrail that prevents
+// providers from being silently omitted from the config display.
+func TestEveryEntryHasDisplayName(t *testing.T) {
+	t.Parallel()
+
+	seen := make(map[string]bool)
+
+	for _, e := range All() {
+		if e.DisplayName == "" {
+			t.Errorf("provider %q has an empty DisplayName", e.Name)
+		}
+
+		if seen[e.DisplayName] {
+			t.Errorf("duplicate DisplayName %q", e.DisplayName)
+		}
+
+		seen[e.DisplayName] = true
 	}
 }
 

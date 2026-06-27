@@ -16,10 +16,11 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/present"
+	"github.com/jonhadfield/ipscout/providers/annotated"
+	"github.com/jonhadfield/ipscout/providers/ipurl"
+	"github.com/jonhadfield/ipscout/registry"
 	"github.com/jonhadfield/ipscout/session"
 )
-
-const indentSpaces = 2
 
 type Client struct {
 	Sess *session.Session
@@ -47,259 +48,44 @@ func (c *Client) CreateConfigTable() (*table.Writer, error) {
 	tw.AppendRow(table.Row{color.WhiteString("%sopenai_api_key", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces)), openAIAPIKeyDefinedOutput})
 
 	tw.AppendRow(table.Row{color.HiYellowString("Providers")})
-	// abuseipdb
-	tw.AppendRow(table.Row{color.HiCyanString("%sAbuseIPDB", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
 
-	abuseipdbEnabled := false
-	if c.Sess.Providers.AbuseIPDB.Enabled != nil {
-		abuseipdbEnabled = *c.Sess.Providers.AbuseIPDB.Enabled
-	}
+	providerIndent := strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces)
+	fieldIndent := strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), abuseipdbEnabled})
+	// Render every registered provider from the registry so new providers
+	// appear here automatically and can never be silently omitted.
+	for _, entry := range registry.All() {
+		tw.AppendRow(table.Row{color.HiCyanString("%s%s", providerIndent, entry.DisplayName)})
 
-	// alibaba
-	tw.AppendRow(table.Row{color.HiCyanString("%sAlibaba", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	alibabaEnabled := false
-	if c.Sess.Providers.Alibaba.Enabled != nil {
-		alibabaEnabled = *c.Sess.Providers.Alibaba.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), alibabaEnabled})
-
-	// annotated
-
-	tw.AppendRow(table.Row{color.HiCyanString("%sAnnotated", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	annotatedEnabled := false
-	if c.Sess.Providers.Annotated.Enabled != nil {
-		annotatedEnabled = *c.Sess.Providers.Annotated.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), annotatedEnabled})
-
-	for x, path := range c.Sess.Providers.Annotated.Paths {
-		var pathsTitle string
-		if x == 0 {
-			pathsTitle = "paths"
+		enabled := false
+		if e := entry.Enabled(*c.Sess); e != nil {
+			enabled = *e
 		}
 
-		tw.AppendRow(table.Row{color.WhiteString("%s%s", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces), pathsTitle), path})
-	}
+		tw.AppendRow(table.Row{color.WhiteString("%senabled", fieldIndent), enabled})
 
-	// aws
-	tw.AppendRow(table.Row{color.HiCyanString("%sAWS", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
+		// A few providers have additional list fields worth displaying.
+		switch entry.Name {
+		case annotated.ProviderName:
+			for x, path := range c.Sess.Providers.Annotated.Paths {
+				var title string
+				if x == 0 {
+					title = "paths"
+				}
 
-	awsEnabled := false
-	if c.Sess.Providers.AWS.Enabled != nil {
-		awsEnabled = *c.Sess.Providers.AWS.Enabled
-	}
+				tw.AppendRow(table.Row{color.WhiteString("%s%s", fieldIndent, title), path})
+			}
+		case ipurl.ProviderName:
+			for x, url := range c.Sess.Providers.IPURL.URLs {
+				var title string
+				if x == 0 {
+					title = "urls"
+				}
 
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), awsEnabled})
-
-	// azure
-	tw.AppendRow(table.Row{color.HiCyanString("%sAzure", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	azureEnabled := false
-	if c.Sess.Providers.Azure.Enabled != nil {
-		azureEnabled = *c.Sess.Providers.Azure.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), azureEnabled})
-
-	// criminalip
-	tw.AppendRow(table.Row{color.HiCyanString("%sCriminalIP", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	criminalipEnabled := false
-	if c.Sess.Providers.CriminalIP.Enabled != nil {
-		criminalipEnabled = *c.Sess.Providers.CriminalIP.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), criminalipEnabled})
-
-	// digitalocean
-	tw.AppendRow(table.Row{color.HiCyanString("%sDigitalocean", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	digitaloceanEnabled := false
-	if c.Sess.Providers.DigitalOcean.Enabled != nil {
-		digitaloceanEnabled = *c.Sess.Providers.DigitalOcean.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), digitaloceanEnabled})
-
-	// gcp
-	tw.AppendRow(table.Row{color.HiCyanString("%sGCP", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	gcpEnabled := false
-	if c.Sess.Providers.GCP.Enabled != nil {
-		gcpEnabled = *c.Sess.Providers.GCP.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), gcpEnabled})
-
-	// google
-	tw.AppendRow(table.Row{color.HiCyanString("%sGoogle", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	googleEnabled := false
-	if c.Sess.Providers.Google.Enabled != nil {
-		googleEnabled = *c.Sess.Providers.Google.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), googleEnabled})
-
-	// googlebot
-	tw.AppendRow(table.Row{color.HiCyanString("%sGooglebot", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	googlebotEnabled := false
-	if c.Sess.Providers.Googlebot.Enabled != nil {
-		googlebotEnabled = *c.Sess.Providers.Googlebot.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), googlebotEnabled})
-
-	// hetzner
-	tw.AppendRow(table.Row{color.HiCyanString("%sHetzner", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	hetznerEnabled := false
-	if c.Sess.Providers.Hetzner.Enabled != nil {
-		hetznerEnabled = *c.Sess.Providers.Hetzner.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), hetznerEnabled})
-
-	// iCloud Private Relay
-	tw.AppendRow(table.Row{color.HiCyanString("%siCloud Private Relay", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	icloudPREnabled := false
-	if c.Sess.Providers.ICloudPR.Enabled != nil {
-		icloudPREnabled = *c.Sess.Providers.ICloudPR.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), icloudPREnabled})
-
-	// ipapi
-	tw.AppendRow(table.Row{color.HiCyanString("%sIPAPI", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	ipapiEnabled := false
-	if c.Sess.Providers.IPAPI.Enabled != nil {
-		ipapiEnabled = *c.Sess.Providers.IPAPI.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), ipapiEnabled})
-
-	// IPURL
-	tw.AppendRow(table.Row{color.HiCyanString("%sIPURL", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	ipurlEnabled := false
-	if c.Sess.Providers.IPURL.Enabled != nil {
-		ipurlEnabled = *c.Sess.Providers.IPURL.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), ipurlEnabled})
-
-	for x, url := range c.Sess.Providers.IPURL.URLs {
-		var urlsTitle string
-
-		if x == 0 {
-			urlsTitle = "urls"
+				tw.AppendRow(table.Row{color.WhiteString("%s%s", fieldIndent, title), url})
+			}
 		}
-
-		tw.AppendRow(table.Row{color.WhiteString("%s%s", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces), urlsTitle), url})
 	}
-
-	// linode
-	tw.AppendRow(table.Row{color.HiCyanString("%sLinode", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	linodeEnabled := false
-
-	if c.Sess.Providers.Linode.Enabled != nil {
-		linodeEnabled = *c.Sess.Providers.Linode.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), linodeEnabled})
-
-	// m247
-	tw.AppendRow(table.Row{color.HiCyanString("%sM247", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	m247Enabled := false
-
-	if c.Sess.Providers.M247.Enabled != nil {
-		m247Enabled = *c.Sess.Providers.M247.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), m247Enabled})
-
-	// ovh
-	tw.AppendRow(table.Row{color.HiCyanString("%sOVH", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	ovhEnabled := false
-
-	if c.Sess.Providers.OVH.Enabled != nil {
-		ovhEnabled = *c.Sess.Providers.OVH.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), ovhEnabled})
-
-	// ptr
-	tw.AppendRow(table.Row{color.HiCyanString("%sPTR", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	ptrEnabled := false
-	if c.Sess.Providers.PTR.Enabled != nil {
-		ptrEnabled = *c.Sess.Providers.PTR.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), ptrEnabled})
-
-	// scaleway
-	tw.AppendRow(table.Row{color.HiCyanString("%sScaleway", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	scalewayEnabled := false
-	if c.Sess.Providers.Scaleway.Enabled != nil {
-		scalewayEnabled = *c.Sess.Providers.Scaleway.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), scalewayEnabled})
-
-	// shodan
-	tw.AppendRow(table.Row{color.HiCyanString("%sShodan", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	shodanEnabled := false
-	if c.Sess.Providers.Shodan.Enabled != nil {
-		shodanEnabled = *c.Sess.Providers.Shodan.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), shodanEnabled})
-
-	// virustotal
-	tw.AppendRow(table.Row{color.HiCyanString("%sVirusTotal", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	virustotalEnabled := false
-	if c.Sess.Providers.VirusTotal.Enabled != nil {
-		virustotalEnabled = *c.Sess.Providers.VirusTotal.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), virustotalEnabled})
-
-	// vultr
-	tw.AppendRow(table.Row{color.HiCyanString("%sVultr", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	vultrEnabled := false
-	if c.Sess.Providers.Vultr.Enabled != nil {
-		vultrEnabled = *c.Sess.Providers.Vultr.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", providers.IndentSpaces*c.Sess.Config.Global.IndentSpaces)), vultrEnabled})
-
-	// zscaler
-	tw.AppendRow(table.Row{color.HiCyanString("%sZscaler", strings.Repeat(" ", c.Sess.Config.Global.IndentSpaces))})
-
-	zscalerEnabled := false
-
-	if c.Sess.Providers.Zscaler.Enabled != nil {
-		zscalerEnabled = *c.Sess.Providers.Zscaler.Enabled
-	}
-
-	tw.AppendRow(table.Row{color.WhiteString("%senabled", strings.Repeat(" ", indentSpaces*c.Sess.Config.Global.IndentSpaces)), zscalerEnabled})
 
 	// end
 	tw.SetColumnConfigs([]table.ColumnConfig{
