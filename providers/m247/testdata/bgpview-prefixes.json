@@ -1,1 +1,19 @@
-{"status":"ok","status_message":"Query was successful","data":{"ipv4_prefixes":[{"prefix":"5.102.113.0/24","ip":"5.102.113.0","cidr":24,"roa_status":"Valid","name":"M247","description":"M247 Europe SRL","country_code":"GB","parent":{"prefix":"5.102.113.0/24","ip":"5.102.113.0","cidr":24,"rir_name":"RIPE","allocation_status":"allocated"}}],"ipv6_prefixes":[]},"@meta":{"time_zone":"UTC","api_version":1,"execution_time":"53.15 ms"}}
+{
+  "status": "ok",
+  "status_code": 200,
+  "data": {
+    "prefixes": [
+      {
+        "prefix": "5.102.113.0/24",
+        "timelines": [
+          {
+            "starttime": "2020-01-01T00:00:00",
+            "endtime": "2026-01-01T00:00:00"
+          }
+        ]
+      }
+    ],
+    "query_time": "2026-01-01T00:00:00",
+    "resource": "AS0"
+  }
+}

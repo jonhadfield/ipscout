@@ -58,27 +58,39 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Alibaba Cloud](#Alibaba-Cloud)                           | Hosting Provider |           -           |
 | [Annotated](#Annotated)                                   |  User Provided   |           -           |
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
+| [Atlassian](#Atlassian)                                   |       SaaS       |           -           |
 | [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |
 | [Azure](#Azure)                                           | Hosting Provider |           -           |
 | [Azure WAF](#Azure-WAF)                                   |       WAF        | Azure access required |
 | [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
+| [Bunny CDN](#Bunny-CDN)                                   |       CDN        |           -           |
+| [CDN77](#CDN77)                                           |       CDN        |           -           |
+| [Contabo](#Contabo)                                       | Hosting Provider |           -           |
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
+| [Datadog](#Datadog)                                       |       SaaS       |           -           |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
+| [Fly.io](#Flyio)                                          | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
 | [Google](#Google)                                         | Hosting Provider |           -           |
 | [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
 | [Googlebot](#Googlebot)                                   |   Web crawler    |           -           |
 | [Hetzner](#Hetzner)                                       | Hosting Provider |           -           |
+| [IBM Cloud](#IBM-Cloud)                                   | Hosting Provider |           -           |
+| [Imperva](#Imperva)                                       |       WAF        |           -           |
 | [IPAPI](#IPAPI)                                           |  IP Geolocation  |           -           |
 | [IPQualityScore](#IPQualityScore)                         |  IP Reputation   | Registration required |
 | [IPURL](#IPURL)                                           |  User Provided   |           -           |
+| [Leaseweb](#Leaseweb)                                     | Hosting Provider |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [M247](#M247)                                             | Hosting Provider |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
+| [Render](#Render)                                         | Hosting Provider |           -           |
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
 | [Vultr](#Vultr)                                           | Hosting Provider |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
+| [Stripe](#Stripe)                                         |       SaaS       |           -           |
+| [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
 
@@ -385,6 +397,78 @@ can be overridden in the configuration file.
     url: https://api.config.zscaler.com/zscaler.net/cenr/json
     document_cache_ttl: 1440  # minutes
 ```
+
+### Atlassian
+
+[Atlassian](https://www.atlassian.com/) publishes the IP ranges used by its
+cloud products (Jira, Confluence, Bitbucket and others). IPScout downloads this
+list and checks whether the target IP is within those ranges.
+
+### Bunny CDN
+
+[Bunny CDN](https://bunny.net/) is a content delivery network that publishes the
+IP ranges used by its edge servers. IPScout downloads this list and checks
+whether the target IP is within those ranges.
+
+### CDN77
+
+[CDN77](https://www.cdn77.com/) is a content delivery network that publishes the
+prefixes used by its edge network. IPScout downloads this list and checks
+whether the target IP is within those ranges.
+
+### Contabo
+
+[Contabo](https://contabo.com/) is a hosting provider.
+IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
+against the target host.
+
+### Datadog
+
+[Datadog](https://www.datadoghq.com/) is an observability platform that
+publishes the IP ranges used by its services. IPScout downloads this list and
+checks whether the target IP is within those ranges.
+
+### Fly.io
+
+[Fly.io](https://fly.io/) is an application hosting provider.
+IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
+against the target host.
+
+### IBM Cloud
+
+[IBM Cloud](https://www.ibm.com/cloud) is a hosting provider.
+IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
+against the target host.
+
+### Imperva
+
+[Imperva](https://www.imperva.com/) (Incapsula) is a web application firewall and
+CDN that publishes the IP ranges used by its network. IPScout downloads this list
+and checks whether the target IP is within those ranges.
+
+### Leaseweb
+
+[Leaseweb](https://www.leaseweb.com/) is a hosting provider.
+IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
+against the target host.
+
+### Render
+
+[Render](https://render.com/) is an application hosting provider.
+IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
+against the target host.
+
+### Stripe
+
+[Stripe](https://stripe.com/) publishes the IP ranges used by its API and webhook
+infrastructure. IPScout downloads this list and checks whether the target IP is
+within those ranges.
+
+### Tencent Cloud
+
+[Tencent Cloud](https://www.tencentcloud.com/) is a hosting provider.
+IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
+against the target host.
 
 ## Changelog
 
