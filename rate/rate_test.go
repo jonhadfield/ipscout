@@ -36,4 +36,5 @@ func TestDefaultConfigHostingProviderScores(t *testing.T) {
 	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.M247.DefaultMatchScore)
 	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.Scaleway.DefaultMatchScore)
 	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.Vultr.DefaultMatchScore)
+	require.Equal(t, float64(1), ratingConfig.ProviderRatingsConfigs.GoogleSC.DefaultMatchScore)
 }
