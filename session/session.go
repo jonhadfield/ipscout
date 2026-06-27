@@ -311,6 +311,66 @@ type Providers struct {
 		URL              string `mapstructure:"url"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"zscaler"`
+	Atlassian struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"atlassian"`
+	Bunny struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"bunny"`
+	CDN77 struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"cdn77"`
+	Contabo struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"contabo"`
+	Datadog struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"datadog"`
+	Flyio struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"flyio"`
+	IBMCloud struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"ibmcloud"`
+	Imperva struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"imperva"`
+	Leaseweb struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"leaseweb"`
+	Render struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"render"`
+	Stripe struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"stripe"`
+	Tencent struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"tencent"`
 }
 
 func unmarshalConfig(data []byte) (*Session, error) {

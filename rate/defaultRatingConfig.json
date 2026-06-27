@@ -104,6 +104,42 @@
     },
     "zscaler": {
       "defaultMatchScore": 4.0
+    },
+    "atlassian": {
+      "defaultMatchScore": 3.0
+    },
+    "bunny": {
+      "defaultMatchScore": 5.0
+    },
+    "cdn77": {
+      "defaultMatchScore": 5.0
+    },
+    "contabo": {
+      "defaultMatchScore": 8.0
+    },
+    "datadog": {
+      "defaultMatchScore": 3.0
+    },
+    "flyio": {
+      "defaultMatchScore": 8.0
+    },
+    "ibmcloud": {
+      "defaultMatchScore": 8.0
+    },
+    "imperva": {
+      "defaultMatchScore": 5.0
+    },
+    "leaseweb": {
+      "defaultMatchScore": 8.0
+    },
+    "render": {
+      "defaultMatchScore": 8.0
+    },
+    "stripe": {
+      "defaultMatchScore": 3.0
+    },
+    "tencent": {
+      "defaultMatchScore": 8.0
     }
   }
 }

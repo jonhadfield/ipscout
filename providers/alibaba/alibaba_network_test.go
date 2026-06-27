@@ -43,7 +43,7 @@ func mockHTTPClient(status int, body []byte) *retryablehttp.Client {
 }
 
 // newMockedClient wires a ProviderClient to a mocked HTTP client serving the
-// upstream BGPView fixture (the primary bgpview source), plus a real temp
+// upstream RIPE stat fixture (the primary bgpview source), plus a real temp
 // cache, with UseTestData off.
 func newMockedClient(t *testing.T, status int, body []byte) *ProviderClient {
 	t.Helper()
@@ -77,7 +77,7 @@ func TestInitialiseAndFindHostOverNetwork(t *testing.T) {
 	c := newMockedClient(t, http.StatusOK, body)
 
 	// Initialise on an empty cache triggers loadProviderData -> ip-fetcher Fetch
-	// (BGPView first), served by the mock transport, then caches the parsed Doc.
+	// (RIPE stat first), served by the mock transport, then caches the parsed Doc.
 	require.NoError(t, c.Initialise())
 
 	// FindHost reads the now-populated cache and matches the host to a prefix.

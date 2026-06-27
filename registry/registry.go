@@ -5,27 +5,39 @@ import (
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
 	"github.com/jonhadfield/ipscout/providers/alibaba"
 	"github.com/jonhadfield/ipscout/providers/annotated"
+	"github.com/jonhadfield/ipscout/providers/atlassian"
 	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/providers/azure"
 	"github.com/jonhadfield/ipscout/providers/azurewaf"
 	"github.com/jonhadfield/ipscout/providers/bingbot"
+	"github.com/jonhadfield/ipscout/providers/bunny"
+	"github.com/jonhadfield/ipscout/providers/cdn77"
+	"github.com/jonhadfield/ipscout/providers/contabo"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
+	"github.com/jonhadfield/ipscout/providers/datadog"
 	"github.com/jonhadfield/ipscout/providers/digitalocean"
+	"github.com/jonhadfield/ipscout/providers/flyio"
 	"github.com/jonhadfield/ipscout/providers/gcp"
 	"github.com/jonhadfield/ipscout/providers/google"
 	"github.com/jonhadfield/ipscout/providers/googlebot"
 	"github.com/jonhadfield/ipscout/providers/googlesc"
 	"github.com/jonhadfield/ipscout/providers/hetzner"
+	"github.com/jonhadfield/ipscout/providers/ibmcloud"
 	"github.com/jonhadfield/ipscout/providers/icloudpr"
+	"github.com/jonhadfield/ipscout/providers/imperva"
 	"github.com/jonhadfield/ipscout/providers/ipapi"
 	"github.com/jonhadfield/ipscout/providers/ipqs"
 	"github.com/jonhadfield/ipscout/providers/ipurl"
+	"github.com/jonhadfield/ipscout/providers/leaseweb"
 	"github.com/jonhadfield/ipscout/providers/linode"
 	"github.com/jonhadfield/ipscout/providers/m247"
 	"github.com/jonhadfield/ipscout/providers/ovh"
 	"github.com/jonhadfield/ipscout/providers/ptr"
+	"github.com/jonhadfield/ipscout/providers/render"
 	"github.com/jonhadfield/ipscout/providers/scaleway"
 	"github.com/jonhadfield/ipscout/providers/shodan"
+	"github.com/jonhadfield/ipscout/providers/stripe"
+	"github.com/jonhadfield/ipscout/providers/tencent"
 	"github.com/jonhadfield/ipscout/providers/virustotal"
 	"github.com/jonhadfield/ipscout/providers/vultr"
 	"github.com/jonhadfield/ipscout/providers/zscaler"
@@ -74,6 +86,18 @@ func All() []Entry {
 		{Name: virustotal.ProviderName, DisplayName: "VirusTotal", Enabled: func(s session.Session) *bool { return s.Providers.VirusTotal.Enabled }, APIKey: func(s session.Session) string { return s.Providers.VirusTotal.APIKey }, NewClient: virustotal.NewProviderClient, SupportsRating: true},
 		{Name: vultr.ProviderName, DisplayName: "Vultr", Enabled: func(s session.Session) *bool { return s.Providers.Vultr.Enabled }, APIKey: noKey, NewClient: vultr.NewProviderClient, SupportsRating: true},
 		{Name: zscaler.ProviderName, DisplayName: "Zscaler", Enabled: func(s session.Session) *bool { return s.Providers.Zscaler.Enabled }, APIKey: noKey, NewClient: zscaler.NewProviderClient, SupportsRating: true},
+		{Name: atlassian.ProviderName, DisplayName: "Atlassian", Enabled: func(s session.Session) *bool { return s.Providers.Atlassian.Enabled }, APIKey: noKey, NewClient: atlassian.NewProviderClient, SupportsRating: true},
+		{Name: bunny.ProviderName, DisplayName: "Bunny CDN", Enabled: func(s session.Session) *bool { return s.Providers.Bunny.Enabled }, APIKey: noKey, NewClient: bunny.NewProviderClient, SupportsRating: true},
+		{Name: cdn77.ProviderName, DisplayName: "CDN77", Enabled: func(s session.Session) *bool { return s.Providers.CDN77.Enabled }, APIKey: noKey, NewClient: cdn77.NewProviderClient, SupportsRating: true},
+		{Name: contabo.ProviderName, DisplayName: "Contabo", Enabled: func(s session.Session) *bool { return s.Providers.Contabo.Enabled }, APIKey: noKey, NewClient: contabo.NewProviderClient, SupportsRating: true},
+		{Name: datadog.ProviderName, DisplayName: "Datadog", Enabled: func(s session.Session) *bool { return s.Providers.Datadog.Enabled }, APIKey: noKey, NewClient: datadog.NewProviderClient, SupportsRating: true},
+		{Name: flyio.ProviderName, DisplayName: "Fly.io", Enabled: func(s session.Session) *bool { return s.Providers.Flyio.Enabled }, APIKey: noKey, NewClient: flyio.NewProviderClient, SupportsRating: true},
+		{Name: ibmcloud.ProviderName, DisplayName: "IBM Cloud", Enabled: func(s session.Session) *bool { return s.Providers.IBMCloud.Enabled }, APIKey: noKey, NewClient: ibmcloud.NewProviderClient, SupportsRating: true},
+		{Name: imperva.ProviderName, DisplayName: "Imperva", Enabled: func(s session.Session) *bool { return s.Providers.Imperva.Enabled }, APIKey: noKey, NewClient: imperva.NewProviderClient, SupportsRating: true},
+		{Name: leaseweb.ProviderName, DisplayName: "Leaseweb", Enabled: func(s session.Session) *bool { return s.Providers.Leaseweb.Enabled }, APIKey: noKey, NewClient: leaseweb.NewProviderClient, SupportsRating: true},
+		{Name: render.ProviderName, DisplayName: "Render", Enabled: func(s session.Session) *bool { return s.Providers.Render.Enabled }, APIKey: noKey, NewClient: render.NewProviderClient, SupportsRating: true},
+		{Name: stripe.ProviderName, DisplayName: "Stripe", Enabled: func(s session.Session) *bool { return s.Providers.Stripe.Enabled }, APIKey: noKey, NewClient: stripe.NewProviderClient, SupportsRating: true},
+		{Name: tencent.ProviderName, DisplayName: "Tencent Cloud", Enabled: func(s session.Session) *bool { return s.Providers.Tencent.Enabled }, APIKey: noKey, NewClient: tencent.NewProviderClient, SupportsRating: true},
 	}
 }
 

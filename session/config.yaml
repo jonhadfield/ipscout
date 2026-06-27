@@ -88,3 +88,27 @@ providers:
     enabled: true
   zscaler:
     enabled: true
+  atlassian:
+    enabled: true
+  bunny:
+    enabled: true
+  cdn77:
+    enabled: true
+  contabo:
+    enabled: true
+  datadog:
+    enabled: true
+  flyio:
+    enabled: true
+  ibmcloud:
+    enabled: true
+  imperva:
+    enabled: true
+  leaseweb:
+    enabled: true
+  render:
+    enabled: true
+  stripe:
+    enabled: true
+  tencent:
+    enabled: true
