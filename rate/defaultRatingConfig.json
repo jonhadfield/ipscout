@@ -35,6 +35,9 @@
     ]
   },
   "providers": {
+    "alibaba": {
+      "defaultMatchScore": 8.0
+    },
     "aws": {
       "defaultMatchScore": 7.0
     },
@@ -75,7 +78,13 @@
     "linode": {
       "defaultMatchScore": 8.0
     },
+    "m247": {
+      "defaultMatchScore": 8.0
+    },
     "ovh": {
+      "defaultMatchScore": 8.0
+    },
+    "scaleway": {
       "defaultMatchScore": 8.0
     },
     "shodan": {
@@ -86,6 +95,9 @@
     "virusTotal": {
       "suspiciousScore": 7.0,
       "maliciousScore": 10.0
+    },
+    "vultr": {
+      "defaultMatchScore": 8.0
     },
     "zscaler": {
       "defaultMatchScore": 4.0

@@ -55,6 +55,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | Provider                                                  |     Category     |         Notes         |
 |:----------------------------------------------------------|:----------------:|:---------------------:|
 | [AbuseIPDB](#AbuseIPDB)                                   |  IP Reputation   | Registration required |
+| [Alibaba Cloud](#Alibaba-Cloud)                           | Hosting Provider |           -           |
 | [Annotated](#Annotated)                                   |  User Provided   |           -           |
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
 | [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |
@@ -72,6 +73,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [IPQualityScore](#IPQualityScore)                         |  IP Reputation   | Registration required |
 | [IPURL](#IPURL)                                           |  User Provided   |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
+| [M247](#M247)                                             | Hosting Provider |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
@@ -167,6 +169,11 @@ providers:
   abuseipdb:
     enabled: false
 ```
+
+### Alibaba Cloud
+
+[Alibaba Cloud](https://www.alibabacloud.com/) is a hosting provider.
+IP ranges are retrieved from the BGPView API and checked for matches against the target host.
 
 ### Annotated
 
@@ -313,6 +320,11 @@ Prefixes
 
 [Linode](https://www.linode.com/) is a hosting provider
 that [publishes](https://geoip.linode.com/) network prefixes used by their services.
+
+### M247
+
+[M247](https://www.m247.com/) is a global hosting and connectivity provider.
+IP ranges are retrieved from the BGPView API and checked for matches against the target host.
 
 ### OVH
 
