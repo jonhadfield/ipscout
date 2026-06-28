@@ -83,8 +83,15 @@ func getEnabledProviders(runners map[string]providers.ProviderClient) map[string
 	return res
 }
 
+// ChatCompleter is the subset of the OpenAI client used for AI rating. It lets
+// the completion backend be injected so the rating flow can be tested offline.
+type ChatCompleter interface {
+	CreateChatCompletion(context.Context, openai.ChatCompletionRequest) (openai.ChatCompletionResponse, error)
+}
+
 type Rater struct {
-	Session *session.Session
+	Session  *session.Session
+	AIClient ChatCompleter
 }
 
 func GetRatingConfig(path string) ([]byte, error) {
@@ -213,7 +220,10 @@ func aiRate(r *Rater, enabledProviders map[string]providers.ProviderClient, resu
 		},
 	})
 
-	client := openai.NewClient(r.Session.Config.Rating.OpenAIAPIKey)
+	client := r.AIClient
+	if client == nil {
+		client = openai.NewClient(r.Session.Config.Rating.OpenAIAPIKey)
+	}
 
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
@@ -557,7 +567,8 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 
 func New(sess *session.Session) (Rater, error) {
 	p := Rater{
-		Session: sess,
+		Session:  sess,
+		AIClient: openai.NewClient(sess.Config.Rating.OpenAIAPIKey),
 	}
 
 	return p, nil
