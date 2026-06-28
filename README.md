@@ -126,6 +126,15 @@ go build ./...
 
 This will create an `ipscout` binary in the current directory.
 
+### Updating the ip-fetcher dependency
+
+Most providers source their IP-range data via [`ip-fetcher`](https://github.com/jonhadfield/ip-fetcher). It is pinned in `go.mod` to a `v`-prefixed release tag — that released module, not a local checkout, is the source of truth for upstream data formats. To pick up changes:
+
+1. Cut a new `v`-prefixed release tag in the ip-fetcher repo (e.g. `v0.0.17`).
+2. In this repo: `go get github.com/jonhadfield/ip-fetcher@vX.Y.Z && go mod tidy`.
+
+The commented `replace` directive in `go.mod` is for local development only and must never be committed enabled.
+
 ## Usage
 
 ```shell
