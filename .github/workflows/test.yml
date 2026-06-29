@@ -32,7 +32,7 @@ jobs:
         # coverage improves so it can only move up. Linux-only to avoid duplication.
         if: runner.os == 'Linux'
         env:
-          MIN_COVERAGE: "55.0"
+          MIN_COVERAGE: "59.0"
         run: |
           total=$(go tool cover -func=cover.out | awk '/^total:/ {gsub(/%/,"",$3); print $3}')
           echo "total coverage: ${total}% (minimum: ${MIN_COVERAGE}%)"
