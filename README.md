@@ -83,6 +83,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Leaseweb](#Leaseweb)                                     | Hosting Provider |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [M247](#M247)                                             | Hosting Provider |           -           |
+| [OpenAI](#OpenAI)                                         |   Web crawler    |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Render](#Render)                                         | Hosting Provider |           -           |
@@ -346,6 +347,12 @@ that [publishes](https://geoip.linode.com/) network prefixes used by their servi
 
 [M247](https://www.m247.com/) is a global hosting and connectivity provider.
 IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+
+### OpenAI
+
+[OpenAI](https://platform.openai.com/docs/bots) operates a number of bots and publishes the network prefixes they crawl
+and browse from: [GPTBot](https://openai.com/gptbot.json), [OAI-SearchBot](https://openai.com/searchbot.json)
+and [ChatGPT-User](https://openai.com/chatgpt-user.json). A match shows which of the bots' lists contain the target host.
 
 ### OVH
 

@@ -37,6 +37,7 @@ func TestDefaultConfigHostingProviderScores(t *testing.T) {
 	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.Scaleway.DefaultMatchScore)
 	require.Equal(t, float64(8), ratingConfig.ProviderRatingsConfigs.Vultr.DefaultMatchScore)
 	require.Equal(t, float64(1), ratingConfig.ProviderRatingsConfigs.GoogleSC.DefaultMatchScore)
+	require.Equal(t, float64(1), ratingConfig.ProviderRatingsConfigs.OpenAI.DefaultMatchScore)
 }
 
 // TestDefaultConfigNewIPFetcherProviderScores verifies the providers added from

@@ -271,6 +271,14 @@ type Providers struct {
 		URL              string `mapstructure:"url"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"ovh"`
+	OpenAI struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		GPTBotURL        string `mapstructure:"gptbot_url"`
+		SearchBotURL     string `mapstructure:"searchbot_url"`
+		ChatGPTUserURL   string `mapstructure:"chatgpt_user_url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"openai"`
 	Scaleway struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`

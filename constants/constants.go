@@ -35,6 +35,8 @@ const DefaultGoogleSCOutputPriority = 190
 
 const DefaultHetznerOutputPriority = 70
 
+const DefaultOpenAIOutputPriority = 190
+
 const DefaultiCloudPROutputPriority = 100
 
 const DefaultIPAPIOutputPriority = 90

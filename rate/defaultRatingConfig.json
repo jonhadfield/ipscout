@@ -84,6 +84,9 @@
     "m247": {
       "defaultMatchScore": 8.0
     },
+    "openai": {
+      "defaultMatchScore": 1.0
+    },
     "ovh": {
       "defaultMatchScore": 8.0
     },

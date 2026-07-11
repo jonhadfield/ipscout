@@ -83,6 +83,7 @@ const (
 	providerICloudPR     = "icloudpr"
 	providerLinode       = "linode"
 	providerM247         = "m247"
+	providerOpenAI       = "openai"
 	providerOVH          = "ovh"
 	providerScaleway     = "scaleway"
 	providerVultr        = "vultr"
@@ -112,6 +113,7 @@ var providerIcons = map[string]string{
 	providerICloudPR:     emojiLaptop,
 	providerLinode:       emojiCloud,
 	providerM247:         emojiCloud,
+	providerOpenAI:       emojiInvader,
 	providerOVH:          emojiCloud,
 	providerScaleway:     emojiCloud,
 	providerVultr:        emojiCloud,
@@ -362,12 +364,13 @@ func OpenUI() error {
 		providerICloudPR:     fetchICloudPR,
 		providerLinode:       fetchLinode,
 		providerM247:         fetchM247,
+		providerOpenAI:       fetchOpenAI,
 		providerOVH:          fetchOVH,
 		providerScaleway:     fetchScaleway,
 		providerVultr:        fetchVultr,
 		providerZscaler:      fetchZscaler,
 	}
-	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerCriminalIP, providerDigitalOcean, providerGCP, providerGoogle, providerGoogleSC, providerICloudPR, providerLinode, providerM247, providerOVH, providerScaleway, providerVultr, providerZscaler}
+	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerCriminalIP, providerDigitalOcean, providerGCP, providerGoogle, providerGoogleSC, providerICloudPR, providerLinode, providerM247, providerOpenAI, providerOVH, providerScaleway, providerVultr, providerZscaler}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()
