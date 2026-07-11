@@ -25,6 +25,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/ipapi"
 	"github.com/jonhadfield/ipscout/providers/ipqs"
 	"github.com/jonhadfield/ipscout/providers/ipurl"
+	"github.com/jonhadfield/ipscout/providers/openai"
 	"github.com/jonhadfield/ipscout/providers/virustotal"
 
 	"github.com/jonhadfield/ipscout/cache"
@@ -106,6 +107,13 @@ func getProviderClient(sess *session.Session, providerName string) (providers.Pr
 			pc, err = googlebot.NewProviderClient(*sess)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create Googlebot client: %w", err)
+			}
+		}
+	case openai.ProviderName:
+		if *sess.Providers.OpenAI.Enabled {
+			pc, err = openai.NewProviderClient(*sess)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create OpenAI client: %w", err)
 			}
 		}
 	case hetzner.ProviderName:

@@ -542,6 +542,24 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	sess.Providers.M247.DocumentCacheTTL = v.GetInt64("providers.m247.document_cache_ttl")
 	sess.Providers.M247.URL = v.GetString("providers.m247.url")
 
+	// OpenAI
+	if v.IsSet("providers.openai.enabled") {
+		sess.Providers.OpenAI.Enabled = ToPtr(v.GetBool("providers.openai.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "OpenAI")
+	}
+
+	if v.IsSet("providers.openai.output_priority") {
+		sess.Providers.OpenAI.OutputPriority = ToPtr(v.GetInt32("providers.openai.output_priority"))
+	} else {
+		sess.Providers.OpenAI.OutputPriority = ToPtr(int32(c.DefaultOpenAIOutputPriority))
+	}
+
+	sess.Providers.OpenAI.DocumentCacheTTL = v.GetInt64("providers.openai.document_cache_ttl")
+	sess.Providers.OpenAI.GPTBotURL = v.GetString("providers.openai.gptbot_url")
+	sess.Providers.OpenAI.SearchBotURL = v.GetString("providers.openai.searchbot_url")
+	sess.Providers.OpenAI.ChatGPTUserURL = v.GetString("providers.openai.chatgpt_user_url")
+
 	// OVH
 	if v.IsSet("providers.ovh.enabled") {
 		sess.Providers.OVH.Enabled = ToPtr(v.GetBool("providers.ovh.enabled"))

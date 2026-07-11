@@ -31,6 +31,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/leaseweb"
 	"github.com/jonhadfield/ipscout/providers/linode"
 	"github.com/jonhadfield/ipscout/providers/m247"
+	"github.com/jonhadfield/ipscout/providers/openai"
 	"github.com/jonhadfield/ipscout/providers/ovh"
 	"github.com/jonhadfield/ipscout/providers/ptr"
 	"github.com/jonhadfield/ipscout/providers/render"
@@ -79,6 +80,7 @@ func All() []Entry {
 		{Name: icloudpr.ProviderName, DisplayName: "iCloud Private Relay", Enabled: func(s session.Session) *bool { return s.Providers.ICloudPR.Enabled }, APIKey: noKey, NewClient: icloudpr.NewProviderClient, SupportsRating: true},
 		{Name: linode.ProviderName, DisplayName: "Linode", Enabled: func(s session.Session) *bool { return s.Providers.Linode.Enabled }, APIKey: noKey, NewClient: linode.NewProviderClient, SupportsRating: true},
 		{Name: m247.ProviderName, DisplayName: "M247", Enabled: func(s session.Session) *bool { return s.Providers.M247.Enabled }, APIKey: noKey, NewClient: m247.NewProviderClient, SupportsRating: true},
+		{Name: openai.ProviderName, DisplayName: "OpenAI", Enabled: func(s session.Session) *bool { return s.Providers.OpenAI.Enabled }, APIKey: noKey, NewClient: openai.NewProviderClient, SupportsRating: true},
 		{Name: ovh.ProviderName, DisplayName: "OVH", Enabled: func(s session.Session) *bool { return s.Providers.OVH.Enabled }, APIKey: noKey, NewClient: ovh.NewProviderClient, SupportsRating: true},
 		{Name: scaleway.ProviderName, DisplayName: "Scaleway", Enabled: func(s session.Session) *bool { return s.Providers.Scaleway.Enabled }, APIKey: noKey, NewClient: scaleway.NewProviderClient, SupportsRating: true},
 		{Name: ptr.ProviderName, DisplayName: "PTR", Enabled: func(s session.Session) *bool { return s.Providers.PTR.Enabled }, APIKey: noKey, NewClient: ptr.NewProviderClient, SupportsRating: false},

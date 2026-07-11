@@ -112,3 +112,5 @@ providers:
     enabled: true
   tencent:
     enabled: true
+  openai:
+    enabled: true

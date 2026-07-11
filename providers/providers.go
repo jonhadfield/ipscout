@@ -508,6 +508,9 @@ type RatingConfig struct {
 		M247 struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"m247"`
+		OpenAI struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"openai"`
 		OVH struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"ovh"`
