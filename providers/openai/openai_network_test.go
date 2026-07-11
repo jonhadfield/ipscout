@@ -74,16 +74,20 @@ func newMockedClient(t *testing.T, status int, bodies map[string][]byte) *Provid
 func loadListFixtures(t *testing.T) map[string][]byte {
 	t.Helper()
 
-	bodies := make(map[string][]byte)
+	gptbot, err := os.ReadFile("testdata/gptbot.json")
+	require.NoError(t, err)
 
-	for _, name := range []string{"gptbot.json", "searchbot.json", "chatgpt-user.json"} {
-		body, err := os.ReadFile(filepath.Join("testdata", name))
-		require.NoError(t, err)
+	searchbot, err := os.ReadFile("testdata/searchbot.json")
+	require.NoError(t, err)
 
-		bodies[name] = body
+	chatgptUser, err := os.ReadFile("testdata/chatgpt-user.json")
+	require.NoError(t, err)
+
+	return map[string][]byte{
+		"gptbot.json":       gptbot,
+		"searchbot.json":    searchbot,
+		"chatgpt-user.json": chatgptUser,
 	}
-
-	return bodies
 }
 
 func TestInitialiseAndFindHostOverNetwork(t *testing.T) {
