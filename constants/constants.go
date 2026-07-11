@@ -62,9 +62,21 @@ const DefaultZscalerOutputPriority = 40
 const (
 	DefaultAbuseIPDBOutputPriority  = 50
 	DefaultAnnotatedOutputPriority  = 30
+	DefaultAtlassianOutputPriority  = 60
 	DefaultAWSOutputPriority        = 200
 	DefaultAzureOutputPriority      = 200
 	DefaultAzureWAFOutputPriority   = 20
 	DefaultBingbotOutputPriority    = 180
+	DefaultBunnyOutputPriority      = 140
+	DefaultCDN77OutputPriority      = 140
+	DefaultContaboOutputPriority    = 140
 	DefaultCriminalIPOutputPriority = 60
+	DefaultDatadogOutputPriority    = 60
+	DefaultFlyioOutputPriority      = 140
+	DefaultIBMCloudOutputPriority   = 200
+	DefaultImpervaOutputPriority    = 20
+	DefaultLeasewebOutputPriority   = 140
+	DefaultRenderOutputPriority     = 140
+	DefaultStripeOutputPriority     = 60
+	DefaultTencentOutputPriority    = 200
 )

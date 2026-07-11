@@ -689,6 +689,50 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.Zscaler.DocumentCacheTTL = v.GetInt64("providers.zscaler.document_cache_ttl")
 	sess.Providers.Zscaler.URL = v.GetString("providers.zscaler.url")
+
+	initSimpleProviderConfig(sess, v, "atlassian", "Atlassian", c.DefaultAtlassianOutputPriority,
+		&sess.Providers.Atlassian.Enabled, &sess.Providers.Atlassian.OutputPriority, &sess.Providers.Atlassian.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "bunny", "Bunny CDN", c.DefaultBunnyOutputPriority,
+		&sess.Providers.Bunny.Enabled, &sess.Providers.Bunny.OutputPriority, &sess.Providers.Bunny.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cdn77", "CDN77", c.DefaultCDN77OutputPriority,
+		&sess.Providers.CDN77.Enabled, &sess.Providers.CDN77.OutputPriority, &sess.Providers.CDN77.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "contabo", "Contabo", c.DefaultContaboOutputPriority,
+		&sess.Providers.Contabo.Enabled, &sess.Providers.Contabo.OutputPriority, &sess.Providers.Contabo.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "datadog", "Datadog", c.DefaultDatadogOutputPriority,
+		&sess.Providers.Datadog.Enabled, &sess.Providers.Datadog.OutputPriority, &sess.Providers.Datadog.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "flyio", "Fly.io", c.DefaultFlyioOutputPriority,
+		&sess.Providers.Flyio.Enabled, &sess.Providers.Flyio.OutputPriority, &sess.Providers.Flyio.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "ibmcloud", "IBM Cloud", c.DefaultIBMCloudOutputPriority,
+		&sess.Providers.IBMCloud.Enabled, &sess.Providers.IBMCloud.OutputPriority, &sess.Providers.IBMCloud.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "imperva", "Imperva", c.DefaultImpervaOutputPriority,
+		&sess.Providers.Imperva.Enabled, &sess.Providers.Imperva.OutputPriority, &sess.Providers.Imperva.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "leaseweb", "Leaseweb", c.DefaultLeasewebOutputPriority,
+		&sess.Providers.Leaseweb.Enabled, &sess.Providers.Leaseweb.OutputPriority, &sess.Providers.Leaseweb.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "render", "Render", c.DefaultRenderOutputPriority,
+		&sess.Providers.Render.Enabled, &sess.Providers.Render.OutputPriority, &sess.Providers.Render.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "stripe", "Stripe", c.DefaultStripeOutputPriority,
+		&sess.Providers.Stripe.Enabled, &sess.Providers.Stripe.OutputPriority, &sess.Providers.Stripe.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "tencent", "Tencent Cloud", c.DefaultTencentOutputPriority,
+		&sess.Providers.Tencent.Enabled, &sess.Providers.Tencent.OutputPriority, &sess.Providers.Tencent.DocumentCacheTTL)
+}
+
+// initSimpleProviderConfig wires a provider with the common enabled /
+// output_priority / document_cache_ttl config shape into the session, so that
+// providers registered in the registry are actually read from config.
+func initSimpleProviderConfig(sess *session.Session, v *viper.Viper, key, displayName string, defaultPriority int32, enabled **bool, priority **int32, docCacheTTL *int64) {
+	if v.IsSet("providers." + key + ".enabled") {
+		*enabled = ToPtr(v.GetBool("providers." + key + ".enabled"))
+	} else {
+		addProviderConfigMessage(sess, displayName)
+	}
+
+	if v.IsSet("providers." + key + ".output_priority") {
+		*priority = ToPtr(v.GetInt32("providers." + key + ".output_priority"))
+	} else {
+		*priority = ToPtr(defaultPriority)
+	}
+
+	*docCacheTTL = v.GetInt64("providers." + key + ".document_cache_ttl")
 }
 
 func initHomeDirConfig(sess *session.Session, v *viper.Viper) error {
