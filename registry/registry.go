@@ -32,6 +32,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/imperva"
 	"github.com/jonhadfield/ipscout/providers/ipapi"
 	"github.com/jonhadfield/ipscout/providers/ipqs"
+	"github.com/jonhadfield/ipscout/providers/iptoasn"
 	"github.com/jonhadfield/ipscout/providers/ipurl"
 	"github.com/jonhadfield/ipscout/providers/leaseweb"
 	"github.com/jonhadfield/ipscout/providers/linode"
@@ -204,6 +205,7 @@ func All() []Entry {
 		{Name: hetzner.ProviderName, DisplayName: "Hetzner", Enabled: func(s session.Session) *bool { return s.Providers.Hetzner.Enabled }, APIKey: noKey, NewClient: hetzner.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ipapi.ProviderName, DisplayName: "IPAPI", Enabled: func(s session.Session) *bool { return s.Providers.IPAPI.Enabled }, APIKey: noKey, NewClient: ipapi.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ipqs.ProviderName, DisplayName: "IPQualityScore", Enabled: func(s session.Session) *bool { return s.Providers.IPQS.Enabled }, APIKey: func(s session.Session) string { return s.Providers.IPQS.APIKey }, NewClient: ipqs.NewProviderClient, SupportsRating: true},
+		{Name: iptoasn.ProviderName, DisplayName: "IPtoASN", Enabled: func(s session.Session) *bool { return s.Providers.IPToASN.Enabled }, APIKey: noKey, NewClient: iptoasn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ipurl.ProviderName, DisplayName: "IPURL", Enabled: func(s session.Session) *bool { return s.Providers.IPURL.Enabled }, APIKey: noKey, NewClient: ipurl.NewProviderClient, SupportsRating: true},
 		{Name: icloudpr.ProviderName, DisplayName: "iCloud Private Relay", Enabled: func(s session.Session) *bool { return s.Providers.ICloudPR.Enabled }, APIKey: noKey, NewClient: icloudpr.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: linode.ProviderName, DisplayName: "Linode", Enabled: func(s session.Session) *bool { return s.Providers.Linode.Enabled }, APIKey: noKey, NewClient: linode.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

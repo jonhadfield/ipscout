@@ -401,6 +401,22 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		sess.Providers.IPAPI.OutputPriority = ToPtr(int32(c.DefaultIPAPIOutputPriority))
 	}
 
+	// IPtoASN
+	if v.IsSet("providers.iptoasn.enabled") {
+		sess.Providers.IPToASN.Enabled = ToPtr(v.GetBool("providers.iptoasn.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "IPtoASN")
+	}
+
+	if v.IsSet("providers.iptoasn.output_priority") {
+		sess.Providers.IPToASN.OutputPriority = ToPtr(v.GetInt32("providers.iptoasn.output_priority"))
+	} else {
+		sess.Providers.IPToASN.OutputPriority = ToPtr(int32(c.DefaultIPToASNOutputPriority))
+	}
+
+	sess.Providers.IPToASN.URL = v.GetString("providers.iptoasn.url")
+	sess.Providers.IPToASN.DocumentCacheTTL = v.GetInt64("providers.iptoasn.document_cache_ttl")
+
 	// VirusTotal
 	if v.IsSet("providers.virustotal.enabled") {
 		sess.Providers.VirusTotal.Enabled = ToPtr(v.GetBool("providers.virustotal.enabled"))

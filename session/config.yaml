@@ -52,6 +52,8 @@ providers:
     enabled: true
   ipqs:
     enabled: true
+  iptoasn:
+    enabled: true
   ipurl:
     enabled: true
     urls:

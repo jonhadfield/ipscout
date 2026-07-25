@@ -79,6 +79,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Imperva](#Imperva)                                       |       WAF        |           -           |
 | [IPAPI](#IPAPI)                                           |  IP Geolocation  |           -           |
 | [IPQualityScore](#IPQualityScore)                         |  IP Reputation   | Registration required |
+| [IPtoASN](#IPtoASN)                                       |     ASN Data     |           -           |
 | [IPURL](#IPURL)                                           |  User Provided   |           -           |
 | [Leaseweb](#Leaseweb)                                     | Hosting Provider |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
@@ -312,6 +313,12 @@ Query the [IPQualityScore](https://www.ipqualityscore.com/documentation/proxy-de
 The API is free to registered users for 5,000 requests.
 
 Set environment variable `IPQS_API_KEY` with your API key.
+
+### IPtoASN
+
+[iptoasn.com](https://iptoasn.com/) publishes a free, hourly-updated IP address to ASN mapping.
+The combined IPv4+IPv6 dataset is downloaded and cached, and the target host is matched against it to report the
+announcing AS number, name, country and address range.
 
 ### IPURL
 
