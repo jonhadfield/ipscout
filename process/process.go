@@ -264,7 +264,12 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 
 			result, err := runner.FindHost()
 			if err != nil {
-				runner.GetConfig().Logger.Info(err.Error())
+				// a host not appearing in a provider's data is routine
+				if errors.Is(err, providers.ErrNoMatchFound) {
+					runner.GetConfig().Logger.Debug(err.Error())
+				} else {
+					runner.GetConfig().Logger.Info(err.Error())
+				}
 
 				return
 			}
