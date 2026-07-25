@@ -1,6 +1,11 @@
 package registry
 
 import (
+	"bytes"
+	"fmt"
+	"os"
+	"strings"
+
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
 	"github.com/jonhadfield/ipscout/providers/alibaba"
@@ -44,7 +49,12 @@ import (
 	"github.com/jonhadfield/ipscout/providers/zscaler"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
+
+// yamlIndent is the indentation used when rewriting the config file, matching
+// the shipped default config.
+const yamlIndent = 2
 
 // Entry describes a provider and how to instantiate it.
 type Entry struct {
@@ -61,6 +71,107 @@ type Entry struct {
 	DefaultEnabled bool
 }
 
+// EnsureDefaultProvidersInConfig adds an enabled=true entry to the config file
+// at configPath for every no-config provider missing from its providers
+// section, so existing users see newly added providers in their config as
+// enabled. Comments and ordering of existing entries are preserved. It returns
+// true if the file was updated.
+func EnsureDefaultProvidersInConfig(configPath string) (bool, error) {
+	info, err := os.Stat(configPath)
+	if err != nil {
+		return false, fmt.Errorf("failed to stat config file: %w", err)
+	}
+
+	data, err := os.ReadFile(configPath) // #nosec G304 -- path is the app's own config file
+	if err != nil {
+		return false, fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	var doc yaml.Node
+	if err = yaml.Unmarshal(data, &doc); err != nil {
+		return false, fmt.Errorf("failed to parse config file: %w", err)
+	}
+
+	if doc.Kind != yaml.DocumentNode || len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {
+		return false, nil
+	}
+
+	root := doc.Content[0]
+
+	var providersNode *yaml.Node
+
+	for i := 0; i < len(root.Content)-1; i += 2 {
+		if root.Content[i].Value == "providers" {
+			providersNode = root.Content[i+1]
+
+			break
+		}
+	}
+
+	if providersNode == nil {
+		providersNode = &yaml.Node{Kind: yaml.MappingNode}
+		root.Content = append(root.Content,
+			&yaml.Node{Kind: yaml.ScalarNode, Value: "providers"},
+			providersNode)
+	}
+
+	// an empty providers section parses as a null scalar
+	if providersNode.Kind != yaml.MappingNode {
+		providersNode.Kind = yaml.MappingNode
+		providersNode.Tag = ""
+		providersNode.Value = ""
+		providersNode.Content = nil
+	}
+
+	existing := make(map[string]bool)
+	for i := 0; i < len(providersNode.Content)-1; i += 2 {
+		existing[strings.ToLower(providersNode.Content[i].Value)] = true
+	}
+
+	var changed bool
+
+	for _, e := range All() {
+		// config keys are lowercase by convention; some ProviderName
+		// constants (e.g. M247) are not
+		name := strings.ToLower(e.Name)
+		if !e.DefaultEnabled || existing[name] {
+			continue
+		}
+
+		providersNode.Content = append(providersNode.Content,
+			&yaml.Node{Kind: yaml.ScalarNode, Value: name},
+			&yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{
+				{Kind: yaml.ScalarNode, Value: "enabled"},
+				{Kind: yaml.ScalarNode, Value: "true"},
+			}})
+
+		changed = true
+	}
+
+	if !changed {
+		return false, nil
+	}
+
+	var buf bytes.Buffer
+
+	enc := yaml.NewEncoder(&buf)
+	enc.SetIndent(yamlIndent)
+
+	if err = enc.Encode(&doc); err != nil {
+		return false, fmt.Errorf("failed to encode config file: %w", err)
+	}
+
+	if err = enc.Close(); err != nil {
+		return false, fmt.Errorf("failed to encode config file: %w", err)
+	}
+
+	if err = os.WriteFile(configPath, buf.Bytes(), info.Mode().Perm()); err != nil {
+		return false, fmt.Errorf("failed to write config file: %w", err)
+	}
+
+	return true, nil
+}
+
 // SetEnabledDefaults registers an enabled=true default for every provider that
 // requires no configuration, so providers added after a user's config file was
 // written are still enabled rather than silently skipped. Explicit config
@@ -68,7 +179,7 @@ type Entry struct {
 func SetEnabledDefaults(v *viper.Viper) {
 	for _, e := range All() {
 		if e.DefaultEnabled {
-			v.SetDefault("providers."+e.Name+".enabled", true)
+			v.SetDefault("providers."+strings.ToLower(e.Name)+".enabled", true)
 		}
 	}
 }
@@ -94,7 +205,7 @@ func All() []Entry {
 		{Name: ipapi.ProviderName, DisplayName: "IPAPI", Enabled: func(s session.Session) *bool { return s.Providers.IPAPI.Enabled }, APIKey: noKey, NewClient: ipapi.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ipqs.ProviderName, DisplayName: "IPQualityScore", Enabled: func(s session.Session) *bool { return s.Providers.IPQS.Enabled }, APIKey: func(s session.Session) string { return s.Providers.IPQS.APIKey }, NewClient: ipqs.NewProviderClient, SupportsRating: true},
 		{Name: ipurl.ProviderName, DisplayName: "IPURL", Enabled: func(s session.Session) *bool { return s.Providers.IPURL.Enabled }, APIKey: noKey, NewClient: ipurl.NewProviderClient, SupportsRating: true},
-		{Name: icloudpr.ProviderName, DisplayName: "iCloud Private Relay", Enabled: func(s session.Session) *bool { return s.Providers.ICloudPR.Enabled }, APIKey: noKey, NewClient: icloudpr.NewProviderClient, SupportsRating: true},
+		{Name: icloudpr.ProviderName, DisplayName: "iCloud Private Relay", Enabled: func(s session.Session) *bool { return s.Providers.ICloudPR.Enabled }, APIKey: noKey, NewClient: icloudpr.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: linode.ProviderName, DisplayName: "Linode", Enabled: func(s session.Session) *bool { return s.Providers.Linode.Enabled }, APIKey: noKey, NewClient: linode.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: m247.ProviderName, DisplayName: "M247", Enabled: func(s session.Session) *bool { return s.Providers.M247.Enabled }, APIKey: noKey, NewClient: m247.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: openai.ProviderName, DisplayName: "OpenAI", Enabled: func(s session.Session) *bool { return s.Providers.OpenAI.Enabled }, APIKey: noKey, NewClient: openai.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

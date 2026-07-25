@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 
 	c "github.com/jonhadfield/ipscout/constants"
@@ -472,6 +473,14 @@ func initConfig() (*session.Session, error) {
 
 	if _, err := session.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		return sess, fmt.Errorf("cannot create default session: %w", err)
+	}
+
+	// add any providers introduced since the user's config was written, so
+	// their config shows all no-config providers as enabled
+	if _, err := registry.EnsureDefaultProvidersInConfig(filepath.Join(configRoot, session.DefaultConfigFileName)); err != nil {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, fmt.Sprintf("unable to add new providers to config: %s", err))
+		sess.Messages.Mu.Unlock()
 	}
 
 	v.AddConfigPath(configRoot)
