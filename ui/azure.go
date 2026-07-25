@@ -12,7 +12,7 @@ import (
 )
 
 func fetchAzure(ip string, sess *session.Session) providerResult {
-	slog.Info("Fetching data from Azure", "ip", ip)
+	slog.Debug("Fetching data from Azure", "ip", ip)
 
 	var err error
 
@@ -33,7 +33,7 @@ func fetchAzure(ip string, sess *session.Session) providerResult {
 		return providerResult{text: simplifyError(err, "azure", ip)}
 	}
 
-	slog.Info("Fetching data from Azure", "ip", ip)
+	slog.Debug("fetched data from Azure", "ip", ip)
 
 	var azureResult azure.HostSearchResult
 	if err := json.Unmarshal([]byte(res), &azureResult); err != nil {

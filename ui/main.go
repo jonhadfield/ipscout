@@ -309,7 +309,7 @@ func OpenUI() error {
 	// sess := session.Session{}
 
 	logger := slog.New(slog.NewTextHandler(logFile, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
+		Level: ProgramLevel,
 	}))
 	slog.SetDefault(logger)
 
