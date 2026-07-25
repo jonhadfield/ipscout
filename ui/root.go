@@ -8,6 +8,7 @@ import (
 
 	c "github.com/jonhadfield/ipscout/constants"
 	h "github.com/jonhadfield/ipscout/helpers"
+	"github.com/jonhadfield/ipscout/registry"
 
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/viper"
@@ -26,6 +27,10 @@ func addProviderConfigMessage(sess *session.Session, provider string) {
 }
 
 func initProviderConfig(sess *session.Session, v *viper.Viper) {
+	// providers requiring no configuration default to enabled when absent
+	// from the user's config file
+	registry.SetEnabledDefaults(v)
+
 	// IP API
 	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")

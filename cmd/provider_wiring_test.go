@@ -27,3 +27,35 @@ func TestAllRegistryProvidersWiredIntoConfig(t *testing.T) {
 		require.Truef(t, *enabled, "provider %q enabled flag was not read from config", e.Name)
 	}
 }
+
+// TestNoConfigProvidersEnabledByDefault guards the promise that providers
+// requiring no configuration are enabled even when absent from the user's
+// config file, while providers that need config (API keys, paths, URLs,
+// resource IDs) stay unset so process skips them.
+func TestNoConfigProvidersEnabledByDefault(t *testing.T) {
+	sess := session.New()
+	initProviderConfig(sess, viper.New())
+
+	for _, e := range registry.All() {
+		enabled := e.Enabled(*sess)
+		if e.DefaultEnabled {
+			require.NotNilf(t, enabled, "no-config provider %q should be enabled by default", e.Name)
+			require.Truef(t, *enabled, "no-config provider %q should be enabled by default", e.Name)
+		} else {
+			require.Nilf(t, enabled, "provider %q requires config and must not be enabled by default", e.Name)
+		}
+	}
+}
+
+// TestExplicitDisableOverridesDefaultEnabled ensures a user's explicit
+// enabled=false still wins over the no-config default.
+func TestExplicitDisableOverridesDefaultEnabled(t *testing.T) {
+	v := viper.New()
+	v.Set("providers.aws.enabled", false)
+
+	sess := session.New()
+	initProviderConfig(sess, v)
+
+	require.NotNil(t, sess.Providers.AWS.Enabled)
+	require.False(t, *sess.Providers.AWS.Enabled)
+}
