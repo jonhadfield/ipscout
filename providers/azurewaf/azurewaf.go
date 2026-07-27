@@ -230,7 +230,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 			return nil, loadErr
 		}
 
-		c.Logger.Info("azure waf match returned from test data", "host", c.Host.String())
+		c.Logger.Debug("azure waf match returned from test data", "host", c.Host.String())
 
 		return out, nil
 	}
@@ -249,7 +249,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, providers.ErrNoMatchFound
 	}
 
-	c.Logger.Info("azurewaf match found", "host", c.Host.String())
+	c.Logger.Debug("azurewaf match found", "host", c.Host.String())
 
 	var raw []byte
 

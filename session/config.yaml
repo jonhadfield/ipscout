@@ -47,11 +47,12 @@ providers:
   hetzner:
     enabled: true
   icloudpr:
-    # disabled by default as can slow down old processors
-    enabled: false
+    enabled: true
   ipapi:
     enabled: true
   ipqs:
+    enabled: true
+  iptoasn:
     enabled: true
   ipurl:
     enabled: true

@@ -64,6 +64,7 @@ const (
 	providerPTR          = "ptr"
 	providerShodan       = "shodan"
 	providerIPAPI        = "ipapi"
+	providerIPToASN      = "iptoasn"
 	providerIPURL        = "ipurl"
 	providerGooglebot    = "googlebot"
 	providerHetzner      = "hetzner"
@@ -95,6 +96,7 @@ var providerIcons = map[string]string{
 	providerPTR:          emojiGlobe,
 	providerShodan:       emojiInvader,
 	providerIPAPI:        emojiGlobe,
+	providerIPToASN:      emojiGlobe,
 	providerIPURL:        emojiGlobe,
 	providerGooglebot:    emojiInvader,
 	providerHetzner:      emojiCloud,
@@ -254,6 +256,8 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 		switch providerName {
 		case providerIPAPI:
 			newText = strings.Replace(currentText, " IPAPI", " ▶ IPAPI", 1)
+		case providerIPToASN:
+			newText = strings.Replace(currentText, " IPtoASN", " ▶ IPtoASN", 1)
 		case providerIPURL:
 			newText = strings.Replace(currentText, " IP URL", " ▶ IP URL", 1)
 		case providerGooglebot:
@@ -309,7 +313,7 @@ func OpenUI() error {
 	// sess := session.Session{}
 
 	logger := slog.New(slog.NewTextHandler(logFile, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
+		Level: ProgramLevel,
 	}))
 	slog.SetDefault(logger)
 
@@ -345,6 +349,7 @@ func OpenUI() error {
 		providerPTR:          fetchPTR,
 		providerShodan:       fetchShodan,
 		providerIPAPI:        fetchIPAPI,
+		providerIPToASN:      fetchIPToASN,
 		providerIPURL:        fetchIPURL,
 		providerGooglebot:    fetchGooglebot,
 		providerHetzner:      fetchHetzner,
@@ -370,7 +375,7 @@ func OpenUI() error {
 		providerVultr:        fetchVultr,
 		providerZscaler:      fetchZscaler,
 	}
-	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerCriminalIP, providerDigitalOcean, providerGCP, providerGoogle, providerGoogleSC, providerICloudPR, providerLinode, providerM247, providerOpenAI, providerOVH, providerScaleway, providerVultr, providerZscaler}
+	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerCriminalIP, providerDigitalOcean, providerGCP, providerGoogle, providerGoogleSC, providerICloudPR, providerLinode, providerM247, providerOpenAI, providerOVH, providerScaleway, providerVultr, providerZscaler}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()

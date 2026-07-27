@@ -41,6 +41,8 @@ const DefaultiCloudPROutputPriority = 100
 
 const DefaultIPAPIOutputPriority = 90
 
+const DefaultIPToASNOutputPriority = 90
+
 const DefaultIPQSOutputPriority = 50
 
 const DefaultIPURLOutputPriority = 20

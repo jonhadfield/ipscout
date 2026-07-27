@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/jonhadfield/ipscout/helpers"
 
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/process"
+	"github.com/jonhadfield/ipscout/registry"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -238,6 +240,10 @@ const (
 )
 
 func initProviderConfig(sess *session.Session, v *viper.Viper) {
+	// providers requiring no configuration default to enabled when absent
+	// from the user's config file
+	registry.SetEnabledDefaults(v)
+
 	// IP API
 	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")
@@ -640,6 +646,22 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		sess.Providers.IPAPI.OutputPriority = ToPtr(int32(defaultIPAPIOutputPriority))
 	}
 
+	// IPtoASN
+	if v.IsSet("providers.iptoasn.enabled") {
+		sess.Providers.IPToASN.Enabled = ToPtr(v.GetBool("providers.iptoasn.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "IPtoASN")
+	}
+
+	if v.IsSet("providers.iptoasn.output_priority") {
+		sess.Providers.IPToASN.OutputPriority = ToPtr(v.GetInt32("providers.iptoasn.output_priority"))
+	} else {
+		sess.Providers.IPToASN.OutputPriority = ToPtr(int32(c.DefaultIPToASNOutputPriority))
+	}
+
+	sess.Providers.IPToASN.URL = v.GetString("providers.iptoasn.url")
+	sess.Providers.IPToASN.DocumentCacheTTL = v.GetInt64("providers.iptoasn.document_cache_ttl")
+
 	// VirusTotal
 	if v.IsSet("providers.virustotal.enabled") {
 		sess.Providers.VirusTotal.Enabled = ToPtr(v.GetBool("providers.virustotal.enabled"))
@@ -796,6 +818,14 @@ func initConfig(cmd *cobra.Command) error {
 
 	if _, err := session.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		return fmt.Errorf("cannot create default session: %w", err)
+	}
+
+	// add any providers introduced since the user's config was written, so
+	// their config shows all no-config providers as enabled
+	if _, err := registry.EnsureDefaultProvidersInConfig(filepath.Join(configRoot, session.DefaultConfigFileName)); err != nil {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, fmt.Sprintf("unable to add new providers to config: %s", err))
+		sess.Messages.Mu.Unlock()
 	}
 
 	v.AddConfigPath(configRoot)

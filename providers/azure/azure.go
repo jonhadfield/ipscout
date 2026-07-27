@@ -206,7 +206,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 		return nil, fmt.Errorf("error marshalling test data: %w", err)
 	}
 
-	c.Logger.Info("azure match returned from test data", "host", c.Host.String())
+	c.Logger.Debug("azure match returned from test data", "host", c.Host.String())
 
 	return out, nil
 }
@@ -269,7 +269,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, err
 	}
 
-	c.Logger.Info("azure match found", "host", c.Host.String())
+	c.Logger.Debug("azure match found", "host", c.Host.String())
 
 	var raw []byte
 

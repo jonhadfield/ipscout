@@ -241,6 +241,12 @@ type Providers struct {
 		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
 		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"ipapi"`
+	IPToASN struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"iptoasn"`
 	IPQS struct {
 		APIKey         string
 		Enabled        *bool  `mapstructure:"enabled"`
