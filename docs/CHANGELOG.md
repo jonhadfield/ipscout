@@ -4,10 +4,113 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.3] - 2026-07-28
+### Changed
+- bump otel and klauspost/compress to clear govulncheck findings
+
+## [0.6.2] - 2026-07-28
+### Changed
+- migrate goreleaser config off deprecated options; Homebrew now distributes ipscout as a cask
+  (pre-0.6.2 formula installs need a one-time `brew uninstall ipscout && brew install ipscout`)
+
+## [0.6.1] - 2026-07-28
+### Fixed
+- honour the log-level flag in the TUI instead of always logging at debug
+
+## [0.6.0] - 2026-07-27
 ### Added
-- Scaleway provider for European hosting service IP detection
+- IPtoASN provider reporting the announcing AS number, name, country and range
+- providers requiring no configuration are enabled by default, and existing config files are
+  upgraded on startup to include newly added providers (iCloud Private Relay now enabled by default)
+### Fixed
+- azure provider activity, cache operations and routine no-match results now log at debug rather than info
+### Security
+- bump x/crypto, x/net, x/text and the Go toolchain to clear all open CVE advisories
+
+## [0.5.0] - 2026-07-11
+### Added
+- 12 ip-fetcher providers: Atlassian, Bunny CDN, CDN77, Contabo, Datadog, Fly.io, IBM Cloud,
+  Imperva, Leaseweb, Render, Stripe and Tencent Cloud
+- OpenAI bots provider (GPTBot, OAI-SearchBot, ChatGPT-User)
+- host rating support for Alibaba, M247, Scaleway and Vultr
+### Changed
+- `ipscout config` is driven from the provider registry
+- standardise logging on slog, dropping logrus
+
+## [0.4.4] - 2026-06-07
+### Changed
+- dependency updates
+
+## [0.4.3] - 2026-05-10
+### Changed
+- refactors and CI improvements; dependency updates
+
+## [0.4.2] - 2026-05-05
+### Fixed
+- google bot fetching
+
+## [0.4.1] - 2026-05-03
+### Fixed
+- align provider log levels and bridge logrus to slog
+
+## [0.4.0] - 2026-04-12
+### Added
+- CSV output, provider registry and batch processing
+- handle IPs presented with /32 or /128 suffixes
+### Fixed
+- race condition, operator precedence and oversized cache value errors; larger badger value log
+
+## [0.3.11] - 2026-02-07
+### Changed
+- migrate to the modern Azure SDK; CLI performance improvements; dependency updates
+
+## [0.3.10] - 2025-11-21
+### Security
+- dependency bump fixing a library vulnerability
+
+## [0.3.9] - 2025-11-18
+### Changed
+- dependency updates; VirusTotal test coverage
+
+## [0.3.8] - 2025-11-08
+### Changed
+- dependency updates
+
+## [0.3.7] - 2025-10-11
+### Added
 - Vultr provider for cloud hosting service IP detection
+
+## [0.3.6] - 2025-07-29
+### Added
+- Alibaba, Scaleway and M247 providers; OVH added to default config
+
+## [0.3.5] - 2025-07-28
+### Fixed
+- Azure IP downloads via ip-fetcher dependency bump
+
+## [0.3.4] - 2025-07-13
+### Fixed
+- handle a reverse IP lookup resolving to a CNAME
+
+## [0.3.3] - 2025-06-26
+### Fixed
+- remove fatal exits; PTR output alignment; bottom navigation arrows in the TUI
+
+## [0.3.2] - 2025-06-25
+### Added
+- resolution of host names
+### Fixed
+- TUI corruption bug; provider selection retained when returning to the list
+
+## [0.3.1] - 2025-06-24
+### Added
+- loading message
+
+## [0.3.0] - 2025-06-24
+### Added
+- interactive terminal UI (`ipscout ui`) with mouse support
+### Fixed
+- OVH provider; Azure fix via dependency bump
 
 ## [0.2.10] - 2025-06-10
 ### Changed
