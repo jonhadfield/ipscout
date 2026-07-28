@@ -12,7 +12,12 @@ var uiCmd = &cobra.Command{
 	Long:  `Open the IPScout user interface`,
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) { //nolint:revive
-		if err := ui.OpenUI(); err != nil {
+		logLevel, err := cmd.Flags().GetString("log-level")
+		if err != nil {
+			logLevel = ""
+		}
+
+		if err := ui.OpenUI(logLevel); err != nil {
 			cmd.PrintErrln(err)
 		}
 	},

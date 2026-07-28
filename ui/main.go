@@ -288,7 +288,7 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 	}
 }
 
-func OpenUI() error {
+func OpenUI(logLevel string) error {
 	// Setup logging to app.log
 	logFile, err := os.OpenFile(LogFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, LogFilePerms)
 	if err != nil {
@@ -301,7 +301,7 @@ func OpenUI() error {
 		}
 	}()
 
-	sess, err = initConfig()
+	sess, err = initConfig(logLevel)
 	if err != nil {
 		slog.Error("Failed to initialise session", "error", err)
 
