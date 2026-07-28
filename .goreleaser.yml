@@ -35,12 +35,12 @@ builds:
 archives:
   - id: default
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
-    format: tar.gz
-    builds:
+    formats: ["tar.gz"]
+    ids:
       - ipscout
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ["zip"]
     files:
       - license*
       - readme*
@@ -60,7 +60,7 @@ release:
     - glob: ./dist/ipscout_darwin*.zip
 
 snapshot:
-  name_template: "{{ .Tag }}-devel"
+  version_template: "{{ .Tag }}-devel"
 
 changelog:
   sort: asc
@@ -70,14 +70,22 @@ changelog:
       - test
       - ignore
 
-brews:
+homebrew_casks:
   - name: ipscout
     homepage: https://github.com/jonhadfield/ipscout
-    description: >
+    description: >-
       A command line tool for network administrators and security analysts to quickly identify the origin and threat of an IP address.
     repository:
       owner: jonhadfield
       name: homebrew-ipscout
+    # the binaries are unsigned, so clear the quarantine attribute on
+    # install to avoid Gatekeeper blocking them
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/ipscout"]
+          end
 
 announce:
   skip: true
