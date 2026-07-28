@@ -108,6 +108,14 @@ $ brew tap jonhadfield/ipscout
 $ brew install ipscout
 ```
 
+Since 0.6.2, ipscout is distributed as a Homebrew cask. If you installed an earlier
+version (distributed as a formula), reinstall once to migrate:
+
+```
+$ brew uninstall ipscout
+$ brew install ipscout
+```
+
 ### Linux
 Install latest release.
 ```shell
