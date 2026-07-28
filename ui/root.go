@@ -472,7 +472,7 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) {
 	sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai_api_key")
 }
 
-func initConfig() (*session.Session, error) {
+func initConfig(logLevel string) (*session.Session, error) {
 	v := viper.New()
 
 	// create session
@@ -519,7 +519,7 @@ func initConfig() (*session.Session, error) {
 	initSessionConfig(sess, v)
 
 	// initialise logging
-	if err := initLogging(); err != nil {
+	if err := initLogging(logLevel); err != nil {
 		return sess, err
 	}
 
@@ -577,13 +577,11 @@ func initConfig() (*session.Session, error) {
 
 var ProgramLevel = new(slog.LevelVar) // Info by default
 
-func initLogging() error {
+func initLogging(logLevel string) error {
 	hOptions := slog.HandlerOptions{AddSource: false}
 
-	ll := "DEBUG"
-
 	// set log level
-	switch strings.ToUpper(ll) {
+	switch strings.ToUpper(logLevel) {
 	case "ERROR":
 		ProgramLevel.Set(slog.LevelError)
 
@@ -600,6 +598,11 @@ func initLogging() error {
 		ProgramLevel.Set(slog.LevelDebug)
 
 		sess.HideProgress = true
+	default:
+		// match the CLI's default log level
+		ProgramLevel.Set(slog.LevelWarn)
+
+		sess.HideProgress = false
 	}
 
 	hOptions.Level = ProgramLevel
