@@ -580,6 +580,8 @@ var ProgramLevel = new(slog.LevelVar) // Info by default
 func initLogging(logLevel string) error {
 	hOptions := slog.HandlerOptions{AddSource: false}
 
+	sess.Config.Global.LogLevel = logLevel
+
 	// set log level
 	switch strings.ToUpper(logLevel) {
 	case "ERROR":
