@@ -24,6 +24,7 @@ import (
 	azwafSession "github.com/jonhadfield/azwaf/session"
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -45,6 +46,16 @@ type ProviderClient struct {
 
 func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 	c.Logger.Debug("creating azurewaf client")
+
+	// azwaf logs via the global logrus logger, which defaults to info on
+	// stderr regardless of ipscout's log level; align it so azure waf
+	// diagnostics only appear at the level the user asked for
+	logrusLevel, err := logrus.ParseLevel(strings.ToLower(c.Config.Global.LogLevel))
+	if err != nil {
+		logrusLevel = logrus.WarnLevel
+	}
+
+	logrus.SetLevel(logrusLevel)
 
 	tc := &ProviderClient{
 		Session: c,
