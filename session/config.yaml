@@ -115,3 +115,15 @@ providers:
     enabled: true
   openai:
     enabled: true
+  akamai:
+    enabled: true
+  cloudflare:
+    enabled: true
+  fastly:
+    enabled: true
+  github:
+    enabled: true
+  googleutf:
+    enabled: true
+  oci:
+    enabled: true

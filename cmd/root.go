@@ -712,24 +712,36 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	sess.Providers.Zscaler.DocumentCacheTTL = v.GetInt64("providers.zscaler.document_cache_ttl")
 	sess.Providers.Zscaler.URL = v.GetString("providers.zscaler.url")
 
+	initSimpleProviderConfig(sess, v, "akamai", "Akamai", c.DefaultAkamaiOutputPriority,
+		&sess.Providers.Akamai.Enabled, &sess.Providers.Akamai.OutputPriority, &sess.Providers.Akamai.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "atlassian", "Atlassian", c.DefaultAtlassianOutputPriority,
 		&sess.Providers.Atlassian.Enabled, &sess.Providers.Atlassian.OutputPriority, &sess.Providers.Atlassian.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "bunny", "Bunny CDN", c.DefaultBunnyOutputPriority,
 		&sess.Providers.Bunny.Enabled, &sess.Providers.Bunny.OutputPriority, &sess.Providers.Bunny.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "cdn77", "CDN77", c.DefaultCDN77OutputPriority,
 		&sess.Providers.CDN77.Enabled, &sess.Providers.CDN77.OutputPriority, &sess.Providers.CDN77.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cloudflare", "Cloudflare", c.DefaultCloudflareOutputPriority,
+		&sess.Providers.Cloudflare.Enabled, &sess.Providers.Cloudflare.OutputPriority, &sess.Providers.Cloudflare.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "contabo", "Contabo", c.DefaultContaboOutputPriority,
 		&sess.Providers.Contabo.Enabled, &sess.Providers.Contabo.OutputPriority, &sess.Providers.Contabo.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "datadog", "Datadog", c.DefaultDatadogOutputPriority,
 		&sess.Providers.Datadog.Enabled, &sess.Providers.Datadog.OutputPriority, &sess.Providers.Datadog.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "fastly", "Fastly", c.DefaultFastlyOutputPriority,
+		&sess.Providers.Fastly.Enabled, &sess.Providers.Fastly.OutputPriority, &sess.Providers.Fastly.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "flyio", "Fly.io", c.DefaultFlyioOutputPriority,
 		&sess.Providers.Flyio.Enabled, &sess.Providers.Flyio.OutputPriority, &sess.Providers.Flyio.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "github", "GitHub", c.DefaultGitHubOutputPriority,
+		&sess.Providers.GitHub.Enabled, &sess.Providers.GitHub.OutputPriority, &sess.Providers.GitHub.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "googleutf", "Google User-triggered Fetchers", c.DefaultGoogleUTFOutputPriority,
+		&sess.Providers.GoogleUTF.Enabled, &sess.Providers.GoogleUTF.OutputPriority, &sess.Providers.GoogleUTF.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "ibmcloud", "IBM Cloud", c.DefaultIBMCloudOutputPriority,
 		&sess.Providers.IBMCloud.Enabled, &sess.Providers.IBMCloud.OutputPriority, &sess.Providers.IBMCloud.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "imperva", "Imperva", c.DefaultImpervaOutputPriority,
 		&sess.Providers.Imperva.Enabled, &sess.Providers.Imperva.OutputPriority, &sess.Providers.Imperva.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "leaseweb", "Leaseweb", c.DefaultLeasewebOutputPriority,
 		&sess.Providers.Leaseweb.Enabled, &sess.Providers.Leaseweb.OutputPriority, &sess.Providers.Leaseweb.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "oci", "Oracle Cloud (OCI)", c.DefaultOCIOutputPriority,
+		&sess.Providers.OCI.Enabled, &sess.Providers.OCI.OutputPriority, &sess.Providers.OCI.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "render", "Render", c.DefaultRenderOutputPriority,
 		&sess.Providers.Render.Enabled, &sess.Providers.Render.OutputPriority, &sess.Providers.Render.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "stripe", "Stripe", c.DefaultStripeOutputPriority,

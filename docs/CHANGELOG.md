@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-08-08
+### Added
+- Akamai, Cloudflare, Fastly, GitHub, Google User-triggered Fetchers and Oracle Cloud (OCI)
+  providers, surfacing the remaining ip-fetcher sources
+### Changed
+- the TUI resolves providers from the registry, so every registered provider now works in the UI
+### Fixed
+- providers no longer cache an empty document for 24h when an upstream returns an error response
+- akamai fetches Akamai's published CIDR zip (via ip-fetcher v0.0.19); the previous source URL did not exist
+
 ## [0.6.6] - 2026-08-02
 ### Fixed
 - azure waf diagnostics from the azwaf library now respect the configured log level

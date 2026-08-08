@@ -1,0 +1,9 @@
+{
+  "Raw": null,
+  "prefix": "192.0.2.0/24",
+  "region": "us-ashburn-1",
+  "tags": [
+    "OCI",
+    "OBJECT_STORAGE"
+  ]
+}
