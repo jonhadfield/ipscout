@@ -89,6 +89,12 @@ const (
 	providerScaleway     = "scaleway"
 	providerVultr        = "vultr"
 	providerZscaler      = "zscaler"
+	providerAkamai       = "akamai"
+	providerCloudflare   = "cloudflare"
+	providerFastly       = "fastly"
+	providerGitHub       = "github"
+	providerGoogleUTF    = "googleutf"
+	providerOCI          = "oci"
 )
 
 var providerIcons = map[string]string{
@@ -120,6 +126,12 @@ var providerIcons = map[string]string{
 	providerScaleway:     emojiCloud,
 	providerVultr:        emojiCloud,
 	providerZscaler:      emojiCloud,
+	providerAkamai:       emojiCloud,
+	providerCloudflare:   emojiCloud,
+	providerFastly:       emojiCloud,
+	providerGitHub:       emojiLaptop,
+	providerGoogleUTF:    emojiInvader,
+	providerOCI:          emojiCloud,
 }
 
 type providerResult struct {
@@ -282,6 +294,18 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 			newText = strings.Replace(currentText, " DigitalOcean", " ▶ DigitalOcean", 1)
 		case providerCriminalIP:
 			newText = strings.Replace(currentText, " CriminalIP", " ▶ CriminalIP", 1)
+		case providerAkamai:
+			newText = strings.Replace(currentText, " Akamai", " ▶ Akamai", 1)
+		case providerCloudflare:
+			newText = strings.Replace(currentText, " Cloudflare", " ▶ Cloudflare", 1)
+		case providerFastly:
+			newText = strings.Replace(currentText, " Fastly", " ▶ Fastly", 1)
+		case providerGitHub:
+			newText = strings.Replace(currentText, " GitHub", " ▶ GitHub", 1)
+		case providerGoogleUTF:
+			newText = strings.Replace(currentText, " Google User-triggered Fetchers", " ▶ Google User-triggered Fetchers", 1)
+		case providerOCI:
+			newText = strings.Replace(currentText, " Oracle Cloud (OCI)", " ▶ Oracle Cloud (OCI)", 1)
 		}
 
 		headerCell.SetText(newText)
@@ -374,8 +398,14 @@ func OpenUI(logLevel string) error {
 		providerScaleway:     fetchScaleway,
 		providerVultr:        fetchVultr,
 		providerZscaler:      fetchZscaler,
+		providerAkamai:       fetchAkamai,
+		providerCloudflare:   fetchCloudflare,
+		providerFastly:       fetchFastly,
+		providerGitHub:       fetchGitHub,
+		providerGoogleUTF:    fetchGoogleUTF,
+		providerOCI:          fetchOCI,
 	}
-	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerCriminalIP, providerDigitalOcean, providerGCP, providerGoogle, providerGoogleSC, providerICloudPR, providerLinode, providerM247, providerOpenAI, providerOVH, providerScaleway, providerVultr, providerZscaler}
+	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerCriminalIP, providerDigitalOcean, providerGCP, providerGoogle, providerGoogleSC, providerICloudPR, providerLinode, providerM247, providerOpenAI, providerOVH, providerScaleway, providerVultr, providerZscaler, providerAkamai, providerCloudflare, providerFastly, providerGitHub, providerGoogleUTF, providerOCI}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()

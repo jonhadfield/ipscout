@@ -450,6 +450,96 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.Zscaler.DocumentCacheTTL = v.GetInt64("providers.zscaler.document_cache_ttl")
 	sess.Providers.Zscaler.URL = v.GetString("providers.zscaler.url")
+
+	// Akamai
+	if v.IsSet("providers.akamai.enabled") {
+		sess.Providers.Akamai.Enabled = ToPtr(v.GetBool("providers.akamai.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Akamai")
+	}
+
+	if v.IsSet("providers.akamai.output_priority") {
+		sess.Providers.Akamai.OutputPriority = ToPtr(v.GetInt32("providers.akamai.output_priority"))
+	} else {
+		sess.Providers.Akamai.OutputPriority = ToPtr(int32(c.DefaultAkamaiOutputPriority))
+	}
+
+	sess.Providers.Akamai.DocumentCacheTTL = v.GetInt64("providers.akamai.document_cache_ttl")
+
+	// Cloudflare
+	if v.IsSet("providers.cloudflare.enabled") {
+		sess.Providers.Cloudflare.Enabled = ToPtr(v.GetBool("providers.cloudflare.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Cloudflare")
+	}
+
+	if v.IsSet("providers.cloudflare.output_priority") {
+		sess.Providers.Cloudflare.OutputPriority = ToPtr(v.GetInt32("providers.cloudflare.output_priority"))
+	} else {
+		sess.Providers.Cloudflare.OutputPriority = ToPtr(int32(c.DefaultCloudflareOutputPriority))
+	}
+
+	sess.Providers.Cloudflare.DocumentCacheTTL = v.GetInt64("providers.cloudflare.document_cache_ttl")
+
+	// Fastly
+	if v.IsSet("providers.fastly.enabled") {
+		sess.Providers.Fastly.Enabled = ToPtr(v.GetBool("providers.fastly.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Fastly")
+	}
+
+	if v.IsSet("providers.fastly.output_priority") {
+		sess.Providers.Fastly.OutputPriority = ToPtr(v.GetInt32("providers.fastly.output_priority"))
+	} else {
+		sess.Providers.Fastly.OutputPriority = ToPtr(int32(c.DefaultFastlyOutputPriority))
+	}
+
+	sess.Providers.Fastly.DocumentCacheTTL = v.GetInt64("providers.fastly.document_cache_ttl")
+
+	// GitHub
+	if v.IsSet("providers.github.enabled") {
+		sess.Providers.GitHub.Enabled = ToPtr(v.GetBool("providers.github.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "GitHub")
+	}
+
+	if v.IsSet("providers.github.output_priority") {
+		sess.Providers.GitHub.OutputPriority = ToPtr(v.GetInt32("providers.github.output_priority"))
+	} else {
+		sess.Providers.GitHub.OutputPriority = ToPtr(int32(c.DefaultGitHubOutputPriority))
+	}
+
+	sess.Providers.GitHub.DocumentCacheTTL = v.GetInt64("providers.github.document_cache_ttl")
+
+	// Google User-triggered Fetchers
+	if v.IsSet("providers.googleutf.enabled") {
+		sess.Providers.GoogleUTF.Enabled = ToPtr(v.GetBool("providers.googleutf.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Google User-triggered Fetchers")
+	}
+
+	if v.IsSet("providers.googleutf.output_priority") {
+		sess.Providers.GoogleUTF.OutputPriority = ToPtr(v.GetInt32("providers.googleutf.output_priority"))
+	} else {
+		sess.Providers.GoogleUTF.OutputPriority = ToPtr(int32(c.DefaultGoogleUTFOutputPriority))
+	}
+
+	sess.Providers.GoogleUTF.DocumentCacheTTL = v.GetInt64("providers.googleutf.document_cache_ttl")
+
+	// Oracle Cloud (OCI)
+	if v.IsSet("providers.oci.enabled") {
+		sess.Providers.OCI.Enabled = ToPtr(v.GetBool("providers.oci.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Oracle Cloud (OCI)")
+	}
+
+	if v.IsSet("providers.oci.output_priority") {
+		sess.Providers.OCI.OutputPriority = ToPtr(v.GetInt32("providers.oci.output_priority"))
+	} else {
+		sess.Providers.OCI.OutputPriority = ToPtr(int32(c.DefaultOCIOutputPriority))
+	}
+
+	sess.Providers.OCI.DocumentCacheTTL = v.GetInt64("providers.oci.document_cache_ttl")
 }
 
 func initSessionConfig(sess *session.Session, v *viper.Viper) {

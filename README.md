@@ -55,6 +55,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | Provider                                                  |     Category     |         Notes         |
 |:----------------------------------------------------------|:----------------:|:---------------------:|
 | [AbuseIPDB](#AbuseIPDB)                                   |  IP Reputation   | Registration required |
+| [Akamai](#Akamai)                                         |       CDN        |           -           |
 | [Alibaba Cloud](#Alibaba-Cloud)                           | Hosting Provider |           -           |
 | [Annotated](#Annotated)                                   |  User Provided   |           -           |
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
@@ -65,14 +66,18 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
 | [Bunny CDN](#Bunny-CDN)                                   |       CDN        |           -           |
 | [CDN77](#CDN77)                                           |       CDN        |           -           |
+| [Cloudflare](#Cloudflare)                                 |       CDN        |           -           |
 | [Contabo](#Contabo)                                       | Hosting Provider |           -           |
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [Datadog](#Datadog)                                       |       SaaS       |           -           |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
+| [Fastly](#Fastly)                                         |       CDN        |           -           |
 | [Fly.io](#Flyio)                                          | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
+| [GitHub](#GitHub)                                         |       SaaS       |           -           |
 | [Google](#Google)                                         | Hosting Provider |           -           |
 | [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
+| [Google User-triggered Fetchers](#Google-User-triggered-Fetchers) | Web crawler |         -           |
 | [Googlebot](#Googlebot)                                   |   Web crawler    |           -           |
 | [Hetzner](#Hetzner)                                       | Hosting Provider |           -           |
 | [IBM Cloud](#IBM-Cloud)                                   | Hosting Provider |           -           |
@@ -85,6 +90,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [M247](#M247)                                             | Hosting Provider |           -           |
 | [OpenAI](#OpenAI)                                         |   Web crawler    |           -           |
+| [Oracle Cloud (OCI)](#Oracle-Cloud-OCI)                   | Hosting Provider |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Render](#Render)                                         | Hosting Provider |           -           |
@@ -429,6 +435,13 @@ can be overridden in the configuration file.
     document_cache_ttl: 1440  # minutes
 ```
 
+### Akamai
+
+[Akamai](https://www.akamai.com/) is a content delivery network that publishes
+the IP ranges used by its edge platform at
+[ip-ranges.akamai.com](https://ip-ranges.akamai.com/). IPScout downloads this
+list and checks whether the target IP is within those ranges.
+
 ### Atlassian
 
 [Atlassian](https://www.atlassian.com/) publishes the IP ranges used by its
@@ -447,6 +460,14 @@ whether the target IP is within those ranges.
 prefixes used by its edge network. IPScout downloads this list and checks
 whether the target IP is within those ranges.
 
+### Cloudflare
+
+[Cloudflare](https://www.cloudflare.com/) is a content delivery network that
+publishes the IP ranges used by its edge network at
+[cloudflare.com/ips-v4](https://www.cloudflare.com/ips-v4) and
+[cloudflare.com/ips-v6](https://www.cloudflare.com/ips-v6). IPScout downloads
+these lists and checks whether the target IP is within those ranges.
+
 ### Contabo
 
 [Contabo](https://contabo.com/) is a hosting provider.
@@ -459,11 +480,32 @@ against the target host.
 publishes the IP ranges used by its services. IPScout downloads this list and
 checks whether the target IP is within those ranges.
 
+### Fastly
+
+[Fastly](https://www.fastly.com/) is a content delivery network that publishes
+the IP ranges used by its edge network via its
+[public IP list API](https://api.fastly.com/public-ip-list). IPScout downloads
+this list and checks whether the target IP is within those ranges.
+
 ### Fly.io
 
 [Fly.io](https://fly.io/) is an application hosting provider.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
+
+### GitHub
+
+[GitHub](https://github.com/) publishes the IP ranges used by its services
+(web, API, Actions, Pages and others) via its
+[meta API](https://api.github.com/meta). IPScout downloads this list and
+reports the services associated with any matching range.
+
+### Google User-triggered Fetchers
+
+Google publishes the IP ranges used by its
+[user-triggered fetchers](https://developers.google.com/static/crawling/ipranges/user-triggered-fetchers.json),
+tools that fetch pages on behalf of a user request. IPScout downloads this list
+and checks whether the target IP is within those ranges.
 
 ### IBM Cloud
 
@@ -482,6 +524,13 @@ and checks whether the target IP is within those ranges.
 [Leaseweb](https://www.leaseweb.com/) is a hosting provider.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
+
+### Oracle Cloud (OCI)
+
+[Oracle Cloud Infrastructure](https://www.oracle.com/cloud/) publishes the
+[IP ranges](https://docs.oracle.com/iaas/tools/public_ip_ranges.json) used by
+its services. IPScout downloads this list and reports the region and service
+tags associated with any matching range.
 
 ### Render
 

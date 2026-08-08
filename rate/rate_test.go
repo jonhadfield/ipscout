@@ -42,7 +42,8 @@ func TestDefaultConfigHostingProviderScores(t *testing.T) {
 
 // TestDefaultConfigNewIPFetcherProviderScores verifies the providers added from
 // the ip-fetcher integration are present in the embedded default config with
-// their expected match scores (IaaS 8.0, CDN/WAF 5.0, SaaS 3.0).
+// their expected match scores (IaaS 8.0, CDN/WAF 5.0, SaaS 3.0, edge/CDN and
+// SaaS ranges 2.0, crawlers 1.0).
 func TestDefaultConfigNewIPFetcherProviderScores(t *testing.T) {
 	var ratingConfig providers.RatingConfig
 
@@ -61,4 +62,10 @@ func TestDefaultConfigNewIPFetcherProviderScores(t *testing.T) {
 	require.Equal(t, float64(3), rc.Atlassian.DefaultMatchScore)
 	require.Equal(t, float64(3), rc.Datadog.DefaultMatchScore)
 	require.Equal(t, float64(3), rc.Stripe.DefaultMatchScore)
+	require.Equal(t, float64(2), rc.Akamai.DefaultMatchScore)
+	require.Equal(t, float64(2), rc.Cloudflare.DefaultMatchScore)
+	require.Equal(t, float64(2), rc.Fastly.DefaultMatchScore)
+	require.Equal(t, float64(2), rc.GitHub.DefaultMatchScore)
+	require.Equal(t, float64(1), rc.GoogleUTF.DefaultMatchScore)
+	require.Equal(t, float64(8), rc.OCI.DefaultMatchScore)
 }

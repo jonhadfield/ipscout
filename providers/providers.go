@@ -532,9 +532,27 @@ type RatingConfig struct {
 		Zscaler struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"zscaler"`
+		Akamai struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"akamai"`
 		Atlassian struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"atlassian"`
+		Cloudflare struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"cloudflare"`
+		Fastly struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"fastly"`
+		GitHub struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"github"`
+		GoogleUTF struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"googleutf"`
+		OCI struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"oci"`
 		Bunny struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"bunny"`

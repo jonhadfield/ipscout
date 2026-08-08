@@ -64,7 +64,13 @@ const DefaultZscalerOutputPriority = 40
 const (
 	DefaultAbuseIPDBOutputPriority  = 50
 	DefaultAnnotatedOutputPriority  = 30
+	DefaultAkamaiOutputPriority     = 140
 	DefaultAtlassianOutputPriority  = 60
+	DefaultCloudflareOutputPriority = 140
+	DefaultFastlyOutputPriority     = 140
+	DefaultGitHubOutputPriority     = 60
+	DefaultGoogleUTFOutputPriority  = 190
+	DefaultOCIOutputPriority        = 200
 	DefaultAWSOutputPriority        = 200
 	DefaultAzureOutputPriority      = 200
 	DefaultAzureWAFOutputPriority   = 20
