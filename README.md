@@ -55,10 +55,12 @@ Provider data and search results can be cached to reduce API calls and improve p
 | Provider                                                  |     Category     |         Notes         |
 |:----------------------------------------------------------|:----------------:|:---------------------:|
 | [AbuseIPDB](#AbuseIPDB)                                   |  IP Reputation   | Registration required |
+| [AhrefsBot](#AhrefsBot)                                   |   Web crawler    |           -           |
 | [Akamai](#Akamai)                                         |       CDN        |           -           |
 | [Alibaba Cloud](#Alibaba-Cloud)                           | Hosting Provider |           -           |
 | [Annotated](#Annotated)                                   |  User Provided   |           -           |
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
+| [Applebot](#Applebot)                                     |   Web crawler    |           -           |
 | [Atlassian](#Atlassian)                                   |       SaaS       |           -           |
 | [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |
 | [Azure](#Azure)                                           | Hosting Provider |           -           |
@@ -71,6 +73,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [Datadog](#Datadog)                                       |       SaaS       |           -           |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
+| [DuckDuckBot](#DuckDuckBot)                               |   Web crawler    |           -           |
 | [Fastly](#Fastly)                                         |       CDN        |           -           |
 | [Fly.io](#Flyio)                                          | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
@@ -92,6 +95,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [OpenAI](#OpenAI)                                         |   Web crawler    |           -           |
 | [Oracle Cloud (OCI)](#Oracle-Cloud-OCI)                   | Hosting Provider |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
+| [PerplexityBot](#PerplexityBot)                           |   Web crawler    |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Render](#Render)                                         | Hosting Provider |           -           |
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
@@ -435,12 +439,27 @@ can be overridden in the configuration file.
     document_cache_ttl: 1440  # minutes
 ```
 
+### AhrefsBot
+
+[AhrefsBot](https://ahrefs.com/robot) is the web crawler for the Ahrefs SEO
+platform. Ahrefs publishes the IP ranges used by its crawler at
+[api.ahrefs.com/v3/public/crawler-ip-ranges](https://api.ahrefs.com/v3/public/crawler-ip-ranges).
+IPScout downloads this list and checks whether the target IP is within those ranges.
+
 ### Akamai
 
 [Akamai](https://www.akamai.com/) is a content delivery network that publishes
 the IP ranges used by its edge platform at
 [ip-ranges.akamai.com](https://ip-ranges.akamai.com/). IPScout downloads this
 list and checks whether the target IP is within those ranges.
+
+### Applebot
+
+[Applebot](https://support.apple.com/en-us/119829) is Apple's web crawler, used
+by products such as Siri and Spotlight. Apple publishes the IP ranges used by
+the crawler at
+[search.developer.apple.com/applebot.json](https://search.developer.apple.com/applebot.json).
+IPScout downloads this list and checks whether the target IP is within those ranges.
 
 ### Atlassian
 
@@ -479,6 +498,14 @@ against the target host.
 [Datadog](https://www.datadoghq.com/) is an observability platform that
 publishes the IP ranges used by its services. IPScout downloads this list and
 checks whether the target IP is within those ranges.
+
+### DuckDuckBot
+
+[DuckDuckBot](https://duckduckgo.com/duckduckgo-help-pages/results/duckduckbot/)
+is the web crawler for the DuckDuckGo search engine. DuckDuckGo publishes the IP
+addresses used by the crawler at
+[duckduckgo.com/duckduckbot.json](https://duckduckgo.com/duckduckbot.json).
+IPScout downloads this list and checks whether the target IP is within those ranges.
 
 ### Fastly
 
@@ -531,6 +558,14 @@ against the target host.
 [IP ranges](https://docs.oracle.com/iaas/tools/public_ip_ranges.json) used by
 its services. IPScout downloads this list and reports the region and service
 tags associated with any matching range.
+
+### PerplexityBot
+
+[PerplexityBot](https://docs.perplexity.ai/guides/bots) is the web crawler for
+the Perplexity answer engine. Perplexity publishes the IP ranges used by the
+crawler at
+[perplexity.com/perplexitybot.json](https://www.perplexity.com/perplexitybot.json).
+IPScout downloads this list and checks whether the target IP is within those ranges.
 
 ### Render
 

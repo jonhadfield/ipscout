@@ -8,9 +8,11 @@ import (
 
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
+	"github.com/jonhadfield/ipscout/providers/ahrefs"
 	"github.com/jonhadfield/ipscout/providers/akamai"
 	"github.com/jonhadfield/ipscout/providers/alibaba"
 	"github.com/jonhadfield/ipscout/providers/annotated"
+	"github.com/jonhadfield/ipscout/providers/applebot"
 	"github.com/jonhadfield/ipscout/providers/atlassian"
 	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/providers/azure"
@@ -23,6 +25,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/criminalip"
 	"github.com/jonhadfield/ipscout/providers/datadog"
 	"github.com/jonhadfield/ipscout/providers/digitalocean"
+	"github.com/jonhadfield/ipscout/providers/duckduckbot"
 	"github.com/jonhadfield/ipscout/providers/fastly"
 	"github.com/jonhadfield/ipscout/providers/flyio"
 	"github.com/jonhadfield/ipscout/providers/gcp"
@@ -45,6 +48,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/oci"
 	"github.com/jonhadfield/ipscout/providers/openai"
 	"github.com/jonhadfield/ipscout/providers/ovh"
+	"github.com/jonhadfield/ipscout/providers/perplexitybot"
 	"github.com/jonhadfield/ipscout/providers/ptr"
 	"github.com/jonhadfield/ipscout/providers/render"
 	"github.com/jonhadfield/ipscout/providers/scaleway"
@@ -224,13 +228,16 @@ func All() []Entry {
 		{Name: virustotal.ProviderName, DisplayName: "VirusTotal", Enabled: func(s session.Session) *bool { return s.Providers.VirusTotal.Enabled }, APIKey: func(s session.Session) string { return s.Providers.VirusTotal.APIKey }, NewClient: virustotal.NewProviderClient, SupportsRating: true},
 		{Name: vultr.ProviderName, DisplayName: "Vultr", Enabled: func(s session.Session) *bool { return s.Providers.Vultr.Enabled }, APIKey: noKey, NewClient: vultr.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: zscaler.ProviderName, DisplayName: "Zscaler", Enabled: func(s session.Session) *bool { return s.Providers.Zscaler.Enabled }, APIKey: noKey, NewClient: zscaler.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: ahrefs.ProviderName, DisplayName: "AhrefsBot", Enabled: func(s session.Session) *bool { return s.Providers.Ahrefs.Enabled }, APIKey: noKey, NewClient: ahrefs.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: akamai.ProviderName, DisplayName: "Akamai", Enabled: func(s session.Session) *bool { return s.Providers.Akamai.Enabled }, APIKey: noKey, NewClient: akamai.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: applebot.ProviderName, DisplayName: "Applebot", Enabled: func(s session.Session) *bool { return s.Providers.Applebot.Enabled }, APIKey: noKey, NewClient: applebot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: atlassian.ProviderName, DisplayName: "Atlassian", Enabled: func(s session.Session) *bool { return s.Providers.Atlassian.Enabled }, APIKey: noKey, NewClient: atlassian.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: bunny.ProviderName, DisplayName: "Bunny CDN", Enabled: func(s session.Session) *bool { return s.Providers.Bunny.Enabled }, APIKey: noKey, NewClient: bunny.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: cdn77.ProviderName, DisplayName: "CDN77", Enabled: func(s session.Session) *bool { return s.Providers.CDN77.Enabled }, APIKey: noKey, NewClient: cdn77.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: cloudflare.ProviderName, DisplayName: "Cloudflare", Enabled: func(s session.Session) *bool { return s.Providers.Cloudflare.Enabled }, APIKey: noKey, NewClient: cloudflare.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: contabo.ProviderName, DisplayName: "Contabo", Enabled: func(s session.Session) *bool { return s.Providers.Contabo.Enabled }, APIKey: noKey, NewClient: contabo.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: datadog.ProviderName, DisplayName: "Datadog", Enabled: func(s session.Session) *bool { return s.Providers.Datadog.Enabled }, APIKey: noKey, NewClient: datadog.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: duckduckbot.ProviderName, DisplayName: "DuckDuckBot", Enabled: func(s session.Session) *bool { return s.Providers.DuckDuckBot.Enabled }, APIKey: noKey, NewClient: duckduckbot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: fastly.ProviderName, DisplayName: "Fastly", Enabled: func(s session.Session) *bool { return s.Providers.Fastly.Enabled }, APIKey: noKey, NewClient: fastly.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: flyio.ProviderName, DisplayName: "Fly.io", Enabled: func(s session.Session) *bool { return s.Providers.Flyio.Enabled }, APIKey: noKey, NewClient: flyio.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: github.ProviderName, DisplayName: "GitHub", Enabled: func(s session.Session) *bool { return s.Providers.GitHub.Enabled }, APIKey: noKey, NewClient: github.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
@@ -239,6 +246,7 @@ func All() []Entry {
 		{Name: imperva.ProviderName, DisplayName: "Imperva", Enabled: func(s session.Session) *bool { return s.Providers.Imperva.Enabled }, APIKey: noKey, NewClient: imperva.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: leaseweb.ProviderName, DisplayName: "Leaseweb", Enabled: func(s session.Session) *bool { return s.Providers.Leaseweb.Enabled }, APIKey: noKey, NewClient: leaseweb.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: oci.ProviderName, DisplayName: "Oracle Cloud (OCI)", Enabled: func(s session.Session) *bool { return s.Providers.OCI.Enabled }, APIKey: noKey, NewClient: oci.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: perplexitybot.ProviderName, DisplayName: "PerplexityBot", Enabled: func(s session.Session) *bool { return s.Providers.PerplexityBot.Enabled }, APIKey: noKey, NewClient: perplexitybot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: render.ProviderName, DisplayName: "Render", Enabled: func(s session.Session) *bool { return s.Providers.Render.Enabled }, APIKey: noKey, NewClient: render.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: stripe.ProviderName, DisplayName: "Stripe", Enabled: func(s session.Session) *bool { return s.Providers.Stripe.Enabled }, APIKey: noKey, NewClient: stripe.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: tencent.ProviderName, DisplayName: "Tencent Cloud", Enabled: func(s session.Session) *bool { return s.Providers.Tencent.Enabled }, APIKey: noKey, NewClient: tencent.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

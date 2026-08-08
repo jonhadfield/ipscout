@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-08-08
+### Added
+- AhrefsBot, Applebot, DuckDuckBot and PerplexityBot web crawler providers, fetched via
+  ip-fetcher v0.0.20 from each bot's published prefix feed
+
 ## [0.7.0] - 2026-08-08
 ### Added
 - Akamai, Cloudflare, Fastly, GitHub, Google User-triggered Fetchers and Oracle Cloud (OCI)

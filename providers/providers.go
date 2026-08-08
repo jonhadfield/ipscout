@@ -532,9 +532,21 @@ type RatingConfig struct {
 		Zscaler struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"zscaler"`
+		Ahrefs struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"ahrefs"`
 		Akamai struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"akamai"`
+		Applebot struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"applebot"`
+		DuckDuckBot struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"duckduckbot"`
+		PerplexityBot struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"perplexitybot"`
 		Atlassian struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"atlassian"`
