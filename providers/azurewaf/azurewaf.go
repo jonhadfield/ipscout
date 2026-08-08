@@ -17,6 +17,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor"
 	"github.com/jonhadfield/azwaf/config"
+	azwafLogging "github.com/jonhadfield/azwaf/logging"
 	"github.com/jonhadfield/ipscout/cache"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -24,7 +25,6 @@ import (
 	azwafSession "github.com/jonhadfield/azwaf/session"
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -47,15 +47,12 @@ type ProviderClient struct {
 func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 	c.Logger.Debug("creating azurewaf client")
 
-	// azwaf logs via the global logrus logger, which defaults to info on
-	// stderr regardless of ipscout's log level; align it so azure waf
-	// diagnostics only appear at the level the user asked for
-	logrusLevel, err := logrus.ParseLevel(strings.ToLower(c.Config.Global.LogLevel))
-	if err != nil {
-		logrusLevel = logrus.WarnLevel
+	// azwaf logs to its own isolated slog logger (silent by default);
+	// route it through the session logger so azure waf diagnostics
+	// honour ipscout's log level and destination
+	if c.Logger != nil {
+		azwafLogging.SetLogger(c.Logger)
 	}
-
-	logrus.SetLevel(logrusLevel)
 
 	tc := &ProviderClient{
 		Session: c,
@@ -99,7 +96,10 @@ func unmarshalProviderData(rBody []byte) ([]*armfrontdoor.WebApplicationFirewall
 }
 
 func (c *ProviderClient) loadProviderData() error {
-	as := azwafSession.New()
+	as, err := azwafSession.New()
+	if err != nil {
+		return fmt.Errorf("error creating azure waf session: %w", err)
+	}
 
 	policies, err := getPolicies(c.Session, as)
 	if err != nil {
