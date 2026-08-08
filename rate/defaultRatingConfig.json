@@ -161,6 +161,18 @@
     },
     "oci": {
       "defaultMatchScore": 8.0
+    },
+    "ahrefs": {
+      "defaultMatchScore": 1.0
+    },
+    "applebot": {
+      "defaultMatchScore": 1.0
+    },
+    "duckduckbot": {
+      "defaultMatchScore": 1.0
+    },
+    "perplexitybot": {
+      "defaultMatchScore": 1.0
     }
   }
 }

@@ -115,7 +115,15 @@ providers:
     enabled: true
   openai:
     enabled: true
+  ahrefs:
+    enabled: true
   akamai:
+    enabled: true
+  applebot:
+    enabled: true
+  duckduckbot:
+    enabled: true
+  perplexitybot:
     enabled: true
   cloudflare:
     enabled: true

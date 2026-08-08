@@ -712,8 +712,12 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	sess.Providers.Zscaler.DocumentCacheTTL = v.GetInt64("providers.zscaler.document_cache_ttl")
 	sess.Providers.Zscaler.URL = v.GetString("providers.zscaler.url")
 
+	initSimpleProviderConfig(sess, v, "ahrefs", "AhrefsBot", c.DefaultAhrefsOutputPriority,
+		&sess.Providers.Ahrefs.Enabled, &sess.Providers.Ahrefs.OutputPriority, &sess.Providers.Ahrefs.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "akamai", "Akamai", c.DefaultAkamaiOutputPriority,
 		&sess.Providers.Akamai.Enabled, &sess.Providers.Akamai.OutputPriority, &sess.Providers.Akamai.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "applebot", "Applebot", c.DefaultApplebotOutputPriority,
+		&sess.Providers.Applebot.Enabled, &sess.Providers.Applebot.OutputPriority, &sess.Providers.Applebot.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "atlassian", "Atlassian", c.DefaultAtlassianOutputPriority,
 		&sess.Providers.Atlassian.Enabled, &sess.Providers.Atlassian.OutputPriority, &sess.Providers.Atlassian.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "bunny", "Bunny CDN", c.DefaultBunnyOutputPriority,
@@ -726,6 +730,8 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Contabo.Enabled, &sess.Providers.Contabo.OutputPriority, &sess.Providers.Contabo.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "datadog", "Datadog", c.DefaultDatadogOutputPriority,
 		&sess.Providers.Datadog.Enabled, &sess.Providers.Datadog.OutputPriority, &sess.Providers.Datadog.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "duckduckbot", "DuckDuckBot", c.DefaultDuckDuckBotOutputPriority,
+		&sess.Providers.DuckDuckBot.Enabled, &sess.Providers.DuckDuckBot.OutputPriority, &sess.Providers.DuckDuckBot.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "fastly", "Fastly", c.DefaultFastlyOutputPriority,
 		&sess.Providers.Fastly.Enabled, &sess.Providers.Fastly.OutputPriority, &sess.Providers.Fastly.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "flyio", "Fly.io", c.DefaultFlyioOutputPriority,
@@ -742,6 +748,8 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Leaseweb.Enabled, &sess.Providers.Leaseweb.OutputPriority, &sess.Providers.Leaseweb.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "oci", "Oracle Cloud (OCI)", c.DefaultOCIOutputPriority,
 		&sess.Providers.OCI.Enabled, &sess.Providers.OCI.OutputPriority, &sess.Providers.OCI.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "perplexitybot", "PerplexityBot", c.DefaultPerplexityBotOutputPriority,
+		&sess.Providers.PerplexityBot.Enabled, &sess.Providers.PerplexityBot.OutputPriority, &sess.Providers.PerplexityBot.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "render", "Render", c.DefaultRenderOutputPriority,
 		&sess.Providers.Render.Enabled, &sess.Providers.Render.OutputPriority, &sess.Providers.Render.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "stripe", "Stripe", c.DefaultStripeOutputPriority,

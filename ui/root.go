@@ -451,6 +451,21 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	sess.Providers.Zscaler.DocumentCacheTTL = v.GetInt64("providers.zscaler.document_cache_ttl")
 	sess.Providers.Zscaler.URL = v.GetString("providers.zscaler.url")
 
+	// AhrefsBot
+	if v.IsSet("providers.ahrefs.enabled") {
+		sess.Providers.Ahrefs.Enabled = ToPtr(v.GetBool("providers.ahrefs.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "AhrefsBot")
+	}
+
+	if v.IsSet("providers.ahrefs.output_priority") {
+		sess.Providers.Ahrefs.OutputPriority = ToPtr(v.GetInt32("providers.ahrefs.output_priority"))
+	} else {
+		sess.Providers.Ahrefs.OutputPriority = ToPtr(int32(c.DefaultAhrefsOutputPriority))
+	}
+
+	sess.Providers.Ahrefs.DocumentCacheTTL = v.GetInt64("providers.ahrefs.document_cache_ttl")
+
 	// Akamai
 	if v.IsSet("providers.akamai.enabled") {
 		sess.Providers.Akamai.Enabled = ToPtr(v.GetBool("providers.akamai.enabled"))
@@ -466,6 +481,21 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.Akamai.DocumentCacheTTL = v.GetInt64("providers.akamai.document_cache_ttl")
 
+	// Applebot
+	if v.IsSet("providers.applebot.enabled") {
+		sess.Providers.Applebot.Enabled = ToPtr(v.GetBool("providers.applebot.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Applebot")
+	}
+
+	if v.IsSet("providers.applebot.output_priority") {
+		sess.Providers.Applebot.OutputPriority = ToPtr(v.GetInt32("providers.applebot.output_priority"))
+	} else {
+		sess.Providers.Applebot.OutputPriority = ToPtr(int32(c.DefaultApplebotOutputPriority))
+	}
+
+	sess.Providers.Applebot.DocumentCacheTTL = v.GetInt64("providers.applebot.document_cache_ttl")
+
 	// Cloudflare
 	if v.IsSet("providers.cloudflare.enabled") {
 		sess.Providers.Cloudflare.Enabled = ToPtr(v.GetBool("providers.cloudflare.enabled"))
@@ -480,6 +510,21 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	}
 
 	sess.Providers.Cloudflare.DocumentCacheTTL = v.GetInt64("providers.cloudflare.document_cache_ttl")
+
+	// DuckDuckBot
+	if v.IsSet("providers.duckduckbot.enabled") {
+		sess.Providers.DuckDuckBot.Enabled = ToPtr(v.GetBool("providers.duckduckbot.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "DuckDuckBot")
+	}
+
+	if v.IsSet("providers.duckduckbot.output_priority") {
+		sess.Providers.DuckDuckBot.OutputPriority = ToPtr(v.GetInt32("providers.duckduckbot.output_priority"))
+	} else {
+		sess.Providers.DuckDuckBot.OutputPriority = ToPtr(int32(c.DefaultDuckDuckBotOutputPriority))
+	}
+
+	sess.Providers.DuckDuckBot.DocumentCacheTTL = v.GetInt64("providers.duckduckbot.document_cache_ttl")
 
 	// Fastly
 	if v.IsSet("providers.fastly.enabled") {
@@ -540,6 +585,21 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	}
 
 	sess.Providers.OCI.DocumentCacheTTL = v.GetInt64("providers.oci.document_cache_ttl")
+
+	// PerplexityBot
+	if v.IsSet("providers.perplexitybot.enabled") {
+		sess.Providers.PerplexityBot.Enabled = ToPtr(v.GetBool("providers.perplexitybot.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "PerplexityBot")
+	}
+
+	if v.IsSet("providers.perplexitybot.output_priority") {
+		sess.Providers.PerplexityBot.OutputPriority = ToPtr(v.GetInt32("providers.perplexitybot.output_priority"))
+	} else {
+		sess.Providers.PerplexityBot.OutputPriority = ToPtr(int32(c.DefaultPerplexityBotOutputPriority))
+	}
+
+	sess.Providers.PerplexityBot.DocumentCacheTTL = v.GetInt64("providers.perplexitybot.document_cache_ttl")
 }
 
 func initSessionConfig(sess *session.Session, v *viper.Viper) {
