@@ -246,6 +246,18 @@ func TestFindHostNoMatch(t *testing.T) {
 	require.ErrorIs(t, err, providers.ErrNoMatchFound)
 }
 
+func TestFindHostInvalidHost(t *testing.T) {
+	t.Parallel()
+
+	c := newTestClient(t, testHost)
+	seedCache(t, c, ipfetcher.Doc{IPv4Prefixes: []netip.Prefix{netip.MustParsePrefix(testPrefix)}})
+	c.Host = netip.Addr{}
+
+	_, err := c.FindHost()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "invalid")
+}
+
 func TestFindHostCorruptCache(t *testing.T) {
 	t.Parallel()
 

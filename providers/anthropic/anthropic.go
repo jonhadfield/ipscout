@@ -19,6 +19,8 @@ import (
 const (
 	ProviderName = "anthropic"
 	DocTTL       = 24 * time.Hour
+	// testDataHost is the host represented by the checked-in test data report.
+	testDataHost = "160.79.104.10"
 )
 
 type ProviderClient struct {
@@ -225,7 +227,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 		return nil, err
 	}
 
-	c.Logger.Info("anthropic match returned from test data", "host", "160.79.104.10")
+	c.Logger.Info("anthropic match returned from test data", "host", testDataHost)
 
 	out, err := json.Marshal(tdf)
 	if err != nil {
@@ -321,7 +323,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetTitle("Anthropic | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("Anthropic | Host: %s", "160.79.104.10")
+		tw.SetTitle("Anthropic | Host: %s", testDataHost)
 	}
 
 	return &tw, nil

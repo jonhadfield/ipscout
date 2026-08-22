@@ -109,7 +109,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Spamhaus DROP](#Spamhaus-DROP)                           |   Threat Feed    |           -           |
 | [Stripe](#Stripe)                                         |       SaaS       |           -           |
 | [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
-| [UptimeRobot](#UptimeRobot)                               |    Monitoring    |           -           |
+| [UptimeRobot](#UptimeRobot)                               |       SaaS       |           -           |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
 

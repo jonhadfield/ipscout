@@ -228,6 +228,19 @@ func TestFindHostFromCacheNoMatch(t *testing.T) {
 	require.ErrorIs(t, err, providers.ErrNoMatchFound)
 }
 
+func TestFindHostInvalidHost(t *testing.T) {
+	t.Parallel()
+
+	c := newTestProviderClient(t)
+	c.UseTestData = false
+	c.Host = netip.Addr{}
+	seedCache(t, c)
+
+	_, err := c.FindHost()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "invalid")
+}
+
 func TestFindHostCacheMissing(t *testing.T) {
 	t.Parallel()
 
@@ -348,7 +361,8 @@ func TestRateHostData(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, result.Detected)
 	require.InEpsilon(t, testDefaultScore, result.Score, 0.0001)
-	require.Equal(t, "very high", result.Threat)
+	// flat-score feeds leave Threat unset; only "noblock" is meaningful to rate/rate.go
+	require.Empty(t, result.Threat)
 	require.Len(t, result.Reasons, 1)
 	require.Contains(t, result.Reasons[0], testSBLID)
 }

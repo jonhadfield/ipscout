@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   providers, reporting whether the host appears on each blocklist
 ### Changed
 - bump ip-fetcher to v0.0.21, which supplies the seven new provider sources
+- widen the existing nolint directives in ui/annotated.go, ui/ptr.go and ui/shodan.go to cover
+  staticcheck SA4006, which a newer staticcheck now reports for the same assignments
 
 ## [0.8.1] - 2026-08-09
 ### Changed

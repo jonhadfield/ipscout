@@ -19,6 +19,8 @@ import (
 const (
 	ProviderName = "emergingthreats"
 	DocTTL       = 24 * time.Hour
+	// testDataHost is the host represented by the checked-in test data report.
+	testDataHost = "198.51.100.42"
 )
 
 type ProviderClient struct {
@@ -88,7 +90,6 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 	if doc.Prefix.IsValid() {
 		rateResult.Score = ratingConfig.ProviderRatingsConfigs.EmergingThreats.DefaultMatchScore
 		rateResult.Detected = true
-		rateResult.Threat = "very high"
 		rateResult.Reasons = []string{"listed in Emerging Threats compromised IPs"}
 	}
 
@@ -225,7 +226,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 		return nil, err
 	}
 
-	c.Logger.Info("emergingthreats match returned from test data", "host", "198.51.100.42")
+	c.Logger.Info("emergingthreats match returned from test data", "host", testDataHost)
 
 	out, err := json.Marshal(tdf)
 	if err != nil {
@@ -243,6 +244,12 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	if c.UseTestData {
 		return loadTestData(c)
+	}
+
+	// the list carries a single set of prefixes, so only the validity of the
+	// host needs checking before searching
+	if !c.Host.Is4() && !c.Host.Is6() {
+		return nil, fmt.Errorf(constants.MsgInvalidHostFmt, c.Host.String())
 	}
 
 	doc, err := c.loadProviderDataFromCache()
@@ -297,7 +304,6 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw := table.NewWriter()
 
 	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Prefix.String())})
-	tw.AppendRow(table.Row{providers.PadRight("List", providers.Column1MinWidth), providers.DashIfEmpty("compromised IPs")})
 
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: providers.DataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
@@ -306,7 +312,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetTitle("Emerging Threats | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("Emerging Threats | Host: %s", "198.51.100.42")
+		tw.SetTitle("Emerging Threats | Host: %s", testDataHost)
 	}
 
 	return &tw, nil

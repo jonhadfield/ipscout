@@ -132,7 +132,8 @@ func TestRateHostData(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, result.Detected)
 	require.InEpsilon(t, 10.0, result.Score, 0.0001)
-	require.Equal(t, "very high", result.Threat)
+	// flat-score feeds leave Threat unset; only "noblock" is meaningful to rate/rate.go
+	require.Empty(t, result.Threat)
 	require.Equal(t, []string{"listed in Emerging Threats compromised IPs"}, result.Reasons)
 
 	empty, err := json.Marshal(HostSearchResult{})
@@ -231,6 +232,18 @@ func TestFindHostNoMatch(t *testing.T) {
 
 	_, err := c.FindHost()
 	require.ErrorIs(t, err, providers.ErrNoMatchFound)
+}
+
+func TestFindHostInvalidHost(t *testing.T) {
+	t.Parallel()
+
+	c := newCacheSeededClient(t, "198.51.100.42")
+	seedCache(t, c, ipfetcher.Doc{IPv4Prefixes: []netip.Prefix{netip.MustParsePrefix("198.51.100.42/32")}})
+	c.Host = netip.Addr{}
+
+	_, err := c.FindHost()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "invalid")
 }
 
 func TestFindHostWithoutCachedData(t *testing.T) {

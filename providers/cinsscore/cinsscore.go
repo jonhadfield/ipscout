@@ -246,6 +246,12 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return loadTestData(c)
 	}
 
+	// the list carries a single set of prefixes, so only the validity of the
+	// host needs checking before searching
+	if !c.Host.Is4() && !c.Host.Is6() {
+		return nil, fmt.Errorf(constants.MsgInvalidHostFmt, c.Host.String())
+	}
+
 	doc, err := c.loadProviderDataFromCache()
 	if err != nil {
 		return nil, fmt.Errorf("loading cinsscore host data from cache: %w", err)

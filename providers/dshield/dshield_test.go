@@ -428,6 +428,8 @@ func TestRateHostData(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, result.Detected)
 	require.InEpsilon(t, testDefaultScore, result.Score, 0.0001)
+	// flat-score feeds leave Threat unset; only "noblock" is meaningful to rate/rate.go
+	require.Empty(t, result.Threat)
 	require.Equal(t, []string{"listed on the DShield block list with 4096 attacks"}, result.Reasons)
 }
 

@@ -19,6 +19,8 @@ import (
 const (
 	ProviderName = "spamhaus"
 	DocTTL       = 24 * time.Hour
+	// testDataHost is the host represented by the checked-in test data report.
+	testDataHost = "192.0.2.5"
 )
 
 type ProviderClient struct {
@@ -93,7 +95,6 @@ func (c *ProviderClient) RateHostData(findRes []byte, ratingConfigJSON []byte) (
 		// a DROP listing means the prefix is not to be routed or peered with
 		rateResult.Score = ratingConfig.ProviderRatingsConfigs.Spamhaus.DefaultMatchScore
 		rateResult.Detected = true
-		rateResult.Threat = "very high"
 
 		reason := "listed on Spamhaus DROP (do not route or peer)"
 		if doc.SBLID != "" {
@@ -237,7 +238,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 		return nil, err
 	}
 
-	c.Logger.Info("spamhaus match returned from test data", "host", "192.0.2.5")
+	c.Logger.Info("spamhaus match returned from test data", "host", testDataHost)
 
 	out, err := json.Marshal(tdf)
 	if err != nil {
@@ -345,7 +346,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetTitle("Spamhaus DROP | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("Spamhaus DROP | Host: %s", "192.0.2.5")
+		tw.SetTitle("Spamhaus DROP | Host: %s", testDataHost)
 	}
 
 	return &tw, nil

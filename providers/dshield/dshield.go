@@ -20,6 +20,8 @@ import (
 const (
 	ProviderName = "dshield"
 	DocTTL       = 24 * time.Hour
+	// testDataHost is the host represented by the checked-in test data report.
+	testDataHost = "198.51.100.42"
 )
 
 type ProviderClient struct {
@@ -227,7 +229,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 		return nil, err
 	}
 
-	c.Logger.Info("dshield match returned from test data", "host", "198.51.100.42")
+	c.Logger.Info("dshield match returned from test data", "host", testDataHost)
 
 	out, err := json.Marshal(tdf)
 	if err != nil {
@@ -328,7 +330,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetTitle("DShield | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("DShield | Host: %s", "198.51.100.42")
+		tw.SetTitle("DShield | Host: %s", testDataHost)
 	}
 
 	return &tw, nil

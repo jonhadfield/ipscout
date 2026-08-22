@@ -19,6 +19,8 @@ import (
 const (
 	ProviderName = "uptimerobot"
 	DocTTL       = 24 * time.Hour
+	// testDataHost is the host represented by the checked-in test data report.
+	testDataHost = "192.0.2.1"
 )
 
 type ProviderClient struct {
@@ -224,7 +226,7 @@ func loadTestData(c *ProviderClient) ([]byte, error) {
 		return nil, err
 	}
 
-	c.Logger.Info("uptimerobot match returned from test data", "host", "192.0.2.1")
+	c.Logger.Info("uptimerobot match returned from test data", "host", testDataHost)
 
 	out, err := json.Marshal(tdf)
 	if err != nil {
@@ -242,6 +244,12 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 
 	if c.UseTestData {
 		return loadTestData(c)
+	}
+
+	// the list carries a single set of prefixes, so only the validity of the
+	// host needs checking before searching
+	if !c.Host.Is4() && !c.Host.Is6() {
+		return nil, fmt.Errorf(constants.MsgInvalidHostFmt, c.Host.String())
 	}
 
 	doc, err := c.loadProviderDataFromCache()
@@ -304,7 +312,7 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 	tw.SetTitle("UptimeRobot | Host: %s", c.Host.String())
 
 	if c.UseTestData {
-		tw.SetTitle("UptimeRobot | Host: %s", "192.0.2.1")
+		tw.SetTitle("UptimeRobot | Host: %s", testDataHost)
 	}
 
 	return &tw, nil

@@ -716,10 +716,10 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Ahrefs.Enabled, &sess.Providers.Ahrefs.OutputPriority, &sess.Providers.Ahrefs.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "akamai", "Akamai", c.DefaultAkamaiOutputPriority,
 		&sess.Providers.Akamai.Enabled, &sess.Providers.Akamai.OutputPriority, &sess.Providers.Akamai.DocumentCacheTTL)
-	initSimpleProviderConfig(sess, v, "applebot", "Applebot", c.DefaultApplebotOutputPriority,
-		&sess.Providers.Applebot.Enabled, &sess.Providers.Applebot.OutputPriority, &sess.Providers.Applebot.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "anthropic", "Anthropic", c.DefaultAnthropicOutputPriority,
 		&sess.Providers.Anthropic.Enabled, &sess.Providers.Anthropic.OutputPriority, &sess.Providers.Anthropic.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "applebot", "Applebot", c.DefaultApplebotOutputPriority,
+		&sess.Providers.Applebot.Enabled, &sess.Providers.Applebot.OutputPriority, &sess.Providers.Applebot.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "atlassian", "Atlassian", c.DefaultAtlassianOutputPriority,
 		&sess.Providers.Atlassian.Enabled, &sess.Providers.Atlassian.OutputPriority, &sess.Providers.Atlassian.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "blocklistde", "Blocklist.de", c.DefaultBlocklistDEOutputPriority,
