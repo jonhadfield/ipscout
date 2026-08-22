@@ -59,6 +59,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Akamai](#Akamai)                                         |       CDN        |           -           |
 | [Alibaba Cloud](#Alibaba-Cloud)                           | Hosting Provider |           -           |
 | [Annotated](#Annotated)                                   |  User Provided   |           -           |
+| [Anthropic](#Anthropic)                                   |   Web crawler    |           -           |
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
 | [Applebot](#Applebot)                                     |   Web crawler    |           -           |
 | [Atlassian](#Atlassian)                                   |       SaaS       |           -           |
@@ -66,14 +67,18 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Azure](#Azure)                                           | Hosting Provider |           -           |
 | [Azure WAF](#Azure-WAF)                                   |       WAF        | Azure access required |
 | [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
+| [Blocklist.de](#Blocklistde)                              |   Threat Feed    |           -           |
 | [Bunny CDN](#Bunny-CDN)                                   |       CDN        |           -           |
 | [CDN77](#CDN77)                                           |       CDN        |           -           |
+| [CINS Army List](#CINS-Army-List)                         |   Threat Feed    |           -           |
 | [Cloudflare](#Cloudflare)                                 |       CDN        |           -           |
 | [Contabo](#Contabo)                                       | Hosting Provider |           -           |
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [Datadog](#Datadog)                                       |       SaaS       |           -           |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
+| [DShield](#DShield)                                       |   Threat Feed    |           -           |
 | [DuckDuckBot](#DuckDuckBot)                               |   Web crawler    |           -           |
+| [Emerging Threats](#Emerging-Threats)                     |   Threat Feed    |           -           |
 | [Fastly](#Fastly)                                         |       CDN        |           -           |
 | [Fly.io](#Flyio)                                          | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
@@ -101,8 +106,10 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
 | [Vultr](#Vultr)                                           | Hosting Provider |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
+| [Spamhaus DROP](#Spamhaus-DROP)                           |   Threat Feed    |           -           |
 | [Stripe](#Stripe)                                         |       SaaS       |           -           |
 | [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
+| [UptimeRobot](#UptimeRobot)                               |    Monitoring    |           -           |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
 
@@ -584,6 +591,63 @@ within those ranges.
 [Tencent Cloud](https://www.tencentcloud.com/) is a hosting provider.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
+
+### Anthropic
+
+[Anthropic](https://www.anthropic.com/) publishes the IP ranges used by its
+crawlers, including ClaudeBot and the Claude user-triggered fetchers, at
+[claude.com/crawling/bots.json](https://claude.com/crawling/bots.json).
+IPScout downloads this list and checks whether the target IP is within those ranges.
+
+### Blocklist.de
+
+[Blocklist.de](https://www.blocklist.de/en/index.html) is a community-run service
+that collects reports of hosts attacking other systems via SSH, mail, web and
+other services. The aggregated list of reported addresses is published at
+[lists.blocklist.de/lists/all.txt](https://lists.blocklist.de/lists/all.txt).
+IPScout downloads this list and checks whether the target IP appears in it.
+
+### CINS Army List
+
+The [CINS Army List](https://cinsscore.com/) is the freely available subset of
+the Collective Intelligence Network Security score, listing addresses with a poor
+reputation that are not yet widely blocked. It is published at
+[cinsscore.com/list/ci-badguys.txt](https://cinsscore.com/list/ci-badguys.txt).
+IPScout downloads this list and checks whether the target IP appears in it.
+
+### DShield
+
+[DShield](https://www.dshield.org/) is the SANS Internet Storm Center's
+distributed intrusion detection system. Its recommended block list, covering the
+networks responsible for the most reported attacks, is published at
+[feeds.dshield.org/block.txt](https://feeds.dshield.org/block.txt).
+IPScout downloads this list and checks whether the target IP is within those
+networks, reporting the attack count and network owner where available.
+
+### Emerging Threats
+
+[Emerging Threats](https://rules.emergingthreats.net/blockrules/) publishes open
+rulesets and reputation data for intrusion detection systems. Its list of known
+compromised hosts is published at
+[rules.emergingthreats.net/blockrules/compromised-ips.txt](https://rules.emergingthreats.net/blockrules/compromised-ips.txt).
+IPScout downloads this list and checks whether the target IP appears in it.
+
+### Spamhaus DROP
+
+[Spamhaus DROP](https://www.spamhaus.org/blocklists/do-not-route-or-peer/)
+(Don't Route Or Peer) lists netblocks that Spamhaus considers wholly controlled
+by criminal operations. The lists are published at
+[spamhaus.org/drop/drop_v4.json](https://www.spamhaus.org/drop/drop_v4.json) and
+[spamhaus.org/drop/drop_v6.json](https://www.spamhaus.org/drop/drop_v6.json).
+IPScout downloads both lists and checks whether the target IP is within those
+netblocks, reporting the associated SBL identifier and RIR.
+
+### UptimeRobot
+
+[UptimeRobot](https://uptimerobot.com/help/locations/) is a website and service
+monitoring platform. The IP ranges used by its monitoring probes are published at
+[uptimerobot.com/inc/files/ips/IPv4andIPv6.txt](https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt).
+IPScout downloads this list and checks whether the target IP is within those ranges.
 
 ## Changelog
 

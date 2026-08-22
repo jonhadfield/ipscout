@@ -718,20 +718,30 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Akamai.Enabled, &sess.Providers.Akamai.OutputPriority, &sess.Providers.Akamai.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "applebot", "Applebot", c.DefaultApplebotOutputPriority,
 		&sess.Providers.Applebot.Enabled, &sess.Providers.Applebot.OutputPriority, &sess.Providers.Applebot.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "anthropic", "Anthropic", c.DefaultAnthropicOutputPriority,
+		&sess.Providers.Anthropic.Enabled, &sess.Providers.Anthropic.OutputPriority, &sess.Providers.Anthropic.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "atlassian", "Atlassian", c.DefaultAtlassianOutputPriority,
 		&sess.Providers.Atlassian.Enabled, &sess.Providers.Atlassian.OutputPriority, &sess.Providers.Atlassian.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "blocklistde", "Blocklist.de", c.DefaultBlocklistDEOutputPriority,
+		&sess.Providers.BlocklistDE.Enabled, &sess.Providers.BlocklistDE.OutputPriority, &sess.Providers.BlocklistDE.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "bunny", "Bunny CDN", c.DefaultBunnyOutputPriority,
 		&sess.Providers.Bunny.Enabled, &sess.Providers.Bunny.OutputPriority, &sess.Providers.Bunny.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "cdn77", "CDN77", c.DefaultCDN77OutputPriority,
 		&sess.Providers.CDN77.Enabled, &sess.Providers.CDN77.OutputPriority, &sess.Providers.CDN77.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cinsscore", "CINS Army List", c.DefaultCINSScoreOutputPriority,
+		&sess.Providers.CINSScore.Enabled, &sess.Providers.CINSScore.OutputPriority, &sess.Providers.CINSScore.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "cloudflare", "Cloudflare", c.DefaultCloudflareOutputPriority,
 		&sess.Providers.Cloudflare.Enabled, &sess.Providers.Cloudflare.OutputPriority, &sess.Providers.Cloudflare.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "contabo", "Contabo", c.DefaultContaboOutputPriority,
 		&sess.Providers.Contabo.Enabled, &sess.Providers.Contabo.OutputPriority, &sess.Providers.Contabo.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "datadog", "Datadog", c.DefaultDatadogOutputPriority,
 		&sess.Providers.Datadog.Enabled, &sess.Providers.Datadog.OutputPriority, &sess.Providers.Datadog.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "dshield", "DShield", c.DefaultDShieldOutputPriority,
+		&sess.Providers.DShield.Enabled, &sess.Providers.DShield.OutputPriority, &sess.Providers.DShield.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "duckduckbot", "DuckDuckBot", c.DefaultDuckDuckBotOutputPriority,
 		&sess.Providers.DuckDuckBot.Enabled, &sess.Providers.DuckDuckBot.OutputPriority, &sess.Providers.DuckDuckBot.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "emergingthreats", "Emerging Threats", c.DefaultEmergingThreatsOutputPriority,
+		&sess.Providers.EmergingThreats.Enabled, &sess.Providers.EmergingThreats.OutputPriority, &sess.Providers.EmergingThreats.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "fastly", "Fastly", c.DefaultFastlyOutputPriority,
 		&sess.Providers.Fastly.Enabled, &sess.Providers.Fastly.OutputPriority, &sess.Providers.Fastly.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "flyio", "Fly.io", c.DefaultFlyioOutputPriority,
@@ -752,10 +762,14 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.PerplexityBot.Enabled, &sess.Providers.PerplexityBot.OutputPriority, &sess.Providers.PerplexityBot.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "render", "Render", c.DefaultRenderOutputPriority,
 		&sess.Providers.Render.Enabled, &sess.Providers.Render.OutputPriority, &sess.Providers.Render.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "spamhaus", "Spamhaus DROP", c.DefaultSpamhausOutputPriority,
+		&sess.Providers.Spamhaus.Enabled, &sess.Providers.Spamhaus.OutputPriority, &sess.Providers.Spamhaus.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "stripe", "Stripe", c.DefaultStripeOutputPriority,
 		&sess.Providers.Stripe.Enabled, &sess.Providers.Stripe.OutputPriority, &sess.Providers.Stripe.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "tencent", "Tencent Cloud", c.DefaultTencentOutputPriority,
 		&sess.Providers.Tencent.Enabled, &sess.Providers.Tencent.OutputPriority, &sess.Providers.Tencent.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "uptimerobot", "UptimeRobot", c.DefaultUptimeRobotOutputPriority,
+		&sess.Providers.UptimeRobot.Enabled, &sess.Providers.UptimeRobot.OutputPriority, &sess.Providers.UptimeRobot.DocumentCacheTTL)
 }
 
 // initSimpleProviderConfig wires a provider with the common enabled /

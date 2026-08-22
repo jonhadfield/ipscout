@@ -12,20 +12,25 @@ import (
 	"github.com/jonhadfield/ipscout/providers/akamai"
 	"github.com/jonhadfield/ipscout/providers/alibaba"
 	"github.com/jonhadfield/ipscout/providers/annotated"
+	"github.com/jonhadfield/ipscout/providers/anthropic"
 	"github.com/jonhadfield/ipscout/providers/applebot"
 	"github.com/jonhadfield/ipscout/providers/atlassian"
 	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/providers/azure"
 	"github.com/jonhadfield/ipscout/providers/azurewaf"
 	"github.com/jonhadfield/ipscout/providers/bingbot"
+	"github.com/jonhadfield/ipscout/providers/blocklistde"
 	"github.com/jonhadfield/ipscout/providers/bunny"
 	"github.com/jonhadfield/ipscout/providers/cdn77"
+	"github.com/jonhadfield/ipscout/providers/cinsscore"
 	"github.com/jonhadfield/ipscout/providers/cloudflare"
 	"github.com/jonhadfield/ipscout/providers/contabo"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
 	"github.com/jonhadfield/ipscout/providers/datadog"
 	"github.com/jonhadfield/ipscout/providers/digitalocean"
+	"github.com/jonhadfield/ipscout/providers/dshield"
 	"github.com/jonhadfield/ipscout/providers/duckduckbot"
+	"github.com/jonhadfield/ipscout/providers/emergingthreats"
 	"github.com/jonhadfield/ipscout/providers/fastly"
 	"github.com/jonhadfield/ipscout/providers/flyio"
 	"github.com/jonhadfield/ipscout/providers/gcp"
@@ -53,8 +58,10 @@ import (
 	"github.com/jonhadfield/ipscout/providers/render"
 	"github.com/jonhadfield/ipscout/providers/scaleway"
 	"github.com/jonhadfield/ipscout/providers/shodan"
+	"github.com/jonhadfield/ipscout/providers/spamhaus"
 	"github.com/jonhadfield/ipscout/providers/stripe"
 	"github.com/jonhadfield/ipscout/providers/tencent"
+	"github.com/jonhadfield/ipscout/providers/uptimerobot"
 	"github.com/jonhadfield/ipscout/providers/virustotal"
 	"github.com/jonhadfield/ipscout/providers/vultr"
 	"github.com/jonhadfield/ipscout/providers/zscaler"
@@ -250,6 +257,13 @@ func All() []Entry {
 		{Name: render.ProviderName, DisplayName: "Render", Enabled: func(s session.Session) *bool { return s.Providers.Render.Enabled }, APIKey: noKey, NewClient: render.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: stripe.ProviderName, DisplayName: "Stripe", Enabled: func(s session.Session) *bool { return s.Providers.Stripe.Enabled }, APIKey: noKey, NewClient: stripe.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: tencent.ProviderName, DisplayName: "Tencent Cloud", Enabled: func(s session.Session) *bool { return s.Providers.Tencent.Enabled }, APIKey: noKey, NewClient: tencent.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: anthropic.ProviderName, DisplayName: "Anthropic", Enabled: func(s session.Session) *bool { return s.Providers.Anthropic.Enabled }, APIKey: noKey, NewClient: anthropic.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: blocklistde.ProviderName, DisplayName: "Blocklist.de", Enabled: func(s session.Session) *bool { return s.Providers.BlocklistDE.Enabled }, APIKey: noKey, NewClient: blocklistde.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: cinsscore.ProviderName, DisplayName: "CINS Army List", Enabled: func(s session.Session) *bool { return s.Providers.CINSScore.Enabled }, APIKey: noKey, NewClient: cinsscore.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: dshield.ProviderName, DisplayName: "DShield", Enabled: func(s session.Session) *bool { return s.Providers.DShield.Enabled }, APIKey: noKey, NewClient: dshield.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: emergingthreats.ProviderName, DisplayName: "Emerging Threats", Enabled: func(s session.Session) *bool { return s.Providers.EmergingThreats.Enabled }, APIKey: noKey, NewClient: emergingthreats.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: spamhaus.ProviderName, DisplayName: "Spamhaus DROP", Enabled: func(s session.Session) *bool { return s.Providers.Spamhaus.Enabled }, APIKey: noKey, NewClient: spamhaus.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: uptimerobot.ProviderName, DisplayName: "UptimeRobot", Enabled: func(s session.Session) *bool { return s.Providers.UptimeRobot.Enabled }, APIKey: noKey, NewClient: uptimerobot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 	}
 }
 

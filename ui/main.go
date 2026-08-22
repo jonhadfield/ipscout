@@ -60,86 +60,100 @@ const (
 )
 
 const (
-	providerAnnotated    = "annotated"
-	providerPTR          = "ptr"
-	providerShodan       = "shodan"
-	providerIPAPI        = "ipapi"
-	providerIPToASN      = "iptoasn"
-	providerIPURL        = "ipurl"
-	providerGooglebot    = "googlebot"
-	providerHetzner      = "hetzner"
-	providerIPQS         = "ipqs"
-	providerAbuseIPDB    = "abuseipdb"
-	providerAlibaba      = "alibaba"
-	providerVirusTotal   = "virustotal"
-	providerAWS          = "aws"
-	providerAzure        = "azure"
-	providerAzureWAF     = "azurewaf"
-	providerBingbot      = "bingbot"
-	providerCriminalIP   = "criminalip"
-	providerDigitalOcean = "digitalocean"
-	providerGCP          = "gcp"
-	providerGoogle       = "google"
-	providerGoogleSC     = "googlesc"
-	providerICloudPR     = "icloudpr"
-	providerLinode       = "linode"
-	providerM247         = "m247"
-	providerOpenAI       = "openai"
-	providerOVH          = "ovh"
-	providerScaleway     = "scaleway"
-	providerVultr        = "vultr"
-	providerZscaler      = "zscaler"
-	providerAkamai       = "akamai"
-	providerCloudflare   = "cloudflare"
-	providerFastly       = "fastly"
-	providerGitHub       = "github"
-	providerGoogleUTF    = "googleutf"
-	providerOCI          = "oci"
-	providerAhrefs       = "ahrefs"
-	providerApplebot     = "applebot"
-	providerDuckDuckBot  = "duckduckbot"
-	providerPerplexity   = "perplexitybot"
+	providerAnnotated       = "annotated"
+	providerPTR             = "ptr"
+	providerShodan          = "shodan"
+	providerIPAPI           = "ipapi"
+	providerIPToASN         = "iptoasn"
+	providerIPURL           = "ipurl"
+	providerGooglebot       = "googlebot"
+	providerHetzner         = "hetzner"
+	providerIPQS            = "ipqs"
+	providerAbuseIPDB       = "abuseipdb"
+	providerAlibaba         = "alibaba"
+	providerVirusTotal      = "virustotal"
+	providerAWS             = "aws"
+	providerAzure           = "azure"
+	providerAzureWAF        = "azurewaf"
+	providerBingbot         = "bingbot"
+	providerCriminalIP      = "criminalip"
+	providerDigitalOcean    = "digitalocean"
+	providerGCP             = "gcp"
+	providerGoogle          = "google"
+	providerGoogleSC        = "googlesc"
+	providerICloudPR        = "icloudpr"
+	providerLinode          = "linode"
+	providerM247            = "m247"
+	providerOpenAI          = "openai"
+	providerOVH             = "ovh"
+	providerScaleway        = "scaleway"
+	providerVultr           = "vultr"
+	providerZscaler         = "zscaler"
+	providerAkamai          = "akamai"
+	providerCloudflare      = "cloudflare"
+	providerFastly          = "fastly"
+	providerGitHub          = "github"
+	providerGoogleUTF       = "googleutf"
+	providerOCI             = "oci"
+	providerAhrefs          = "ahrefs"
+	providerApplebot        = "applebot"
+	providerDuckDuckBot     = "duckduckbot"
+	providerPerplexity      = "perplexitybot"
+	providerAnthropic       = "anthropic"
+	providerBlocklistDE     = "blocklistde"
+	providerCINSScore       = "cinsscore"
+	providerDShield         = "dshield"
+	providerEmergingThreats = "emergingthreats"
+	providerSpamhaus        = "spamhaus"
+	providerUptimeRobot     = "uptimerobot"
 )
 
 var providerIcons = map[string]string{
-	providerAnnotated:    emojiDocument,
-	providerPTR:          emojiGlobe,
-	providerShodan:       emojiInvader,
-	providerIPAPI:        emojiGlobe,
-	providerIPToASN:      emojiGlobe,
-	providerIPURL:        emojiGlobe,
-	providerGooglebot:    emojiInvader,
-	providerHetzner:      emojiCloud,
-	providerIPQS:         emojiInvader,
-	providerAbuseIPDB:    emojiInvader,
-	providerVirusTotal:   emojiInvader,
-	providerAWS:          emojiCloud,
-	providerAzure:        emojiCloud,
-	providerAzureWAF:     emojiCloud,
-	providerBingbot:      emojiInvader,
-	providerCriminalIP:   emojiInvader,
-	providerDigitalOcean: emojiLaptop,
-	providerGCP:          emojiCloud,
-	providerGoogle:       emojiLaptop,
-	providerGoogleSC:     emojiLaptop,
-	providerICloudPR:     emojiLaptop,
-	providerLinode:       emojiCloud,
-	providerM247:         emojiCloud,
-	providerOpenAI:       emojiInvader,
-	providerOVH:          emojiCloud,
-	providerScaleway:     emojiCloud,
-	providerVultr:        emojiCloud,
-	providerZscaler:      emojiCloud,
-	providerAkamai:       emojiCloud,
-	providerCloudflare:   emojiCloud,
-	providerFastly:       emojiCloud,
-	providerGitHub:       emojiLaptop,
-	providerGoogleUTF:    emojiInvader,
-	providerOCI:          emojiCloud,
-	providerAhrefs:       emojiInvader,
-	providerApplebot:     emojiInvader,
-	providerDuckDuckBot:  emojiInvader,
-	providerPerplexity:   emojiInvader,
+	providerAnnotated:       emojiDocument,
+	providerPTR:             emojiGlobe,
+	providerShodan:          emojiInvader,
+	providerIPAPI:           emojiGlobe,
+	providerIPToASN:         emojiGlobe,
+	providerIPURL:           emojiGlobe,
+	providerGooglebot:       emojiInvader,
+	providerHetzner:         emojiCloud,
+	providerIPQS:            emojiInvader,
+	providerAbuseIPDB:       emojiInvader,
+	providerVirusTotal:      emojiInvader,
+	providerAWS:             emojiCloud,
+	providerAzure:           emojiCloud,
+	providerAzureWAF:        emojiCloud,
+	providerBingbot:         emojiInvader,
+	providerCriminalIP:      emojiInvader,
+	providerDigitalOcean:    emojiLaptop,
+	providerGCP:             emojiCloud,
+	providerGoogle:          emojiLaptop,
+	providerGoogleSC:        emojiLaptop,
+	providerICloudPR:        emojiLaptop,
+	providerLinode:          emojiCloud,
+	providerM247:            emojiCloud,
+	providerOpenAI:          emojiInvader,
+	providerOVH:             emojiCloud,
+	providerScaleway:        emojiCloud,
+	providerVultr:           emojiCloud,
+	providerZscaler:         emojiCloud,
+	providerAkamai:          emojiCloud,
+	providerCloudflare:      emojiCloud,
+	providerFastly:          emojiCloud,
+	providerGitHub:          emojiLaptop,
+	providerGoogleUTF:       emojiInvader,
+	providerOCI:             emojiCloud,
+	providerAhrefs:          emojiInvader,
+	providerApplebot:        emojiInvader,
+	providerDuckDuckBot:     emojiInvader,
+	providerPerplexity:      emojiInvader,
+	providerAnthropic:       emojiInvader,
+	providerBlocklistDE:     emojiInvader,
+	providerCINSScore:       emojiInvader,
+	providerDShield:         emojiInvader,
+	providerEmergingThreats: emojiInvader,
+	providerSpamhaus:        emojiInvader,
+	providerUptimeRobot:     emojiCloud,
 }
 
 type providerResult struct {
@@ -322,6 +336,20 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 			newText = strings.Replace(currentText, " DuckDuckBot", " ▶ DuckDuckBot", 1)
 		case providerPerplexity:
 			newText = strings.Replace(currentText, " PerplexityBot", " ▶ PerplexityBot", 1)
+		case providerAnthropic:
+			newText = strings.Replace(currentText, " Anthropic", " ▶ Anthropic", 1)
+		case providerBlocklistDE:
+			newText = strings.Replace(currentText, " Blocklist.de", " ▶ Blocklist.de", 1)
+		case providerCINSScore:
+			newText = strings.Replace(currentText, " CINS Army List", " ▶ CINS Army List", 1)
+		case providerDShield:
+			newText = strings.Replace(currentText, " DShield", " ▶ DShield", 1)
+		case providerEmergingThreats:
+			newText = strings.Replace(currentText, " Emerging Threats", " ▶ Emerging Threats", 1)
+		case providerSpamhaus:
+			newText = strings.Replace(currentText, " Spamhaus DROP", " ▶ Spamhaus DROP", 1)
+		case providerUptimeRobot:
+			newText = strings.Replace(currentText, " UptimeRobot", " ▶ UptimeRobot", 1)
 		}
 
 		headerCell.SetText(newText)
@@ -385,47 +413,54 @@ func OpenUI(logLevel string) error {
 	// 	panic(fmt.Sprintf("Failed to initialize processor: %v", err))
 	// }
 	providerFuncs := map[string]providerFunc{
-		providerAnnotated:    fetchAnnotated,
-		providerPTR:          fetchPTR,
-		providerShodan:       fetchShodan,
-		providerIPAPI:        fetchIPAPI,
-		providerIPToASN:      fetchIPToASN,
-		providerIPURL:        fetchIPURL,
-		providerGooglebot:    fetchGooglebot,
-		providerHetzner:      fetchHetzner,
-		providerIPQS:         fetchIPQS,
-		providerAbuseIPDB:    fetchAbuseIPDB,
-		providerAlibaba:      fetchAlibaba,
-		providerVirusTotal:   fetchVirusTotal,
-		providerAWS:          fetchAWS,
-		providerAzure:        fetchAzure,
-		providerAzureWAF:     fetchAzureWAF,
-		providerBingbot:      fetchBingbot,
-		providerCriminalIP:   fetchCriminalIP,
-		providerDigitalOcean: fetchDigitalOcean,
-		providerGCP:          fetchGCP,
-		providerGoogle:       fetchGoogle,
-		providerGoogleSC:     fetchGoogleSC,
-		providerICloudPR:     fetchICloudPR,
-		providerLinode:       fetchLinode,
-		providerM247:         fetchM247,
-		providerOpenAI:       fetchOpenAI,
-		providerOVH:          fetchOVH,
-		providerScaleway:     fetchScaleway,
-		providerVultr:        fetchVultr,
-		providerZscaler:      fetchZscaler,
-		providerAkamai:       fetchAkamai,
-		providerCloudflare:   fetchCloudflare,
-		providerFastly:       fetchFastly,
-		providerGitHub:       fetchGitHub,
-		providerGoogleUTF:    fetchGoogleUTF,
-		providerOCI:          fetchOCI,
-		providerAhrefs:       fetchAhrefs,
-		providerApplebot:     fetchApplebot,
-		providerDuckDuckBot:  fetchDuckDuckBot,
-		providerPerplexity:   fetchPerplexityBot,
+		providerAnnotated:       fetchAnnotated,
+		providerPTR:             fetchPTR,
+		providerShodan:          fetchShodan,
+		providerIPAPI:           fetchIPAPI,
+		providerIPToASN:         fetchIPToASN,
+		providerIPURL:           fetchIPURL,
+		providerGooglebot:       fetchGooglebot,
+		providerHetzner:         fetchHetzner,
+		providerIPQS:            fetchIPQS,
+		providerAbuseIPDB:       fetchAbuseIPDB,
+		providerAlibaba:         fetchAlibaba,
+		providerVirusTotal:      fetchVirusTotal,
+		providerAWS:             fetchAWS,
+		providerAzure:           fetchAzure,
+		providerAzureWAF:        fetchAzureWAF,
+		providerBingbot:         fetchBingbot,
+		providerCriminalIP:      fetchCriminalIP,
+		providerDigitalOcean:    fetchDigitalOcean,
+		providerGCP:             fetchGCP,
+		providerGoogle:          fetchGoogle,
+		providerGoogleSC:        fetchGoogleSC,
+		providerICloudPR:        fetchICloudPR,
+		providerLinode:          fetchLinode,
+		providerM247:            fetchM247,
+		providerOpenAI:          fetchOpenAI,
+		providerOVH:             fetchOVH,
+		providerScaleway:        fetchScaleway,
+		providerVultr:           fetchVultr,
+		providerZscaler:         fetchZscaler,
+		providerAkamai:          fetchAkamai,
+		providerCloudflare:      fetchCloudflare,
+		providerFastly:          fetchFastly,
+		providerGitHub:          fetchGitHub,
+		providerGoogleUTF:       fetchGoogleUTF,
+		providerOCI:             fetchOCI,
+		providerAhrefs:          fetchAhrefs,
+		providerApplebot:        fetchApplebot,
+		providerDuckDuckBot:     fetchDuckDuckBot,
+		providerPerplexity:      fetchPerplexityBot,
+		providerAnthropic:       fetchAnthropic,
+		providerBlocklistDE:     fetchBlocklistDE,
+		providerCINSScore:       fetchCINSScore,
+		providerDShield:         fetchDShield,
+		providerEmergingThreats: fetchEmergingThreats,
+		providerSpamhaus:        fetchSpamhaus,
+		providerUptimeRobot:     fetchUptimeRobot,
 	}
-	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerCriminalIP, providerDigitalOcean, providerGCP, providerGoogle, providerGoogleSC, providerICloudPR, providerLinode, providerM247, providerOpenAI, providerOVH, providerScaleway, providerVultr, providerZscaler, providerAkamai, providerCloudflare, providerFastly, providerGitHub, providerGoogleUTF, providerOCI, providerAhrefs, providerApplebot, providerDuckDuckBot, providerPerplexity}
+	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerCriminalIP, providerDigitalOcean, providerGCP, providerGoogle, providerGoogleSC, providerICloudPR, providerLinode, providerM247, providerOpenAI, providerOVH, providerScaleway, providerVultr, providerZscaler, providerAkamai, providerCloudflare, providerFastly, providerGitHub, providerGoogleUTF, providerOCI, providerAhrefs, providerApplebot, providerDuckDuckBot, providerPerplexity, providerAnthropic, providerBlocklistDE, providerCINSScore, providerDShield, providerEmergingThreats, providerSpamhaus, providerUptimeRobot}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()

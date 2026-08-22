@@ -600,6 +600,111 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	}
 
 	sess.Providers.PerplexityBot.DocumentCacheTTL = v.GetInt64("providers.perplexitybot.document_cache_ttl")
+
+	// Anthropic
+	if v.IsSet("providers.anthropic.enabled") {
+		sess.Providers.Anthropic.Enabled = ToPtr(v.GetBool("providers.anthropic.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Anthropic")
+	}
+
+	if v.IsSet("providers.anthropic.output_priority") {
+		sess.Providers.Anthropic.OutputPriority = ToPtr(v.GetInt32("providers.anthropic.output_priority"))
+	} else {
+		sess.Providers.Anthropic.OutputPriority = ToPtr(int32(c.DefaultAnthropicOutputPriority))
+	}
+
+	sess.Providers.Anthropic.DocumentCacheTTL = v.GetInt64("providers.anthropic.document_cache_ttl")
+
+	// Blocklist.de
+	if v.IsSet("providers.blocklistde.enabled") {
+		sess.Providers.BlocklistDE.Enabled = ToPtr(v.GetBool("providers.blocklistde.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Blocklist.de")
+	}
+
+	if v.IsSet("providers.blocklistde.output_priority") {
+		sess.Providers.BlocklistDE.OutputPriority = ToPtr(v.GetInt32("providers.blocklistde.output_priority"))
+	} else {
+		sess.Providers.BlocklistDE.OutputPriority = ToPtr(int32(c.DefaultBlocklistDEOutputPriority))
+	}
+
+	sess.Providers.BlocklistDE.DocumentCacheTTL = v.GetInt64("providers.blocklistde.document_cache_ttl")
+
+	// CINS Army List
+	if v.IsSet("providers.cinsscore.enabled") {
+		sess.Providers.CINSScore.Enabled = ToPtr(v.GetBool("providers.cinsscore.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "CINS Army List")
+	}
+
+	if v.IsSet("providers.cinsscore.output_priority") {
+		sess.Providers.CINSScore.OutputPriority = ToPtr(v.GetInt32("providers.cinsscore.output_priority"))
+	} else {
+		sess.Providers.CINSScore.OutputPriority = ToPtr(int32(c.DefaultCINSScoreOutputPriority))
+	}
+
+	sess.Providers.CINSScore.DocumentCacheTTL = v.GetInt64("providers.cinsscore.document_cache_ttl")
+
+	// DShield
+	if v.IsSet("providers.dshield.enabled") {
+		sess.Providers.DShield.Enabled = ToPtr(v.GetBool("providers.dshield.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "DShield")
+	}
+
+	if v.IsSet("providers.dshield.output_priority") {
+		sess.Providers.DShield.OutputPriority = ToPtr(v.GetInt32("providers.dshield.output_priority"))
+	} else {
+		sess.Providers.DShield.OutputPriority = ToPtr(int32(c.DefaultDShieldOutputPriority))
+	}
+
+	sess.Providers.DShield.DocumentCacheTTL = v.GetInt64("providers.dshield.document_cache_ttl")
+
+	// Emerging Threats
+	if v.IsSet("providers.emergingthreats.enabled") {
+		sess.Providers.EmergingThreats.Enabled = ToPtr(v.GetBool("providers.emergingthreats.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Emerging Threats")
+	}
+
+	if v.IsSet("providers.emergingthreats.output_priority") {
+		sess.Providers.EmergingThreats.OutputPriority = ToPtr(v.GetInt32("providers.emergingthreats.output_priority"))
+	} else {
+		sess.Providers.EmergingThreats.OutputPriority = ToPtr(int32(c.DefaultEmergingThreatsOutputPriority))
+	}
+
+	sess.Providers.EmergingThreats.DocumentCacheTTL = v.GetInt64("providers.emergingthreats.document_cache_ttl")
+
+	// Spamhaus DROP
+	if v.IsSet("providers.spamhaus.enabled") {
+		sess.Providers.Spamhaus.Enabled = ToPtr(v.GetBool("providers.spamhaus.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Spamhaus DROP")
+	}
+
+	if v.IsSet("providers.spamhaus.output_priority") {
+		sess.Providers.Spamhaus.OutputPriority = ToPtr(v.GetInt32("providers.spamhaus.output_priority"))
+	} else {
+		sess.Providers.Spamhaus.OutputPriority = ToPtr(int32(c.DefaultSpamhausOutputPriority))
+	}
+
+	sess.Providers.Spamhaus.DocumentCacheTTL = v.GetInt64("providers.spamhaus.document_cache_ttl")
+
+	// UptimeRobot
+	if v.IsSet("providers.uptimerobot.enabled") {
+		sess.Providers.UptimeRobot.Enabled = ToPtr(v.GetBool("providers.uptimerobot.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "UptimeRobot")
+	}
+
+	if v.IsSet("providers.uptimerobot.output_priority") {
+		sess.Providers.UptimeRobot.OutputPriority = ToPtr(v.GetInt32("providers.uptimerobot.output_priority"))
+	} else {
+		sess.Providers.UptimeRobot.OutputPriority = ToPtr(int32(c.DefaultUptimeRobotOutputPriority))
+	}
+
+	sess.Providers.UptimeRobot.DocumentCacheTTL = v.GetInt64("providers.uptimerobot.document_cache_ttl")
 }
 
 func initSessionConfig(sess *session.Session, v *viper.Viper) {
