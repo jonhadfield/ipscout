@@ -135,3 +135,17 @@ providers:
     enabled: true
   oci:
     enabled: true
+  anthropic:
+    enabled: true
+  blocklistde:
+    enabled: true
+  cinsscore:
+    enabled: true
+  dshield:
+    enabled: true
+  emergingthreats:
+    enabled: true
+  spamhaus:
+    enabled: true
+  uptimerobot:
+    enabled: true

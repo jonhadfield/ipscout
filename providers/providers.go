@@ -598,6 +598,27 @@ type RatingConfig struct {
 		Tencent struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"tencent"`
+		Anthropic struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"anthropic"`
+		BlocklistDE struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"blocklistde"`
+		CINSScore struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"cinsscore"`
+		DShield struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"dshield"`
+		EmergingThreats struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"emergingthreats"`
+		Spamhaus struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"spamhaus"`
+		UptimeRobot struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"uptimerobot"`
 	} `json:"providers"`
 }
 

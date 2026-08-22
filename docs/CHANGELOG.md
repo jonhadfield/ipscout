@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-08-22
+### Added
+- Anthropic and UptimeRobot providers, covering the Anthropic crawler prefixes and the
+  UptimeRobot monitoring probe ranges
+- Blocklist.de, CINS Army List, DShield, Emerging Threats and Spamhaus DROP threat feed
+  providers, reporting whether the host appears on each blocklist
+### Changed
+- bump ip-fetcher to v0.0.21, which supplies the seven new provider sources
+- widen the existing nolint directives in ui/annotated.go, ui/ptr.go and ui/shodan.go to cover
+  staticcheck SA4006, which a newer staticcheck now reports for the same assignments
+
 ## [0.8.1] - 2026-08-09
 ### Changed
 - azure waf diagnostics flow through the session logger via azwaf v0.4.0's isolated slog

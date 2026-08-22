@@ -17,6 +17,14 @@ import (
 
 var sess *session.Session
 
+// default output priorities for providers without a constant in the
+// constants package
+const (
+	defaultAlibabaOutputPriority  = 60
+	defaultScalewayOutputPriority = 140
+	defaultVultrOutputPriority    = 140
+)
+
 func ToPtr[T any](v T) *T {
 	return &v
 }
@@ -600,6 +608,166 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	}
 
 	sess.Providers.PerplexityBot.DocumentCacheTTL = v.GetInt64("providers.perplexitybot.document_cache_ttl")
+
+	// Anthropic
+	if v.IsSet("providers.anthropic.enabled") {
+		sess.Providers.Anthropic.Enabled = ToPtr(v.GetBool("providers.anthropic.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Anthropic")
+	}
+
+	if v.IsSet("providers.anthropic.output_priority") {
+		sess.Providers.Anthropic.OutputPriority = ToPtr(v.GetInt32("providers.anthropic.output_priority"))
+	} else {
+		sess.Providers.Anthropic.OutputPriority = ToPtr(int32(c.DefaultAnthropicOutputPriority))
+	}
+
+	sess.Providers.Anthropic.DocumentCacheTTL = v.GetInt64("providers.anthropic.document_cache_ttl")
+
+	// Blocklist.de
+	if v.IsSet("providers.blocklistde.enabled") {
+		sess.Providers.BlocklistDE.Enabled = ToPtr(v.GetBool("providers.blocklistde.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Blocklist.de")
+	}
+
+	if v.IsSet("providers.blocklistde.output_priority") {
+		sess.Providers.BlocklistDE.OutputPriority = ToPtr(v.GetInt32("providers.blocklistde.output_priority"))
+	} else {
+		sess.Providers.BlocklistDE.OutputPriority = ToPtr(int32(c.DefaultBlocklistDEOutputPriority))
+	}
+
+	sess.Providers.BlocklistDE.DocumentCacheTTL = v.GetInt64("providers.blocklistde.document_cache_ttl")
+
+	// CINS Army List
+	if v.IsSet("providers.cinsscore.enabled") {
+		sess.Providers.CINSScore.Enabled = ToPtr(v.GetBool("providers.cinsscore.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "CINS Army List")
+	}
+
+	if v.IsSet("providers.cinsscore.output_priority") {
+		sess.Providers.CINSScore.OutputPriority = ToPtr(v.GetInt32("providers.cinsscore.output_priority"))
+	} else {
+		sess.Providers.CINSScore.OutputPriority = ToPtr(int32(c.DefaultCINSScoreOutputPriority))
+	}
+
+	sess.Providers.CINSScore.DocumentCacheTTL = v.GetInt64("providers.cinsscore.document_cache_ttl")
+
+	// DShield
+	if v.IsSet("providers.dshield.enabled") {
+		sess.Providers.DShield.Enabled = ToPtr(v.GetBool("providers.dshield.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "DShield")
+	}
+
+	if v.IsSet("providers.dshield.output_priority") {
+		sess.Providers.DShield.OutputPriority = ToPtr(v.GetInt32("providers.dshield.output_priority"))
+	} else {
+		sess.Providers.DShield.OutputPriority = ToPtr(int32(c.DefaultDShieldOutputPriority))
+	}
+
+	sess.Providers.DShield.DocumentCacheTTL = v.GetInt64("providers.dshield.document_cache_ttl")
+
+	// Emerging Threats
+	if v.IsSet("providers.emergingthreats.enabled") {
+		sess.Providers.EmergingThreats.Enabled = ToPtr(v.GetBool("providers.emergingthreats.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Emerging Threats")
+	}
+
+	if v.IsSet("providers.emergingthreats.output_priority") {
+		sess.Providers.EmergingThreats.OutputPriority = ToPtr(v.GetInt32("providers.emergingthreats.output_priority"))
+	} else {
+		sess.Providers.EmergingThreats.OutputPriority = ToPtr(int32(c.DefaultEmergingThreatsOutputPriority))
+	}
+
+	sess.Providers.EmergingThreats.DocumentCacheTTL = v.GetInt64("providers.emergingthreats.document_cache_ttl")
+
+	// Spamhaus DROP
+	if v.IsSet("providers.spamhaus.enabled") {
+		sess.Providers.Spamhaus.Enabled = ToPtr(v.GetBool("providers.spamhaus.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Spamhaus DROP")
+	}
+
+	if v.IsSet("providers.spamhaus.output_priority") {
+		sess.Providers.Spamhaus.OutputPriority = ToPtr(v.GetInt32("providers.spamhaus.output_priority"))
+	} else {
+		sess.Providers.Spamhaus.OutputPriority = ToPtr(int32(c.DefaultSpamhausOutputPriority))
+	}
+
+	sess.Providers.Spamhaus.DocumentCacheTTL = v.GetInt64("providers.spamhaus.document_cache_ttl")
+
+	// UptimeRobot
+	if v.IsSet("providers.uptimerobot.enabled") {
+		sess.Providers.UptimeRobot.Enabled = ToPtr(v.GetBool("providers.uptimerobot.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "UptimeRobot")
+	}
+
+	if v.IsSet("providers.uptimerobot.output_priority") {
+		sess.Providers.UptimeRobot.OutputPriority = ToPtr(v.GetInt32("providers.uptimerobot.output_priority"))
+	} else {
+		sess.Providers.UptimeRobot.OutputPriority = ToPtr(int32(c.DefaultUptimeRobotOutputPriority))
+	}
+
+	sess.Providers.UptimeRobot.DocumentCacheTTL = v.GetInt64("providers.uptimerobot.document_cache_ttl")
+
+	initSimpleProviderConfig(sess, v, "alibaba", "Alibaba", defaultAlibabaOutputPriority,
+		&sess.Providers.Alibaba.Enabled, &sess.Providers.Alibaba.OutputPriority, &sess.Providers.Alibaba.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "atlassian", "Atlassian", c.DefaultAtlassianOutputPriority,
+		&sess.Providers.Atlassian.Enabled, &sess.Providers.Atlassian.OutputPriority, &sess.Providers.Atlassian.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "bunny", "Bunny CDN", c.DefaultBunnyOutputPriority,
+		&sess.Providers.Bunny.Enabled, &sess.Providers.Bunny.OutputPriority, &sess.Providers.Bunny.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cdn77", "CDN77", c.DefaultCDN77OutputPriority,
+		&sess.Providers.CDN77.Enabled, &sess.Providers.CDN77.OutputPriority, &sess.Providers.CDN77.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "contabo", "Contabo", c.DefaultContaboOutputPriority,
+		&sess.Providers.Contabo.Enabled, &sess.Providers.Contabo.OutputPriority, &sess.Providers.Contabo.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "datadog", "Datadog", c.DefaultDatadogOutputPriority,
+		&sess.Providers.Datadog.Enabled, &sess.Providers.Datadog.OutputPriority, &sess.Providers.Datadog.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "flyio", "Fly.io", c.DefaultFlyioOutputPriority,
+		&sess.Providers.Flyio.Enabled, &sess.Providers.Flyio.OutputPriority, &sess.Providers.Flyio.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "ibmcloud", "IBM Cloud", c.DefaultIBMCloudOutputPriority,
+		&sess.Providers.IBMCloud.Enabled, &sess.Providers.IBMCloud.OutputPriority, &sess.Providers.IBMCloud.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "imperva", "Imperva", c.DefaultImpervaOutputPriority,
+		&sess.Providers.Imperva.Enabled, &sess.Providers.Imperva.OutputPriority, &sess.Providers.Imperva.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "leaseweb", "Leaseweb", c.DefaultLeasewebOutputPriority,
+		&sess.Providers.Leaseweb.Enabled, &sess.Providers.Leaseweb.OutputPriority, &sess.Providers.Leaseweb.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "render", "Render", c.DefaultRenderOutputPriority,
+		&sess.Providers.Render.Enabled, &sess.Providers.Render.OutputPriority, &sess.Providers.Render.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "scaleway", "Scaleway", defaultScalewayOutputPriority,
+		&sess.Providers.Scaleway.Enabled, &sess.Providers.Scaleway.OutputPriority, &sess.Providers.Scaleway.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "stripe", "Stripe", c.DefaultStripeOutputPriority,
+		&sess.Providers.Stripe.Enabled, &sess.Providers.Stripe.OutputPriority, &sess.Providers.Stripe.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "tencent", "Tencent Cloud", c.DefaultTencentOutputPriority,
+		&sess.Providers.Tencent.Enabled, &sess.Providers.Tencent.OutputPriority, &sess.Providers.Tencent.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "vultr", "Vultr", defaultVultrOutputPriority,
+		&sess.Providers.Vultr.Enabled, &sess.Providers.Vultr.OutputPriority, &sess.Providers.Vultr.DocumentCacheTTL)
+
+	// alibaba, scaleway and vultr allow the source URL to be overridden
+	sess.Providers.Alibaba.URL = v.GetString("providers.alibaba.url")
+	sess.Providers.Scaleway.URL = v.GetString("providers.scaleway.url")
+	sess.Providers.Vultr.URL = v.GetString("providers.vultr.url")
+}
+
+// initSimpleProviderConfig wires a provider with the common enabled /
+// output_priority / document_cache_ttl config shape into the session, so that
+// providers registered in the registry are actually read from config.
+func initSimpleProviderConfig(sess *session.Session, v *viper.Viper, key, displayName string, defaultPriority int32, enabled **bool, priority **int32, docCacheTTL *int64) {
+	if v.IsSet("providers." + key + ".enabled") {
+		*enabled = ToPtr(v.GetBool("providers." + key + ".enabled"))
+	} else {
+		addProviderConfigMessage(sess, displayName)
+	}
+
+	if v.IsSet("providers." + key + ".output_priority") {
+		*priority = ToPtr(v.GetInt32("providers." + key + ".output_priority"))
+	} else {
+		*priority = ToPtr(defaultPriority)
+	}
+
+	*docCacheTTL = v.GetInt64("providers." + key + ".document_cache_ttl")
 }
 
 func initSessionConfig(sess *session.Session, v *viper.Viper) {

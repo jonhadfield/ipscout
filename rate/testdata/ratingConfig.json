@@ -118,6 +118,27 @@
     },
     "perplexitybot": {
       "defaultMatchScore": 1.0
+    },
+    "anthropic": {
+      "defaultMatchScore": 1.0
+    },
+    "uptimerobot": {
+      "defaultMatchScore": 1.0
+    },
+    "blocklistde": {
+      "defaultMatchScore": 10.0
+    },
+    "cinsscore": {
+      "defaultMatchScore": 10.0
+    },
+    "dshield": {
+      "defaultMatchScore": 10.0
+    },
+    "emergingthreats": {
+      "defaultMatchScore": 10.0
+    },
+    "spamhaus": {
+      "defaultMatchScore": 10.0
     }
   }
 }

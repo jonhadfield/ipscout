@@ -101,7 +101,7 @@ func createAnnotatedTable(ip string, result *annotated.HostSearchResult, isActiv
 			SetTextColor(tcell.ColorYellow).
 			SetSelectable(false))
 
-		row++ //nolint:ineffassign,wastedassign
+		row++ //nolint:ineffassign,wastedassign,staticcheck
 	}
 
 	return table
