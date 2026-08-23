@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	testIPAnthropic     = "160.79.104.10"
-	testPrefixAnthropic = "160.79.104.0/23"
+	testIPAnthropic     = "216.73.216.10"
+	testPrefixAnthropic = "216.73.216.0/22"
 	testHeaderAnthropic = " Anthropic | Host: "
 )
 

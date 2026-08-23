@@ -20,7 +20,7 @@ const (
 	ProviderName = "anthropic"
 	DocTTL       = 24 * time.Hour
 	// testDataHost is the host represented by the checked-in test data report.
-	testDataHost = "160.79.104.10"
+	testDataHost = "216.73.216.10"
 )
 
 type ProviderClient struct {
@@ -217,7 +217,7 @@ func (c *ProviderClient) loadProviderDataFromCache() (*ipfetcher.Doc, error) {
 }
 
 func loadTestData(c *ProviderClient) ([]byte, error) {
-	resultsFile, err := helpers.PrefixProjectRoot("providers/anthropic/testdata/anthropic_160_79_104_10_report.json")
+	resultsFile, err := helpers.PrefixProjectRoot("providers/anthropic/testdata/anthropic_216_73_216_10_report.json")
 	if err != nil {
 		return nil, fmt.Errorf("error getting anthropic test data file path: %w", err)
 	}
