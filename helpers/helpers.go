@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -104,8 +105,29 @@ func TrackDuration(mu *sync.Mutex, m map[string]time.Duration, provider string) 
 	}
 }
 
+// projectRootOverride, when set, is returned by FindProjectRoot in place of
+// walking the file tree. It lets an installed binary, which has no go.mod above
+// it, point the providers at an extracted copy of their test data.
+var projectRootOverride atomic.Pointer[string]
+
+// SetProjectRoot overrides the directory FindProjectRoot returns. Passing an
+// empty string clears the override and restores the go.mod walk.
+func SetProjectRoot(dir string) {
+	if dir == "" {
+		projectRootOverride.Store(nil)
+
+		return
+	}
+
+	projectRootOverride.Store(&dir)
+}
+
 // FindProjectRoot walks up the file tree to find the directory containing `go.mod`
 func FindProjectRoot() (string, error) {
+	if override := projectRootOverride.Load(); override != nil {
+		return *override, nil
+	}
+
 	dir, err := os.Getwd()
 	if err != nil {
 		return "", fmt.Errorf("failed to get current working directory: %w", err)

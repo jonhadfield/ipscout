@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/jonhadfield/ipscout/helpers"
+	"github.com/jonhadfield/ipscout/providers"
 
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/process"
@@ -900,6 +901,12 @@ func initConfig(cmd *cobra.Command) error {
 
 	sess.UseTestData = utd
 
+	if utd {
+		if err = ensureTestDataAvailable(); err != nil {
+			return err
+		}
+	}
+
 	ports, _ := cmd.Flags().GetStringSlice("ports")
 	if len(ports) == 1 && ports[0] == "[]" {
 		ports = nil
@@ -1008,4 +1015,31 @@ func readProviderAuthKeys(v *viper.Viper) {
 	setProviderAPIKey(v, "ipqs_api_key", &sess.Providers.IPQS.APIKey, &sess.Providers.IPQS.Enabled)
 	setProviderAPIKey(v, "shodan_api_key", &sess.Providers.Shodan.APIKey, &sess.Providers.Shodan.Enabled)
 	setProviderAPIKey(v, "virustotal_api_key", &sess.Providers.VirusTotal.APIKey, &sess.Providers.VirusTotal.Enabled)
+}
+
+// ensureTestDataAvailable makes the providers' test data reachable on disk.
+//
+// The providers resolve their test data relative to the directory containing
+// go.mod, which only exists when running from a source checkout. For an
+// installed binary there is no such directory, so extract the copy embedded in
+// the binary to the user's cache and point the providers at that instead.
+func ensureTestDataAvailable() error {
+	if _, err := helpers.FindProjectRoot(); err == nil {
+		return nil
+	}
+
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		return fmt.Errorf("error locating user cache directory for test data: %w", err)
+	}
+
+	root := filepath.Join(cacheDir, "ipscout", "testdata-"+helpers.SemVer)
+
+	if err = providers.ExtractTestData(root); err != nil {
+		return fmt.Errorf("error extracting embedded test data: %w", err)
+	}
+
+	helpers.SetProjectRoot(root)
+
+	return nil
 }
