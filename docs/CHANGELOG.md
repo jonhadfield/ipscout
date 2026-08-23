@@ -20,6 +20,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   every provider silently returned no result. The test data is now embedded in the binary
   and extracted to the user cache when the source tree is unavailable; running from a
   checkout is unchanged
+- the `<home>` placeholder in the shipped config's `rating.config_path` is expanded to the
+  user's home directory. It never was, so `ipscout rate` looked for a file literally named
+  `<home>/.config/ratingConfig.json` and always failed
+- a missing rating config file falls back to the built-in defaults, with a warning naming
+  the path, rather than being fatal. The shipped config always sets a path but the file is
+  never written, so rating was unusable until one was created by hand. A config that exists
+  but cannot be read or parsed is still an error
 - `ipscout rate` now prints the messages buffered during a run; previously it collected
   them and discarded them
 - a fetch failure is reported even when it leaves nothing to display, rather than exiting

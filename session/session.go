@@ -8,6 +8,7 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -547,6 +548,27 @@ func CreateConfigPathStructure(configRoot string) error {
 
 // GetConfigRoot returns the root path for the app's session directory
 // if root is specified, it will use that, otherwise it will use the user's home directory
+// HomePlaceholder is the token the shipped default config uses to stand in for
+// the user's home directory. The config file is written on first run, before
+// the home directory is known to it, so paths are stored with the placeholder
+// and expanded when read.
+const HomePlaceholder = "<home>"
+
+// ExpandHome replaces the home directory placeholder in path with homeDir. A
+// path without the placeholder, and any path given when homeDir is unknown, is
+// returned unchanged.
+func ExpandHome(path, homeDir string) string {
+	if path == "" || homeDir == "" {
+		return path
+	}
+
+	if !strings.Contains(path, HomePlaceholder) {
+		return path
+	}
+
+	return filepath.Clean(strings.ReplaceAll(path, HomePlaceholder, homeDir))
+}
+
 func GetConfigRoot(root string, homeDir string, appName string) string {
 	// if root specified then use that
 	if root != "" {

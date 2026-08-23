@@ -79,12 +79,16 @@ func TestGetRatingConfigFromFile(t *testing.T) {
 	require.True(t, json.Valid(got))
 }
 
+// A missing rating config is no longer fatal: the shipped config always sets a
+// path but never writes the file, so absence falls back to the built-in
+// defaults. See TestGetRatingConfigErrorsOnInvalidFile for the cases that do
+// still fail.
 func TestGetRatingConfigMissingFile(t *testing.T) {
 	t.Parallel()
 
 	got, err := GetRatingConfig(filepath.Join("testdata", "does-not-exist.json"))
-	require.Error(t, err)
-	require.Nil(t, got)
+	require.NoError(t, err)
+	require.JSONEq(t, DefaultRatingConfigJSON, string(got))
 }
 
 func TestNew(t *testing.T) {
