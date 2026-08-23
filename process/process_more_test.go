@@ -174,7 +174,7 @@ func TestFindHostsAggregates(t *testing.T) {
 }
 
 func TestInitialiseProvidersHandlesErrors(t *testing.T) {
-	lg := discardLogger()
+	sess := newTestSession(t)
 
 	runners := map[string]providers.ProviderClient{
 		"ok":      configurableStub{enabled: true},
@@ -183,7 +183,47 @@ func TestInitialiseProvidersHandlesErrors(t *testing.T) {
 	}
 
 	// hideProgress=true to avoid spinner output; must not panic.
-	require.NotPanics(t, func() { initialiseProviders(lg, runners, true) })
+	require.NotPanics(t, func() { initialiseProviders(sess, runners, true) })
+
+	// the failure is buffered as a single message rather than logged while
+	// the download is in progress
+	require.Len(t, sess.Messages.Error, 1)
+	require.Contains(t, sess.Messages.Error[0], "failed to fetch ip ranges for failing")
+	require.NotContains(t, sess.Messages.Error[0], "ok")
+	require.NotContains(t, sess.Messages.Error[0], "skipped")
+}
+
+// Every failing provider is named, once, on a single line.
+func TestInitialiseProvidersReportsAllFailuresOnOneLine(t *testing.T) {
+	sess := newTestSession(t)
+
+	runners := map[string]providers.ProviderClient{
+		"zulu":    configurableStub{enabled: true, initErr: errors.New("boom")},
+		"alpha":   configurableStub{enabled: true, initErr: errors.New("boom")},
+		"mike":    configurableStub{enabled: true, initErr: errors.New("boom")},
+		"working": configurableStub{enabled: true},
+	}
+
+	initialiseProviders(sess, runners, true)
+
+	require.Len(t, sess.Messages.Error, 1)
+	// sorted, so the line is stable between runs despite concurrent fetches
+	require.Contains(t, sess.Messages.Error[0], "alpha, mike, zulu")
+	require.NotContains(t, sess.Messages.Error[0], "working")
+}
+
+// Nothing is reported when every provider fetches successfully.
+func TestInitialiseProvidersSilentWhenAllSucceed(t *testing.T) {
+	sess := newTestSession(t)
+
+	runners := map[string]providers.ProviderClient{
+		"one": configurableStub{enabled: true},
+		"two": configurableStub{enabled: true},
+	}
+
+	initialiseProviders(sess, runners, true)
+
+	require.Empty(t, sess.Messages.Error)
 }
 
 func TestGenerateTablesBuildsResults(t *testing.T) {

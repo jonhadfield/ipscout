@@ -10,6 +10,12 @@ const (
 
 	MsgInvalidHostFmt = "invalid host: %s"
 
+	// MsgFetchFailedFmt reports, on a single line after the results, every
+	// provider whose ip range data could not be fetched. The per-provider
+	// errors are logged at debug rather than interrupting the progress
+	// spinner.
+	MsgFetchFailedFmt = "failed to fetch ip ranges for %s (run with --log-level DEBUG for details)"
+
 	ErrUnmarshalFindResultFmt   = "error unmarshalling find result: %w"
 	ErrUnmarshalRatingConfigFmt = "error unmarshalling rating config: %w"
 )
