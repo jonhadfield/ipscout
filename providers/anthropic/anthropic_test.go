@@ -20,14 +20,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Values that match providers/anthropic/testdata/anthropic_160_79_104_10_report.json.
+// Values that match providers/anthropic/testdata/anthropic_216_73_216_10_report.json.
 const (
-	testHost         = "160.79.104.10"
-	testPrefix       = "160.79.104.0/23"
+	testHost         = "216.73.216.10"
+	testPrefix       = "216.73.216.0/22"
 	testDefaultScore = 1.0
 	testCreationRFC  = "2025-08-05T09:12:00Z"
-	testIPv6Prefix   = "2607:6bc0::/48"
-	testIPv6Host     = "2607:6bc0::1"
+	// The upstream feed currently publishes no IPv6 prefix, so this one is
+	// retained solely to exercise the IPv6 decode and lookup paths.
+	testIPv6Prefix = "2607:6bc0::/48"
+	testIPv6Host   = "2607:6bc0::1"
 )
 
 // newTestProviderClient builds a ProviderClient backed by a temporary cache and
@@ -389,7 +391,7 @@ func TestUnmarshalProviderDataError(t *testing.T) {
 func TestLoadResultsFile(t *testing.T) {
 	t.Parallel()
 
-	res, err := providers.LoadResultsFile[HostSearchResult]("testdata/anthropic_160_79_104_10_report.json")
+	res, err := providers.LoadResultsFile[HostSearchResult]("testdata/anthropic_216_73_216_10_report.json")
 	require.NoError(t, err)
 	require.Equal(t, netip.MustParsePrefix(testPrefix), res.Prefix)
 	require.False(t, res.CreationTime.IsZero())
