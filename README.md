@@ -245,8 +245,8 @@ expanded to your home directory:
 ```yaml
 rating:
   config_path: <home>/.config/ratingConfig.json
-  use-ai: false
-  openai-api-key: <your-openai-api-key>
+  use_ai: false
+  openai_api_key: <your-openai-api-key>
 ```
 
 `ipscout rate config` prints your rating configuration file, and `--path` prints one from a
@@ -290,7 +290,7 @@ which returns a written assessment in place of the scored table:
 $ ipscout rate --ai 1.10.16.1
 ```
 
-This requires an OpenAI API key, set with `--openai-api-key` or `rating.openai-api-key` in
+This requires an OpenAI API key, set with `--openai-api-key` or `rating.openai_api_key` in
 `config.yaml`.
 
 ## Providers
