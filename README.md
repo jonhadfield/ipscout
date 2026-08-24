@@ -19,6 +19,7 @@ All of the host reputation providers require registration but each of them offer
 - [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
+- [Rating](#rating)
 - [Provider Details](#providers-1)
 - [Changelog](#changelog)
 - [License](#license)
@@ -198,6 +199,99 @@ global:
 providers:
 # list of providers with their configurations below...
 ```
+
+## Rating
+
+`ipscout rate` combines the results from every provider that supports rating into a single
+score and a block or allow recommendation.
+
+```shell
+$ ipscout rate 1.10.16.1
+```
+
+```
++------------+----------+-------+-----------------------------------------------------------+
+| PROVIDER   | DETECTED | SCORE | REASONS                                                   |
++------------+----------+-------+-----------------------------------------------------------+
+| spamhaus   | true     | 10.00 | listed on Spamhaus DROP (do not route or peer): SBL256894 |
+| abuseipdb  | true     | 3.00  | confidence: 0.00                                          |
+| ipqs       | true     | 9.00  | confidence: 0.00                                          |
+| virustotal | true     | 0.00  | harmless                                                  |
++------------+----------+-------+-----------------------------------------------------------+
+| AVERAGE    |          | 5.50  |                                                           |
++------------+----------+-------+-----------------------------------------------------------+
+Recommendation: block
+```
+
+Each provider that matches the host contributes a score. The scores are averaged, and the
+result is compared against `blockScoreThreshold`: below it the recommendation is `allow`,
+otherwise `block`. A provider reporting a `noblock` threat indicator, such as an entry
+annotated that way in your own data, forces `allow` regardless of the score.
+
+### Rating configuration
+
+No setup is required. If no rating configuration file exists, the built-in defaults are
+used and the path checked is reported so you know where to put one.
+
+To write your own, start from the defaults:
+
+```shell
+$ ipscout rate config --default > $HOME/.config/ratingConfig.json
+```
+
+The location is set by `rating.config_path` in `config.yaml`, and `<home>` in that value is
+expanded to your home directory:
+
+```yaml
+rating:
+  config_path: <home>/.config/ratingConfig.json
+  use-ai: false
+  openai-api-key: <your-openai-api-key>
+```
+
+`ipscout rate config` prints your rating configuration file, and `--path` prints one from a
+specific location. Both validate what they read, so they are a way to check a file parses.
+Unlike rating itself, they require the file to exist rather than falling back to the
+defaults.
+
+The configuration has a global section and a per-provider section, abbreviated here (the
+shipped defaults list 26 high threat country codes and carry an entry for 50 providers):
+
+```json
+{
+  "global": {
+    "blockScoreThreshold": 5.0,
+    "highThreatCountryCodes": ["CN", "RU", "IR"],
+    "mediumThreatCountryCodes": ["NL", "CA"]
+  },
+  "providers": {
+    "spamhaus": { "defaultMatchScore": 10.0 },
+    "aws": { "defaultMatchScore": 7.0 },
+    "shodan": {
+      "openPortsScore": 5.0,
+      "highThreatCountryMatchScore": 10.0,
+      "mediumThreatCountryMatchScore": 7.0
+    }
+  }
+}
+```
+
+Most providers take a single `defaultMatchScore`, applied when the host matches their data.
+Threat feeds default to 10.0 and hosting providers to 7.0-8.0, so appearing on a blocklist
+weighs more than merely being hosted somewhere. CriminalIP, Shodan and VirusTotal take
+finer-grained scores for the specific conditions they report.
+
+### AI rating
+
+With `--ai`, the threat indicators each provider reports are shown and then sent to OpenAI,
+which returns a written assessment in place of the scored table:
+
+```shell
+$ ipscout rate --ai 1.10.16.1
+```
+
+This requires an OpenAI API key, set with `--openai-api-key` or `rating.openai-api-key` in
+`config.yaml`.
 
 ## Providers
 
