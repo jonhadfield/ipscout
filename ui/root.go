@@ -786,8 +786,14 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) {
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 
 	sess.Config.Rating.ConfigPath = session.ExpandHome(v.GetString("rating.config_path"), sess.Config.Global.HomeDir)
-	sess.Config.Rating.UseAI = v.GetBool("rating.use_ai")
+	// config files written before these keys were corrected use hyphens, and
+	// were silently ignored; read them so existing installs start working
+	sess.Config.Rating.UseAI = v.GetBool("rating.use_ai") || v.GetBool("rating.use-ai")
+
 	sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai_api_key")
+	if sess.Config.Rating.OpenAIAPIKey == "" {
+		sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai-api-key")
+	}
 }
 
 func initConfig(logLevel string) (*session.Session, error) {

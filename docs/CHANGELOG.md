@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- the shipped config's `rating.use-ai` and `rating.openai-api-key` keys were never read.
+  The reader looks up `use_ai` and `openai_api_key`, matching the underscore convention
+  used by every other key, so enabling AI rating in `config.yaml` silently did nothing.
+  The shipped config now uses the underscore names, and the hyphenated names are still
+  read so existing config files start working rather than staying ignored
+
 ## [0.9.0] - 2026-08-24
 
 ### Added
