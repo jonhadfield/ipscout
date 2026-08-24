@@ -103,7 +103,15 @@ func GetRatingConfig(path string) ([]byte, error) {
 	if path != "" {
 		ratingConfigJSON, err = providers.ReadRatingConfigFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("%w", err)
+			// the shipped config always sets a rating config path, but the
+			// file itself is never written, so treating an absent file as
+			// fatal would leave rating unusable until the user created one by
+			// hand. A file that exists but cannot be read is still an error.
+			if !errors.Is(err, os.ErrNotExist) {
+				return nil, fmt.Errorf("%w", err)
+			}
+
+			ratingConfigJSON = []byte(DefaultRatingConfigJSON)
 		}
 	}
 
@@ -118,6 +126,13 @@ func GetRatingConfig(path string) ([]byte, error) {
 
 func (r *Rater) Run() error {
 	var err error
+
+	if path := r.Session.Config.Rating.ConfigPath; path != "" {
+		if _, sErr := os.Stat(path); errors.Is(sErr, os.ErrNotExist) {
+			r.Session.Logger.Warn("rating config not found, using built-in defaults",
+				"path", path, "hint", "write one with: ipscout rate config --default")
+		}
+	}
 
 	ratingConfig, err := GetRatingConfig(r.Session.Config.Rating.ConfigPath)
 	if err != nil {

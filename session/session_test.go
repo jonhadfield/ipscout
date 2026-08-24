@@ -133,3 +133,49 @@ func TestGetConfigRoot(t *testing.T) {
 		require.Equal(t, filepath.Join(dir, ".config", appName), path)
 	})
 }
+
+func TestExpandHome(t *testing.T) {
+	t.Parallel()
+
+	home := filepath.Join("/users", "someone")
+
+	tests := []struct {
+		name string
+		path string
+		home string
+		want string
+	}{
+		{
+			name: "placeholder is replaced",
+			path: HomePlaceholder + "/.config/ratingConfig.json",
+			home: home,
+			want: filepath.Join(home, ".config", "ratingConfig.json"),
+		},
+		{
+			name: "path without the placeholder is unchanged",
+			path: "/etc/ipscout/ratingConfig.json",
+			home: home,
+			want: "/etc/ipscout/ratingConfig.json",
+		},
+		{
+			name: "unknown home leaves the placeholder alone",
+			path: HomePlaceholder + "/.config/ratingConfig.json",
+			home: "",
+			want: HomePlaceholder + "/.config/ratingConfig.json",
+		},
+		{
+			name: "empty path stays empty",
+			path: "",
+			home: home,
+			want: "",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			require.Equal(t, tc.want, ExpandHome(tc.path, tc.home))
+		})
+	}
+}
