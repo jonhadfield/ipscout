@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ### Changed
 
+- bump ip-fetcher to v0.0.22, which shares the crawler prefix parsing across the eight bot
+  providers and the geolocation csv parsing between linode and icloudpr, and picks up its
+  dependency updates. No new providers: ipscout already wires every ip-fetcher provider
 - provider fetch failures are reported as a single line below the results, naming every
   provider whose ip range data could not be fetched, instead of one error per provider
   printed over the progress spinner while downloads are still running. The per-provider
