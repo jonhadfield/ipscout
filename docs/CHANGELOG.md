@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 ### Fixed
+
 - `--use-test-data` now works for an installed binary. The providers read their test data
   from a path relative to the directory containing go.mod, so outside a source checkout
   every provider silently returned no result. The test data is now embedded in the binary
