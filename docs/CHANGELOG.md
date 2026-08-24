@@ -4,20 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.9.0] - 2026-08-24
+
+### Added
+
+- Anthropic and UptimeRobot providers, covering the Anthropic crawler prefixes and the
+  UptimeRobot monitoring probe ranges
+- Blocklist.de, CINS Army List, DShield, Emerging Threats and Spamhaus DROP threat feed
+  providers, reporting whether the host appears on each blocklist
+- TUI panels for the twelve providers that had none: Atlassian, Bunny CDN, CDN77, Contabo,
+  Datadog, Fly.io, IBM Cloud, Imperva, Leaseweb, Render, Stripe and Tencent Cloud
 
 ### Changed
 
-- bump ip-fetcher to v0.0.22, which shares the crawler prefix parsing across the eight bot
-  providers and the geolocation csv parsing between linode and icloudpr, and picks up its
-  dependency updates. No new providers: ipscout already wires every ip-fetcher provider
+- bump ip-fetcher to v0.0.22, which supplies the seven new provider sources, shares the
+  crawler prefix parsing across the eight bot providers and the geolocation csv parsing
+  between linode and icloudpr, and picks up its dependency updates
 - provider fetch failures are reported as a single line below the results, naming every
   provider whose ip range data could not be fetched, instead of one error per provider
   printed over the progress spinner while downloads are still running. The per-provider
   detail moves to debug logging
+- widen the existing nolint directives in ui/annotated.go, ui/ptr.go and ui/shodan.go to
+  cover staticcheck SA4006, which a newer staticcheck now reports for the same assignments
 
 ### Fixed
 
+- TUI providers whose configuration was never read. alibaba, scaleway and vultr appeared in
+  the interface but always reported the provider as not configured, and the twelve newly
+  added panels would have done the same. A guard test now keeps the CLI and TUI provider
+  configuration in step
 - `--use-test-data` now works for an installed binary. The providers read their test data
   from a path relative to the directory containing go.mod, so outside a source checkout
   every provider silently returned no result. The test data is now embedded in the binary
@@ -34,17 +49,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   them and discarded them
 - a fetch failure is reported even when it leaves nothing to display, rather than exiting
   quietly with only "no results found"
-
-## [0.9.0] - 2026-08-22
-### Added
-- Anthropic and UptimeRobot providers, covering the Anthropic crawler prefixes and the
-  UptimeRobot monitoring probe ranges
-- Blocklist.de, CINS Army List, DShield, Emerging Threats and Spamhaus DROP threat feed
-  providers, reporting whether the host appears on each blocklist
-### Changed
-- bump ip-fetcher to v0.0.21, which supplies the seven new provider sources
-- widen the existing nolint directives in ui/annotated.go, ui/ptr.go and ui/shodan.go to cover
-  staticcheck SA4006, which a newer staticcheck now reports for the same assignments
 
 ## [0.8.1] - 2026-08-09
 ### Changed
