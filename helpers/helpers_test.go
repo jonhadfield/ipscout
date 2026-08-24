@@ -129,3 +129,27 @@ func TestPrefixProjectRootAbsolute(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, abs, prefixed)
 }
+
+func TestSetProjectRootOverride(t *testing.T) {
+	realRoot, err := FindProjectRoot()
+	require.NoError(t, err)
+
+	t.Cleanup(func() { SetProjectRoot("") })
+
+	SetProjectRoot("/somewhere/else")
+
+	root, err := FindProjectRoot()
+	require.NoError(t, err)
+	require.Equal(t, "/somewhere/else", root)
+
+	prefixed, err := PrefixProjectRoot("providers/anthropic/testdata")
+	require.NoError(t, err)
+	require.Equal(t, filepath.Join("/somewhere/else", "providers/anthropic/testdata"), prefixed)
+
+	// clearing restores the go.mod walk
+	SetProjectRoot("")
+
+	root, err = FindProjectRoot()
+	require.NoError(t, err)
+	require.Equal(t, realRoot, root)
+}
