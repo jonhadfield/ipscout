@@ -122,16 +122,36 @@ page.
 ### macOS - Homebrew
 
 ```
+$ brew install --cask jonhadfield/ipscout/ipscout
+```
+
+Naming the cask in full is deliberate. Homebrew now refuses to load formulae and casks
+from taps you have not trusted, so tapping first and installing by short name fails:
+
+```
 $ brew tap jonhadfield/ipscout
 $ brew install ipscout
+Error: Refusing to load cask jonhadfield/ipscout/ipscout from untrusted tap jonhadfield/ipscout.
 ```
+
+Asking for the cask by its fully qualified name is treated as trusting that one cask, so
+the single command above works with no extra step. If you prefer to tap first, trust the
+tap once:
+
+```
+$ brew tap jonhadfield/ipscout
+$ brew trust --tap jonhadfield/ipscout
+$ brew install ipscout
+```
+
+Upgrades work normally either way, with `brew upgrade --cask ipscout`.
 
 Since 0.6.2, ipscout is distributed as a Homebrew cask. If you installed an earlier
 version (distributed as a formula), reinstall once to migrate:
 
 ```
 $ brew uninstall ipscout
-$ brew install ipscout
+$ brew install --cask jonhadfield/ipscout/ipscout
 ```
 
 ### Linux
