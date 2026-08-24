@@ -831,11 +831,16 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) error {
 
 	sess.Config.Rating.ConfigPath = session.ExpandHome(v.GetString("rating.config_path"), sess.Config.Global.HomeDir)
 	// config files written before these keys were corrected use hyphens, and
-	// were silently ignored; read them so existing installs start working
-	sess.Config.Rating.UseAI = v.GetBool("rating.use_ai") || v.GetBool("rating.use-ai")
+	// were silently ignored; fall back to them so existing installs start
+	// working, but only when the corrected key is absent, so an explicit
+	// value is never overridden by a stale one
+	sess.Config.Rating.UseAI = v.GetBool("rating.use_ai")
+	if !v.IsSet("rating.use_ai") {
+		sess.Config.Rating.UseAI = v.GetBool("rating.use-ai")
+	}
 
 	sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai_api_key")
-	if sess.Config.Rating.OpenAIAPIKey == "" {
+	if !v.IsSet("rating.openai_api_key") {
 		sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai-api-key")
 	}
 

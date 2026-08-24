@@ -48,6 +48,31 @@ func TestRatingConfigPrefersUnderscoreKey(t *testing.T) {
 	require.Equal(t, "sk-underscore", sess.Config.Rating.OpenAIAPIKey)
 }
 
+// An explicit false under the corrected key must not be overridden by a stale
+// hyphenated key left in an older config file.
+func TestRatingConfigUnderscoreFalseBeatsLegacyTrue(t *testing.T) {
+	v := viper.New()
+	v.Set("rating.use_ai", false)
+	v.Set("rating.use-ai", true)
+
+	sess := session.New()
+	require.NoError(t, initSessionConfig(sess, v))
+
+	require.False(t, sess.Config.Rating.UseAI)
+}
+
+// Likewise for an explicitly empty api key.
+func TestRatingConfigUnderscoreEmptyBeatsLegacyValue(t *testing.T) {
+	v := viper.New()
+	v.Set("rating.openai_api_key", "")
+	v.Set("rating.openai-api-key", "sk-hyphen")
+
+	sess := session.New()
+	require.NoError(t, initSessionConfig(sess, v))
+
+	require.Empty(t, sess.Config.Rating.OpenAIAPIKey)
+}
+
 // The shipped default config must use the keys the reader looks up.
 func TestShippedConfigUsesUnderscoreRatingKeys(t *testing.T) {
 	require.Contains(t, session.DefaultConfig, "use_ai:")
