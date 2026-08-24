@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- provider fetch failures are reported as a single line below the results, naming every
+  provider whose ip range data could not be fetched, instead of one error per provider
+  printed over the progress spinner while downloads are still running. The per-provider
+  detail moves to debug logging
+
 ### Fixed
 
 - `--use-test-data` now works for an installed binary. The providers read their test data
@@ -13,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   every provider silently returned no result. The test data is now embedded in the binary
   and extracted to the user cache when the source tree is unavailable; running from a
   checkout is unchanged
+- `ipscout rate` now prints the messages buffered during a run; previously it collected
+  them and discarded them
+- a fetch failure is reported even when it leaves nothing to display, rather than exiting
+  quietly with only "no results found"
 
 ## [0.9.0] - 2026-08-22
 ### Added
