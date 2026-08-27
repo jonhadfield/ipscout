@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `make smoke`, a pre-release check that builds the release archives without publishing
+  and exercises the packaged binary from a temporary directory with a throwaway HOME.
+  `make release` depends on it, so a failure aborts before anything is published. It
+  covers the gap unit tests cannot: they run inside the repository, so they could not
+  catch 0.9.0 shipping a binary whose test data was unreachable outside the source tree
+
 ## [0.9.2] - 2026-08-27
 
 ### Changed
