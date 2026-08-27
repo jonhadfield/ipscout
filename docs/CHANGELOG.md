@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- bump ip-fetcher to v0.0.24, updating logrus to 1.10.1, testify to 1.12.1 and
+  go.yaml.in/yaml/v3 to 3.0.5. ip-fetcher's provider code is unchanged since v0.0.22 —
+  v0.0.23 altered only its release workflow and v0.0.24 is dependency updates — so no
+  providers are added and no lookup behaviour changes
+
 ### Fixed
 
 - the README's Homebrew instructions no longer fail for new users. Homebrew refuses to
