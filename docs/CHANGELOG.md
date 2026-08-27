@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- bump ip-fetcher to v0.0.24, picking up its logrus 1.10.1 and testify 1.12.1 updates.
+  No new providers, and no ip-fetcher code changes since v0.0.22: v0.0.23 was CI only
+
 ### Fixed
 
 - the README's Homebrew instructions no longer fail for new users. Homebrew refuses to
