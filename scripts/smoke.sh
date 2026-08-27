@@ -42,8 +42,9 @@ esac
 archive="${DIST}/ipscout_${goos}_${goarch}.tar.gz"
 [ -f "$archive" ] || fail "no archive at $archive; run goreleaser first"
 
-work="$(mktemp -d)"
-home="$(mktemp -d)"
+# explicit templates: some mktemp implementations require one
+work="$(mktemp -d "${TMPDIR:-/tmp}/ipscout-smoke-work.XXXXXX")"
+home="$(mktemp -d "${TMPDIR:-/tmp}/ipscout-smoke-home.XXXXXX")"
 trap 'rm -rf "$work" "$home"' EXIT
 
 tar xzf "$archive" -C "$work" || fail "could not extract $archive"
@@ -88,6 +89,8 @@ pass "--use-test-data rendered ${tables} provider tables"
 #
 # 0.9.0 shipped rating.use-ai and rating.openai-api-key while the reader
 # looked up use_ai and openai_api_key, so enabling AI rating did nothing.
+# The reader now falls back to the old names, but the seeded config should
+# still ship the canonical ones.
 config="${home}/.config/ipscout/config.yaml"
 [ -f "$config" ] || fail "first run did not create ${config}"
 pass "seeded config at ~/.config/ipscout/config.yaml"
@@ -96,11 +99,14 @@ for key in "use_ai:" "openai_api_key:" "config_path:"; do
     grep -q "  ${key}" "$config" || fail "seeded config is missing the ${key} key"
 done
 
+# the reader still accepts these as a fallback for config files written
+# before the keys were corrected, so shipping them is stale rather than
+# broken; the seeded config should use the canonical names
 for stale in "use-ai:" "openai-api-key:"; do
     if grep -q "  ${stale}" "$config"; then
-        fail "seeded config uses ${stale}, which the config reader does not look up"
+        fail "seeded config ships the deprecated ${stale} key, which is only read as a fallback for older config files"
     fi
 done
-pass "seeded config uses the rating keys the reader reads"
+pass "seeded config uses the canonical rating keys"
 
 echo "smoke: all checks passed against the packaged binary"
