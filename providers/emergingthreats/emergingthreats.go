@@ -18,7 +18,8 @@ import (
 
 const (
 	ProviderName = "emergingthreats"
-	DocTTL       = 24 * time.Hour
+	// The compromised host list is rebuilt about daily, so refetch twice a day.
+	DocTTL = 12 * time.Hour
 	// testDataHost is the host represented by the checked-in test data report.
 	testDataHost = "198.51.100.42"
 )

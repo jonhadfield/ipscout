@@ -8,10 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ### Changed
 
-- lengthen the ip range cache TTL for five providers whose sources publish rarely, from
-  24 hours to 7 days: Akamai, Atlassian, CDN77, DuckDuckBot and UptimeRobot. Each was
-  refetched daily while its source had gone a month to two years without changing, and
-  DuckDuckGo serves its list with a one year cache header
+- size the ip range cache TTL per provider from how often each source actually
+  publishes, replacing the blanket 24 hours. Sources that publish rarely move to 7 days
+  (Akamai, Atlassian, CDN77, DuckDuckBot, UptimeRobot); each had gone a month to two
+  years without changing while being refetched daily, and DuckDuckGo serves its list
+  with a one year cache header
+- shorten the threat feed TTLs, which were the opposite problem: at 24 hours a blocklist
+  lookup could be a day out of date. blocklist.de moves to 1 hour, the CINS Army list to
+  2, DShield to 4 and Spamhaus DROP and Emerging Threats to 12, each measured against the
+  cadence the source was observed to publish at
 
 ### Added
 
