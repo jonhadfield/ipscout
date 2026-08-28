@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- lengthen the ip range cache TTL for five providers whose sources publish rarely, from
+  24 hours to 7 days: Akamai, Atlassian, CDN77, DuckDuckBot and UptimeRobot. Each was
+  refetched daily while its source had gone a month to two years without changing, and
+  DuckDuckGo serves its list with a one year cache header
+
 ### Added
 
 - `make smoke`, a pre-release check that builds the release archives without publishing
@@ -13,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   `make release` depends on it, so a failure aborts before anything is published. It
   covers the gap unit tests cannot: they run inside the repository, so they could not
   catch 0.9.0 shipping a binary whose test data was unreachable outside the source tree
+- README documentation for `document_cache_ttl` and `result_cache_ttl`, which were read
+  from config but documented nowhere, so the cache durations were not discoverable
 
 ## [0.9.2] - 2026-08-27
 

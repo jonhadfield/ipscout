@@ -18,7 +18,9 @@ import (
 
 const (
 	ProviderName = "duckduckbot"
-	DocTTL       = 24 * time.Hour
+	// DuckDuckGo serves this list with Cache-Control: max-age=31536000, a year,
+	// and it had not changed for close to two months at the time of review.
+	DocTTL = 7 * 24 * time.Hour
 )
 
 type ProviderClient struct {

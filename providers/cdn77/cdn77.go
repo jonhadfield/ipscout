@@ -18,7 +18,9 @@ import (
 
 const (
 	ProviderName = "cdn77"
-	DocTTL       = 24 * time.Hour
+	// CDN77 publishes infrequently: the list had not changed for a month at the
+	// time of review.
+	DocTTL = 7 * 24 * time.Hour
 )
 
 type ProviderClient struct {
