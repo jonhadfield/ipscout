@@ -95,7 +95,13 @@ scan-image: pull-image
 build-latest-docker-tag:
 	docker build --build-arg="TAG=$(LATEST_TAG)" -f ./docker/Dockerfile -t ipscout ./docker
 
-release:
+# Build the release archives without publishing, then exercise the packaged
+# binary the way a user runs it. See scripts/smoke.sh.
+smoke:
+	goreleaser release --snapshot --clean --skip=homebrew
+	./scripts/smoke.sh
+
+release: smoke
 	goreleaser && git push --follow-tags
 
 help:

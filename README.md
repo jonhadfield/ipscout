@@ -174,6 +174,16 @@ go build ./...
 
 This will create an `ipscout` binary in the current directory.
 
+### Releasing
+
+`make release` builds and publishes the release. It depends on `make smoke`, which builds
+the release archives without publishing and then runs the packaged binary from a temporary
+directory with a throwaway `HOME`, so there is no `go.mod` above it and no existing config
+or cache. That catches problems the unit tests cannot see, because they run inside the
+repository. A failing smoke check aborts the release before anything is published.
+
+`make smoke` can be run on its own at any time; it needs no network access.
+
 ### Updating the ip-fetcher dependency
 
 Most providers source their IP-range data via [`ip-fetcher`](https://github.com/jonhadfield/ip-fetcher). It is pinned in `go.mod` to a `v`-prefixed release tag — that released module, not a local checkout, is the source of truth for upstream data formats. To pick up changes:
