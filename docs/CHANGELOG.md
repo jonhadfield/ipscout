@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ### Changed
 
-- size the ip range cache TTL per provider from how often each source actually
+- size the IP range cache TTL per provider from how often each source actually
   publishes, replacing the blanket 24 hours. Sources that publish rarely move to 7 days
   (Akamai, Atlassian, CDN77, DuckDuckBot, UptimeRobot); each had gone a month to two
   years without changing while being refetched daily, and DuckDuckGo serves its list
@@ -79,7 +79,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   crawler prefix parsing across the eight bot providers and the geolocation csv parsing
   between linode and icloudpr, and picks up its dependency updates
 - provider fetch failures are reported as a single line below the results, naming every
-  provider whose ip range data could not be fetched, instead of one error per provider
+  provider whose IP range data could not be fetched, instead of one error per provider
   printed over the progress spinner while downloads are still running. The per-provider
   detail moves to debug logging
 - widen the existing nolint directives in ui/annotated.go, ui/ptr.go and ui/shodan.go to
