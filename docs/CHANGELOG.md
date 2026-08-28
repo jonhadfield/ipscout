@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- size the IP range cache TTL per provider from how often each source actually
+  publishes, replacing the blanket 24 hours. Sources that publish rarely move to 7 days
+  (Akamai, Atlassian, CDN77, DuckDuckBot, UptimeRobot); each had gone a month to two
+  years without changing while being refetched daily, and DuckDuckGo serves its list
+  with a one year cache header
+- shorten the threat feed TTLs, which were the opposite problem: at 24 hours a blocklist
+  lookup could be a day out of date. blocklist.de moves to 1 hour, the CINS Army list to
+  2, DShield to 4 and Spamhaus DROP and Emerging Threats to 12, each measured against the
+  cadence the source was observed to publish at
+
 ### Added
 
 - `make smoke`, a pre-release check that builds the release archives without publishing
@@ -13,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   `make release` depends on it, so a failure aborts before anything is published. It
   covers the gap unit tests cannot: they run inside the repository, so they could not
   catch 0.9.0 shipping a binary whose test data was unreachable outside the source tree
+- README documentation for `document_cache_ttl` and `result_cache_ttl`, which were read
+  from config but documented nowhere, so the cache durations were not discoverable
 
 ## [0.9.2] - 2026-08-27
 
@@ -65,7 +79,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   crawler prefix parsing across the eight bot providers and the geolocation csv parsing
   between linode and icloudpr, and picks up its dependency updates
 - provider fetch failures are reported as a single line below the results, naming every
-  provider whose ip range data could not be fetched, instead of one error per provider
+  provider whose IP range data could not be fetched, instead of one error per provider
   printed over the progress spinner while downloads are still running. The per-provider
   detail moves to debug logging
 - widen the existing nolint directives in ui/annotated.go, ui/ptr.go and ui/shodan.go to

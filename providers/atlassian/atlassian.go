@@ -18,7 +18,9 @@ import (
 
 const (
 	ProviderName = "atlassian"
-	DocTTL       = 24 * time.Hour
+	// Atlassian publishes infrequently: the feed had not changed for over two
+	// months at the time of review.
+	DocTTL = 7 * 24 * time.Hour
 )
 
 type ProviderClient struct {

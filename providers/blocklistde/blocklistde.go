@@ -18,7 +18,11 @@ import (
 
 const (
 	ProviderName = "blocklistde"
-	DocTTL       = 24 * time.Hour
+	// blocklist.de regenerates roughly every twenty to thirty minutes: the file
+	// changed twice within an hour during review, and the server advertises
+	// Cache-Control: max-age=1200. An hour keeps the list usefully fresh without
+	// polling a volunteer run service as hard as it would permit.
+	DocTTL = 1 * time.Hour
 	// testDataHost is the host represented by the checked-in test data report.
 	testDataHost = "192.0.2.1"
 )

@@ -328,6 +328,21 @@ This requires an OpenAI API key, set with `--openai-api-key` or `rating.openai_a
 Providers are configured in the `config.yaml` file.
 A number of providers are enabled by default, but can be disabled by setting `enabled: false`.
 
+Providers that fetch a list of IP ranges cache it, and refetch once the cache expires. The
+defaults are chosen per provider from how often the source actually publishes, so a list
+that changes a few times a year is not refetched daily. Override it per provider with
+`document_cache_ttl`, in minutes:
+
+```yaml
+providers:
+  aws:
+    enabled: true
+    document_cache_ttl: 360   # refetch AWS ranges every 6 hours instead of daily
+```
+
+Providers that query a per-host API cache the result instead, set with `result_cache_ttl`,
+also in minutes.
+
 ### AbuseIPDB
 
 This provider queries the [AbuseIPDB](https://www.abuseipdb.com/) API for information on an IP address, with a threat
