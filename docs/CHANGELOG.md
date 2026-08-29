@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-29
+
 ### Added
 
 - Team Cymru Bogons provider, reporting whether the host falls in address space that
@@ -15,22 +17,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - GreenSnow provider, reporting whether the host appears on its list of addresses seen
   attacking servers. Cached for an hour: the list changed by seventeen entries over two
   minutes during review
-
-### Changed
-
-- bump ip-fetcher to v0.0.25, which supplies the two new provider sources
-- size the IP range cache TTL per provider from how often each source actually
-  publishes, replacing the blanket 24 hours. Sources that publish rarely move to 7 days
-  (Akamai, Atlassian, CDN77, DuckDuckBot, UptimeRobot); each had gone a month to two
-  years without changing while being refetched daily, and DuckDuckGo serves its list
-  with a one year cache header
-- shorten the threat feed TTLs, which were the opposite problem: at 24 hours a blocklist
-  lookup could be a day out of date. blocklist.de moves to 1 hour, the CINS Army list to
-  2, DShield to 4 and Spamhaus DROP and Emerging Threats to 12, each measured against the
-  cadence the source was observed to publish at
-
-### Added
-
 - `make smoke`, a pre-release check that builds the release archives without publishing
   and exercises the packaged binary from a temporary directory with a throwaway HOME.
   `make release` depends on it, so a failure aborts before anything is published. It
@@ -38,6 +24,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   catch 0.9.0 shipping a binary whose test data was unreachable outside the source tree
 - README documentation for `document_cache_ttl` and `result_cache_ttl`, which were read
   from config but documented nowhere, so the cache durations were not discoverable
+
+### Changed
+
+- bump ip-fetcher to v0.0.25, which supplies the two new provider sources
+- size the IP range cache TTL per provider from how often each source actually
+  publishes, replacing the blanket 24 hours. Sources that publish rarely move to 7 days
+  (Akamai, Atlassian, CDN77, DuckDuckBot, OpenAI, PerplexityBot, UptimeRobot); each had
+  gone a fortnight to two years without changing while being refetched daily, and
+  DuckDuckGo serves its list with a one year cache header
+- shorten the threat feed TTLs, which were the opposite problem: at 24 hours a blocklist
+  lookup could be a day out of date. blocklist.de moves to 1 hour, the CINS Army list to
+  2, DShield to 4 and Spamhaus DROP and Emerging Threats to 12, each measured against the
+  cadence the source was observed to publish at
 
 ## [0.9.2] - 2026-08-27
 
@@ -407,7 +406,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.2.10...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.10.0...HEAD
+[0.10.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.10.0
 [0.2.10]: https://github.com/jonhadfield/ipscout/releases/tag/0.2.10
 [0.2.9]: https://github.com/jonhadfield/ipscout/releases/tag/0.2.9
 [0.2.8]: https://github.com/jonhadfield/ipscout/releases/tag/0.2.8
