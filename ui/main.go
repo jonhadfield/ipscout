@@ -389,6 +389,10 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 			newText = strings.Replace(currentText, " Anthropic", " ▶ Anthropic", 1)
 		case providerBlocklistDE:
 			newText = strings.Replace(currentText, " Blocklist.de", " ▶ Blocklist.de", 1)
+		case providerCymru:
+			newText = strings.Replace(currentText, " Team Cymru Bogons", " ▶ Team Cymru Bogons", 1)
+		case providerGreenSnow:
+			newText = strings.Replace(currentText, " GreenSnow", " ▶ GreenSnow", 1)
 		case providerCINSScore:
 			newText = strings.Replace(currentText, " CINS Army List", " ▶ CINS Army List", 1)
 		case providerDShield:
