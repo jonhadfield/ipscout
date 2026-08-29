@@ -204,6 +204,13 @@ repository. A failing smoke check aborts the release before anything is publishe
 
 `make smoke` can be run on its own at any time; it needs no network access.
 
+The release notes published on GitHub are the changelog section for the tag, extracted by
+`scripts/release-notes.sh`, rather than goreleaser's generated list of commit subjects and
+SHAs. So the entry has to be in `docs/CHANGELOG.md` under a `## [X.Y.Z]` heading before
+you release: the target fails rather than publishing empty notes, which are awkward to
+correct once people have seen them. Run `scripts/release-notes.sh 0.10.0` to preview what
+would be published.
+
 Publishing needs a GitHub token with `repo` scope, for both the release and the push to
 the `homebrew-ipscout` cask repository. `goreleaser` resolves its SCM token from the
 environment, so if you keep a `GITLAB_TOKEN` set for other work, clear it for the run so
