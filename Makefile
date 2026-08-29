@@ -102,7 +102,7 @@ smoke:
 	./scripts/smoke.sh
 
 release: smoke
-	goreleaser && git push --follow-tags
+	notes="$$(mktemp -t ipscout-release-notes)" && scripts/release-notes.sh > "$$notes" && goreleaser --release-notes="$$notes" && rm -f "$$notes" && git push --follow-tags
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
