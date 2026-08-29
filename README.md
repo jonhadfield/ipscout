@@ -204,6 +204,18 @@ repository. A failing smoke check aborts the release before anything is publishe
 
 `make smoke` can be run on its own at any time; it needs no network access.
 
+Publishing needs a GitHub token with `repo` scope, for both the release and the push to
+the `homebrew-ipscout` cask repository. `goreleaser` resolves its SCM token from the
+environment, so if you keep a `GITLAB_TOKEN` set for other work, clear it for the run so
+the GitHub one is used:
+
+```shell
+env -u GITLAB_TOKEN GITHUB_TOKEN="$(gh auth token)" make release
+```
+
+`gh auth token` reuses the `gh` CLI login rather than needing a separate PAT. Set
+`GITHUB_TOKEN` yourself if you would rather not depend on `gh`.
+
 ### Updating the ip-fetcher dependency
 
 Most providers source their IP-range data via [`ip-fetcher`](https://github.com/jonhadfield/ip-fetcher). It is pinned in `go.mod` to a `v`-prefixed release tag — that released module, not a local checkout, is the source of truth for upstream data formats. To pick up changes:
