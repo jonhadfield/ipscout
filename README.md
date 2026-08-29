@@ -178,6 +178,24 @@ This will create an `ipscout` binary in the current directory.
 
 ### Releasing
 
+Tag first, then release:
+
+```shell
+git tag -a 0.10.0 -m "new providers, cache ttl tuning and release checks."
+git push origin 0.10.0
+make release
+```
+
+Tags are annotated and unprefixed (`0.10.0`, not `v0.10.0`), with a short lowercase
+message summarising the release.
+
+Push the tag before running `make release`, not after. `goreleaser` publishes the release
+for the tag at `HEAD`, and if that tag is not already on the remote GitHub creates it from
+the release itself — as a lightweight tag, so the annotated object and its message stay on
+your machine and the remote records only the commit. The `git push --follow-tags` at the
+end of the target then has nothing left to send and reports `Everything up-to-date`, which
+reads like success. Pushing first is what makes the annotated tag the one that lands.
+
 `make release` builds and publishes the release. It depends on `make smoke`, which builds
 the release archives without publishing and then runs the packaged binary from a temporary
 directory with a throwaway `HOME`, so there is no `go.mod` above it and no existing config
@@ -185,6 +203,18 @@ or cache. That catches problems the unit tests cannot see, because they run insi
 repository. A failing smoke check aborts the release before anything is published.
 
 `make smoke` can be run on its own at any time; it needs no network access.
+
+Publishing needs a GitHub token with `repo` scope, for both the release and the push to
+the `homebrew-ipscout` cask repository. `goreleaser` resolves its SCM token from the
+environment, so if you keep a `GITLAB_TOKEN` set for other work, clear it for the run so
+the GitHub one is used:
+
+```shell
+env -u GITLAB_TOKEN GITHUB_TOKEN="$(gh auth token)" make release
+```
+
+`gh auth token` reuses the `gh` CLI login rather than needing a separate PAT. Set
+`GITHUB_TOKEN` yourself if you would rather not depend on `gh`.
 
 ### Updating the ip-fetcher dependency
 
