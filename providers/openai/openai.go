@@ -22,7 +22,20 @@ import (
 
 const (
 	ProviderName = "openai"
-	DocTTL       = 24 * time.Hour
+	// OpenAI publishes three lists and revises them on a scale of weeks, not
+	// days: at the time of review chatgpt-user.json had last changed 15 days
+	// earlier, gptbot.json 24 days, and searchbot.json in January. A week of
+	// staleness is a fair trade for a quarter of the fetches.
+	//
+	// Sized on Last-Modified rather than the creationTime field in the JSON,
+	// which is not maintained in step with the file: gptbot.json carried a
+	// creationTime ten months older than its own Last-Modified.
+	//
+	// The lists are served with Cache-Control: max-age=0, must-revalidate.
+	// Honouring that would mean conditional requests, which ipscout does not
+	// do; against a fetch-and-cache client the choice is only how long to
+	// hold, and the observed cadence says a week beats a day.
+	DocTTL = 7 * 24 * time.Hour
 )
 
 type Config struct {
