@@ -471,6 +471,16 @@ type Providers struct {
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"uptimerobot"`
+	Cymru struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"cymru"`
+	GreenSnow struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"greensnow"`
 }
 
 func unmarshalConfig(data []byte) (*Session, error) {

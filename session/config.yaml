@@ -149,3 +149,7 @@ providers:
     enabled: true
   uptimerobot:
     enabled: true
+  cymru:
+    enabled: true
+  greensnow:
+    enabled: true

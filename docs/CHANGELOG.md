@@ -6,8 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Added
+
+- Team Cymru Bogons provider, reporting whether the host falls in address space that
+  should never appear as a source on the public internet, either unallocated by IANA or
+  allocated but unrouted. Cached for four hours to match the source's rebuild, since a
+  stale bogon list reports newly allocated legitimate space as unroutable
+- GreenSnow provider, reporting whether the host appears on its list of addresses seen
+  attacking servers. Cached for an hour: the list changed by seventeen entries over two
+  minutes during review
+
 ### Changed
 
+- bump ip-fetcher to v0.0.25, which supplies the two new provider sources
 - size the IP range cache TTL per provider from how often each source actually
   publishes, replacing the blanket 24 hours. Sources that publish rarely move to 7 days
   (Akamai, Atlassian, CDN77, DuckDuckBot, UptimeRobot); each had gone a month to two

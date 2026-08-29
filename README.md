@@ -88,6 +88,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
 | [Google User-triggered Fetchers](#Google-User-triggered-Fetchers) | Web crawler |         -           |
 | [Googlebot](#Googlebot)                                   |   Web crawler    |           -           |
+| [GreenSnow](#GreenSnow)                                   |   Threat Feed    |           -           |
 | [Hetzner](#Hetzner)                                       | Hosting Provider |           -           |
 | [IBM Cloud](#IBM-Cloud)                                   | Hosting Provider |           -           |
 | [Imperva](#Imperva)                                       |       WAF        |           -           |
@@ -109,6 +110,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
 | [Spamhaus DROP](#Spamhaus-DROP)                           |   Threat Feed    |           -           |
 | [Stripe](#Stripe)                                         |       SaaS       |           -           |
+| [Team Cymru Bogons](#Team-Cymru-Bogons)                   |      Bogon       |           -           |
 | [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
 | [UptimeRobot](#UptimeRobot)                               |       SaaS       |           -           |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
@@ -456,6 +458,14 @@ services.
 and [publishes](https://developers.google.com/static/search/apis/ipranges/googlebot.json) network prefixes used by their
 bots.
 
+### GreenSnow
+
+[GreenSnow](https://greensnow.co/) collects addresses seen attacking servers, such as
+brute force attempts against SSH, mail and web services, and publishes them at
+[blocklist.greensnow.co/greensnow.txt](https://blocklist.greensnow.co/greensnow.txt).
+IPScout downloads this list and checks whether the target IP appears in it. The list
+changes constantly, so it is cached for an hour rather than the usual day.
+
 ### Hetzner
 
 [Hetzner](https://www.hetzner.com/) is a hosting provider.
@@ -724,6 +734,20 @@ against the target host.
 [Stripe](https://stripe.com/) publishes the IP ranges used by its API and webhook
 infrastructure. IPScout downloads this list and checks whether the target IP is
 within those ranges.
+
+### Team Cymru Bogons
+
+The [Team Cymru](https://www.team-cymru.com/bogon-reference) full bogon list covers
+address space that should never appear as a source on the public internet: ranges IANA
+has not allocated, plus those allocated but not yet routed. Traffic claiming to come from
+one is typically spoofed or the result of a misconfiguration.
+
+It is published as
+[fullbogons-ipv4.txt](https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt) and
+[fullbogons-ipv6.txt](https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt), and
+rebuilt every four hours. IPScout caches it for four hours to match: bogon space shrinks
+as addresses are allocated, so a stale list reports newly assigned, legitimate ranges as
+unroutable. The generation time from the list header is shown with any match.
 
 ### Tencent Cloud
 

@@ -104,4 +104,6 @@ const (
 	DefaultEmergingThreatsOutputPriority = 20
 	DefaultSpamhausOutputPriority        = 20
 	DefaultUptimeRobotOutputPriority     = 60
+	DefaultCymruOutputPriority           = 20
+	DefaultGreenSnowOutputPriority       = 20
 )

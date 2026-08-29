@@ -771,6 +771,10 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Tencent.Enabled, &sess.Providers.Tencent.OutputPriority, &sess.Providers.Tencent.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "uptimerobot", "UptimeRobot", c.DefaultUptimeRobotOutputPriority,
 		&sess.Providers.UptimeRobot.Enabled, &sess.Providers.UptimeRobot.OutputPriority, &sess.Providers.UptimeRobot.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cymru", "Team Cymru Bogons", c.DefaultCymruOutputPriority,
+		&sess.Providers.Cymru.Enabled, &sess.Providers.Cymru.OutputPriority, &sess.Providers.Cymru.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "greensnow", "GreenSnow", c.DefaultGreenSnowOutputPriority,
+		&sess.Providers.GreenSnow.Enabled, &sess.Providers.GreenSnow.OutputPriority, &sess.Providers.GreenSnow.DocumentCacheTTL)
 }
 
 // initSimpleProviderConfig wires a provider with the common enabled /
