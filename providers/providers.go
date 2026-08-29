@@ -619,6 +619,12 @@ type RatingConfig struct {
 		UptimeRobot struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"uptimerobot"`
+		Cymru struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"cymru"`
+		GreenSnow struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"greensnow"`
 	} `json:"providers"`
 }
 

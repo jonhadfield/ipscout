@@ -740,6 +740,10 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Scaleway.Enabled, &sess.Providers.Scaleway.OutputPriority, &sess.Providers.Scaleway.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "stripe", "Stripe", c.DefaultStripeOutputPriority,
 		&sess.Providers.Stripe.Enabled, &sess.Providers.Stripe.OutputPriority, &sess.Providers.Stripe.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cymru", "Team Cymru Bogons", c.DefaultCymruOutputPriority,
+		&sess.Providers.Cymru.Enabled, &sess.Providers.Cymru.OutputPriority, &sess.Providers.Cymru.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "greensnow", "GreenSnow", c.DefaultGreenSnowOutputPriority,
+		&sess.Providers.GreenSnow.Enabled, &sess.Providers.GreenSnow.OutputPriority, &sess.Providers.GreenSnow.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "tencent", "Tencent Cloud", c.DefaultTencentOutputPriority,
 		&sess.Providers.Tencent.Enabled, &sess.Providers.Tencent.OutputPriority, &sess.Providers.Tencent.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "vultr", "Vultr", defaultVultrOutputPriority,

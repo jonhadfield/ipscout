@@ -194,6 +194,12 @@
     },
     "spamhaus": {
       "defaultMatchScore": 10.0
+    },
+    "cymru": {
+      "defaultMatchScore": 10.0
+    },
+    "greensnow": {
+      "defaultMatchScore": 10.0
     }
   }
 }
