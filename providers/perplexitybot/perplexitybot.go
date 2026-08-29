@@ -18,7 +18,10 @@ import (
 
 const (
 	ProviderName = "perplexitybot"
-	DocTTL       = 24 * time.Hour
+	// Perplexity publishes eight prefixes and had not revised them for around
+	// eighteen months at the time of review. Refetching that daily is wasted
+	// effort; the list simply does not move often.
+	DocTTL = 7 * 24 * time.Hour
 )
 
 type ProviderClient struct {
