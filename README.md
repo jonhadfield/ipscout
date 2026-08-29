@@ -178,6 +178,24 @@ This will create an `ipscout` binary in the current directory.
 
 ### Releasing
 
+Tag first, then release:
+
+```shell
+git tag -a 0.10.0 -m "new providers, cache ttl tuning and release checks."
+git push origin 0.10.0
+make release
+```
+
+Tags are annotated and unprefixed (`0.10.0`, not `v0.10.0`), with a short lowercase
+message summarising the release.
+
+Push the tag before running `make release`, not after. `goreleaser` publishes the release
+for the tag at `HEAD`, and if that tag is not already on the remote GitHub creates it from
+the release itself — as a lightweight tag, so the annotated object and its message stay on
+your machine and the remote records only the commit. The `git push --follow-tags` at the
+end of the target then has nothing left to send and reports `Everything up-to-date`, which
+reads like success. Pushing first is what makes the annotated tag the one that lands.
+
 `make release` builds and publishes the release. It depends on `make smoke`, which builds
 the release archives without publishing and then runs the packaged binary from a temporary
 directory with a throwaway `HOME`, so there is no `go.mod` above it and no existing config
