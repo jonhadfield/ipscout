@@ -203,6 +203,27 @@
     },
     "greensnow": {
       "defaultMatchScore": 10.0
+    },
+    "betterstack": {
+      "defaultMatchScore": 1.0
+    },
+    "checkly": {
+      "defaultMatchScore": 1.0
+    },
+    "gcore": {
+      "defaultMatchScore": 5.0
+    },
+    "newrelic": {
+      "defaultMatchScore": 1.0
+    },
+    "pingdom": {
+      "defaultMatchScore": 1.0
+    },
+    "statuscake": {
+      "defaultMatchScore": 1.0
+    },
+    "zoom": {
+      "defaultMatchScore": 3.0
     }
   }
 }
