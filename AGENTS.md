@@ -3,9 +3,11 @@
 IPScout is a command-line tool written in Go that enriches IP addresses with origin and threat rating information. It queries multiple reputation and hosting providers concurrently to gather intelligence about IP addresses.
 
 ## Project Structure & Module Organization
+
 The Go CLI is split by responsibility to keep provider logic isolated from orchestration. Key directories: `cmd/` hosts Cobra entrypoints, `providers/` contains subpackages for each reputation source, and `process/`, `manager/`, `rate/`, and `session/` coordinate lookups, caching, and scoring. Shared helpers and defaults live under `helpers/` and `constants/`, while `ui/` formats terminal output and holds related fixtures. Docs, examples, and release assets sit in `docs/`, `examples/`, and `.local_dist/`. Tests reside beside their packages as `_test.go` files.
 
 ## Build, Test, and Development Commands
+
 - `go run . <host>` runs the CLI against a target host using your local config.
 - `make build` emits a static binary at `.local_dist/ipscout`; `make build-all` cross-compiles for
   release. `make build-docker` builds the Docker image.
@@ -82,6 +84,7 @@ Many providers fetch their IP-range data through the `github.com/jonhadfield/ip-
 ### API Key Management
 
 API keys are managed through environment variables or configuration file:
+
 - Environment variables (no prefix): `ABUSEIPDB_API_KEY`, `CRIMINAL_IP_API_KEY`, `IPQS_API_KEY`,
   `SHODAN_API_KEY`, `VIRUSTOTAL_API_KEY` — read via `readProviderAuthKeys`; a keyed provider with
   no key is force-disabled
@@ -89,9 +92,11 @@ API keys are managed through environment variables or configuration file:
   providers take keys from the environment variables above
 
 ## Coding Style & Naming Conventions
+
 Honor standard Go tab indentation and keep files `gofumpt`-clean. Imports must be organized with `goimports`. Exported types and funcs use PascalCase; unexported symbols stay lowerCamelCase. File names follow snake_case with `_test.go` for tests. Prefer small, composable functions and propagate errors rather than logging inside libraries.
 
 ## Testing Guidelines
+
 Place new tests in the same package, favor table-driven cases, and reuse testify assertions where they already exist. Run focused packages with `go test ./providers/shodan -run TestLookup` during development, then refresh coverage with `make test` before merging. Update or add fixtures under the relevant provider or `ui/` subdirectory to keep deterministic outputs.
 
 - Unit tests for each provider with mocked HTTP responses
@@ -104,7 +109,9 @@ Place new tests in the same package, favor table-driven cases, and reuse testify
   could only have been caught that way
 
 ## Commit & Pull Request Guidelines
+
 Commits mirror the current history: short imperative subjects such as `add vultr` or `bump dependencies`, optional detail in the body when context helps. Keep subjects under ~65 characters. Pull requests should link issues, note manual test commands, and add screenshots for `ui/` changes. Tag maintainers responsible for the touched provider or subsystem.
 
 ## Security & Configuration Tips
+
 Provider credentials live in `~/.config/ipscout/config.yaml`; never commit real keys or populated cache files. Sanitize artifacts before attaching them to issues. Use `make clean` to drop local build outputs, and inspect `app.log` for sensitive data before sharing logs.
