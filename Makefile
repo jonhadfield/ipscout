@@ -97,7 +97,12 @@ smoke:
 	goreleaser release --snapshot --clean --skip=homebrew
 	./scripts/smoke.sh
 
-release: smoke
+# Runs before smoke so a missing changelog entry fails in a second rather
+# than after a full six platform build. Useful on its own before tagging.
+check-release-notes:
+	scripts/release-notes.sh > /dev/null
+
+release: check-release-notes smoke
 	notes="$$(mktemp -t ipscout-release-notes)" && scripts/release-notes.sh > "$$notes" && goreleaser --release-notes="$$notes" && rm -f "$$notes" && git push --follow-tags
 
 help:

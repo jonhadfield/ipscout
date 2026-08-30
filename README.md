@@ -206,10 +206,13 @@ repository. A failing smoke check aborts the release before anything is publishe
 
 The release notes published on GitHub are the changelog section for the tag, extracted by
 `scripts/release-notes.sh`, rather than goreleaser's generated list of commit subjects and
-SHAs. So the entry has to be in `docs/CHANGELOG.md` under a `## [X.Y.Z]` heading before
-you release: the target fails rather than publishing empty notes, which are awkward to
-correct once people have seen them. Run `scripts/release-notes.sh 0.10.0` to preview what
-would be published.
+SHAs. So the entry has to be in `docs/CHANGELOG.md` under a `## [X.Y.Z]` heading before you
+release: the target fails rather than publishing empty notes, which are awkward to correct
+once people have seen them.
+
+That check runs first, ahead of `smoke`, so a missing entry fails in a second rather than
+after a full six platform build. `make check-release-notes` runs it on its own, and
+`scripts/release-notes.sh 0.10.0` prints what would be published.
 
 Publishing needs a GitHub token with `repo` scope, for both the release and the push to
 the `homebrew-ipscout` cask repository. `goreleaser` resolves its SCM token from the
