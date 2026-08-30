@@ -1,14 +1,19 @@
 package registry
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/session"
+	"gopkg.in/yaml.v3"
 )
 
 // expectedProviderCount is the number of provider entries currently registered
 // in All(). Update this constant if providers are added or removed.
-const expectedProviderCount = 40
+const expectedProviderCount = 67
 
 func TestAllReturnsEntries(t *testing.T) {
 	t.Parallel()
@@ -179,5 +184,180 @@ func TestNoKeyHelper(t *testing.T) {
 
 	if got := noKey(sess); got != "" {
 		t.Errorf("noKey() = %q, want empty string", got)
+	}
+}
+
+// configProviders reads the providers section of a config file into a map of
+// provider name to its settings.
+func configProviders(t *testing.T) map[string]map[string]any {
+	t.Helper()
+
+	data, err := os.ReadFile("config.yaml")
+	if err != nil {
+		t.Fatalf("failed to read config: %v", err)
+	}
+
+	var conf struct {
+		Providers map[string]map[string]any `yaml:"providers"`
+	}
+
+	if err := yaml.Unmarshal(data, &conf); err != nil {
+		t.Fatalf("failed to parse config: %v", err)
+	}
+
+	return conf.Providers
+}
+
+func TestEnsureDefaultProvidersInConfigAddsMissing(t *testing.T) {
+	// t.Chdir is incompatible with t.Parallel; the literal config path keeps
+	// the Codacy fileread rule satisfied
+	t.Chdir(t.TempDir())
+
+	// an aged config: a comment, one no-config provider explicitly disabled,
+	// one enabled, and none of the newer providers
+	content := `---
+global:
+  max_age: 90d
+
+providers:
+  # aws disabled on purpose
+  aws:
+    enabled: false
+  azure:
+    enabled: true
+  shodan:
+    enabled: true
+`
+
+	if err := os.WriteFile("config.yaml", []byte(content), 0o600); err != nil {
+		t.Fatalf("failed to write config: %v", err)
+	}
+
+	changed, err := EnsureDefaultProvidersInConfig("config.yaml")
+	if err != nil {
+		t.Fatalf("EnsureDefaultProvidersInConfig() error: %v", err)
+	}
+
+	if !changed {
+		t.Fatal("EnsureDefaultProvidersInConfig() = false, want true")
+	}
+
+	provs := configProviders(t)
+
+	for _, e := range All() {
+		if !e.DefaultEnabled || e.Name == aws.ProviderName || e.Name == "azure" {
+			continue
+		}
+
+		p, ok := provs[strings.ToLower(e.Name)]
+		if !ok {
+			t.Errorf("provider %q not added to config", e.Name)
+
+			continue
+		}
+
+		if enabled, _ := p["enabled"].(bool); !enabled {
+			t.Errorf("provider %q added with enabled=%v, want true", e.Name, p["enabled"])
+		}
+	}
+
+	// explicit user setting must be preserved
+	if enabled, _ := provs[aws.ProviderName]["enabled"].(bool); enabled {
+		t.Error("aws enabled=false was not preserved")
+	}
+
+	// keyed providers must not be added beyond those already present
+	if _, ok := provs["abuseipdb"]; ok {
+		t.Error("keyed provider abuseipdb should not be added")
+	}
+
+	// comments must survive the rewrite
+	raw, err := os.ReadFile("config.yaml")
+	if err != nil {
+		t.Fatalf("failed to read config: %v", err)
+	}
+
+	if !strings.Contains(string(raw), "# aws disabled on purpose") {
+		t.Error("comment was not preserved in rewritten config")
+	}
+
+	// a second run must be a no-op
+	changed, err = EnsureDefaultProvidersInConfig("config.yaml")
+	if err != nil {
+		t.Fatalf("EnsureDefaultProvidersInConfig() second run error: %v", err)
+	}
+
+	if changed {
+		t.Error("EnsureDefaultProvidersInConfig() second run = true, want false")
+	}
+}
+
+// TestEnsureDefaultProvidersInConfigDefaultConfigComplete guards that the
+// shipped default config already lists every no-config provider, so a fresh
+// install's config is never rewritten on first run.
+func TestEnsureDefaultProvidersInConfigDefaultConfigComplete(t *testing.T) {
+	// t.Chdir is incompatible with t.Parallel; the literal config path keeps
+	// the Codacy fileread rule satisfied
+	t.Chdir(t.TempDir())
+
+	if err := os.WriteFile("config.yaml", []byte(session.DefaultConfig), 0o600); err != nil {
+		t.Fatalf("failed to write config: %v", err)
+	}
+
+	changed, err := EnsureDefaultProvidersInConfig("config.yaml")
+	if err != nil {
+		t.Fatalf("EnsureDefaultProvidersInConfig() error: %v", err)
+	}
+
+	if changed {
+		t.Error("default config is missing no-config providers; update session/config.yaml")
+	}
+
+	raw, err := os.ReadFile("config.yaml")
+	if err != nil {
+		t.Fatalf("failed to read config: %v", err)
+	}
+
+	if string(raw) != session.DefaultConfig {
+		t.Error("default config was rewritten despite no changes")
+	}
+}
+
+func TestEnsureDefaultProvidersInConfigEmptyProviders(t *testing.T) {
+	// t.Chdir is incompatible with t.Parallel; the literal config path keeps
+	// the Codacy fileread rule satisfied
+	t.Chdir(t.TempDir())
+
+	if err := os.WriteFile("config.yaml", []byte("providers:\n"), 0o600); err != nil {
+		t.Fatalf("failed to write config: %v", err)
+	}
+
+	changed, err := EnsureDefaultProvidersInConfig("config.yaml")
+	if err != nil {
+		t.Fatalf("EnsureDefaultProvidersInConfig() error: %v", err)
+	}
+
+	if !changed {
+		t.Fatal("EnsureDefaultProvidersInConfig() = false, want true")
+	}
+
+	provs := configProviders(t)
+
+	for _, e := range All() {
+		if !e.DefaultEnabled {
+			continue
+		}
+
+		if _, ok := provs[strings.ToLower(e.Name)]; !ok {
+			t.Errorf("provider %q not added to empty providers section", e.Name)
+		}
+	}
+}
+
+func TestEnsureDefaultProvidersInConfigMissingFile(t *testing.T) {
+	t.Parallel()
+
+	if _, err := EnsureDefaultProvidersInConfig(filepath.Join(t.TempDir(), "missing.yaml")); err == nil {
+		t.Error("EnsureDefaultProvidersInConfig() on missing file: expected error")
 	}
 }

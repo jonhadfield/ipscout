@@ -4,16 +4,26 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 
 	c "github.com/jonhadfield/ipscout/constants"
 	h "github.com/jonhadfield/ipscout/helpers"
+	"github.com/jonhadfield/ipscout/registry"
 
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/viper"
 )
 
 var sess *session.Session
+
+// default output priorities for providers without a constant in the
+// constants package
+const (
+	defaultAlibabaOutputPriority  = 60
+	defaultScalewayOutputPriority = 140
+	defaultVultrOutputPriority    = 140
+)
 
 func ToPtr[T any](v T) *T {
 	return &v
@@ -26,6 +36,10 @@ func addProviderConfigMessage(sess *session.Session, provider string) {
 }
 
 func initProviderConfig(sess *session.Session, v *viper.Viper) {
+	// providers requiring no configuration default to enabled when absent
+	// from the user's config file
+	registry.SetEnabledDefaults(v)
+
 	// IP API
 	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")
@@ -395,6 +409,22 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		sess.Providers.IPAPI.OutputPriority = ToPtr(int32(c.DefaultIPAPIOutputPriority))
 	}
 
+	// IPtoASN
+	if v.IsSet("providers.iptoasn.enabled") {
+		sess.Providers.IPToASN.Enabled = ToPtr(v.GetBool("providers.iptoasn.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "IPtoASN")
+	}
+
+	if v.IsSet("providers.iptoasn.output_priority") {
+		sess.Providers.IPToASN.OutputPriority = ToPtr(v.GetInt32("providers.iptoasn.output_priority"))
+	} else {
+		sess.Providers.IPToASN.OutputPriority = ToPtr(int32(c.DefaultIPToASNOutputPriority))
+	}
+
+	sess.Providers.IPToASN.URL = v.GetString("providers.iptoasn.url")
+	sess.Providers.IPToASN.DocumentCacheTTL = v.GetInt64("providers.iptoasn.document_cache_ttl")
+
 	// VirusTotal
 	if v.IsSet("providers.virustotal.enabled") {
 		sess.Providers.VirusTotal.Enabled = ToPtr(v.GetBool("providers.virustotal.enabled"))
@@ -428,6 +458,334 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.Zscaler.DocumentCacheTTL = v.GetInt64("providers.zscaler.document_cache_ttl")
 	sess.Providers.Zscaler.URL = v.GetString("providers.zscaler.url")
+
+	// AhrefsBot
+	if v.IsSet("providers.ahrefs.enabled") {
+		sess.Providers.Ahrefs.Enabled = ToPtr(v.GetBool("providers.ahrefs.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "AhrefsBot")
+	}
+
+	if v.IsSet("providers.ahrefs.output_priority") {
+		sess.Providers.Ahrefs.OutputPriority = ToPtr(v.GetInt32("providers.ahrefs.output_priority"))
+	} else {
+		sess.Providers.Ahrefs.OutputPriority = ToPtr(int32(c.DefaultAhrefsOutputPriority))
+	}
+
+	sess.Providers.Ahrefs.DocumentCacheTTL = v.GetInt64("providers.ahrefs.document_cache_ttl")
+
+	// Akamai
+	if v.IsSet("providers.akamai.enabled") {
+		sess.Providers.Akamai.Enabled = ToPtr(v.GetBool("providers.akamai.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Akamai")
+	}
+
+	if v.IsSet("providers.akamai.output_priority") {
+		sess.Providers.Akamai.OutputPriority = ToPtr(v.GetInt32("providers.akamai.output_priority"))
+	} else {
+		sess.Providers.Akamai.OutputPriority = ToPtr(int32(c.DefaultAkamaiOutputPriority))
+	}
+
+	sess.Providers.Akamai.DocumentCacheTTL = v.GetInt64("providers.akamai.document_cache_ttl")
+
+	// Applebot
+	if v.IsSet("providers.applebot.enabled") {
+		sess.Providers.Applebot.Enabled = ToPtr(v.GetBool("providers.applebot.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Applebot")
+	}
+
+	if v.IsSet("providers.applebot.output_priority") {
+		sess.Providers.Applebot.OutputPriority = ToPtr(v.GetInt32("providers.applebot.output_priority"))
+	} else {
+		sess.Providers.Applebot.OutputPriority = ToPtr(int32(c.DefaultApplebotOutputPriority))
+	}
+
+	sess.Providers.Applebot.DocumentCacheTTL = v.GetInt64("providers.applebot.document_cache_ttl")
+
+	// Cloudflare
+	if v.IsSet("providers.cloudflare.enabled") {
+		sess.Providers.Cloudflare.Enabled = ToPtr(v.GetBool("providers.cloudflare.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Cloudflare")
+	}
+
+	if v.IsSet("providers.cloudflare.output_priority") {
+		sess.Providers.Cloudflare.OutputPriority = ToPtr(v.GetInt32("providers.cloudflare.output_priority"))
+	} else {
+		sess.Providers.Cloudflare.OutputPriority = ToPtr(int32(c.DefaultCloudflareOutputPriority))
+	}
+
+	sess.Providers.Cloudflare.DocumentCacheTTL = v.GetInt64("providers.cloudflare.document_cache_ttl")
+
+	// DuckDuckBot
+	if v.IsSet("providers.duckduckbot.enabled") {
+		sess.Providers.DuckDuckBot.Enabled = ToPtr(v.GetBool("providers.duckduckbot.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "DuckDuckBot")
+	}
+
+	if v.IsSet("providers.duckduckbot.output_priority") {
+		sess.Providers.DuckDuckBot.OutputPriority = ToPtr(v.GetInt32("providers.duckduckbot.output_priority"))
+	} else {
+		sess.Providers.DuckDuckBot.OutputPriority = ToPtr(int32(c.DefaultDuckDuckBotOutputPriority))
+	}
+
+	sess.Providers.DuckDuckBot.DocumentCacheTTL = v.GetInt64("providers.duckduckbot.document_cache_ttl")
+
+	// Fastly
+	if v.IsSet("providers.fastly.enabled") {
+		sess.Providers.Fastly.Enabled = ToPtr(v.GetBool("providers.fastly.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Fastly")
+	}
+
+	if v.IsSet("providers.fastly.output_priority") {
+		sess.Providers.Fastly.OutputPriority = ToPtr(v.GetInt32("providers.fastly.output_priority"))
+	} else {
+		sess.Providers.Fastly.OutputPriority = ToPtr(int32(c.DefaultFastlyOutputPriority))
+	}
+
+	sess.Providers.Fastly.DocumentCacheTTL = v.GetInt64("providers.fastly.document_cache_ttl")
+
+	// GitHub
+	if v.IsSet("providers.github.enabled") {
+		sess.Providers.GitHub.Enabled = ToPtr(v.GetBool("providers.github.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "GitHub")
+	}
+
+	if v.IsSet("providers.github.output_priority") {
+		sess.Providers.GitHub.OutputPriority = ToPtr(v.GetInt32("providers.github.output_priority"))
+	} else {
+		sess.Providers.GitHub.OutputPriority = ToPtr(int32(c.DefaultGitHubOutputPriority))
+	}
+
+	sess.Providers.GitHub.DocumentCacheTTL = v.GetInt64("providers.github.document_cache_ttl")
+
+	// Google User-triggered Fetchers
+	if v.IsSet("providers.googleutf.enabled") {
+		sess.Providers.GoogleUTF.Enabled = ToPtr(v.GetBool("providers.googleutf.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Google User-triggered Fetchers")
+	}
+
+	if v.IsSet("providers.googleutf.output_priority") {
+		sess.Providers.GoogleUTF.OutputPriority = ToPtr(v.GetInt32("providers.googleutf.output_priority"))
+	} else {
+		sess.Providers.GoogleUTF.OutputPriority = ToPtr(int32(c.DefaultGoogleUTFOutputPriority))
+	}
+
+	sess.Providers.GoogleUTF.DocumentCacheTTL = v.GetInt64("providers.googleutf.document_cache_ttl")
+
+	// Oracle Cloud (OCI)
+	if v.IsSet("providers.oci.enabled") {
+		sess.Providers.OCI.Enabled = ToPtr(v.GetBool("providers.oci.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Oracle Cloud (OCI)")
+	}
+
+	if v.IsSet("providers.oci.output_priority") {
+		sess.Providers.OCI.OutputPriority = ToPtr(v.GetInt32("providers.oci.output_priority"))
+	} else {
+		sess.Providers.OCI.OutputPriority = ToPtr(int32(c.DefaultOCIOutputPriority))
+	}
+
+	sess.Providers.OCI.DocumentCacheTTL = v.GetInt64("providers.oci.document_cache_ttl")
+
+	// PerplexityBot
+	if v.IsSet("providers.perplexitybot.enabled") {
+		sess.Providers.PerplexityBot.Enabled = ToPtr(v.GetBool("providers.perplexitybot.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "PerplexityBot")
+	}
+
+	if v.IsSet("providers.perplexitybot.output_priority") {
+		sess.Providers.PerplexityBot.OutputPriority = ToPtr(v.GetInt32("providers.perplexitybot.output_priority"))
+	} else {
+		sess.Providers.PerplexityBot.OutputPriority = ToPtr(int32(c.DefaultPerplexityBotOutputPriority))
+	}
+
+	sess.Providers.PerplexityBot.DocumentCacheTTL = v.GetInt64("providers.perplexitybot.document_cache_ttl")
+
+	// Anthropic
+	if v.IsSet("providers.anthropic.enabled") {
+		sess.Providers.Anthropic.Enabled = ToPtr(v.GetBool("providers.anthropic.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Anthropic")
+	}
+
+	if v.IsSet("providers.anthropic.output_priority") {
+		sess.Providers.Anthropic.OutputPriority = ToPtr(v.GetInt32("providers.anthropic.output_priority"))
+	} else {
+		sess.Providers.Anthropic.OutputPriority = ToPtr(int32(c.DefaultAnthropicOutputPriority))
+	}
+
+	sess.Providers.Anthropic.DocumentCacheTTL = v.GetInt64("providers.anthropic.document_cache_ttl")
+
+	// Blocklist.de
+	if v.IsSet("providers.blocklistde.enabled") {
+		sess.Providers.BlocklistDE.Enabled = ToPtr(v.GetBool("providers.blocklistde.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Blocklist.de")
+	}
+
+	if v.IsSet("providers.blocklistde.output_priority") {
+		sess.Providers.BlocklistDE.OutputPriority = ToPtr(v.GetInt32("providers.blocklistde.output_priority"))
+	} else {
+		sess.Providers.BlocklistDE.OutputPriority = ToPtr(int32(c.DefaultBlocklistDEOutputPriority))
+	}
+
+	sess.Providers.BlocklistDE.DocumentCacheTTL = v.GetInt64("providers.blocklistde.document_cache_ttl")
+
+	// CINS Army List
+	if v.IsSet("providers.cinsscore.enabled") {
+		sess.Providers.CINSScore.Enabled = ToPtr(v.GetBool("providers.cinsscore.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "CINS Army List")
+	}
+
+	if v.IsSet("providers.cinsscore.output_priority") {
+		sess.Providers.CINSScore.OutputPriority = ToPtr(v.GetInt32("providers.cinsscore.output_priority"))
+	} else {
+		sess.Providers.CINSScore.OutputPriority = ToPtr(int32(c.DefaultCINSScoreOutputPriority))
+	}
+
+	sess.Providers.CINSScore.DocumentCacheTTL = v.GetInt64("providers.cinsscore.document_cache_ttl")
+
+	// DShield
+	if v.IsSet("providers.dshield.enabled") {
+		sess.Providers.DShield.Enabled = ToPtr(v.GetBool("providers.dshield.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "DShield")
+	}
+
+	if v.IsSet("providers.dshield.output_priority") {
+		sess.Providers.DShield.OutputPriority = ToPtr(v.GetInt32("providers.dshield.output_priority"))
+	} else {
+		sess.Providers.DShield.OutputPriority = ToPtr(int32(c.DefaultDShieldOutputPriority))
+	}
+
+	sess.Providers.DShield.DocumentCacheTTL = v.GetInt64("providers.dshield.document_cache_ttl")
+
+	// Emerging Threats
+	if v.IsSet("providers.emergingthreats.enabled") {
+		sess.Providers.EmergingThreats.Enabled = ToPtr(v.GetBool("providers.emergingthreats.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Emerging Threats")
+	}
+
+	if v.IsSet("providers.emergingthreats.output_priority") {
+		sess.Providers.EmergingThreats.OutputPriority = ToPtr(v.GetInt32("providers.emergingthreats.output_priority"))
+	} else {
+		sess.Providers.EmergingThreats.OutputPriority = ToPtr(int32(c.DefaultEmergingThreatsOutputPriority))
+	}
+
+	sess.Providers.EmergingThreats.DocumentCacheTTL = v.GetInt64("providers.emergingthreats.document_cache_ttl")
+
+	// Spamhaus DROP
+	if v.IsSet("providers.spamhaus.enabled") {
+		sess.Providers.Spamhaus.Enabled = ToPtr(v.GetBool("providers.spamhaus.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "Spamhaus DROP")
+	}
+
+	if v.IsSet("providers.spamhaus.output_priority") {
+		sess.Providers.Spamhaus.OutputPriority = ToPtr(v.GetInt32("providers.spamhaus.output_priority"))
+	} else {
+		sess.Providers.Spamhaus.OutputPriority = ToPtr(int32(c.DefaultSpamhausOutputPriority))
+	}
+
+	sess.Providers.Spamhaus.DocumentCacheTTL = v.GetInt64("providers.spamhaus.document_cache_ttl")
+
+	// UptimeRobot
+	if v.IsSet("providers.uptimerobot.enabled") {
+		sess.Providers.UptimeRobot.Enabled = ToPtr(v.GetBool("providers.uptimerobot.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "UptimeRobot")
+	}
+
+	if v.IsSet("providers.uptimerobot.output_priority") {
+		sess.Providers.UptimeRobot.OutputPriority = ToPtr(v.GetInt32("providers.uptimerobot.output_priority"))
+	} else {
+		sess.Providers.UptimeRobot.OutputPriority = ToPtr(int32(c.DefaultUptimeRobotOutputPriority))
+	}
+
+	sess.Providers.UptimeRobot.DocumentCacheTTL = v.GetInt64("providers.uptimerobot.document_cache_ttl")
+
+	initSimpleProviderConfig(sess, v, "alibaba", "Alibaba", defaultAlibabaOutputPriority,
+		&sess.Providers.Alibaba.Enabled, &sess.Providers.Alibaba.OutputPriority, &sess.Providers.Alibaba.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "atlassian", "Atlassian", c.DefaultAtlassianOutputPriority,
+		&sess.Providers.Atlassian.Enabled, &sess.Providers.Atlassian.OutputPriority, &sess.Providers.Atlassian.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "bunny", "Bunny CDN", c.DefaultBunnyOutputPriority,
+		&sess.Providers.Bunny.Enabled, &sess.Providers.Bunny.OutputPriority, &sess.Providers.Bunny.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cdn77", "CDN77", c.DefaultCDN77OutputPriority,
+		&sess.Providers.CDN77.Enabled, &sess.Providers.CDN77.OutputPriority, &sess.Providers.CDN77.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "contabo", "Contabo", c.DefaultContaboOutputPriority,
+		&sess.Providers.Contabo.Enabled, &sess.Providers.Contabo.OutputPriority, &sess.Providers.Contabo.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "datadog", "Datadog", c.DefaultDatadogOutputPriority,
+		&sess.Providers.Datadog.Enabled, &sess.Providers.Datadog.OutputPriority, &sess.Providers.Datadog.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "flyio", "Fly.io", c.DefaultFlyioOutputPriority,
+		&sess.Providers.Flyio.Enabled, &sess.Providers.Flyio.OutputPriority, &sess.Providers.Flyio.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "ibmcloud", "IBM Cloud", c.DefaultIBMCloudOutputPriority,
+		&sess.Providers.IBMCloud.Enabled, &sess.Providers.IBMCloud.OutputPriority, &sess.Providers.IBMCloud.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "imperva", "Imperva", c.DefaultImpervaOutputPriority,
+		&sess.Providers.Imperva.Enabled, &sess.Providers.Imperva.OutputPriority, &sess.Providers.Imperva.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "leaseweb", "Leaseweb", c.DefaultLeasewebOutputPriority,
+		&sess.Providers.Leaseweb.Enabled, &sess.Providers.Leaseweb.OutputPriority, &sess.Providers.Leaseweb.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "render", "Render", c.DefaultRenderOutputPriority,
+		&sess.Providers.Render.Enabled, &sess.Providers.Render.OutputPriority, &sess.Providers.Render.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "scaleway", "Scaleway", defaultScalewayOutputPriority,
+		&sess.Providers.Scaleway.Enabled, &sess.Providers.Scaleway.OutputPriority, &sess.Providers.Scaleway.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "stripe", "Stripe", c.DefaultStripeOutputPriority,
+		&sess.Providers.Stripe.Enabled, &sess.Providers.Stripe.OutputPriority, &sess.Providers.Stripe.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cymru", "Team Cymru Bogons", c.DefaultCymruOutputPriority,
+		&sess.Providers.Cymru.Enabled, &sess.Providers.Cymru.OutputPriority, &sess.Providers.Cymru.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "greensnow", "GreenSnow", c.DefaultGreenSnowOutputPriority,
+		&sess.Providers.GreenSnow.Enabled, &sess.Providers.GreenSnow.OutputPriority, &sess.Providers.GreenSnow.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "betterstack", "Better Stack", c.DefaultBetterStackOutputPriority,
+		&sess.Providers.BetterStack.Enabled, &sess.Providers.BetterStack.OutputPriority, &sess.Providers.BetterStack.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "checkly", "Checkly", c.DefaultChecklyOutputPriority,
+		&sess.Providers.Checkly.Enabled, &sess.Providers.Checkly.OutputPriority, &sess.Providers.Checkly.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "gcore", "Gcore", c.DefaultGcoreOutputPriority,
+		&sess.Providers.Gcore.Enabled, &sess.Providers.Gcore.OutputPriority, &sess.Providers.Gcore.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "newrelic", "New Relic", c.DefaultNewRelicOutputPriority,
+		&sess.Providers.NewRelic.Enabled, &sess.Providers.NewRelic.OutputPriority, &sess.Providers.NewRelic.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "pingdom", "Pingdom", c.DefaultPingdomOutputPriority,
+		&sess.Providers.Pingdom.Enabled, &sess.Providers.Pingdom.OutputPriority, &sess.Providers.Pingdom.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "statuscake", "StatusCake", c.DefaultStatusCakeOutputPriority,
+		&sess.Providers.StatusCake.Enabled, &sess.Providers.StatusCake.OutputPriority, &sess.Providers.StatusCake.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "zoom", "Zoom", c.DefaultZoomOutputPriority,
+		&sess.Providers.Zoom.Enabled, &sess.Providers.Zoom.OutputPriority, &sess.Providers.Zoom.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "tencent", "Tencent Cloud", c.DefaultTencentOutputPriority,
+		&sess.Providers.Tencent.Enabled, &sess.Providers.Tencent.OutputPriority, &sess.Providers.Tencent.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "vultr", "Vultr", defaultVultrOutputPriority,
+		&sess.Providers.Vultr.Enabled, &sess.Providers.Vultr.OutputPriority, &sess.Providers.Vultr.DocumentCacheTTL)
+
+	// alibaba, scaleway and vultr allow the source URL to be overridden
+	sess.Providers.Alibaba.URL = v.GetString("providers.alibaba.url")
+	sess.Providers.Scaleway.URL = v.GetString("providers.scaleway.url")
+	sess.Providers.Vultr.URL = v.GetString("providers.vultr.url")
+}
+
+// initSimpleProviderConfig wires a provider with the common enabled /
+// output_priority / document_cache_ttl config shape into the session, so that
+// providers registered in the registry are actually read from config.
+func initSimpleProviderConfig(sess *session.Session, v *viper.Viper, key, displayName string, defaultPriority int32, enabled **bool, priority **int32, docCacheTTL *int64) {
+	if v.IsSet("providers." + key + ".enabled") {
+		*enabled = ToPtr(v.GetBool("providers." + key + ".enabled"))
+	} else {
+		addProviderConfigMessage(sess, displayName)
+	}
+
+	if v.IsSet("providers." + key + ".output_priority") {
+		*priority = ToPtr(v.GetInt32("providers." + key + ".output_priority"))
+	} else {
+		*priority = ToPtr(defaultPriority)
+	}
+
+	*docCacheTTL = v.GetInt64("providers." + key + ".document_cache_ttl")
 }
 
 func initSessionConfig(sess *session.Session, v *viper.Viper) {
@@ -445,12 +803,23 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 
-	sess.Config.Rating.ConfigPath = v.GetString("rating.config_path")
+	sess.Config.Rating.ConfigPath = session.ExpandHome(v.GetString("rating.config_path"), sess.Config.Global.HomeDir)
+	// config files written before these keys were corrected use hyphens, and
+	// were silently ignored; fall back to them so existing installs start
+	// working, but only when the corrected key is absent, so an explicit
+	// value is never overridden by a stale one
 	sess.Config.Rating.UseAI = v.GetBool("rating.use_ai")
+	if !v.IsSet("rating.use_ai") {
+		sess.Config.Rating.UseAI = v.GetBool("rating.use-ai")
+	}
+
 	sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai_api_key")
+	if !v.IsSet("rating.openai_api_key") {
+		sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai-api-key")
+	}
 }
 
-func initConfig() (*session.Session, error) {
+func initConfig(logLevel string) (*session.Session, error) {
 	v := viper.New()
 
 	// create session
@@ -467,6 +836,14 @@ func initConfig() (*session.Session, error) {
 
 	if _, err := session.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		return sess, fmt.Errorf("cannot create default session: %w", err)
+	}
+
+	// add any providers introduced since the user's config was written, so
+	// their config shows all no-config providers as enabled
+	if _, err := registry.EnsureDefaultProvidersInConfig(filepath.Join(configRoot, session.DefaultConfigFileName)); err != nil {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, fmt.Sprintf("unable to add new providers to config: %s", err))
+		sess.Messages.Mu.Unlock()
 	}
 
 	v.AddConfigPath(configRoot)
@@ -489,7 +866,7 @@ func initConfig() (*session.Session, error) {
 	initSessionConfig(sess, v)
 
 	// initialise logging
-	if err := initLogging(); err != nil {
+	if err := initLogging(logLevel); err != nil {
 		return sess, err
 	}
 
@@ -547,13 +924,13 @@ func initConfig() (*session.Session, error) {
 
 var ProgramLevel = new(slog.LevelVar) // Info by default
 
-func initLogging() error {
+func initLogging(logLevel string) error {
 	hOptions := slog.HandlerOptions{AddSource: false}
 
-	ll := "DEBUG"
+	sess.Config.Global.LogLevel = logLevel
 
 	// set log level
-	switch strings.ToUpper(ll) {
+	switch strings.ToUpper(logLevel) {
 	case "ERROR":
 		ProgramLevel.Set(slog.LevelError)
 
@@ -570,6 +947,11 @@ func initLogging() error {
 		ProgramLevel.Set(slog.LevelDebug)
 
 		sess.HideProgress = true
+	default:
+		// match the CLI's default log level
+		ProgramLevel.Set(slog.LevelWarn)
+
+		sess.HideProgress = false
 	}
 
 	hOptions.Level = ProgramLevel

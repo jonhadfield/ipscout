@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"sort"
@@ -21,7 +20,9 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 
 	"github.com/briandowns/spinner"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/jonhadfield/ipscout/cache"
+	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/registry"
@@ -102,7 +103,15 @@ func GetRatingConfig(path string) ([]byte, error) {
 	if path != "" {
 		ratingConfigJSON, err = providers.ReadRatingConfigFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("%w", err)
+			// the shipped config always sets a rating config path, but the
+			// file itself is never written, so treating an absent file as
+			// fatal would leave rating unusable until the user created one by
+			// hand. A file that exists but cannot be read is still an error.
+			if !errors.Is(err, os.ErrNotExist) {
+				return nil, fmt.Errorf("%w", err)
+			}
+
+			ratingConfigJSON = []byte(DefaultRatingConfigJSON)
 		}
 	}
 
@@ -117,6 +126,13 @@ func GetRatingConfig(path string) ([]byte, error) {
 
 func (r *Rater) Run() error {
 	var err error
+
+	if path := r.Session.Config.Rating.ConfigPath; path != "" {
+		if _, sErr := os.Stat(path); errors.Is(sErr, os.ErrNotExist) {
+			r.Session.Logger.Warn("rating config not found, using built-in defaults",
+				"path", path, "hint", "write one with: ipscout rate config --default")
+		}
+	}
 
 	ratingConfig, err := GetRatingConfig(r.Session.Config.Rating.ConfigPath)
 	if err != nil {
@@ -149,7 +165,7 @@ func (r *Rater) Run() error {
 
 	enabledProviders := getEnabledProviders(providerClients)
 
-	initialiseProviders(r.Session.Logger, enabledProviders, r.Session.HideProgress)
+	initialiseProviders(r.Session, enabledProviders, r.Session.HideProgress)
 
 	if strings.EqualFold(r.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range r.Session.Stats.InitialiseDuration {
@@ -159,6 +175,8 @@ func (r *Rater) Run() error {
 
 	if r.Session.Config.Global.InitialiseCacheOnly {
 		_, _ = fmt.Fprintln(r.Session.Target, "cache initialisation complete")
+
+		outputMessages(r.Session)
 
 		return nil
 	}
@@ -186,8 +204,14 @@ func (r *Rater) Run() error {
 	if matchingResults == 0 {
 		r.Session.Logger.Warn("no results found", "host", r.Session.Host.String(), "providers checked", strings.Join(mapsKeys(enabledProviders), ", "))
 
+		// there is no rating to print below, but a fetch failure is the most
+		// likely reason there is nothing to show, so still report it
+		outputMessages(r.Session)
+
 		return nil
 	}
+
+	defer outputMessages(r.Session)
 
 	if r.Session.Config.Rating.UseAI {
 		return aiRate(r, enabledProviders, results)
@@ -465,10 +489,18 @@ func mapsKeys[K comparable, V any](m map[K]V) []K {
 	return keys
 }
 
-func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderClient, hideProgress bool) {
+func initialiseProviders(sess *session.Session, runners map[string]providers.ProviderClient, hideProgress bool) {
 	var err error
 
 	var g errgroup.Group
+
+	// failures are collected rather than logged as they happen, so a slow
+	// download is not interrupted by output, and reported as one line after
+	// the results
+	var (
+		failedMu sync.Mutex
+		failed   []string
+	)
 
 	s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
 
@@ -488,12 +520,13 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 
 			gErr := runner.Initialise()
 			if gErr != nil {
-				stopSpinnerIfActive(s)
-				l.Error("failed to initialise", "provider", name, "error", gErr.Error())
+				sess.Logger.Debug("failed to initialise", "provider", name, "error", gErr.Error())
 
-				if !hideProgress {
-					s.Start()
-				}
+				failedMu.Lock()
+
+				failed = append(failed, name)
+
+				failedMu.Unlock()
 			}
 
 			return nil
@@ -505,8 +538,40 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 
 		return
 	}
+
+	reportFailedProviders(sess, failed)
+
 	// allow time to output spinner
 	time.Sleep(spinnerStartupMS * time.Millisecond)
+}
+
+// reportFailedProviders records a single message naming every provider whose
+// data could not be fetched. It is buffered on the session so it prints below
+// the results rather than over the progress spinner.
+func reportFailedProviders(sess *session.Session, failed []string) {
+	if len(failed) == 0 {
+		return
+	}
+
+	sort.Strings(failed)
+
+	sess.Messages.AddError(fmt.Sprintf(c.MsgFetchFailedFmt, strings.Join(failed, ", ")))
+}
+
+// outputMessages prints the messages buffered during the run, below the
+// results.
+func outputMessages(sess *session.Session) {
+	for _, msg := range sess.Messages.Error {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgRed.Sprint("[ERROR]"), msg)
+	}
+
+	for _, msg := range sess.Messages.Warning {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgYellow.Sprint("[WARN]"), msg)
+	}
+
+	for _, msg := range sess.Messages.Info {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgGreen.Sprint("[INFO]"), msg)
+	}
 }
 
 func stopSpinnerIfActive(s *spinner.Spinner) {

@@ -42,7 +42,6 @@ BUILD_TAG := $(shell bash -c '\
   fi')
 BUILD_SHA := $(shell git rev-parse --short HEAD)
 BUILD_DATE := $(shell date -u '+%Y/%m/%d:%H:%M:%S')
-LATEST_TAG := $(shell git describe --abbrev=0 2>/dev/null)
 LDFLAGS := -s -w -X "github.com/jonhadfield/ipscout/helpers.Version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC" -X "github.com/jonhadfield/ipscout/helpers.SemVer=$(BUILD_TAG)"
 
 build:
@@ -92,11 +91,19 @@ pull-image:
 scan-image: pull-image
 	trivy image jonhadfield/ipscout:latest
 
-build-latest-docker-tag:
-	docker build --build-arg="TAG=$(LATEST_TAG)" -f ./docker/Dockerfile -t ipscout ./docker
+# Build the release archives without publishing, then exercise the packaged
+# binary the way a user runs it. See scripts/smoke.sh.
+smoke:
+	goreleaser release --snapshot --clean --skip=homebrew
+	./scripts/smoke.sh
 
-release:
-	goreleaser && git push --follow-tags
+# Runs before smoke so a missing changelog entry fails in a second rather
+# than after a full six platform build. Useful on its own before tagging.
+check-release-notes:
+	scripts/release-notes.sh > /dev/null
+
+release: check-release-notes smoke
+	notes="$$(mktemp -t ipscout-release-notes)" && scripts/release-notes.sh > "$$notes" && goreleaser --release-notes="$$notes" && rm -f "$$notes" && git push --follow-tags
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

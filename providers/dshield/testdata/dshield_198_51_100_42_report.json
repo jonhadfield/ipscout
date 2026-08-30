@@ -1,0 +1,8 @@
+{
+  "prefix": "198.51.100.0/24",
+  "attacks": 4096,
+  "name": "EXAMPLE-NET",
+  "country": "ZZ",
+  "email": "abuse@example.com",
+  "updated": "2026-08-20T14:00:24.391841Z"
+}

@@ -10,8 +10,8 @@ global:
 
 rating:
   config_path: <home>/.config/ratingConfig.json
-  use-ai: false
-  openai-api-key: <your-openai-api-key>
+  use_ai: false
+  openai_api_key: <your-openai-api-key>
 
 providers:
   abuseipdb:
@@ -47,11 +47,12 @@ providers:
   hetzner:
     enabled: true
   icloudpr:
-    # disabled by default as can slow down old processors
-    enabled: false
+    enabled: true
   ipapi:
     enabled: true
   ipqs:
+    enabled: true
+  iptoasn:
     enabled: true
   ipurl:
     enabled: true
@@ -113,4 +114,56 @@ providers:
   tencent:
     enabled: true
   openai:
+    enabled: true
+  ahrefs:
+    enabled: true
+  akamai:
+    enabled: true
+  applebot:
+    enabled: true
+  duckduckbot:
+    enabled: true
+  perplexitybot:
+    enabled: true
+  cloudflare:
+    enabled: true
+  fastly:
+    enabled: true
+  github:
+    enabled: true
+  googleutf:
+    enabled: true
+  oci:
+    enabled: true
+  anthropic:
+    enabled: true
+  blocklistde:
+    enabled: true
+  cinsscore:
+    enabled: true
+  dshield:
+    enabled: true
+  emergingthreats:
+    enabled: true
+  spamhaus:
+    enabled: true
+  uptimerobot:
+    enabled: true
+  cymru:
+    enabled: true
+  greensnow:
+    enabled: true
+  betterstack:
+    enabled: true
+  checkly:
+    enabled: true
+  gcore:
+    enabled: true
+  newrelic:
+    enabled: true
+  pingdom:
+    enabled: true
+  statuscake:
+    enabled: true
+  zoom:
     enabled: true
