@@ -252,8 +252,8 @@ func aiRate(r *Rater, enabledProviders map[string]providers.ProviderClient, resu
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model:     aiModel,
-			MaxTokens: maxCompletionTokens,
+			Model:               aiModel,
+			MaxCompletionTokens: maxCompletionTokens,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role: openai.ChatMessageRoleSystem,
