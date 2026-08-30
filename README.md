@@ -118,7 +118,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Stripe](#Stripe)                                         |       SaaS       |           -           |
 | [Team Cymru Bogons](#Team-Cymru-Bogons)                   |      Bogon       |           -           |
 | [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
-| [UptimeRobot](#UptimeRobot)                               |       SaaS       |           -           |
+| [UptimeRobot](#UptimeRobot)                               |    Monitoring    |           -           |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
 | [Zoom](#Zoom)                                             |       SaaS       |           -           |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
