@@ -43,8 +43,9 @@ func mockHTTPClient(status int, body []byte) *retryablehttp.Client {
 }
 
 // newMockedClient wires a ProviderClient to a mocked HTTP client serving the
-// upstream RIPE stat fixture (the primary bgpview source), plus a real temp
-// cache, with UseTestData off.
+// upstream RIPE stat fixture (now the primary source in the shared bgpview
+// fetcher, with BGPView as fallback), plus a real temp cache, with UseTestData
+// off.
 func newMockedClient(t *testing.T, status int, body []byte) *ProviderClient {
 	t.Helper()
 
