@@ -6,6 +6,53 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-30
+
+### Added
+
+- Better Stack, Checkly, New Relic, Pingdom and StatusCake providers, reporting whether
+  the host is an uptime or synthetic monitoring probe rather than a visitor or the origin
+  of the traffic it appears to send. New Relic names the location the probe runs from,
+  and StatusCake reports the location's title, server code, country and current status
+- Gcore provider, reporting whether the host is Gcore CDN edge infrastructure rather than
+  the origin server behind it
+- Zoom provider, reporting whether the host belongs to Zoom's meeting and phone service
+  ranges
+- the GitHub release notes are now the changelog entry for the tag rather than a
+  generated list of commit subjects and SHAs, so the release page says what changed and
+  why. `make release` fails if the entry is missing rather than publishing empty notes,
+  and checks for it before the smoke build rather than after it
+- documentation for how a release is cut: tag before running `make release`, since
+  otherwise GitHub creates the tag from the release as a lightweight one, and the GitHub
+  token the publish step needs
+
+### Fixed
+
+- an iCloud Private Relay match scored zero. The provider read a rating score the shipped
+  config never defined, so a match was detected, given a reason, and then contributed
+  nothing. Scored 4.0, alongside Zscaler: infrastructure that obscures the originating
+  host rather than indicating abuse
+- the TUI active marker is now shown on the Team Cymru Bogons and GreenSnow panels. The
+  marker is added by replacing the upper-cased provider name in the header, which never
+  matched either mixed-case title, so selecting one gave no indication of which provider
+  was focused
+
+### Changed
+
+- bump ip-fetcher to v0.0.25 then v0.0.29, which supplies the seven new provider sources
+  and finds the Azure snapshot by name instead of scraping for it
+- cache TTLs for the new providers sized on measurement: Gcore at 1 hour, the only one
+  whose content changed over a five minute resample; Better Stack at 4 hours, the
+  max-age it advertises; New Relic at 7 days, unchanged for over eight months. Checkly,
+  Pingdom, StatusCake and Zoom stay at a day, where the headers carry no cadence
+- UptimeRobot is categorised as Monitoring in the README, alongside the five monitoring
+  providers added here
+
+### Removed
+
+- the `build-latest-docker-tag` make target, which built `./docker/Dockerfile` — a path
+  that has never existed in this repository, so the target could only ever fail
+
 ## [0.10.0] - 2026-08-29
 
 ### Added
@@ -406,7 +453,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.10.0...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.0...HEAD
+[0.11.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.0
 [0.10.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.10.0
 [0.2.10]: https://github.com/jonhadfield/ipscout/releases/tag/0.2.10
 [0.2.9]: https://github.com/jonhadfield/ipscout/releases/tag/0.2.9
