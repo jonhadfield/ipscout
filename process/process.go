@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -15,6 +15,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/jonhadfield/ipscout/cache"
+	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/registry"
@@ -103,7 +104,7 @@ func (p *Processor) Run() error {
 	}
 
 	// initialise providers
-	initialiseProviders(p.Session.Logger, enabledProviders, p.Session.HideProgress)
+	initialiseProviders(p.Session, enabledProviders, p.Session.HideProgress)
 
 	if strings.EqualFold(p.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range p.Session.Stats.InitialiseDuration {
@@ -113,6 +114,8 @@ func (p *Processor) Run() error {
 
 	if p.Session.Config.Global.InitialiseCacheOnly {
 		fmt.Fprintln(p.Session.Target, "cache initialisation complete")
+
+		outputMessages(p.Session)
 
 		return nil
 	}
@@ -138,6 +141,10 @@ func (p *Processor) Run() error {
 
 	if matchingResults == 0 {
 		p.Session.Logger.Warn("no results found", "host", p.Session.Host.String(), "providers checked", strings.Join(mapsKeys(enabledProviders), ", "))
+
+		// there is no results table to print below, but a fetch failure is
+		// the most likely reason there is nothing to show, so still report it
+		outputMessages(p.Session)
 
 		return nil
 	}
@@ -177,10 +184,18 @@ func mapsKeys[K comparable, V any](m map[K]V) []K {
 	return keys
 }
 
-func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderClient, hideProgress bool) {
+func initialiseProviders(sess *session.Session, runners map[string]providers.ProviderClient, hideProgress bool) {
 	var err error
 
 	var g errgroup.Group
+
+	// failures are collected rather than logged as they happen, so a slow
+	// download is not interrupted by output, and reported as one line after
+	// the results
+	var (
+		failedMu sync.Mutex
+		failed   []string
+	)
 
 	s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
 
@@ -204,12 +219,13 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 
 			gErr := runner.Initialise()
 			if gErr != nil {
-				stopSpinnerIfActive(s)
-				l.Error("failed to initialise", "provider", name, "error", gErr.Error())
+				sess.Logger.Debug("failed to initialise", "provider", name, "error", gErr.Error())
 
-				if !hideProgress {
-					s.Start()
-				}
+				failedMu.Lock()
+
+				failed = append(failed, name)
+
+				failedMu.Unlock()
 			}
 
 			return nil
@@ -221,6 +237,21 @@ func initialiseProviders(l *slog.Logger, runners map[string]providers.ProviderCl
 
 		return
 	}
+
+	reportFailedProviders(sess, failed)
+}
+
+// reportFailedProviders records a single message naming every provider whose
+// data could not be fetched. It is buffered on the session so it prints below
+// the results rather than over the progress spinner.
+func reportFailedProviders(sess *session.Session, failed []string) {
+	if len(failed) == 0 {
+		return
+	}
+
+	sort.Strings(failed)
+
+	sess.Messages.AddError(fmt.Sprintf(c.MsgFetchFailedFmt, strings.Join(failed, ", ")))
 }
 
 func stopSpinnerIfActive(s *spinner.Spinner) {
@@ -264,7 +295,12 @@ func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 
 			result, err := runner.FindHost()
 			if err != nil {
-				runner.GetConfig().Logger.Info(err.Error())
+				// a host not appearing in a provider's data is routine
+				if errors.Is(err, providers.ErrNoMatchFound) {
+					runner.GetConfig().Logger.Debug(err.Error())
+				} else {
+					runner.GetConfig().Logger.Info(err.Error())
+				}
 
 				return
 			}

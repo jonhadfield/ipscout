@@ -288,7 +288,7 @@ func createShodanTable(result *shodan.HostSearchResult, isActive bool) *tview.Ta
 				SetTextColor(tcell.ColorYellow).
 				SetSelectable(false))
 
-			row++ //nolint:ineffassign,wastedassign
+			row++ //nolint:ineffassign,wastedassign,staticcheck
 		}
 	}
 

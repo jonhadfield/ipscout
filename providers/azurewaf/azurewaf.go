@@ -17,6 +17,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor"
 	"github.com/jonhadfield/azwaf/config"
+	azwafLogging "github.com/jonhadfield/azwaf/logging"
 	"github.com/jonhadfield/ipscout/cache"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -45,6 +46,13 @@ type ProviderClient struct {
 
 func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 	c.Logger.Debug("creating azurewaf client")
+
+	// azwaf logs to its own isolated slog logger (silent by default);
+	// route it through the session logger so azure waf diagnostics
+	// honour ipscout's log level and destination
+	if c.Logger != nil {
+		azwafLogging.SetLogger(c.Logger)
+	}
 
 	tc := &ProviderClient{
 		Session: c,
@@ -88,7 +96,10 @@ func unmarshalProviderData(rBody []byte) ([]*armfrontdoor.WebApplicationFirewall
 }
 
 func (c *ProviderClient) loadProviderData() error {
-	as := azwafSession.New()
+	as, err := azwafSession.New()
+	if err != nil {
+		return fmt.Errorf("error creating azure waf session: %w", err)
+	}
 
 	policies, err := getPolicies(c.Session, as)
 	if err != nil {
@@ -230,7 +241,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 			return nil, loadErr
 		}
 
-		c.Logger.Info("azure waf match returned from test data", "host", c.Host.String())
+		c.Logger.Debug("azure waf match returned from test data", "host", c.Host.String())
 
 		return out, nil
 	}
@@ -249,7 +260,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, providers.ErrNoMatchFound
 	}
 
-	c.Logger.Info("azurewaf match found", "host", c.Host.String())
+	c.Logger.Debug("azurewaf match found", "host", c.Host.String())
 
 	var raw []byte
 

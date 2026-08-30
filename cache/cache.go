@@ -35,7 +35,7 @@ var (
 )
 
 func Create(logger *slog.Logger, path string) (*badger.DB, error) {
-	logger.Info("creating cache", "path", filepath.Join(path, "cache"))
+	logger.Debug("creating cache", "path", filepath.Join(path, "cache"))
 
 	if path == "" {
 		return nil, errors.New("path is empty")
@@ -66,7 +66,7 @@ func UpsertWithTTL(logger *slog.Logger, db *badger.DB, item Item, ttl time.Durat
 		return fmt.Errorf("error marshalling cache item: %w", err)
 	}
 
-	logger.Info("upserting item", "key", item.Key, "value len", len(mItem), "ttl", ttl.String())
+	logger.Debug("upserting item", "key", item.Key, "value len", len(mItem), "ttl", ttl.String())
 
 	if int64(len(mItem)) > db.Opts().ValueLogFileSize {
 		return fmt.Errorf("cache value too large for key %s: %d bytes exceeds %d byte limit",
@@ -140,7 +140,7 @@ func CheckExists(logger *slog.Logger, db *badger.DB, key string) (bool, error) {
 }
 
 func Delete(logger *slog.Logger, db *badger.DB, key string) error {
-	logger.Info("deleting cache item", "key", key)
+	logger.Debug("deleting cache item", "key", key)
 
 	if err := db.Update(func(txn *badger.Txn) error {
 		return txn.Delete([]byte(key))
@@ -152,7 +152,7 @@ func Delete(logger *slog.Logger, db *badger.DB, key string) error {
 }
 
 func DeleteMultiple(logger *slog.Logger, db *badger.DB, keys []string) error {
-	logger.Info("deleting cache items", "keys", keys)
+	logger.Debug("deleting cache items", "keys", keys)
 
 	var deletedKeys []string
 

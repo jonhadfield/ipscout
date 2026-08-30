@@ -10,6 +10,12 @@ const (
 
 	MsgInvalidHostFmt = "invalid host: %s"
 
+	// MsgFetchFailedFmt reports, on a single line after the results, every
+	// provider whose ip range data could not be fetched. The per-provider
+	// errors are logged at debug rather than interrupting the progress
+	// spinner.
+	MsgFetchFailedFmt = "failed to fetch ip ranges for %s (run with --log-level DEBUG for details)"
+
 	ErrUnmarshalFindResultFmt   = "error unmarshalling find result: %w"
 	ErrUnmarshalRatingConfigFmt = "error unmarshalling rating config: %w"
 )
@@ -35,9 +41,13 @@ const DefaultGoogleSCOutputPriority = 190
 
 const DefaultHetznerOutputPriority = 70
 
+const DefaultOpenAIOutputPriority = 190
+
 const DefaultiCloudPROutputPriority = 100
 
 const DefaultIPAPIOutputPriority = 90
+
+const DefaultIPToASNOutputPriority = 90
 
 const DefaultIPQSOutputPriority = 50
 
@@ -58,11 +68,49 @@ const DefaultVirusTotalOutputPriority = 40
 const DefaultZscalerOutputPriority = 40
 
 const (
-	DefaultAbuseIPDBOutputPriority  = 50
-	DefaultAnnotatedOutputPriority  = 30
-	DefaultAWSOutputPriority        = 200
-	DefaultAzureOutputPriority      = 200
-	DefaultAzureWAFOutputPriority   = 20
-	DefaultBingbotOutputPriority    = 180
-	DefaultCriminalIPOutputPriority = 60
+	DefaultAbuseIPDBOutputPriority       = 50
+	DefaultAnnotatedOutputPriority       = 30
+	DefaultAhrefsOutputPriority          = 180
+	DefaultAkamaiOutputPriority          = 140
+	DefaultApplebotOutputPriority        = 190
+	DefaultDuckDuckBotOutputPriority     = 190
+	DefaultPerplexityBotOutputPriority   = 190
+	DefaultAtlassianOutputPriority       = 60
+	DefaultCloudflareOutputPriority      = 140
+	DefaultFastlyOutputPriority          = 140
+	DefaultGitHubOutputPriority          = 60
+	DefaultGoogleUTFOutputPriority       = 190
+	DefaultOCIOutputPriority             = 200
+	DefaultAWSOutputPriority             = 200
+	DefaultAzureOutputPriority           = 200
+	DefaultAzureWAFOutputPriority        = 20
+	DefaultBingbotOutputPriority         = 180
+	DefaultBunnyOutputPriority           = 140
+	DefaultCDN77OutputPriority           = 140
+	DefaultContaboOutputPriority         = 140
+	DefaultCriminalIPOutputPriority      = 60
+	DefaultDatadogOutputPriority         = 60
+	DefaultFlyioOutputPriority           = 140
+	DefaultIBMCloudOutputPriority        = 200
+	DefaultImpervaOutputPriority         = 20
+	DefaultLeasewebOutputPriority        = 140
+	DefaultRenderOutputPriority          = 140
+	DefaultStripeOutputPriority          = 60
+	DefaultTencentOutputPriority         = 200
+	DefaultAnthropicOutputPriority       = 190
+	DefaultBlocklistDEOutputPriority     = 20
+	DefaultCINSScoreOutputPriority       = 20
+	DefaultDShieldOutputPriority         = 20
+	DefaultEmergingThreatsOutputPriority = 20
+	DefaultSpamhausOutputPriority        = 20
+	DefaultUptimeRobotOutputPriority     = 60
+	DefaultCymruOutputPriority           = 20
+	DefaultGreenSnowOutputPriority       = 20
+	DefaultBetterStackOutputPriority     = 60
+	DefaultChecklyOutputPriority         = 60
+	DefaultGcoreOutputPriority           = 140
+	DefaultNewRelicOutputPriority        = 60
+	DefaultPingdomOutputPriority         = 60
+	DefaultStatusCakeOutputPriority      = 60
+	DefaultZoomOutputPriority            = 60
 )

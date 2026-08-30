@@ -12,7 +12,7 @@ import (
 )
 
 func fetchAzureWAF(ip string, sess *session.Session) providerResult { // nolint:dupl
-	slog.Info("Fetching data from Azure WAF", "ip", ip)
+	slog.Debug("Fetching data from Azure WAF", "ip", ip)
 
 	var err error
 
@@ -33,7 +33,7 @@ func fetchAzureWAF(ip string, sess *session.Session) providerResult { // nolint:
 		return providerResult{text: simplifyError(err, "azurewaf", ip)}
 	}
 
-	slog.Info("Fetching data from Azure WAF", "ip", ip)
+	slog.Debug("fetched data from Azure WAF", "ip", ip)
 
 	// Parse Azure WAF JSON response
 	var azureWAFResult azurewaf.HostSearchResult

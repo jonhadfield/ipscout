@@ -75,6 +75,9 @@
     "linode": {
       "defaultMatchScore": 8.0
     },
+    "openai": {
+      "defaultMatchScore": 1.0
+    },
     "ovh": {
       "defaultMatchScore": 8.0
     },
@@ -85,6 +88,63 @@
     },
     "zscaler": {
       "defaultMatchScore": 4.0
+    },
+    "akamai": {
+      "defaultMatchScore": 2.0
+    },
+    "cloudflare": {
+      "defaultMatchScore": 2.0
+    },
+    "fastly": {
+      "defaultMatchScore": 2.0
+    },
+    "github": {
+      "defaultMatchScore": 2.0
+    },
+    "googleutf": {
+      "defaultMatchScore": 1.0
+    },
+    "oci": {
+      "defaultMatchScore": 8.0
+    },
+    "ahrefs": {
+      "defaultMatchScore": 1.0
+    },
+    "applebot": {
+      "defaultMatchScore": 1.0
+    },
+    "duckduckbot": {
+      "defaultMatchScore": 1.0
+    },
+    "perplexitybot": {
+      "defaultMatchScore": 1.0
+    },
+    "anthropic": {
+      "defaultMatchScore": 1.0
+    },
+    "uptimerobot": {
+      "defaultMatchScore": 1.0
+    },
+    "blocklistde": {
+      "defaultMatchScore": 10.0
+    },
+    "cinsscore": {
+      "defaultMatchScore": 10.0
+    },
+    "dshield": {
+      "defaultMatchScore": 10.0
+    },
+    "emergingthreats": {
+      "defaultMatchScore": 10.0
+    },
+    "spamhaus": {
+      "defaultMatchScore": 10.0
+    },
+    "cymru": {
+      "defaultMatchScore": 10.0
+    },
+    "greensnow": {
+      "defaultMatchScore": 10.0
     }
   }
 }
