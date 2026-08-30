@@ -18,7 +18,10 @@ import (
 
 const (
 	ProviderName = "spamhaus"
-	DocTTL       = 24 * time.Hour
+	// The DROP list is regenerated about daily and its entries are long lived, so
+	// twice a day gives ample margin. The hourly cache header the server sends
+	// describes its edge caching, not how often the list changes.
+	DocTTL = 12 * time.Hour
 	// testDataHost is the host represented by the checked-in test data report.
 	testDataHost = "192.0.2.5"
 )

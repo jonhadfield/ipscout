@@ -18,14 +18,17 @@ import (
 	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/providers/azure"
 	"github.com/jonhadfield/ipscout/providers/azurewaf"
+	"github.com/jonhadfield/ipscout/providers/betterstack"
 	"github.com/jonhadfield/ipscout/providers/bingbot"
 	"github.com/jonhadfield/ipscout/providers/blocklistde"
 	"github.com/jonhadfield/ipscout/providers/bunny"
 	"github.com/jonhadfield/ipscout/providers/cdn77"
+	"github.com/jonhadfield/ipscout/providers/checkly"
 	"github.com/jonhadfield/ipscout/providers/cinsscore"
 	"github.com/jonhadfield/ipscout/providers/cloudflare"
 	"github.com/jonhadfield/ipscout/providers/contabo"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
+	"github.com/jonhadfield/ipscout/providers/cymru"
 	"github.com/jonhadfield/ipscout/providers/datadog"
 	"github.com/jonhadfield/ipscout/providers/digitalocean"
 	"github.com/jonhadfield/ipscout/providers/dshield"
@@ -33,12 +36,14 @@ import (
 	"github.com/jonhadfield/ipscout/providers/emergingthreats"
 	"github.com/jonhadfield/ipscout/providers/fastly"
 	"github.com/jonhadfield/ipscout/providers/flyio"
+	"github.com/jonhadfield/ipscout/providers/gcore"
 	"github.com/jonhadfield/ipscout/providers/gcp"
 	"github.com/jonhadfield/ipscout/providers/github"
 	"github.com/jonhadfield/ipscout/providers/google"
 	"github.com/jonhadfield/ipscout/providers/googlebot"
 	"github.com/jonhadfield/ipscout/providers/googlesc"
 	"github.com/jonhadfield/ipscout/providers/googleutf"
+	"github.com/jonhadfield/ipscout/providers/greensnow"
 	"github.com/jonhadfield/ipscout/providers/hetzner"
 	"github.com/jonhadfield/ipscout/providers/ibmcloud"
 	"github.com/jonhadfield/ipscout/providers/icloudpr"
@@ -50,20 +55,24 @@ import (
 	"github.com/jonhadfield/ipscout/providers/leaseweb"
 	"github.com/jonhadfield/ipscout/providers/linode"
 	"github.com/jonhadfield/ipscout/providers/m247"
+	"github.com/jonhadfield/ipscout/providers/newrelic"
 	"github.com/jonhadfield/ipscout/providers/oci"
 	"github.com/jonhadfield/ipscout/providers/openai"
 	"github.com/jonhadfield/ipscout/providers/ovh"
 	"github.com/jonhadfield/ipscout/providers/perplexitybot"
+	"github.com/jonhadfield/ipscout/providers/pingdom"
 	"github.com/jonhadfield/ipscout/providers/ptr"
 	"github.com/jonhadfield/ipscout/providers/render"
 	"github.com/jonhadfield/ipscout/providers/scaleway"
 	"github.com/jonhadfield/ipscout/providers/shodan"
 	"github.com/jonhadfield/ipscout/providers/spamhaus"
+	"github.com/jonhadfield/ipscout/providers/statuscake"
 	"github.com/jonhadfield/ipscout/providers/stripe"
 	"github.com/jonhadfield/ipscout/providers/tencent"
 	"github.com/jonhadfield/ipscout/providers/uptimerobot"
 	"github.com/jonhadfield/ipscout/providers/virustotal"
 	"github.com/jonhadfield/ipscout/providers/vultr"
+	"github.com/jonhadfield/ipscout/providers/zoom"
 	"github.com/jonhadfield/ipscout/providers/zscaler"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/viper"
@@ -256,6 +265,15 @@ func All() []Entry {
 		{Name: perplexitybot.ProviderName, DisplayName: "PerplexityBot", Enabled: func(s session.Session) *bool { return s.Providers.PerplexityBot.Enabled }, APIKey: noKey, NewClient: perplexitybot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: render.ProviderName, DisplayName: "Render", Enabled: func(s session.Session) *bool { return s.Providers.Render.Enabled }, APIKey: noKey, NewClient: render.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: stripe.ProviderName, DisplayName: "Stripe", Enabled: func(s session.Session) *bool { return s.Providers.Stripe.Enabled }, APIKey: noKey, NewClient: stripe.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: cymru.ProviderName, DisplayName: "Team Cymru Bogons", Enabled: func(s session.Session) *bool { return s.Providers.Cymru.Enabled }, APIKey: noKey, NewClient: cymru.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: greensnow.ProviderName, DisplayName: "GreenSnow", Enabled: func(s session.Session) *bool { return s.Providers.GreenSnow.Enabled }, APIKey: noKey, NewClient: greensnow.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: betterstack.ProviderName, DisplayName: "Better Stack", Enabled: func(s session.Session) *bool { return s.Providers.BetterStack.Enabled }, APIKey: noKey, NewClient: betterstack.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: checkly.ProviderName, DisplayName: "Checkly", Enabled: func(s session.Session) *bool { return s.Providers.Checkly.Enabled }, APIKey: noKey, NewClient: checkly.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: gcore.ProviderName, DisplayName: "Gcore", Enabled: func(s session.Session) *bool { return s.Providers.Gcore.Enabled }, APIKey: noKey, NewClient: gcore.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: newrelic.ProviderName, DisplayName: "New Relic", Enabled: func(s session.Session) *bool { return s.Providers.NewRelic.Enabled }, APIKey: noKey, NewClient: newrelic.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: pingdom.ProviderName, DisplayName: "Pingdom", Enabled: func(s session.Session) *bool { return s.Providers.Pingdom.Enabled }, APIKey: noKey, NewClient: pingdom.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: statuscake.ProviderName, DisplayName: "StatusCake", Enabled: func(s session.Session) *bool { return s.Providers.StatusCake.Enabled }, APIKey: noKey, NewClient: statuscake.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: zoom.ProviderName, DisplayName: "Zoom", Enabled: func(s session.Session) *bool { return s.Providers.Zoom.Enabled }, APIKey: noKey, NewClient: zoom.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: tencent.ProviderName, DisplayName: "Tencent Cloud", Enabled: func(s session.Session) *bool { return s.Providers.Tencent.Enabled }, APIKey: noKey, NewClient: tencent.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: anthropic.ProviderName, DisplayName: "Anthropic", Enabled: func(s session.Session) *bool { return s.Providers.Anthropic.Enabled }, APIKey: noKey, NewClient: anthropic.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: blocklistde.ProviderName, DisplayName: "Blocklist.de", Enabled: func(s session.Session) *bool { return s.Providers.BlocklistDE.Enabled }, APIKey: noKey, NewClient: blocklistde.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

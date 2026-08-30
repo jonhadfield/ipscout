@@ -104,4 +104,13 @@ const (
 	DefaultEmergingThreatsOutputPriority = 20
 	DefaultSpamhausOutputPriority        = 20
 	DefaultUptimeRobotOutputPriority     = 60
+	DefaultCymruOutputPriority           = 20
+	DefaultGreenSnowOutputPriority       = 20
+	DefaultBetterStackOutputPriority     = 60
+	DefaultChecklyOutputPriority         = 60
+	DefaultGcoreOutputPriority           = 140
+	DefaultNewRelicOutputPriority        = 60
+	DefaultPingdomOutputPriority         = 60
+	DefaultStatusCakeOutputPriority      = 60
+	DefaultZoomOutputPriority            = 60
 )

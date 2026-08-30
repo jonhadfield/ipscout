@@ -18,7 +18,9 @@ import (
 
 const (
 	ProviderName = "cinsscore"
-	DocTTL       = 24 * time.Hour
+	// The CI Army list regenerated once an hour during review, so refetch twice as
+	// often as the source has been seen to change.
+	DocTTL = 2 * time.Hour
 	// testDataHost is the host represented by the checked-in test data report.
 	testDataHost = "198.51.100.42"
 )

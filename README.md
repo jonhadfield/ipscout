@@ -67,10 +67,12 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |
 | [Azure](#Azure)                                           | Hosting Provider |           -           |
 | [Azure WAF](#Azure-WAF)                                   |       WAF        | Azure access required |
+| [Better Stack](#Better-Stack)                             |    Monitoring    |           -           |
 | [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
 | [Blocklist.de](#Blocklistde)                              |   Threat Feed    |           -           |
 | [Bunny CDN](#Bunny-CDN)                                   |       CDN        |           -           |
 | [CDN77](#CDN77)                                           |       CDN        |           -           |
+| [Checkly](#Checkly)                                       |    Monitoring    |           -           |
 | [CINS Army List](#CINS-Army-List)                         |   Threat Feed    |           -           |
 | [Cloudflare](#Cloudflare)                                 |       CDN        |           -           |
 | [Contabo](#Contabo)                                       | Hosting Provider |           -           |
@@ -83,11 +85,13 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Fastly](#Fastly)                                         |       CDN        |           -           |
 | [Fly.io](#Flyio)                                          | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
+| [Gcore](#Gcore)                                           |       CDN        |           -           |
 | [GitHub](#GitHub)                                         |       SaaS       |           -           |
 | [Google](#Google)                                         | Hosting Provider |           -           |
 | [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
 | [Google User-triggered Fetchers](#Google-User-triggered-Fetchers) | Web crawler |         -           |
 | [Googlebot](#Googlebot)                                   |   Web crawler    |           -           |
+| [GreenSnow](#GreenSnow)                                   |   Threat Feed    |           -           |
 | [Hetzner](#Hetzner)                                       | Hosting Provider |           -           |
 | [IBM Cloud](#IBM-Cloud)                                   | Hosting Provider |           -           |
 | [Imperva](#Imperva)                                       |       WAF        |           -           |
@@ -98,20 +102,25 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Leaseweb](#Leaseweb)                                     | Hosting Provider |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [M247](#M247)                                             | Hosting Provider |           -           |
+| [New Relic](#New-Relic)                                   |    Monitoring    |           -           |
 | [OpenAI](#OpenAI)                                         |   Web crawler    |           -           |
 | [Oracle Cloud (OCI)](#Oracle-Cloud-OCI)                   | Hosting Provider |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
 | [PerplexityBot](#PerplexityBot)                           |   Web crawler    |           -           |
+| [Pingdom](#Pingdom)                                       |    Monitoring    |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Render](#Render)                                         | Hosting Provider |           -           |
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
 | [Vultr](#Vultr)                                           | Hosting Provider |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
 | [Spamhaus DROP](#Spamhaus-DROP)                           |   Threat Feed    |           -           |
+| [StatusCake](#StatusCake)                                 |    Monitoring    |           -           |
 | [Stripe](#Stripe)                                         |       SaaS       |           -           |
+| [Team Cymru Bogons](#Team-Cymru-Bogons)                   |      Bogon       |           -           |
 | [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
-| [UptimeRobot](#UptimeRobot)                               |       SaaS       |           -           |
+| [UptimeRobot](#UptimeRobot)                               |    Monitoring    |           -           |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
+| [Zoom](#Zoom)                                             |       SaaS       |           -           |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
 
 ## Installation
@@ -173,6 +182,56 @@ go build ./...
 ```
 
 This will create an `ipscout` binary in the current directory.
+
+### Releasing
+
+Tag first, then release:
+
+```shell
+git tag -a 0.10.0 -m "new providers, cache ttl tuning and release checks."
+git push origin 0.10.0
+make release
+```
+
+Tags are annotated and unprefixed (`0.10.0`, not `v0.10.0`), with a short lowercase
+message summarising the release.
+
+Push the tag before running `make release`, not after. `goreleaser` publishes the release
+for the tag at `HEAD`, and if that tag is not already on the remote GitHub creates it from
+the release itself — as a lightweight tag, so the annotated object and its message stay on
+your machine and the remote records only the commit. The `git push --follow-tags` at the
+end of the target then has nothing left to send and reports `Everything up-to-date`, which
+reads like success. Pushing first is what makes the annotated tag the one that lands.
+
+`make release` builds and publishes the release. It depends on `make smoke`, which builds
+the release archives without publishing and then runs the packaged binary from a temporary
+directory with a throwaway `HOME`, so there is no `go.mod` above it and no existing config
+or cache. That catches problems the unit tests cannot see, because they run inside the
+repository. A failing smoke check aborts the release before anything is published.
+
+`make smoke` can be run on its own at any time; it needs no network access.
+
+The release notes published on GitHub are the changelog section for the tag, extracted by
+`scripts/release-notes.sh`, rather than goreleaser's generated list of commit subjects and
+SHAs. So the entry has to be in `docs/CHANGELOG.md` under a `## [X.Y.Z]` heading before you
+release: the target fails rather than publishing empty notes, which are awkward to correct
+once people have seen them.
+
+That check runs first, ahead of `smoke`, so a missing entry fails in a second rather than
+after a full six platform build. `make check-release-notes` runs it on its own, and
+`scripts/release-notes.sh 0.10.0` prints what would be published.
+
+Publishing needs a GitHub token with `repo` scope, for both the release and the push to
+the `homebrew-ipscout` cask repository. `goreleaser` resolves its SCM token from the
+environment, so if you keep a `GITLAB_TOKEN` set for other work, clear it for the run so
+the GitHub one is used:
+
+```shell
+env -u GITLAB_TOKEN GITHUB_TOKEN="$(gh auth token)" make release
+```
+
+`gh auth token` reuses the `gh` CLI login rather than needing a separate PAT. Set
+`GITHUB_TOKEN` yourself if you would rather not depend on `gh`.
 
 ### Updating the ip-fetcher dependency
 
@@ -318,6 +377,21 @@ This requires an OpenAI API key, set with `--openai-api-key` or `rating.openai_a
 Providers are configured in the `config.yaml` file.
 A number of providers are enabled by default, but can be disabled by setting `enabled: false`.
 
+Providers that fetch a list of IP ranges cache it, and refetch once the cache expires. The
+defaults are chosen per provider from how often the source actually publishes, so a list
+that changes a few times a year is not refetched daily. Override it per provider with
+`document_cache_ttl`, in minutes:
+
+```yaml
+providers:
+  aws:
+    enabled: true
+    document_cache_ttl: 360   # refetch AWS ranges every 6 hours instead of daily
+```
+
+Providers that query a per-host API cache the result instead, set with `result_cache_ttl`,
+also in minutes.
+
 ### AbuseIPDB
 
 This provider queries the [AbuseIPDB](https://www.abuseipdb.com/) API for information on an IP address, with a threat
@@ -391,6 +465,14 @@ services.
 This currently supports Azure Global WAF, used to secure Azure Front Door, and will show custom rules and prefixes matching the provided host.
 Authentication will be read from the environment.
 
+### Better Stack
+
+[Better Stack](https://betterstack.com/) runs uptime monitoring, and publishes the
+addresses its checks originate from at
+[uptime.betterstack.com/ips.txt](https://uptime.betterstack.com/ips.txt). A match means
+the host is a Better Stack probe rather than the origin of the traffic it appears to
+send.
+
 ### Bingbot
 
 [Bingbot](https://www.bing.com/webmasters/help/help-center-661b2d18) is the web crawler for the Bing search engine.
@@ -430,6 +512,14 @@ services.
 [Googlebot](https://developers.google.com/search/docs/crawling-indexing/googlebot) is a web crawler
 and [publishes](https://developers.google.com/static/search/apis/ipranges/googlebot.json) network prefixes used by their
 bots.
+
+### GreenSnow
+
+[GreenSnow](https://greensnow.co/) collects addresses seen attacking servers, such as
+brute force attempts against SSH, mail and web services, and publishes them at
+[blocklist.greensnow.co/greensnow.txt](https://blocklist.greensnow.co/greensnow.txt).
+IPScout downloads this list and checks whether the target IP appears in it. The list
+changes constantly, so it is cached for an hour rather than the usual day.
 
 ### Hetzner
 
@@ -494,6 +584,12 @@ that [publishes](https://geoip.linode.com/) network prefixes used by their servi
 [M247](https://www.m247.com/) is a global hosting and connectivity provider.
 IP ranges are retrieved from the BGPView API and checked for matches against the target host.
 
+### New Relic
+
+[New Relic](https://newrelic.com/) publishes the addresses its synthetic monitors run
+from, grouped by location. A match means the host is a New Relic synthetics probe, and
+names the location it runs from, such as "Washington, DC, USA".
+
 ### OpenAI
 
 [OpenAI](https://platform.openai.com/docs/bots) operates a number of bots and publishes the network prefixes they crawl
@@ -514,6 +610,11 @@ IP ranges are retrieved from the BGPView API and checked for matches against the
 
 [Vultr](https://www.vultr.com/) is a cloud hosting provider.
 IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+
+### Pingdom
+
+[Pingdom](https://www.pingdom.com/) publishes the addresses its uptime probes run from.
+A match means the host is a Pingdom probe rather than a visitor.
 
 ### PTR
 
@@ -545,6 +646,11 @@ Set environment variable `SHODAN_API_KEY` with your API key.
 Query the [VirusTotal](https://www.virustotal.com) API for information from various providers on an IP address.
 
 Set environment variable `VIRUSTOTAL_API_KEY` with your API key.
+
+### Zoom
+
+[Zoom](https://zoom.us/) publishes the network ranges its meeting and phone services use.
+A match means the host belongs to Zoom's service infrastructure.
 
 ### Zscaler
 
@@ -641,6 +747,12 @@ this list and checks whether the target IP is within those ranges.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
 
+### Gcore
+
+[Gcore](https://gcore.com/) is a CDN and edge platform that publishes the addresses its
+edge nodes serve from. A match means the host is Gcore edge infrastructure rather than
+the origin server behind it.
+
 ### GitHub
 
 [GitHub](https://github.com/) publishes the IP ranges used by its services
@@ -694,11 +806,31 @@ IPScout downloads this list and checks whether the target IP is within those ran
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
 
+### StatusCake
+
+[StatusCake](https://www.statuscake.com/) publishes the locations its monitoring runs
+from, each with an address. A match means the host is a StatusCake probe, and reports the
+location's title, server code, country and current status.
+
 ### Stripe
 
 [Stripe](https://stripe.com/) publishes the IP ranges used by its API and webhook
 infrastructure. IPScout downloads this list and checks whether the target IP is
 within those ranges.
+
+### Team Cymru Bogons
+
+The [Team Cymru](https://www.team-cymru.com/bogon-reference) full bogon list covers
+address space that should never appear as a source on the public internet: ranges IANA
+has not allocated, plus those allocated but not yet routed. Traffic claiming to come from
+one is typically spoofed or the result of a misconfiguration.
+
+It is published as
+[fullbogons-ipv4.txt](https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt) and
+[fullbogons-ipv6.txt](https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt), and
+rebuilt every four hours. IPScout caches it for four hours to match: bogon space shrinks
+as addresses are allocated, so a stale list reports newly assigned, legitimate ranges as
+unroutable. The generation time from the list header is shown with any match.
 
 ### Tencent Cloud
 
@@ -720,6 +852,11 @@ that collects reports of hosts attacking other systems via SSH, mail, web and
 other services. The aggregated list of reported addresses is published at
 [lists.blocklist.de/lists/all.txt](https://lists.blocklist.de/lists/all.txt).
 IPScout downloads this list and checks whether the target IP appears in it.
+
+### Checkly
+
+[Checkly](https://www.checklyhq.com/) runs synthetic monitoring checks and publishes the
+static addresses they run from. A match means the host is a Checkly probe.
 
 ### CINS Army List
 

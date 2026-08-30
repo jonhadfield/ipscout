@@ -6,6 +6,87 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-30
+
+### Added
+
+- Better Stack, Checkly, New Relic, Pingdom and StatusCake providers, reporting whether
+  the host is an uptime or synthetic monitoring probe rather than a visitor or the origin
+  of the traffic it appears to send. New Relic names the location the probe runs from,
+  and StatusCake reports the location's title, server code, country and current status
+- Gcore provider, reporting whether the host is Gcore CDN edge infrastructure rather than
+  the origin server behind it
+- Zoom provider, reporting whether the host belongs to Zoom's meeting and phone service
+  ranges
+- the GitHub release notes are now the changelog entry for the tag rather than a
+  generated list of commit subjects and SHAs, so the release page says what changed and
+  why. `make release` fails if the entry is missing rather than publishing empty notes,
+  and checks for it before the smoke build rather than after it
+- documentation for how a release is cut: tag before running `make release`, since
+  otherwise GitHub creates the tag from the release as a lightweight one, and the GitHub
+  token the publish step needs
+
+### Fixed
+
+- an iCloud Private Relay match scored zero. The provider read a rating score the shipped
+  config never defined, so a match was detected, given a reason, and then contributed
+  nothing. Scored 4.0, alongside Zscaler: infrastructure that obscures the originating
+  host rather than indicating abuse
+- the TUI active marker is now shown on the Team Cymru Bogons and GreenSnow panels. The
+  marker is added by replacing the upper-cased provider name in the header, which never
+  matched either mixed-case title, so selecting one gave no indication of which provider
+  was focused
+
+### Changed
+
+- bump ip-fetcher to v0.0.25 then v0.0.29, which supplies the seven new provider sources
+  and finds the Azure snapshot by name instead of scraping for it
+- cache TTLs for the new providers sized on measurement: Gcore at 1 hour, the only one
+  whose content changed over a five minute resample; Better Stack at 4 hours, the
+  max-age it advertises; New Relic at 7 days, unchanged for over eight months. Checkly,
+  Pingdom, StatusCake and Zoom stay at a day, where the headers carry no cadence
+- UptimeRobot is categorised as Monitoring in the README, alongside the five monitoring
+  providers added here
+
+### Removed
+
+- the `build-latest-docker-tag` make target, which built `./docker/Dockerfile` — a path
+  that has never existed in this repository, so the target could only ever fail
+
+## [0.10.0] - 2026-08-29
+
+### Added
+
+- Team Cymru Bogons provider, reporting whether the host falls in address space that
+  should never appear as a source on the public internet, either unallocated by IANA or
+  allocated but unrouted. Cached for four hours to match the source's rebuild, since a
+  stale bogon list reports newly allocated legitimate space as unroutable
+- GreenSnow provider, reporting whether the host appears on its list of addresses seen
+  attacking servers. Cached for an hour: the list changed by seventeen entries over two
+  minutes during review
+- `make smoke`, a pre-release check that builds the release archives without publishing
+  and exercises the packaged binary from a temporary directory with a throwaway HOME.
+  `make release` depends on it, so a failure aborts before anything is published. It
+  covers the gap unit tests cannot: they run inside the repository, so they could not
+  catch 0.9.0 shipping a binary whose test data was unreachable outside the source tree
+- README documentation for `document_cache_ttl` and `result_cache_ttl`, which were read
+  from config but documented nowhere, so the cache durations were not discoverable
+
+### Changed
+
+- bump ip-fetcher to v0.0.25, which supplies the two new provider sources
+- size the IP range cache TTL per provider from how often each source actually
+  publishes, replacing the blanket 24 hours. Sources that publish rarely move to 7 days
+  (Akamai, Atlassian, CDN77, DuckDuckBot, OpenAI, PerplexityBot, UptimeRobot); each had
+  gone a fortnight to two years without changing while being refetched daily, and
+  DuckDuckGo serves its list with a one year cache header
+- shorten the threat feed TTLs, which were the opposite problem: at 24 hours a blocklist
+  lookup could be a day out of date. blocklist.de moves to 1 hour, the CINS Army list to
+  2, DShield to 4 and Spamhaus DROP and Emerging Threats to 12, each measured against the
+  cadence the source was observed to publish at
+
+## [0.9.2] - 2026-08-27
+
 ### Changed
 
 - bump ip-fetcher to v0.0.24, updating logrus to 1.10.1, testify to 1.12.1 and
@@ -55,7 +136,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   crawler prefix parsing across the eight bot providers and the geolocation csv parsing
   between linode and icloudpr, and picks up its dependency updates
 - provider fetch failures are reported as a single line below the results, naming every
-  provider whose ip range data could not be fetched, instead of one error per provider
+  provider whose IP range data could not be fetched, instead of one error per provider
   printed over the progress spinner while downloads are still running. The per-provider
   detail moves to debug logging
 - widen the existing nolint directives in ui/annotated.go, ui/ptr.go and ui/shodan.go to
@@ -372,7 +453,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.2.10...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.0...HEAD
+[0.11.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.0
+[0.10.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.10.0
 [0.2.10]: https://github.com/jonhadfield/ipscout/releases/tag/0.2.10
 [0.2.9]: https://github.com/jonhadfield/ipscout/releases/tag/0.2.9
 [0.2.8]: https://github.com/jonhadfield/ipscout/releases/tag/0.2.8
