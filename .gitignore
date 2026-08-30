@@ -2,9 +2,10 @@ dist/
 coverage.txt
 cover.out
 .claude/
-CLAUDE.md
 ui/.config/
-AGENTS.md
 .fleet
 .devcontainer/
 claudedocs/
+CLAUDE.local.md
+# CLAUDE.md is ignored globally; this repo commits it as a bare @AGENTS.md pointer.
+!CLAUDE.md
