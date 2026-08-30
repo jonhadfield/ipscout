@@ -147,7 +147,7 @@ func (r *Rater) Run() error {
 	r.Session.Cache = db
 
 	defer func() {
-		if err = db.Close(); err != nil {
+		if err = cache.Close(r.Session.Logger, db); err != nil {
 			fmt.Printf("error: %s", err.Error())
 			os.Exit(1)
 		}
@@ -158,7 +158,7 @@ func (r *Rater) Run() error {
 		r.Session.Logger.Error("failed to generate provider clients", "error", err)
 
 		// close here as exit prevents defer from running
-		_ = db.Close()
+		_ = cache.Close(r.Session.Logger, db)
 
 		return fmt.Errorf("failed to generate provider clients: %w", err)
 	}

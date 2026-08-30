@@ -31,8 +31,37 @@ func newCacheCommand() *cobra.Command {
 	cacheCmd.AddCommand(newCacheInitialiseCommand())
 	cacheCmd.AddCommand(newCacheGetCommand())
 	cacheCmd.AddCommand(newCacheListCommand())
+	cacheCmd.AddCommand(newCacheGCCommand())
 
 	return cacheCmd
+}
+
+func newCacheGCCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "gc",
+		Short: "reclaim space from the cache",
+		Long: `gc rewrites the cache's value log files to drop entries that have expired.
+
+Badger only frees that space when the files are rewritten, so a long-lived cache
+can hold far more on disk than its live entries account for. Closing the cache
+does a little of this on every run; gc does the rest in one go.`,
+		Args: cobra.NoArgs,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
+			return initConfig(cmd)
+		},
+		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
+			mgr, err := manager.NewClient(sess)
+			if err != nil {
+				os.Exit(1)
+			}
+
+			if err = mgr.GC(); err != nil {
+				return fmt.Errorf("error reclaiming cache space: %w", err)
+			}
+
+			return nil
+		},
+	}
 }
 
 func newCacheListCommand() *cobra.Command {

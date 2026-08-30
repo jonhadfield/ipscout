@@ -78,12 +78,12 @@ func (p *Processor) Run(providerName string) (string, error) {
 
 	p.Session.Cache = db
 
-	defer db.Close()
+	defer func() { _ = cache.Close(p.Session.Logger, db) }()
 
 	// get provider clients
 	providerClient, err := getProviderClient(p.Session, providerName)
 	if err != nil {
-		_ = db.Close()
+		_ = cache.Close(p.Session.Logger, db)
 
 		return "", fmt.Errorf("failed to generate provider clients: %w", err)
 	}

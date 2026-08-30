@@ -125,7 +125,7 @@ func (c *Client) Delete(keys []string) error {
 
 	c.Sess.Cache = db
 
-	defer db.Close()
+	defer func() { _ = cache.Close(c.Sess.Logger, db) }()
 
 	if err = cache.DeleteMultiple(c.Sess.Logger, db, keys); err != nil {
 		return fmt.Errorf(cache.ErrDeleteCacheItemsFmt, err)
@@ -142,7 +142,7 @@ func (c *Client) Get(key string, raw bool) error {
 
 	c.Sess.Cache = db
 
-	defer db.Close()
+	defer func() { _ = cache.Close(c.Sess.Logger, db) }()
 
 	item, err := cache.Read(c.Sess.Logger, db, key)
 	if err != nil {

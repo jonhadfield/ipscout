@@ -3,6 +3,7 @@ package manager
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"math"
 	"path/filepath"
 	"time"
@@ -68,7 +69,7 @@ func (c *Client) List() error {
 
 	c.Config.Cache = db
 
-	defer db.Close()
+	defer func() { _ = cache.Close(c.Config.Logger, db) }()
 
 	cacheItemsInfo, err := c.GetCacheItemsInfo()
 	if err != nil {
@@ -90,6 +91,74 @@ func (c *Client) List() error {
 	return nil
 }
 
+// GC reclaims value log space until there is nothing left worth rewriting, and
+// reports how much of the cache directory that freed.
+//
+// Closing the cache does a couple of rounds on every run, which keeps growth in
+// check going forward. This is the catch-up for a directory that already grew:
+// it is unbounded, so it can take a while on a large cache.
+func (c *Client) GC() error {
+	cachePath := filepath.Join(c.Config.Config.Global.HomeDir, ".config", "ipscout")
+
+	before := dirSize(filepath.Join(cachePath, "cache"))
+
+	db, err := cache.Create(c.Config.Logger, cachePath)
+	if err != nil {
+		return fmt.Errorf("error creating cache: %w", err)
+	}
+
+	c.Config.Cache = db
+
+	rewritten := cache.RunGC(c.Config.Logger, db, 0)
+
+	// The space is only returned once the rewritten files are dropped on close.
+	if err = cache.Close(c.Config.Logger, db); err != nil {
+		return fmt.Errorf("error closing cache after gc: %w", err)
+	}
+
+	after := dirSize(filepath.Join(cachePath, "cache"))
+
+	fmt.Printf("rewrote %d value log file(s)\n", rewritten)
+	fmt.Printf("cache went from %s to %s\n", humanBytes(before), humanBytes(after))
+
+	return nil
+}
+
+// dirSize totals the regular files under path, returning 0 if it cannot be read.
+func dirSize(path string) int64 {
+	var total int64
+
+	_ = filepath.WalkDir(path, func(_ string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil //nolint:nilerr // an unreadable entry just does not count
+		}
+
+		if info, statErr := d.Info(); statErr == nil {
+			total += info.Size()
+		}
+
+		return nil
+	})
+
+	return total
+}
+
+func humanBytes(b int64) string {
+	const unit = 1024
+
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+
+	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
+}
+
 func (c *Client) Delete(keys []string) error {
 	db, err := cache.Create(c.Config.Logger, filepath.Join(c.Config.Config.Global.HomeDir, ".config", "ipscout"))
 	if err != nil {
@@ -98,7 +167,7 @@ func (c *Client) Delete(keys []string) error {
 
 	c.Config.Cache = db
 
-	defer db.Close()
+	defer func() { _ = cache.Close(c.Config.Logger, db) }()
 
 	if err = cache.DeleteMultiple(c.Config.Logger, db, keys); err != nil {
 		return fmt.Errorf(cache.ErrDeleteCacheItemsFmt, err)
@@ -115,7 +184,7 @@ func (c *Client) Get(key string, raw bool) error {
 
 	c.Config.Cache = db
 
-	defer db.Close()
+	defer func() { _ = cache.Close(c.Config.Logger, db) }()
 
 	item, err := cache.Read(c.Config.Logger, db, key)
 	if err != nil {
