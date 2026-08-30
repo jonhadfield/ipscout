@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-08-30
+
+### Changed
+
+- bump dependencies: badger to 4.9.6 (the cache engine), miekg/dns to 1.1.73, go-pretty to
+  6.8.3 and go-openai to 1.42.0
+- the AI rating request sends `max_completion_tokens` rather than the deprecated
+  `max_tokens`. Same request for the model in use — gpt-4o-mini emits no reasoning tokens,
+  so the 1024 ceiling means what it did — but the old parameter is not accepted by the
+  o1-series models and go-openai 1.42.0 deprecates it
+
 ## [0.11.0] - 2026-08-30
 
 ### Added
@@ -453,7 +464,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.0...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.1...HEAD
+[0.11.1]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.1
 [0.11.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.0
 [0.10.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.10.0
 [0.2.10]: https://github.com/jonhadfield/ipscout/releases/tag/0.2.10
