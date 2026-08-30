@@ -1,0 +1,5 @@
+#	DShield.org Recommended Block List
+#	updated: 2026-08-20T14:00:24.391841
+#Start	End	Netmask	Attacks	Name	Country	Email
+198.51.100.0	198.51.100.255	24	4096	EXAMPLE-NET	ZZ	abuse@example.com
+2001:db8:0:0:0:0:0:0	2001:db8:ffff:ffff:ffff:ffff:ffff:ffff	32	120	EXAMPLE-V6-NET	ZZ	abuse@example.com

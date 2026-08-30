@@ -19,6 +19,7 @@ All of the host reputation providers require registration but each of them offer
 - [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
+- [Rating](#rating)
 - [Provider Details](#providers-1)
 - [Changelog](#changelog)
 - [License](#license)
@@ -55,43 +56,71 @@ Provider data and search results can be cached to reduce API calls and improve p
 | Provider                                                  |     Category     |         Notes         |
 |:----------------------------------------------------------|:----------------:|:---------------------:|
 | [AbuseIPDB](#AbuseIPDB)                                   |  IP Reputation   | Registration required |
+| [AhrefsBot](#AhrefsBot)                                   |   Web crawler    |           -           |
+| [Akamai](#Akamai)                                         |       CDN        |           -           |
 | [Alibaba Cloud](#Alibaba-Cloud)                           | Hosting Provider |           -           |
 | [Annotated](#Annotated)                                   |  User Provided   |           -           |
+| [Anthropic](#Anthropic)                                   |   Web crawler    |           -           |
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
+| [Applebot](#Applebot)                                     |   Web crawler    |           -           |
 | [Atlassian](#Atlassian)                                   |       SaaS       |           -           |
 | [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |
 | [Azure](#Azure)                                           | Hosting Provider |           -           |
 | [Azure WAF](#Azure-WAF)                                   |       WAF        | Azure access required |
+| [Better Stack](#Better-Stack)                             |    Monitoring    |           -           |
 | [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
+| [Blocklist.de](#Blocklistde)                              |   Threat Feed    |           -           |
 | [Bunny CDN](#Bunny-CDN)                                   |       CDN        |           -           |
 | [CDN77](#CDN77)                                           |       CDN        |           -           |
+| [Checkly](#Checkly)                                       |    Monitoring    |           -           |
+| [CINS Army List](#CINS-Army-List)                         |   Threat Feed    |           -           |
+| [Cloudflare](#Cloudflare)                                 |       CDN        |           -           |
 | [Contabo](#Contabo)                                       | Hosting Provider |           -           |
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [Datadog](#Datadog)                                       |       SaaS       |           -           |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
+| [DShield](#DShield)                                       |   Threat Feed    |           -           |
+| [DuckDuckBot](#DuckDuckBot)                               |   Web crawler    |           -           |
+| [Emerging Threats](#Emerging-Threats)                     |   Threat Feed    |           -           |
+| [Fastly](#Fastly)                                         |       CDN        |           -           |
 | [Fly.io](#Flyio)                                          | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
+| [Gcore](#Gcore)                                           |       CDN        |           -           |
+| [GitHub](#GitHub)                                         |       SaaS       |           -           |
 | [Google](#Google)                                         | Hosting Provider |           -           |
 | [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
+| [Google User-triggered Fetchers](#Google-User-triggered-Fetchers) | Web crawler |         -           |
 | [Googlebot](#Googlebot)                                   |   Web crawler    |           -           |
+| [GreenSnow](#GreenSnow)                                   |   Threat Feed    |           -           |
 | [Hetzner](#Hetzner)                                       | Hosting Provider |           -           |
 | [IBM Cloud](#IBM-Cloud)                                   | Hosting Provider |           -           |
 | [Imperva](#Imperva)                                       |       WAF        |           -           |
 | [IPAPI](#IPAPI)                                           |  IP Geolocation  |           -           |
 | [IPQualityScore](#IPQualityScore)                         |  IP Reputation   | Registration required |
+| [IPtoASN](#IPtoASN)                                       |     ASN Data     |           -           |
 | [IPURL](#IPURL)                                           |  User Provided   |           -           |
 | [Leaseweb](#Leaseweb)                                     | Hosting Provider |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [M247](#M247)                                             | Hosting Provider |           -           |
+| [New Relic](#New-Relic)                                   |    Monitoring    |           -           |
+| [OpenAI](#OpenAI)                                         |   Web crawler    |           -           |
+| [Oracle Cloud (OCI)](#Oracle-Cloud-OCI)                   | Hosting Provider |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
+| [PerplexityBot](#PerplexityBot)                           |   Web crawler    |           -           |
+| [Pingdom](#Pingdom)                                       |    Monitoring    |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Render](#Render)                                         | Hosting Provider |           -           |
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
 | [Vultr](#Vultr)                                           | Hosting Provider |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
+| [Spamhaus DROP](#Spamhaus-DROP)                           |   Threat Feed    |           -           |
+| [StatusCake](#StatusCake)                                 |    Monitoring    |           -           |
 | [Stripe](#Stripe)                                         |       SaaS       |           -           |
+| [Team Cymru Bogons](#Team-Cymru-Bogons)                   |      Bogon       |           -           |
 | [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
+| [UptimeRobot](#UptimeRobot)                               |    Monitoring    |           -           |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
+| [Zoom](#Zoom)                                             |       SaaS       |           -           |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
 
 ## Installation
@@ -102,8 +131,36 @@ page.
 ### macOS - Homebrew
 
 ```
+$ brew install --cask jonhadfield/ipscout/ipscout
+```
+
+Naming the cask in full is deliberate. Homebrew now refuses to load formulae and casks
+from taps you have not trusted, so tapping first and installing by short name fails:
+
+```
 $ brew tap jonhadfield/ipscout
 $ brew install ipscout
+Error: Refusing to load cask jonhadfield/ipscout/ipscout from untrusted tap jonhadfield/ipscout.
+```
+
+Asking for the cask by its fully qualified name is treated as trusting that one cask, so
+the single command above works with no extra step. If you prefer to tap first, trust the
+tap once:
+
+```
+$ brew tap jonhadfield/ipscout
+$ brew trust --tap jonhadfield/ipscout
+$ brew install ipscout
+```
+
+Upgrades work normally either way, with `brew upgrade --cask ipscout`.
+
+Since 0.6.2, ipscout is distributed as a Homebrew cask. If you installed an earlier
+version (distributed as a formula), reinstall once to migrate:
+
+```
+$ brew uninstall ipscout
+$ brew install --cask jonhadfield/ipscout/ipscout
 ```
 
 ### Linux
@@ -125,6 +182,56 @@ go build ./...
 ```
 
 This will create an `ipscout` binary in the current directory.
+
+### Releasing
+
+Tag first, then release:
+
+```shell
+git tag -a 0.10.0 -m "new providers, cache ttl tuning and release checks."
+git push origin 0.10.0
+make release
+```
+
+Tags are annotated and unprefixed (`0.10.0`, not `v0.10.0`), with a short lowercase
+message summarising the release.
+
+Push the tag before running `make release`, not after. `goreleaser` publishes the release
+for the tag at `HEAD`, and if that tag is not already on the remote GitHub creates it from
+the release itself — as a lightweight tag, so the annotated object and its message stay on
+your machine and the remote records only the commit. The `git push --follow-tags` at the
+end of the target then has nothing left to send and reports `Everything up-to-date`, which
+reads like success. Pushing first is what makes the annotated tag the one that lands.
+
+`make release` builds and publishes the release. It depends on `make smoke`, which builds
+the release archives without publishing and then runs the packaged binary from a temporary
+directory with a throwaway `HOME`, so there is no `go.mod` above it and no existing config
+or cache. That catches problems the unit tests cannot see, because they run inside the
+repository. A failing smoke check aborts the release before anything is published.
+
+`make smoke` can be run on its own at any time; it needs no network access.
+
+The release notes published on GitHub are the changelog section for the tag, extracted by
+`scripts/release-notes.sh`, rather than goreleaser's generated list of commit subjects and
+SHAs. So the entry has to be in `docs/CHANGELOG.md` under a `## [X.Y.Z]` heading before you
+release: the target fails rather than publishing empty notes, which are awkward to correct
+once people have seen them.
+
+That check runs first, ahead of `smoke`, so a missing entry fails in a second rather than
+after a full six platform build. `make check-release-notes` runs it on its own, and
+`scripts/release-notes.sh 0.10.0` prints what would be published.
+
+Publishing needs a GitHub token with `repo` scope, for both the release and the push to
+the `homebrew-ipscout` cask repository. `goreleaser` resolves its SCM token from the
+environment, so if you keep a `GITLAB_TOKEN` set for other work, clear it for the run so
+the GitHub one is used:
+
+```shell
+env -u GITLAB_TOKEN GITHUB_TOKEN="$(gh auth token)" make release
+```
+
+`gh auth token` reuses the `gh` CLI login rather than needing a separate PAT. Set
+`GITHUB_TOKEN` yourself if you would rather not depend on `gh`.
 
 ### Updating the ip-fetcher dependency
 
@@ -172,10 +279,118 @@ providers:
 # list of providers with their configurations below...
 ```
 
+## Rating
+
+`ipscout rate` combines the results from every provider that supports rating into a single
+score and a block or allow recommendation.
+
+```shell
+$ ipscout rate 1.10.16.1
+```
+
+```
++------------+----------+-------+-----------------------------------------------------------+
+| PROVIDER   | DETECTED | SCORE | REASONS                                                   |
++------------+----------+-------+-----------------------------------------------------------+
+| spamhaus   | true     | 10.00 | listed on Spamhaus DROP (do not route or peer): SBL256894 |
+| abuseipdb  | true     | 3.00  | confidence: 0.00                                          |
+| ipqs       | true     | 9.00  | confidence: 0.00                                          |
+| virustotal | true     | 0.00  | harmless                                                  |
++------------+----------+-------+-----------------------------------------------------------+
+| AVERAGE    |          | 5.50  |                                                           |
++------------+----------+-------+-----------------------------------------------------------+
+Recommendation: block
+```
+
+Each provider that matches the host contributes a score. The scores are averaged, and the
+result is compared against `blockScoreThreshold`: below it the recommendation is `allow`,
+otherwise `block`. A provider reporting a `noblock` threat indicator, such as an entry
+annotated that way in your own data, forces `allow` regardless of the score.
+
+### Rating configuration
+
+No setup is required. If no rating configuration file exists, the built-in defaults are
+used and the path checked is reported so you know where to put one.
+
+To write your own, start from the defaults:
+
+```shell
+$ ipscout rate config --default > $HOME/.config/ratingConfig.json
+```
+
+The location is set by `rating.config_path` in `config.yaml`, and `<home>` in that value is
+expanded to your home directory:
+
+```yaml
+rating:
+  config_path: <home>/.config/ratingConfig.json
+  use_ai: false
+  openai_api_key: <your-openai-api-key>
+```
+
+`ipscout rate config` prints your rating configuration file, and `--path` prints one from a
+specific location. Both validate what they read, so they are a way to check a file parses.
+Unlike rating itself, they require the file to exist rather than falling back to the
+defaults.
+
+The configuration has a global section and a per-provider section, abbreviated here (the
+shipped defaults list 26 high threat country codes and carry an entry for 50 providers):
+
+```json
+{
+  "global": {
+    "blockScoreThreshold": 5.0,
+    "highThreatCountryCodes": ["CN", "RU", "IR"],
+    "mediumThreatCountryCodes": ["NL", "CA"]
+  },
+  "providers": {
+    "spamhaus": { "defaultMatchScore": 10.0 },
+    "aws": { "defaultMatchScore": 7.0 },
+    "shodan": {
+      "openPortsScore": 5.0,
+      "highThreatCountryMatchScore": 10.0,
+      "mediumThreatCountryMatchScore": 7.0
+    }
+  }
+}
+```
+
+Most providers take a single `defaultMatchScore`, applied when the host matches their data.
+Threat feeds default to 10.0 and hosting providers to 7.0-8.0, so appearing on a blocklist
+weighs more than merely being hosted somewhere. CriminalIP, Shodan and VirusTotal take
+finer-grained scores for the specific conditions they report.
+
+### AI rating
+
+With `--ai`, the threat indicators each provider reports are shown and then sent to OpenAI,
+which returns a written assessment in place of the scored table:
+
+```shell
+$ ipscout rate --ai 1.10.16.1
+```
+
+This requires an OpenAI API key, set with `--openai-api-key` or `rating.openai_api_key` in
+`config.yaml`.
+
 ## Providers
 
 Providers are configured in the `config.yaml` file.
 A number of providers are enabled by default, but can be disabled by setting `enabled: false`.
+
+Providers that fetch a list of IP ranges cache it, and refetch once the cache expires. The
+defaults are chosen per provider from how often the source actually publishes, so a list
+that changes a few times a year is not refetched daily. Override it per provider with
+`document_cache_ttl`, in minutes:
+
+```yaml
+providers:
+  aws:
+    enabled: true
+    document_cache_ttl: 360   # refetch AWS ranges every 6 hours instead of daily
+```
+
+Providers that query a per-host API cache the result instead, set with `result_cache_ttl`,
+also in minutes.
 
 ### AbuseIPDB
 
@@ -250,6 +465,14 @@ services.
 This currently supports Azure Global WAF, used to secure Azure Front Door, and will show custom rules and prefixes matching the provided host.
 Authentication will be read from the environment.
 
+### Better Stack
+
+[Better Stack](https://betterstack.com/) runs uptime monitoring, and publishes the
+addresses its checks originate from at
+[uptime.betterstack.com/ips.txt](https://uptime.betterstack.com/ips.txt). A match means
+the host is a Better Stack probe rather than the origin of the traffic it appears to
+send.
+
 ### Bingbot
 
 [Bingbot](https://www.bing.com/webmasters/help/help-center-661b2d18) is the web crawler for the Bing search engine.
@@ -290,6 +513,14 @@ services.
 and [publishes](https://developers.google.com/static/search/apis/ipranges/googlebot.json) network prefixes used by their
 bots.
 
+### GreenSnow
+
+[GreenSnow](https://greensnow.co/) collects addresses seen attacking servers, such as
+brute force attempts against SSH, mail and web services, and publishes them at
+[blocklist.greensnow.co/greensnow.txt](https://blocklist.greensnow.co/greensnow.txt).
+IPScout downloads this list and checks whether the target IP appears in it. The list
+changes constantly, so it is cached for an hour rather than the usual day.
+
 ### Hetzner
 
 [Hetzner](https://www.hetzner.com/) is a hosting provider.
@@ -311,6 +542,12 @@ Query the [IPQualityScore](https://www.ipqualityscore.com/documentation/proxy-de
 The API is free to registered users for 5,000 requests.
 
 Set environment variable `IPQS_API_KEY` with your API key.
+
+### IPtoASN
+
+[iptoasn.com](https://iptoasn.com/) publishes a free, hourly-updated IP address to ASN mapping.
+The combined IPv4+IPv6 dataset is downloaded and cached, and the target host is matched against it to report the
+announcing AS number, name, country and address range.
 
 ### IPURL
 
@@ -347,6 +584,18 @@ that [publishes](https://geoip.linode.com/) network prefixes used by their servi
 [M247](https://www.m247.com/) is a global hosting and connectivity provider.
 IP ranges are retrieved from the BGPView API and checked for matches against the target host.
 
+### New Relic
+
+[New Relic](https://newrelic.com/) publishes the addresses its synthetic monitors run
+from, grouped by location. A match means the host is a New Relic synthetics probe, and
+names the location it runs from, such as "Washington, DC, USA".
+
+### OpenAI
+
+[OpenAI](https://platform.openai.com/docs/bots) operates a number of bots and publishes the network prefixes they crawl
+and browse from: [GPTBot](https://openai.com/gptbot.json), [OAI-SearchBot](https://openai.com/searchbot.json)
+and [ChatGPT-User](https://openai.com/chatgpt-user.json). A match shows which of the bots' lists contain the target host.
+
 ### OVH
 
 [OVH](https://www.ovhcloud.com/) is a hosting provider
@@ -361,6 +610,11 @@ IP ranges are retrieved from the BGPView API and checked for matches against the
 
 [Vultr](https://www.vultr.com/) is a cloud hosting provider.
 IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+
+### Pingdom
+
+[Pingdom](https://www.pingdom.com/) publishes the addresses its uptime probes run from.
+A match means the host is a Pingdom probe rather than a visitor.
 
 ### PTR
 
@@ -393,6 +647,11 @@ Query the [VirusTotal](https://www.virustotal.com) API for information from vari
 
 Set environment variable `VIRUSTOTAL_API_KEY` with your API key.
 
+### Zoom
+
+[Zoom](https://zoom.us/) publishes the network ranges its meeting and phone services use.
+A match means the host belongs to Zoom's service infrastructure.
+
 ### Zscaler
 
 [Zscaler](https://www.zscaler.com/) publishes a list of IP prefixes used by its services.
@@ -406,6 +665,28 @@ can be overridden in the configuration file.
     url: https://api.config.zscaler.com/zscaler.net/cenr/json
     document_cache_ttl: 1440  # minutes
 ```
+
+### AhrefsBot
+
+[AhrefsBot](https://ahrefs.com/robot) is the web crawler for the Ahrefs SEO
+platform. Ahrefs publishes the IP ranges used by its crawler at
+[api.ahrefs.com/v3/public/crawler-ip-ranges](https://api.ahrefs.com/v3/public/crawler-ip-ranges).
+IPScout downloads this list and checks whether the target IP is within those ranges.
+
+### Akamai
+
+[Akamai](https://www.akamai.com/) is a content delivery network that publishes
+the IP ranges used by its edge platform at
+[ip-ranges.akamai.com](https://ip-ranges.akamai.com/). IPScout downloads this
+list and checks whether the target IP is within those ranges.
+
+### Applebot
+
+[Applebot](https://support.apple.com/en-us/119829) is Apple's web crawler, used
+by products such as Siri and Spotlight. Apple publishes the IP ranges used by
+the crawler at
+[search.developer.apple.com/applebot.json](https://search.developer.apple.com/applebot.json).
+IPScout downloads this list and checks whether the target IP is within those ranges.
 
 ### Atlassian
 
@@ -425,6 +706,14 @@ whether the target IP is within those ranges.
 prefixes used by its edge network. IPScout downloads this list and checks
 whether the target IP is within those ranges.
 
+### Cloudflare
+
+[Cloudflare](https://www.cloudflare.com/) is a content delivery network that
+publishes the IP ranges used by its edge network at
+[cloudflare.com/ips-v4](https://www.cloudflare.com/ips-v4) and
+[cloudflare.com/ips-v6](https://www.cloudflare.com/ips-v6). IPScout downloads
+these lists and checks whether the target IP is within those ranges.
+
 ### Contabo
 
 [Contabo](https://contabo.com/) is a hosting provider.
@@ -437,11 +726,46 @@ against the target host.
 publishes the IP ranges used by its services. IPScout downloads this list and
 checks whether the target IP is within those ranges.
 
+### DuckDuckBot
+
+[DuckDuckBot](https://duckduckgo.com/duckduckgo-help-pages/results/duckduckbot/)
+is the web crawler for the DuckDuckGo search engine. DuckDuckGo publishes the IP
+addresses used by the crawler at
+[duckduckgo.com/duckduckbot.json](https://duckduckgo.com/duckduckbot.json).
+IPScout downloads this list and checks whether the target IP is within those ranges.
+
+### Fastly
+
+[Fastly](https://www.fastly.com/) is a content delivery network that publishes
+the IP ranges used by its edge network via its
+[public IP list API](https://api.fastly.com/public-ip-list). IPScout downloads
+this list and checks whether the target IP is within those ranges.
+
 ### Fly.io
 
 [Fly.io](https://fly.io/) is an application hosting provider.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
+
+### Gcore
+
+[Gcore](https://gcore.com/) is a CDN and edge platform that publishes the addresses its
+edge nodes serve from. A match means the host is Gcore edge infrastructure rather than
+the origin server behind it.
+
+### GitHub
+
+[GitHub](https://github.com/) publishes the IP ranges used by its services
+(web, API, Actions, Pages and others) via its
+[meta API](https://api.github.com/meta). IPScout downloads this list and
+reports the services associated with any matching range.
+
+### Google User-triggered Fetchers
+
+Google publishes the IP ranges used by its
+[user-triggered fetchers](https://developers.google.com/static/crawling/ipranges/user-triggered-fetchers.json),
+tools that fetch pages on behalf of a user request. IPScout downloads this list
+and checks whether the target IP is within those ranges.
 
 ### IBM Cloud
 
@@ -461,11 +785,32 @@ and checks whether the target IP is within those ranges.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
 
+### Oracle Cloud (OCI)
+
+[Oracle Cloud Infrastructure](https://www.oracle.com/cloud/) publishes the
+[IP ranges](https://docs.oracle.com/iaas/tools/public_ip_ranges.json) used by
+its services. IPScout downloads this list and reports the region and service
+tags associated with any matching range.
+
+### PerplexityBot
+
+[PerplexityBot](https://docs.perplexity.ai/guides/bots) is the web crawler for
+the Perplexity answer engine. Perplexity publishes the IP ranges used by the
+crawler at
+[perplexity.com/perplexitybot.json](https://www.perplexity.com/perplexitybot.json).
+IPScout downloads this list and checks whether the target IP is within those ranges.
+
 ### Render
 
 [Render](https://render.com/) is an application hosting provider.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
+
+### StatusCake
+
+[StatusCake](https://www.statuscake.com/) publishes the locations its monitoring runs
+from, each with an address. A match means the host is a StatusCake probe, and reports the
+location's title, server code, country and current status.
 
 ### Stripe
 
@@ -473,11 +818,87 @@ against the target host.
 infrastructure. IPScout downloads this list and checks whether the target IP is
 within those ranges.
 
+### Team Cymru Bogons
+
+The [Team Cymru](https://www.team-cymru.com/bogon-reference) full bogon list covers
+address space that should never appear as a source on the public internet: ranges IANA
+has not allocated, plus those allocated but not yet routed. Traffic claiming to come from
+one is typically spoofed or the result of a misconfiguration.
+
+It is published as
+[fullbogons-ipv4.txt](https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt) and
+[fullbogons-ipv6.txt](https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt), and
+rebuilt every four hours. IPScout caches it for four hours to match: bogon space shrinks
+as addresses are allocated, so a stale list reports newly assigned, legitimate ranges as
+unroutable. The generation time from the list header is shown with any match.
+
 ### Tencent Cloud
 
 [Tencent Cloud](https://www.tencentcloud.com/) is a hosting provider.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
+
+### Anthropic
+
+[Anthropic](https://www.anthropic.com/) publishes the IP ranges used by its
+crawlers, including ClaudeBot and the Claude user-triggered fetchers, at
+[claude.com/crawling/bots.json](https://claude.com/crawling/bots.json).
+IPScout downloads this list and checks whether the target IP is within those ranges.
+
+### Blocklist.de
+
+[Blocklist.de](https://www.blocklist.de/en/index.html) is a community-run service
+that collects reports of hosts attacking other systems via SSH, mail, web and
+other services. The aggregated list of reported addresses is published at
+[lists.blocklist.de/lists/all.txt](https://lists.blocklist.de/lists/all.txt).
+IPScout downloads this list and checks whether the target IP appears in it.
+
+### Checkly
+
+[Checkly](https://www.checklyhq.com/) runs synthetic monitoring checks and publishes the
+static addresses they run from. A match means the host is a Checkly probe.
+
+### CINS Army List
+
+The [CINS Army List](https://cinsscore.com/) is the freely available subset of
+the Collective Intelligence Network Security score, listing addresses with a poor
+reputation that are not yet widely blocked. It is published at
+[cinsscore.com/list/ci-badguys.txt](https://cinsscore.com/list/ci-badguys.txt).
+IPScout downloads this list and checks whether the target IP appears in it.
+
+### DShield
+
+[DShield](https://www.dshield.org/) is the SANS Internet Storm Center's
+distributed intrusion detection system. Its recommended block list, covering the
+networks responsible for the most reported attacks, is published at
+[feeds.dshield.org/block.txt](https://feeds.dshield.org/block.txt).
+IPScout downloads this list and checks whether the target IP is within those
+networks, reporting the attack count and network owner where available.
+
+### Emerging Threats
+
+[Emerging Threats](https://rules.emergingthreats.net/blockrules/) publishes open
+rulesets and reputation data for intrusion detection systems. Its list of known
+compromised hosts is published at
+[rules.emergingthreats.net/blockrules/compromised-ips.txt](https://rules.emergingthreats.net/blockrules/compromised-ips.txt).
+IPScout downloads this list and checks whether the target IP appears in it.
+
+### Spamhaus DROP
+
+[Spamhaus DROP](https://www.spamhaus.org/blocklists/do-not-route-or-peer/)
+(Don't Route Or Peer) lists netblocks that Spamhaus considers wholly controlled
+by criminal operations. The lists are published at
+[spamhaus.org/drop/drop_v4.json](https://www.spamhaus.org/drop/drop_v4.json) and
+[spamhaus.org/drop/drop_v6.json](https://www.spamhaus.org/drop/drop_v6.json).
+IPScout downloads both lists and checks whether the target IP is within those
+netblocks, reporting the associated SBL identifier and RIR.
+
+### UptimeRobot
+
+[UptimeRobot](https://uptimerobot.com/help/locations/) is a website and service
+monitoring platform. The IP ranges used by its monitoring probes are published at
+[uptimerobot.com/inc/files/ips/IPv4andIPv6.txt](https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt).
+IPScout downloads this list and checks whether the target IP is within those ranges.
 
 ## Changelog
 

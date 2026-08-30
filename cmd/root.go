@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/jonhadfield/ipscout/helpers"
+	"github.com/jonhadfield/ipscout/providers"
 
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/process"
+	"github.com/jonhadfield/ipscout/registry"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -238,6 +241,10 @@ const (
 )
 
 func initProviderConfig(sess *session.Session, v *viper.Viper) {
+	// providers requiring no configuration default to enabled when absent
+	// from the user's config file
+	registry.SetEnabledDefaults(v)
+
 	// IP API
 	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")
@@ -542,6 +549,24 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 	sess.Providers.M247.DocumentCacheTTL = v.GetInt64("providers.m247.document_cache_ttl")
 	sess.Providers.M247.URL = v.GetString("providers.m247.url")
 
+	// OpenAI
+	if v.IsSet("providers.openai.enabled") {
+		sess.Providers.OpenAI.Enabled = ToPtr(v.GetBool("providers.openai.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "OpenAI")
+	}
+
+	if v.IsSet("providers.openai.output_priority") {
+		sess.Providers.OpenAI.OutputPriority = ToPtr(v.GetInt32("providers.openai.output_priority"))
+	} else {
+		sess.Providers.OpenAI.OutputPriority = ToPtr(int32(c.DefaultOpenAIOutputPriority))
+	}
+
+	sess.Providers.OpenAI.DocumentCacheTTL = v.GetInt64("providers.openai.document_cache_ttl")
+	sess.Providers.OpenAI.GPTBotURL = v.GetString("providers.openai.gptbot_url")
+	sess.Providers.OpenAI.SearchBotURL = v.GetString("providers.openai.searchbot_url")
+	sess.Providers.OpenAI.ChatGPTUserURL = v.GetString("providers.openai.chatgpt_user_url")
+
 	// OVH
 	if v.IsSet("providers.ovh.enabled") {
 		sess.Providers.OVH.Enabled = ToPtr(v.GetBool("providers.ovh.enabled"))
@@ -622,6 +647,22 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		sess.Providers.IPAPI.OutputPriority = ToPtr(int32(defaultIPAPIOutputPriority))
 	}
 
+	// IPtoASN
+	if v.IsSet("providers.iptoasn.enabled") {
+		sess.Providers.IPToASN.Enabled = ToPtr(v.GetBool("providers.iptoasn.enabled"))
+	} else {
+		addProviderConfigMessage(sess, "IPtoASN")
+	}
+
+	if v.IsSet("providers.iptoasn.output_priority") {
+		sess.Providers.IPToASN.OutputPriority = ToPtr(v.GetInt32("providers.iptoasn.output_priority"))
+	} else {
+		sess.Providers.IPToASN.OutputPriority = ToPtr(int32(c.DefaultIPToASNOutputPriority))
+	}
+
+	sess.Providers.IPToASN.URL = v.GetString("providers.iptoasn.url")
+	sess.Providers.IPToASN.DocumentCacheTTL = v.GetInt64("providers.iptoasn.document_cache_ttl")
+
 	// VirusTotal
 	if v.IsSet("providers.virustotal.enabled") {
 		sess.Providers.VirusTotal.Enabled = ToPtr(v.GetBool("providers.virustotal.enabled"))
@@ -671,6 +712,102 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Providers.Zscaler.DocumentCacheTTL = v.GetInt64("providers.zscaler.document_cache_ttl")
 	sess.Providers.Zscaler.URL = v.GetString("providers.zscaler.url")
+
+	initSimpleProviderConfig(sess, v, "ahrefs", "AhrefsBot", c.DefaultAhrefsOutputPriority,
+		&sess.Providers.Ahrefs.Enabled, &sess.Providers.Ahrefs.OutputPriority, &sess.Providers.Ahrefs.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "akamai", "Akamai", c.DefaultAkamaiOutputPriority,
+		&sess.Providers.Akamai.Enabled, &sess.Providers.Akamai.OutputPriority, &sess.Providers.Akamai.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "anthropic", "Anthropic", c.DefaultAnthropicOutputPriority,
+		&sess.Providers.Anthropic.Enabled, &sess.Providers.Anthropic.OutputPriority, &sess.Providers.Anthropic.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "applebot", "Applebot", c.DefaultApplebotOutputPriority,
+		&sess.Providers.Applebot.Enabled, &sess.Providers.Applebot.OutputPriority, &sess.Providers.Applebot.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "atlassian", "Atlassian", c.DefaultAtlassianOutputPriority,
+		&sess.Providers.Atlassian.Enabled, &sess.Providers.Atlassian.OutputPriority, &sess.Providers.Atlassian.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "blocklistde", "Blocklist.de", c.DefaultBlocklistDEOutputPriority,
+		&sess.Providers.BlocklistDE.Enabled, &sess.Providers.BlocklistDE.OutputPriority, &sess.Providers.BlocklistDE.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "bunny", "Bunny CDN", c.DefaultBunnyOutputPriority,
+		&sess.Providers.Bunny.Enabled, &sess.Providers.Bunny.OutputPriority, &sess.Providers.Bunny.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cdn77", "CDN77", c.DefaultCDN77OutputPriority,
+		&sess.Providers.CDN77.Enabled, &sess.Providers.CDN77.OutputPriority, &sess.Providers.CDN77.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cinsscore", "CINS Army List", c.DefaultCINSScoreOutputPriority,
+		&sess.Providers.CINSScore.Enabled, &sess.Providers.CINSScore.OutputPriority, &sess.Providers.CINSScore.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cloudflare", "Cloudflare", c.DefaultCloudflareOutputPriority,
+		&sess.Providers.Cloudflare.Enabled, &sess.Providers.Cloudflare.OutputPriority, &sess.Providers.Cloudflare.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "contabo", "Contabo", c.DefaultContaboOutputPriority,
+		&sess.Providers.Contabo.Enabled, &sess.Providers.Contabo.OutputPriority, &sess.Providers.Contabo.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "datadog", "Datadog", c.DefaultDatadogOutputPriority,
+		&sess.Providers.Datadog.Enabled, &sess.Providers.Datadog.OutputPriority, &sess.Providers.Datadog.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "dshield", "DShield", c.DefaultDShieldOutputPriority,
+		&sess.Providers.DShield.Enabled, &sess.Providers.DShield.OutputPriority, &sess.Providers.DShield.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "duckduckbot", "DuckDuckBot", c.DefaultDuckDuckBotOutputPriority,
+		&sess.Providers.DuckDuckBot.Enabled, &sess.Providers.DuckDuckBot.OutputPriority, &sess.Providers.DuckDuckBot.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "emergingthreats", "Emerging Threats", c.DefaultEmergingThreatsOutputPriority,
+		&sess.Providers.EmergingThreats.Enabled, &sess.Providers.EmergingThreats.OutputPriority, &sess.Providers.EmergingThreats.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "fastly", "Fastly", c.DefaultFastlyOutputPriority,
+		&sess.Providers.Fastly.Enabled, &sess.Providers.Fastly.OutputPriority, &sess.Providers.Fastly.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "flyio", "Fly.io", c.DefaultFlyioOutputPriority,
+		&sess.Providers.Flyio.Enabled, &sess.Providers.Flyio.OutputPriority, &sess.Providers.Flyio.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "github", "GitHub", c.DefaultGitHubOutputPriority,
+		&sess.Providers.GitHub.Enabled, &sess.Providers.GitHub.OutputPriority, &sess.Providers.GitHub.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "googleutf", "Google User-triggered Fetchers", c.DefaultGoogleUTFOutputPriority,
+		&sess.Providers.GoogleUTF.Enabled, &sess.Providers.GoogleUTF.OutputPriority, &sess.Providers.GoogleUTF.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "ibmcloud", "IBM Cloud", c.DefaultIBMCloudOutputPriority,
+		&sess.Providers.IBMCloud.Enabled, &sess.Providers.IBMCloud.OutputPriority, &sess.Providers.IBMCloud.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "imperva", "Imperva", c.DefaultImpervaOutputPriority,
+		&sess.Providers.Imperva.Enabled, &sess.Providers.Imperva.OutputPriority, &sess.Providers.Imperva.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "leaseweb", "Leaseweb", c.DefaultLeasewebOutputPriority,
+		&sess.Providers.Leaseweb.Enabled, &sess.Providers.Leaseweb.OutputPriority, &sess.Providers.Leaseweb.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "oci", "Oracle Cloud (OCI)", c.DefaultOCIOutputPriority,
+		&sess.Providers.OCI.Enabled, &sess.Providers.OCI.OutputPriority, &sess.Providers.OCI.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "perplexitybot", "PerplexityBot", c.DefaultPerplexityBotOutputPriority,
+		&sess.Providers.PerplexityBot.Enabled, &sess.Providers.PerplexityBot.OutputPriority, &sess.Providers.PerplexityBot.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "render", "Render", c.DefaultRenderOutputPriority,
+		&sess.Providers.Render.Enabled, &sess.Providers.Render.OutputPriority, &sess.Providers.Render.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "spamhaus", "Spamhaus DROP", c.DefaultSpamhausOutputPriority,
+		&sess.Providers.Spamhaus.Enabled, &sess.Providers.Spamhaus.OutputPriority, &sess.Providers.Spamhaus.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "stripe", "Stripe", c.DefaultStripeOutputPriority,
+		&sess.Providers.Stripe.Enabled, &sess.Providers.Stripe.OutputPriority, &sess.Providers.Stripe.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "tencent", "Tencent Cloud", c.DefaultTencentOutputPriority,
+		&sess.Providers.Tencent.Enabled, &sess.Providers.Tencent.OutputPriority, &sess.Providers.Tencent.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "uptimerobot", "UptimeRobot", c.DefaultUptimeRobotOutputPriority,
+		&sess.Providers.UptimeRobot.Enabled, &sess.Providers.UptimeRobot.OutputPriority, &sess.Providers.UptimeRobot.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cymru", "Team Cymru Bogons", c.DefaultCymruOutputPriority,
+		&sess.Providers.Cymru.Enabled, &sess.Providers.Cymru.OutputPriority, &sess.Providers.Cymru.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "greensnow", "GreenSnow", c.DefaultGreenSnowOutputPriority,
+		&sess.Providers.GreenSnow.Enabled, &sess.Providers.GreenSnow.OutputPriority, &sess.Providers.GreenSnow.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "betterstack", "Better Stack", c.DefaultBetterStackOutputPriority,
+		&sess.Providers.BetterStack.Enabled, &sess.Providers.BetterStack.OutputPriority, &sess.Providers.BetterStack.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "checkly", "Checkly", c.DefaultChecklyOutputPriority,
+		&sess.Providers.Checkly.Enabled, &sess.Providers.Checkly.OutputPriority, &sess.Providers.Checkly.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "gcore", "Gcore", c.DefaultGcoreOutputPriority,
+		&sess.Providers.Gcore.Enabled, &sess.Providers.Gcore.OutputPriority, &sess.Providers.Gcore.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "newrelic", "New Relic", c.DefaultNewRelicOutputPriority,
+		&sess.Providers.NewRelic.Enabled, &sess.Providers.NewRelic.OutputPriority, &sess.Providers.NewRelic.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "pingdom", "Pingdom", c.DefaultPingdomOutputPriority,
+		&sess.Providers.Pingdom.Enabled, &sess.Providers.Pingdom.OutputPriority, &sess.Providers.Pingdom.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "statuscake", "StatusCake", c.DefaultStatusCakeOutputPriority,
+		&sess.Providers.StatusCake.Enabled, &sess.Providers.StatusCake.OutputPriority, &sess.Providers.StatusCake.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "zoom", "Zoom", c.DefaultZoomOutputPriority,
+		&sess.Providers.Zoom.Enabled, &sess.Providers.Zoom.OutputPriority, &sess.Providers.Zoom.DocumentCacheTTL)
+}
+
+// initSimpleProviderConfig wires a provider with the common enabled /
+// output_priority / document_cache_ttl config shape into the session, so that
+// providers registered in the registry are actually read from config.
+func initSimpleProviderConfig(sess *session.Session, v *viper.Viper, key, displayName string, defaultPriority int32, enabled **bool, priority **int32, docCacheTTL *int64) {
+	if v.IsSet("providers." + key + ".enabled") {
+		*enabled = ToPtr(v.GetBool("providers." + key + ".enabled"))
+	} else {
+		addProviderConfigMessage(sess, displayName)
+	}
+
+	if v.IsSet("providers." + key + ".output_priority") {
+		*priority = ToPtr(v.GetInt32("providers." + key + ".output_priority"))
+	} else {
+		*priority = ToPtr(defaultPriority)
+	}
+
+	*docCacheTTL = v.GetInt64("providers." + key + ".document_cache_ttl")
 }
 
 func initHomeDirConfig(sess *session.Session, v *viper.Viper) error {
@@ -710,9 +847,20 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) error {
 
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 
-	sess.Config.Rating.ConfigPath = v.GetString("rating.config_path")
+	sess.Config.Rating.ConfigPath = session.ExpandHome(v.GetString("rating.config_path"), sess.Config.Global.HomeDir)
+	// config files written before these keys were corrected use hyphens, and
+	// were silently ignored; fall back to them so existing installs start
+	// working, but only when the corrected key is absent, so an explicit
+	// value is never overridden by a stale one
 	sess.Config.Rating.UseAI = v.GetBool("rating.use_ai")
+	if !v.IsSet("rating.use_ai") {
+		sess.Config.Rating.UseAI = v.GetBool("rating.use-ai")
+	}
+
 	sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai_api_key")
+	if !v.IsSet("rating.openai_api_key") {
+		sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai-api-key")
+	}
 
 	return nil
 }
@@ -734,6 +882,14 @@ func initConfig(cmd *cobra.Command) error {
 
 	if _, err := session.CreateDefaultConfigIfMissing(configRoot); err != nil {
 		return fmt.Errorf("cannot create default session: %w", err)
+	}
+
+	// add any providers introduced since the user's config was written, so
+	// their config shows all no-config providers as enabled
+	if _, err := registry.EnsureDefaultProvidersInConfig(filepath.Join(configRoot, session.DefaultConfigFileName)); err != nil {
+		sess.Messages.Mu.Lock()
+		sess.Messages.Info = append(sess.Messages.Info, fmt.Sprintf("unable to add new providers to config: %s", err))
+		sess.Messages.Mu.Unlock()
 	}
 
 	v.AddConfigPath(configRoot)
@@ -773,6 +929,12 @@ func initConfig(cmd *cobra.Command) error {
 	}
 
 	sess.UseTestData = utd
+
+	if utd {
+		if err = ensureTestDataAvailable(); err != nil {
+			return err
+		}
+	}
 
 	ports, _ := cmd.Flags().GetStringSlice("ports")
 	if len(ports) == 1 && ports[0] == "[]" {
@@ -882,4 +1044,31 @@ func readProviderAuthKeys(v *viper.Viper) {
 	setProviderAPIKey(v, "ipqs_api_key", &sess.Providers.IPQS.APIKey, &sess.Providers.IPQS.Enabled)
 	setProviderAPIKey(v, "shodan_api_key", &sess.Providers.Shodan.APIKey, &sess.Providers.Shodan.Enabled)
 	setProviderAPIKey(v, "virustotal_api_key", &sess.Providers.VirusTotal.APIKey, &sess.Providers.VirusTotal.Enabled)
+}
+
+// ensureTestDataAvailable makes the providers' test data reachable on disk.
+//
+// The providers resolve their test data relative to the directory containing
+// go.mod, which only exists when running from a source checkout. For an
+// installed binary there is no such directory, so extract the copy embedded in
+// the binary to the user's cache and point the providers at that instead.
+func ensureTestDataAvailable() error {
+	if _, err := helpers.FindProjectRoot(); err == nil {
+		return nil
+	}
+
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		return fmt.Errorf("error locating user cache directory for test data: %w", err)
+	}
+
+	root := filepath.Join(cacheDir, "ipscout", "testdata-"+helpers.SemVer)
+
+	if err = providers.ExtractTestData(root); err != nil {
+		return fmt.Errorf("error extracting embedded test data: %w", err)
+	}
+
+	helpers.SetProjectRoot(root)
+
+	return nil
 }

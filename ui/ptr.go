@@ -99,7 +99,7 @@ func createPTRTable(ip string, records []*ptr.Ptr, isActive bool) *tview.Table {
 			SetTextColor(tcell.ColorYellow).
 			SetSelectable(false))
 
-		row++ //nolint:ineffassign,wastedassign
+		row++ //nolint:ineffassign,wastedassign,staticcheck
 	}
 
 	return table

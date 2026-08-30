@@ -8,6 +8,7 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -241,6 +242,12 @@ type Providers struct {
 		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
 		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"ipapi"`
+	IPToASN struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		URL              string `mapstructure:"url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"iptoasn"`
 	IPQS struct {
 		APIKey         string
 		Enabled        *bool  `mapstructure:"enabled"`
@@ -271,6 +278,14 @@ type Providers struct {
 		URL              string `mapstructure:"url"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"ovh"`
+	OpenAI struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		GPTBotURL        string `mapstructure:"gptbot_url"`
+		SearchBotURL     string `mapstructure:"searchbot_url"`
+		ChatGPTUserURL   string `mapstructure:"chatgpt_user_url"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"openai"`
 	Scaleway struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
@@ -311,11 +326,61 @@ type Providers struct {
 		URL              string `mapstructure:"url"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"zscaler"`
+	Ahrefs struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"ahrefs"`
+	Applebot struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"applebot"`
+	Akamai struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"akamai"`
 	Atlassian struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"atlassian"`
+	Cloudflare struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"cloudflare"`
+	DuckDuckBot struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"duckduckbot"`
+	PerplexityBot struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"perplexitybot"`
+	Fastly struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"fastly"`
+	GitHub struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"github"`
+	GoogleUTF struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"googleutf"`
+	OCI struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"oci"`
 	Bunny struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
@@ -371,6 +436,86 @@ type Providers struct {
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"tencent"`
+	Anthropic struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"anthropic"`
+	BlocklistDE struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"blocklistde"`
+	CINSScore struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"cinsscore"`
+	DShield struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"dshield"`
+	EmergingThreats struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"emergingthreats"`
+	Spamhaus struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"spamhaus"`
+	UptimeRobot struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"uptimerobot"`
+	Cymru struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"cymru"`
+	GreenSnow struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"greensnow"`
+	BetterStack struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"betterstack"`
+	Checkly struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"checkly"`
+	Gcore struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"gcore"`
+	NewRelic struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"newrelic"`
+	Pingdom struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"pingdom"`
+	StatusCake struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"statuscake"`
+	Zoom struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"zoom"`
 }
 
 func unmarshalConfig(data []byte) (*Session, error) {
@@ -448,6 +593,27 @@ func CreateConfigPathStructure(configRoot string) error {
 
 // GetConfigRoot returns the root path for the app's session directory
 // if root is specified, it will use that, otherwise it will use the user's home directory
+// HomePlaceholder is the token the shipped default config uses to stand in for
+// the user's home directory. The config file is written on first run, before
+// the home directory is known to it, so paths are stored with the placeholder
+// and expanded when read.
+const HomePlaceholder = "<home>"
+
+// ExpandHome replaces the home directory placeholder in path with homeDir. A
+// path without the placeholder, and any path given when homeDir is unknown, is
+// returned unchanged.
+func ExpandHome(path, homeDir string) string {
+	if path == "" || homeDir == "" {
+		return path
+	}
+
+	if !strings.Contains(path, HomePlaceholder) {
+		return path
+	}
+
+	return filepath.Clean(strings.ReplaceAll(path, HomePlaceholder, homeDir))
+}
+
 func GetConfigRoot(root string, homeDir string, appName string) string {
 	// if root specified then use that
 	if root != "" {
