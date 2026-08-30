@@ -10,8 +10,8 @@ global:
 
 rating:
   config_path: <home>/.config/ratingConfig.json
-  use-ai: false
-  openai-api-key: <your-openai-api-key>
+  use_ai: false
+  openai_api_key: <your-openai-api-key>
 
 providers:
   abuseipdb:
@@ -148,4 +148,22 @@ providers:
   spamhaus:
     enabled: true
   uptimerobot:
+    enabled: true
+  cymru:
+    enabled: true
+  greensnow:
+    enabled: true
+  betterstack:
+    enabled: true
+  checkly:
+    enabled: true
+  gcore:
+    enabled: true
+  newrelic:
+    enabled: true
+  pingdom:
+    enabled: true
+  statuscake:
+    enabled: true
+  zoom:
     enabled: true

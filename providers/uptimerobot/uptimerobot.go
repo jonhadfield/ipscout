@@ -18,7 +18,9 @@ import (
 
 const (
 	ProviderName = "uptimerobot"
-	DocTTL       = 24 * time.Hour
+	// UptimeRobot changes its probe addresses rarely: the list had not changed
+	// for over two months at the time of review.
+	DocTTL = 7 * 24 * time.Hour
 	// testDataHost is the host represented by the checked-in test data report.
 	testDataHost = "192.0.2.1"
 )

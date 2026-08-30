@@ -18,7 +18,10 @@ import (
 
 const (
 	ProviderName = "akamai"
-	DocTTL       = 24 * time.Hour
+	// Akamai publishes a static CIDR list that changes rarely: at the time of
+	// review the file had not been modified for roughly two years, so a daily
+	// refetch of the zip is wasted effort.
+	DocTTL = 7 * 24 * time.Hour
 )
 
 type ProviderClient struct {

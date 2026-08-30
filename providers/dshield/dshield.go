@@ -19,7 +19,9 @@ import (
 
 const (
 	ProviderName = "dshield"
-	DocTTL       = 24 * time.Hour
+	// DShield advertises Cache-Control: max-age=14400 and the feed did not change
+	// over an hour of review, so follow the four hours the source asks for.
+	DocTTL = 4 * time.Hour
 	// testDataHost is the host represented by the checked-in test data report.
 	testDataHost = "198.51.100.42"
 )

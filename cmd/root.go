@@ -771,6 +771,24 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Tencent.Enabled, &sess.Providers.Tencent.OutputPriority, &sess.Providers.Tencent.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "uptimerobot", "UptimeRobot", c.DefaultUptimeRobotOutputPriority,
 		&sess.Providers.UptimeRobot.Enabled, &sess.Providers.UptimeRobot.OutputPriority, &sess.Providers.UptimeRobot.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "cymru", "Team Cymru Bogons", c.DefaultCymruOutputPriority,
+		&sess.Providers.Cymru.Enabled, &sess.Providers.Cymru.OutputPriority, &sess.Providers.Cymru.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "greensnow", "GreenSnow", c.DefaultGreenSnowOutputPriority,
+		&sess.Providers.GreenSnow.Enabled, &sess.Providers.GreenSnow.OutputPriority, &sess.Providers.GreenSnow.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "betterstack", "Better Stack", c.DefaultBetterStackOutputPriority,
+		&sess.Providers.BetterStack.Enabled, &sess.Providers.BetterStack.OutputPriority, &sess.Providers.BetterStack.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "checkly", "Checkly", c.DefaultChecklyOutputPriority,
+		&sess.Providers.Checkly.Enabled, &sess.Providers.Checkly.OutputPriority, &sess.Providers.Checkly.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "gcore", "Gcore", c.DefaultGcoreOutputPriority,
+		&sess.Providers.Gcore.Enabled, &sess.Providers.Gcore.OutputPriority, &sess.Providers.Gcore.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "newrelic", "New Relic", c.DefaultNewRelicOutputPriority,
+		&sess.Providers.NewRelic.Enabled, &sess.Providers.NewRelic.OutputPriority, &sess.Providers.NewRelic.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "pingdom", "Pingdom", c.DefaultPingdomOutputPriority,
+		&sess.Providers.Pingdom.Enabled, &sess.Providers.Pingdom.OutputPriority, &sess.Providers.Pingdom.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "statuscake", "StatusCake", c.DefaultStatusCakeOutputPriority,
+		&sess.Providers.StatusCake.Enabled, &sess.Providers.StatusCake.OutputPriority, &sess.Providers.StatusCake.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "zoom", "Zoom", c.DefaultZoomOutputPriority,
+		&sess.Providers.Zoom.Enabled, &sess.Providers.Zoom.OutputPriority, &sess.Providers.Zoom.DocumentCacheTTL)
 }
 
 // initSimpleProviderConfig wires a provider with the common enabled /
@@ -830,8 +848,19 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) error {
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 
 	sess.Config.Rating.ConfigPath = session.ExpandHome(v.GetString("rating.config_path"), sess.Config.Global.HomeDir)
+	// config files written before these keys were corrected use hyphens, and
+	// were silently ignored; fall back to them so existing installs start
+	// working, but only when the corrected key is absent, so an explicit
+	// value is never overridden by a stale one
 	sess.Config.Rating.UseAI = v.GetBool("rating.use_ai")
+	if !v.IsSet("rating.use_ai") {
+		sess.Config.Rating.UseAI = v.GetBool("rating.use-ai")
+	}
+
 	sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai_api_key")
+	if !v.IsSet("rating.openai_api_key") {
+		sess.Config.Rating.OpenAIAPIKey = v.GetString("rating.openai-api-key")
+	}
 
 	return nil
 }
