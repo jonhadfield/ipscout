@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.11.2] - 2026-08-30
+
+### Fixed
+
+- the cache never freed disk. Expiring an entry removed the key but not the data behind
+  it, which the underlying store only reclaims when it rewrites its value log files, and
+  nothing did. Found on a cache holding 66 live entries totalling 84 MB across 16 GB of
+  files, the oldest thirteen months old. Closing the cache now rewrites a little on every
+  run, so a healthy cache stops growing
+- `ipscout cache gc` reclaims the rest in one go for a cache that has already grown, and
+  reports what it freed. On the cache above it went from 15.9 GB to 1.1 GB
+
 ## [0.11.1] - 2026-08-30
 
 ### Changed
@@ -464,7 +476,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.1...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.2...HEAD
+[0.11.2]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.2
 [0.11.1]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.1
 [0.11.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.0
 [0.10.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.10.0
