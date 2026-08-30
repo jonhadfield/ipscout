@@ -392,6 +392,24 @@ providers:
 Providers that query a per-host API cache the result instead, set with `result_cache_ttl`,
 also in minutes.
 
+#### Reclaiming cache space
+
+Expiring an entry removes the key but not the data behind it: the cache's underlying store
+only frees that space when it rewrites its value log files. Closing the cache does a couple
+of rewrites on every run, which keeps a healthy cache from growing, but a cache that has
+been in use for a long time can hold far more on disk than its live entries account for.
+
+`ipscout cache gc` does the rest in one go, and reports what it freed:
+
+```shell
+$ ipscout cache gc
+rewrote 302 value log file(s)
+cache went from 15.9 GB to 1.1 GB
+```
+
+`ipscout cache list` shows the live entries, so the two together tell you whether a large
+cache directory is real data or reclaimable space.
+
 ### AbuseIPDB
 
 This provider queries the [AbuseIPDB](https://www.abuseipdb.com/) API for information on an IP address, with a threat
