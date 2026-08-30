@@ -389,3 +389,47 @@ func TestLoadProviderDataFromCacheCorrupt(t *testing.T) {
 	_, err := c.loadProviderDataFromCache()
 	require.Error(t, err)
 }
+
+// A document carrying locations names the one the host belongs to. This is the
+// point of the provider: which synthetics location a probe address is.
+func TestFindHostReturnsLocation(t *testing.T) {
+	t.Parallel()
+
+	c := newCacheSeededClient(t, "192.0.2.1")
+	seedCache(t, c, ipfetcher.Doc{
+		Locations: []ipfetcher.Location{
+			{Name: "Frankfurt, Germany", Prefixes: []netip.Prefix{netip.MustParsePrefix("198.51.100.0/24")}},
+			{Name: "Washington, DC, USA", Prefixes: []netip.Prefix{netip.MustParsePrefix(testPrefixV4)}},
+		},
+		IPv4Prefixes: []netip.Prefix{netip.MustParsePrefix(testPrefixV4)},
+	})
+
+	raw, err := c.FindHost()
+	require.NoError(t, err)
+
+	var res HostSearchResult
+	require.NoError(t, json.Unmarshal(raw, &res))
+	require.Equal(t, netip.MustParsePrefix(testPrefixV4), res.Prefix)
+	require.Equal(t, "Washington, DC, USA", res.Location)
+
+	tw, err := c.CreateTable(raw)
+	require.NoError(t, err)
+	require.Contains(t, (*tw).Render(), "Washington, DC, USA")
+}
+
+// Prefixes without locations still match, just without naming one, so a
+// document from a source that stopped grouping them does not go dark.
+func TestFindHostWithoutLocationsStillMatches(t *testing.T) {
+	t.Parallel()
+
+	c := newCacheSeededClient(t, "192.0.2.1")
+	seedCache(t, c, ipfetcher.Doc{IPv4Prefixes: []netip.Prefix{netip.MustParsePrefix(testPrefixV4)}})
+
+	raw, err := c.FindHost()
+	require.NoError(t, err)
+
+	var res HostSearchResult
+	require.NoError(t, json.Unmarshal(raw, &res))
+	require.Equal(t, netip.MustParsePrefix(testPrefixV4), res.Prefix)
+	require.Empty(t, res.Location)
+}

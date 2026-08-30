@@ -259,13 +259,36 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, fmt.Errorf("loading newrelic host data from cache: %w", err)
 	}
 
-	for _, p := range doc.IPv4Prefixes {
-		if p.Contains(c.Host) {
-			result = &HostSearchResult{Prefix: p}
+	// Search the locations first: they carry the same prefixes as the flat
+	// lists, and knowing which probe location a host belongs to is the useful
+	// part of a match.
+	for _, location := range doc.Locations {
+		for _, p := range location.Prefixes {
+			if p.Contains(c.Host) {
+				result = &HostSearchResult{Prefix: p, Location: location.Name}
 
-			c.Logger.Debug("returning newrelic host match data")
+				c.Logger.Debug("returning newrelic host match data", "location", location.Name)
 
+				break
+			}
+		}
+
+		if result != nil {
 			break
+		}
+	}
+
+	// Fall back to the flat lists, so a document carrying prefixes without
+	// locations still matches, just without naming one.
+	if result == nil {
+		for _, p := range doc.IPv4Prefixes {
+			if p.Contains(c.Host) {
+				result = &HostSearchResult{Prefix: p}
+
+				c.Logger.Debug("returning newrelic host match data")
+
+				break
+			}
 		}
 	}
 
@@ -307,6 +330,10 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Prefix.String())})
 
+	if result.Location != "" {
+		tw.AppendRow(table.Row{"Location", providers.DashIfEmpty(result.Location)})
+	}
+
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: providers.DataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
@@ -323,4 +350,8 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 type HostSearchResult struct {
 	Raw    []byte       `json:"Raw"`
 	Prefix netip.Prefix `json:"prefix"`
+	// Location is the synthetics location the matching prefix belongs to, such
+	// as "Washington, DC, USA". Empty if the cached document carries prefixes
+	// without the locations that group them.
+	Location string `json:"location,omitempty"`
 }

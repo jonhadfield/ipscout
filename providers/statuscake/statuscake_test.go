@@ -389,3 +389,51 @@ func TestLoadProviderDataFromCacheCorrupt(t *testing.T) {
 	_, err := c.loadProviderDataFromCache()
 	require.Error(t, err)
 }
+
+// A document carrying locations describes the one the address belongs to.
+func TestFindHostReturnsLocation(t *testing.T) {
+	t.Parallel()
+
+	c := newCacheSeededClient(t, "192.0.2.1")
+	seedCache(t, c, ipfetcher.Doc{
+		Locations: []ipfetcher.Location{
+			{GUID: "1", ServerCode: "NL4", Title: "Netherlands, Amsterdam - 2", IP: "198.51.100.1", CountryISO: "NLD", Status: "Up"},
+			{GUID: "2", ServerCode: "UK1", Title: "United Kingdom, London", IP: "192.0.2.1", CountryISO: "GBR", Status: "Up"},
+		},
+		IPv4Prefixes: []netip.Prefix{netip.MustParsePrefix(testPrefixV4)},
+	})
+
+	raw, err := c.FindHost()
+	require.NoError(t, err)
+
+	var res HostSearchResult
+	require.NoError(t, json.Unmarshal(raw, &res))
+	require.Equal(t, netip.MustParsePrefix(testPrefixV4), res.Prefix)
+	require.Equal(t, "United Kingdom, London", res.Location)
+	require.Equal(t, "UK1", res.ServerCode)
+	require.Equal(t, "GBR", res.Country)
+	require.Equal(t, "Up", res.Status)
+
+	tw, err := c.CreateTable(raw)
+	require.NoError(t, err)
+
+	rendered := (*tw).Render()
+	require.Contains(t, rendered, "United Kingdom, London")
+	require.Contains(t, rendered, "GBR")
+}
+
+// Prefixes without locations still match, just without describing one.
+func TestFindHostWithoutLocationsStillMatches(t *testing.T) {
+	t.Parallel()
+
+	c := newCacheSeededClient(t, "192.0.2.1")
+	seedCache(t, c, ipfetcher.Doc{IPv4Prefixes: []netip.Prefix{netip.MustParsePrefix(testPrefixV4)}})
+
+	raw, err := c.FindHost()
+	require.NoError(t, err)
+
+	var res HostSearchResult
+	require.NoError(t, json.Unmarshal(raw, &res))
+	require.Equal(t, netip.MustParsePrefix(testPrefixV4), res.Prefix)
+	require.Empty(t, res.Location)
+}

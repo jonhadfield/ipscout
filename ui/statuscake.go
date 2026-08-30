@@ -80,5 +80,49 @@ func createStatusCakeTable(ip string, result *statuscake.HostSearchResult, isAct
 		SetTextColor(tcell.ColorLightCyan).
 		SetSelectable(false))
 
+	if result.Location != "" {
+		row++
+
+		table.SetCell(row, 0, tview.NewTableCell(" Location").
+			SetTextColor(tcell.ColorWhite).
+			SetSelectable(false))
+		table.SetCell(row, 1, tview.NewTableCell(result.Location).
+			SetTextColor(tcell.ColorLightCyan).
+			SetSelectable(false))
+	}
+
+	if result.ServerCode != "" {
+		row++
+
+		table.SetCell(row, 0, tview.NewTableCell(" Server Code").
+			SetTextColor(tcell.ColorWhite).
+			SetSelectable(false))
+		table.SetCell(row, 1, tview.NewTableCell(result.ServerCode).
+			SetTextColor(tcell.ColorLightCyan).
+			SetSelectable(false))
+	}
+
+	if result.Country != "" {
+		row++
+
+		table.SetCell(row, 0, tview.NewTableCell(" Country").
+			SetTextColor(tcell.ColorWhite).
+			SetSelectable(false))
+		table.SetCell(row, 1, tview.NewTableCell(result.Country).
+			SetTextColor(tcell.ColorLightCyan).
+			SetSelectable(false))
+	}
+
+	if result.Status != "" {
+		row++
+
+		table.SetCell(row, 0, tview.NewTableCell(" Status").
+			SetTextColor(tcell.ColorWhite).
+			SetSelectable(false))
+		table.SetCell(row, 1, tview.NewTableCell(result.Status).
+			SetTextColor(tcell.ColorLightCyan).
+			SetSelectable(false))
+	}
+
 	return table
 }

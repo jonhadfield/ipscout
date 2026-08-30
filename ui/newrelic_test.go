@@ -59,3 +59,16 @@ func TestNewRelicActiveIndicatorAddedToMixedCaseHeader(t *testing.T) {
 
 	require.Equal(t, " ▶ New Relic | Host: "+testIPNewRelic, table.GetCell(0, 0).Text)
 }
+
+func TestCreateNewRelicTableWithLocation(t *testing.T) {
+	result := &newrelic.HostSearchResult{
+		Prefix:   netip.MustParsePrefix(testPrefixNewRelic),
+		Location: "Washington, DC, USA",
+	}
+
+	table := createNewRelicTable(testIPNewRelic, result, false)
+	require.NotNil(t, table)
+
+	require.Equal(t, " Location", table.GetCell(2, 0).Text)
+	require.Equal(t, "Washington, DC, USA", table.GetCell(2, 1).Text)
+}

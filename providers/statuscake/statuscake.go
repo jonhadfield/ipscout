@@ -261,13 +261,45 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		return nil, fmt.Errorf("loading statuscake host data from cache: %w", err)
 	}
 
-	for _, p := range doc.IPv4Prefixes {
-		if p.Contains(c.Host) {
-			result = &HostSearchResult{Prefix: p}
+	// Search the locations first. Each carries the addresses the flat lists were
+	// derived from, and which monitoring location a host is is the useful part
+	// of a match.
+	for _, location := range doc.Locations {
+		for _, addr := range []string{location.IP, location.IPv6} {
+			parsed, err := netip.ParseAddr(addr)
+			if err != nil || parsed != c.Host {
+				continue
+			}
 
-			c.Logger.Debug("returning statuscake host match data")
+			result = &HostSearchResult{
+				Prefix:     netip.PrefixFrom(parsed, parsed.BitLen()),
+				Location:   location.Title,
+				ServerCode: location.ServerCode,
+				Country:    location.CountryISO,
+				Status:     location.Status,
+			}
+
+			c.Logger.Debug("returning statuscake host match data", "location", location.Title)
 
 			break
+		}
+
+		if result != nil {
+			break
+		}
+	}
+
+	// Fall back to the flat lists, so a document carrying prefixes without
+	// locations still matches, just without naming one.
+	if result == nil {
+		for _, p := range doc.IPv4Prefixes {
+			if p.Contains(c.Host) {
+				result = &HostSearchResult{Prefix: p}
+
+				c.Logger.Debug("returning statuscake host match data")
+
+				break
+			}
 		}
 	}
 
@@ -309,6 +341,22 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 
 	tw.AppendRow(table.Row{providers.PadRight("Prefix", providers.Column1MinWidth), providers.DashIfEmpty(result.Prefix.String())})
 
+	if result.Location != "" {
+		tw.AppendRow(table.Row{"Location", providers.DashIfEmpty(result.Location)})
+	}
+
+	if result.ServerCode != "" {
+		tw.AppendRow(table.Row{"Server Code", providers.DashIfEmpty(result.ServerCode)})
+	}
+
+	if result.Country != "" {
+		tw.AppendRow(table.Row{"Country", providers.DashIfEmpty(result.Country)})
+	}
+
+	if result.Status != "" {
+		tw.AppendRow(table.Row{"Status", providers.DashIfEmpty(result.Status)})
+	}
+
 	tw.SetColumnConfigs([]table.ColumnConfig{
 		{Number: providers.DataColumnNo, AutoMerge: false, WidthMax: providers.WideColumnMaxWidth, WidthMin: providers.WideColumnMinWidth},
 	})
@@ -325,4 +373,11 @@ func (c *ProviderClient) CreateTable(data []byte) (*table.Writer, error) {
 type HostSearchResult struct {
 	Raw    []byte       `json:"Raw"`
 	Prefix netip.Prefix `json:"prefix"`
+	// The remaining fields describe the monitoring location the address belongs
+	// to. Empty if the cached document carries prefixes without the locations
+	// they were derived from.
+	Location   string `json:"location,omitempty"`
+	ServerCode string `json:"server_code,omitempty"`
+	Country    string `json:"country,omitempty"`
+	Status     string `json:"status,omitempty"`
 }

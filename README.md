@@ -587,7 +587,8 @@ IP ranges are retrieved from the BGPView API and checked for matches against the
 ### New Relic
 
 [New Relic](https://newrelic.com/) publishes the addresses its synthetic monitors run
-from. A match means the host is a New Relic synthetics probe.
+from, grouped by location. A match means the host is a New Relic synthetics probe, and
+names the location it runs from, such as "Washington, DC, USA".
 
 ### OpenAI
 
@@ -808,7 +809,8 @@ against the target host.
 ### StatusCake
 
 [StatusCake](https://www.statuscake.com/) publishes the locations its monitoring runs
-from, each with an address. A match means the host is a StatusCake probe.
+from, each with an address. A match means the host is a StatusCake probe, and reports the
+location's title, server code, country and current status.
 
 ### Stripe
 

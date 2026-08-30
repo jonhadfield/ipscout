@@ -80,5 +80,16 @@ func createNewRelicTable(ip string, result *newrelic.HostSearchResult, isActive 
 		SetTextColor(tcell.ColorLightCyan).
 		SetSelectable(false))
 
+	if result.Location != "" {
+		row++
+
+		table.SetCell(row, 0, tview.NewTableCell(" Location").
+			SetTextColor(tcell.ColorWhite).
+			SetSelectable(false))
+		table.SetCell(row, 1, tview.NewTableCell(result.Location).
+			SetTextColor(tcell.ColorLightCyan).
+			SetSelectable(false))
+	}
+
 	return table
 }

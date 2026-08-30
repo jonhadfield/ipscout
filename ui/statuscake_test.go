@@ -59,3 +59,25 @@ func TestStatusCakeActiveIndicatorAddedToMixedCaseHeader(t *testing.T) {
 
 	require.Equal(t, " ▶ StatusCake | Host: "+testIPStatusCake, table.GetCell(0, 0).Text)
 }
+
+func TestCreateStatusCakeTableWithLocation(t *testing.T) {
+	result := &statuscake.HostSearchResult{
+		Prefix:     netip.MustParsePrefix(testPrefixStatusCake),
+		Location:   "United Kingdom, London",
+		ServerCode: "UK1",
+		Country:    "GBR",
+		Status:     "Up",
+	}
+
+	table := createStatusCakeTable(testIPStatusCake, result, false)
+	require.NotNil(t, table)
+
+	require.Equal(t, " Location", table.GetCell(2, 0).Text)
+	require.Equal(t, "United Kingdom, London", table.GetCell(2, 1).Text)
+	require.Equal(t, " Server Code", table.GetCell(3, 0).Text)
+	require.Equal(t, "UK1", table.GetCell(3, 1).Text)
+	require.Equal(t, " Country", table.GetCell(4, 0).Text)
+	require.Equal(t, "GBR", table.GetCell(4, 1).Text)
+	require.Equal(t, " Status", table.GetCell(5, 0).Text)
+	require.Equal(t, "Up", table.GetCell(5, 1).Text)
+}
