@@ -75,6 +75,9 @@
     "hetzner": {
       "defaultMatchScore": 8.0
     },
+    "icloudpr": {
+      "defaultMatchScore": 4.0
+    },
     "ipurl": {
       "defaultMatchScore": 10.0
     },
