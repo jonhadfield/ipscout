@@ -67,10 +67,12 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [AWS](#Amazon-Web-Services)                               | Hosting Provider |           -           |
 | [Azure](#Azure)                                           | Hosting Provider |           -           |
 | [Azure WAF](#Azure-WAF)                                   |       WAF        | Azure access required |
+| [Better Stack](#Better-Stack)                             |    Monitoring    |           -           |
 | [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
 | [Blocklist.de](#Blocklistde)                              |   Threat Feed    |           -           |
 | [Bunny CDN](#Bunny-CDN)                                   |       CDN        |           -           |
 | [CDN77](#CDN77)                                           |       CDN        |           -           |
+| [Checkly](#Checkly)                                       |    Monitoring    |           -           |
 | [CINS Army List](#CINS-Army-List)                         |   Threat Feed    |           -           |
 | [Cloudflare](#Cloudflare)                                 |       CDN        |           -           |
 | [Contabo](#Contabo)                                       | Hosting Provider |           -           |
@@ -83,6 +85,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Fastly](#Fastly)                                         |       CDN        |           -           |
 | [Fly.io](#Flyio)                                          | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
+| [Gcore](#Gcore)                                           |       CDN        |           -           |
 | [GitHub](#GitHub)                                         |       SaaS       |           -           |
 | [Google](#Google)                                         | Hosting Provider |           -           |
 | [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
@@ -99,21 +102,25 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Leaseweb](#Leaseweb)                                     | Hosting Provider |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [M247](#M247)                                             | Hosting Provider |           -           |
+| [New Relic](#New-Relic)                                   |    Monitoring    |           -           |
 | [OpenAI](#OpenAI)                                         |   Web crawler    |           -           |
 | [Oracle Cloud (OCI)](#Oracle-Cloud-OCI)                   | Hosting Provider |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
 | [PerplexityBot](#PerplexityBot)                           |   Web crawler    |           -           |
+| [Pingdom](#Pingdom)                                       |    Monitoring    |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Render](#Render)                                         | Hosting Provider |           -           |
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
 | [Vultr](#Vultr)                                           | Hosting Provider |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
 | [Spamhaus DROP](#Spamhaus-DROP)                           |   Threat Feed    |           -           |
+| [StatusCake](#StatusCake)                                 |    Monitoring    |           -           |
 | [Stripe](#Stripe)                                         |       SaaS       |           -           |
 | [Team Cymru Bogons](#Team-Cymru-Bogons)                   |      Bogon       |           -           |
 | [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
-| [UptimeRobot](#UptimeRobot)                               |       SaaS       |           -           |
+| [UptimeRobot](#UptimeRobot)                               |    Monitoring    |           -           |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
+| [Zoom](#Zoom)                                             |       SaaS       |           -           |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
 
 ## Installation
@@ -458,6 +465,14 @@ services.
 This currently supports Azure Global WAF, used to secure Azure Front Door, and will show custom rules and prefixes matching the provided host.
 Authentication will be read from the environment.
 
+### Better Stack
+
+[Better Stack](https://betterstack.com/) runs uptime monitoring, and publishes the
+addresses its checks originate from at
+[uptime.betterstack.com/ips.txt](https://uptime.betterstack.com/ips.txt). A match means
+the host is a Better Stack probe rather than the origin of the traffic it appears to
+send.
+
 ### Bingbot
 
 [Bingbot](https://www.bing.com/webmasters/help/help-center-661b2d18) is the web crawler for the Bing search engine.
@@ -569,6 +584,12 @@ that [publishes](https://geoip.linode.com/) network prefixes used by their servi
 [M247](https://www.m247.com/) is a global hosting and connectivity provider.
 IP ranges are retrieved from the BGPView API and checked for matches against the target host.
 
+### New Relic
+
+[New Relic](https://newrelic.com/) publishes the addresses its synthetic monitors run
+from, grouped by location. A match means the host is a New Relic synthetics probe, and
+names the location it runs from, such as "Washington, DC, USA".
+
 ### OpenAI
 
 [OpenAI](https://platform.openai.com/docs/bots) operates a number of bots and publishes the network prefixes they crawl
@@ -589,6 +610,11 @@ IP ranges are retrieved from the BGPView API and checked for matches against the
 
 [Vultr](https://www.vultr.com/) is a cloud hosting provider.
 IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+
+### Pingdom
+
+[Pingdom](https://www.pingdom.com/) publishes the addresses its uptime probes run from.
+A match means the host is a Pingdom probe rather than a visitor.
 
 ### PTR
 
@@ -620,6 +646,11 @@ Set environment variable `SHODAN_API_KEY` with your API key.
 Query the [VirusTotal](https://www.virustotal.com) API for information from various providers on an IP address.
 
 Set environment variable `VIRUSTOTAL_API_KEY` with your API key.
+
+### Zoom
+
+[Zoom](https://zoom.us/) publishes the network ranges its meeting and phone services use.
+A match means the host belongs to Zoom's service infrastructure.
 
 ### Zscaler
 
@@ -716,6 +747,12 @@ this list and checks whether the target IP is within those ranges.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
 
+### Gcore
+
+[Gcore](https://gcore.com/) is a CDN and edge platform that publishes the addresses its
+edge nodes serve from. A match means the host is Gcore edge infrastructure rather than
+the origin server behind it.
+
 ### GitHub
 
 [GitHub](https://github.com/) publishes the IP ranges used by its services
@@ -769,6 +806,12 @@ IPScout downloads this list and checks whether the target IP is within those ran
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
 
+### StatusCake
+
+[StatusCake](https://www.statuscake.com/) publishes the locations its monitoring runs
+from, each with an address. A match means the host is a StatusCake probe, and reports the
+location's title, server code, country and current status.
+
 ### Stripe
 
 [Stripe](https://stripe.com/) publishes the IP ranges used by its API and webhook
@@ -809,6 +852,11 @@ that collects reports of hosts attacking other systems via SSH, mail, web and
 other services. The aggregated list of reported addresses is published at
 [lists.blocklist.de/lists/all.txt](https://lists.blocklist.de/lists/all.txt).
 IPScout downloads this list and checks whether the target IP appears in it.
+
+### Checkly
+
+[Checkly](https://www.checklyhq.com/) runs synthetic monitoring checks and publishes the
+static addresses they run from. A match means the host is a Checkly probe.
 
 ### CINS Army List
 

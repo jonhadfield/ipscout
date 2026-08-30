@@ -153,3 +153,17 @@ providers:
     enabled: true
   greensnow:
     enabled: true
+  betterstack:
+    enabled: true
+  checkly:
+    enabled: true
+  gcore:
+    enabled: true
+  newrelic:
+    enabled: true
+  pingdom:
+    enabled: true
+  statuscake:
+    enabled: true
+  zoom:
+    enabled: true

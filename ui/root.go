@@ -744,6 +744,20 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Cymru.Enabled, &sess.Providers.Cymru.OutputPriority, &sess.Providers.Cymru.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "greensnow", "GreenSnow", c.DefaultGreenSnowOutputPriority,
 		&sess.Providers.GreenSnow.Enabled, &sess.Providers.GreenSnow.OutputPriority, &sess.Providers.GreenSnow.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "betterstack", "Better Stack", c.DefaultBetterStackOutputPriority,
+		&sess.Providers.BetterStack.Enabled, &sess.Providers.BetterStack.OutputPriority, &sess.Providers.BetterStack.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "checkly", "Checkly", c.DefaultChecklyOutputPriority,
+		&sess.Providers.Checkly.Enabled, &sess.Providers.Checkly.OutputPriority, &sess.Providers.Checkly.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "gcore", "Gcore", c.DefaultGcoreOutputPriority,
+		&sess.Providers.Gcore.Enabled, &sess.Providers.Gcore.OutputPriority, &sess.Providers.Gcore.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "newrelic", "New Relic", c.DefaultNewRelicOutputPriority,
+		&sess.Providers.NewRelic.Enabled, &sess.Providers.NewRelic.OutputPriority, &sess.Providers.NewRelic.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "pingdom", "Pingdom", c.DefaultPingdomOutputPriority,
+		&sess.Providers.Pingdom.Enabled, &sess.Providers.Pingdom.OutputPriority, &sess.Providers.Pingdom.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "statuscake", "StatusCake", c.DefaultStatusCakeOutputPriority,
+		&sess.Providers.StatusCake.Enabled, &sess.Providers.StatusCake.OutputPriority, &sess.Providers.StatusCake.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "zoom", "Zoom", c.DefaultZoomOutputPriority,
+		&sess.Providers.Zoom.Enabled, &sess.Providers.Zoom.OutputPriority, &sess.Providers.Zoom.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "tencent", "Tencent Cloud", c.DefaultTencentOutputPriority,
 		&sess.Providers.Tencent.Enabled, &sess.Providers.Tencent.OutputPriority, &sess.Providers.Tencent.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "vultr", "Vultr", defaultVultrOutputPriority,
