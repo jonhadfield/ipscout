@@ -78,7 +78,9 @@ Many providers fetch their IP-range data through the `github.com/jonhadfield/ip-
    provider is missing from the shipped default config)
 6. Add the TUI integration: a fetch/table file in `/ui/` plus the const, icon, fetch-map and
    provider-list entries in `/ui/main.go`
-7. Bump `expectedProviderCount` in `/registry/registry_test.go` and add the provider to README.md
+7. Bump `expectedProviderCount` in `/registry/registry_test.go`, bump `EXPECTED_TABLES` in
+   `scripts/smoke.sh` if the provider needs no configuration to be enabled, and add the
+   provider to README.md
 8. Write unit tests for the provider (see Testing Strategy)
 
 ### API Key Management

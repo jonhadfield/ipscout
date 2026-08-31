@@ -18,6 +18,17 @@ set -euo pipefail
 
 DIST="${1:-dist}"
 
+# Provider tables a default config renders. This is registry.All() minus the
+# providers that cannot be enabled without configuration: Azure WAF is the
+# only one, as it needs Azure resource IDs, so this is expectedProviderCount
+# in registry/registry_test.go minus one.
+#
+# Asserting the exact number is the point. A provider that stops resolving in
+# the packaged binary still leaves the others rendering, so a "greater than
+# zero" check passes while most of the tool is broken - which is the class of
+# bug this script exists to catch.
+EXPECTED_TABLES=66
+
 fail() {
     echo "smoke: FAIL: $*" >&2
     exit 1
@@ -83,6 +94,7 @@ case "$utd" in
 esac
 tables="$(printf '%s\n' "$utd" | grep -c '| Host:' || true)"
 [ "$tables" -gt 0 ] || fail "--use-test-data rendered no provider tables"
+[ "$tables" -eq "$EXPECTED_TABLES" ] || fail "--use-test-data rendered ${tables} provider tables, expected ${EXPECTED_TABLES}. If you added or removed a provider, update EXPECTED_TABLES in this script; otherwise a provider has silently stopped rendering"
 pass "--use-test-data rendered ${tables} provider tables"
 
 # 4. first run seeds a config, and it uses the keys the reader looks up.
