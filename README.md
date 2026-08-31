@@ -44,7 +44,9 @@ and IPURL) are driven from your own config.
 Results are displayed in a table by default, and can also be emitted as JSON or CSV with the
 `--output` flag.
 
-![ipscout table output](examples/table.png)
+Checking whether a crawler is really Googlebot, using four providers that need no configuration:
+
+![ipscout output for a Googlebot address, showing IPtoASN, PTR, Googlebot and Google results](examples/table.png)
 
 - [JSON output](examples/results.json)
 
