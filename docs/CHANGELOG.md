@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.11.5] - 2026-08-31
+
 ### Changed
 
 - provider results are ordered by how specifically a match identifies the host, narrowest
@@ -526,7 +528,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.4...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.5...HEAD
+[0.11.5]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.5
 [0.11.4]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.4
 [0.11.3]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.3
 [0.11.2]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.2
