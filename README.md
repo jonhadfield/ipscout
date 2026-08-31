@@ -1,15 +1,21 @@
 # IPScout
 
 IPScout is a command-line tool for security analysts to enrich IP addresses with their origin and threat ratings.
-All of the host reputation providers require registration but each of them offers a free tier.
+It queries **67 sources** concurrently — cloud and hosting ranges, CDNs, web crawlers, monitoring probes,
+threat feeds and bogon lists — and reports what each one knows about the host.
+
+**59 of the 67 need no configuration at all.** Only five ask for an API key (AbuseIPDB, CriminalIP,
+IPQualityScore, Shodan and VirusTotal), and each offers a free tier; three more (Annotated, Azure WAF
+and IPURL) are driven from your own config.
 
 <img src="docs/logo.png" alt="logo" width="200"/>
 
 ---
 
-[![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout)
 [![Tests on Linux, MacOS and Windows](https://github.com/jonhadfield/ipscout/workflows/Test/badge.svg)](https://github.com/jonhadfield/ipscout/actions?query=workflow%3ATest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/df6b2974f0844444af617a1c0b0e2cfb)](https://app.codacy.com/gh/jonhadfield/ipscout/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout)
 
 ## Table of Contents
 
@@ -26,20 +32,22 @@ All of the host reputation providers require registration but each of them offer
 
 ## Features
 
-- Query multiple reputation and hosting providers concurrently
-- Cache provider metadata and lookup results
-- Manage cached data with `ipscout cache`
-- Show or output configuration with `ipscout config`
-- Rate hosts using `ipscout rate`, optionally with AI assistance
-- Supports Zscaler IP range lookups
-
-[![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/df6b2974f0844444af617a1c0b0e2cfb)](https://app.codacy.com/gh/jonhadfield/ipscout/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
+- Query 67 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
+- Score a host with `ipscout rate`: per-provider scores, reasons, and a block or allow recommendation, optionally AI-assisted
+- Output as a table, JSON or CSV, in a choice of colour styles
+- Cache provider data locally, with per-provider TTLs sized to how often each source publishes
+- Manage the cache with `ipscout cache`: list, get, delete, and `gc` to reclaim space
+- Inspect configuration with `ipscout config`
 
 ## Output
 ### format
-Results are displayed in a table by default but can also be outputted as JSON format using the `--output` flag.
-- [table](examples/table.png)
-- [json](examples/results.json)
+Results are displayed in a table by default, and can also be emitted as JSON or CSV with the
+`--output` flag.
+
+![ipscout table output](examples/table.png)
+
+- [JSON output](examples/results.json)
+
 ### style
 Table styles include ascii (for basic terminals), cyan, red, yellow, green, blue, and can be specified in the `config.yaml` file or with the `--style` flag.
 Examples:
