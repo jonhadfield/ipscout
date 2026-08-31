@@ -48,7 +48,7 @@
       "defaultMatchScore": 0.0
     },
     "criminalip": {
-      "honeypotAttacked": 10.0,
+      "honeypotAttackedScore": 10.0,
       "scannerMatchScore": 10.0,
       "vpnMatchScore": 7.0,
       "cloudMatchScore": 7.0,
