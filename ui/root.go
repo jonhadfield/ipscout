@@ -17,12 +17,12 @@ import (
 
 var sess *session.Session
 
-// default output priorities for providers without a constant in the
-// constants package
+// Output priority defaults mirror the constants package so the CLI and TUI
+// order results identically; see constants.Default*OutputPriority.
 const (
-	defaultAlibabaOutputPriority  = 60
-	defaultScalewayOutputPriority = 140
-	defaultVultrOutputPriority    = 140
+	defaultAlibabaOutputPriority  = c.DefaultAlibabaOutputPriority
+	defaultScalewayOutputPriority = c.DefaultScalewayOutputPriority
+	defaultVultrOutputPriority    = c.DefaultVultrOutputPriority
 )
 
 func ToPtr[T any](v T) *T {
