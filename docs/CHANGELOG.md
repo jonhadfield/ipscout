@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- provider results are ordered by how specifically a match identifies the host, narrowest
+  claim first: your own annotated prefixes, then blocklist hits naming the exact address,
+  per-IP reputation and scanning, named bots and crawlers, monitoring probes, SaaS egress
+  and CDN edge ranges, hosting providers, the hyperscaler clouds, and last PTR, IPtoASN
+  and IPAPI, which make no ownership or threat claim at all
+
+  The previous order had grown entry by entry and was inverted in places. Googlebot,
+  Bingbot, Applebot and the other crawlers sat below Google, so a match on a small
+  purpose-built range ranked beneath the enormous range containing it. Imperva sat with
+  the blocklists, though a match there says who fronts the origin rather than who the
+  host is. OVH, Hetzner and DigitalOcean were spread across the table despite being the
+  same kind of answer
+
+  Any `providers.<name>.output_priority` set in your config still takes precedence, so an
+  order you have tuned yourself is unaffected
+- the default output priorities were duplicated between the CLI and the TUI, which could
+  drift and order the same results differently in each. Both now read the constants
+  package, and Alibaba, Scaleway and Vultr have entries there rather than only local ones
+
 ## [0.11.4] - 2026-08-31
 
 ### Fixed
