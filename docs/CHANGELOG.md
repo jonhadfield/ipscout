@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.11.3] - 2026-08-31
+
+### Changed
+
+- bump azwaf to 0.5.0, used as a library by the Azure WAF provider. That release fixes
+  azwaf's own CLI — flags that were parsed and then dropped, including `--dry-run` on
+  destructive commands — and removes the CLI input structs behind them. ipscout uses only
+  its config and policy packages, so no lookup behaviour changes here
+
+### Fixed
+
+- the README claimed every provider requires registration. 59 of the 67 need no
+  configuration at all, and only five ask for an API key, so the opening undersold what
+  the tool does on a first run. Corrected, along with the provider count, a screenshot
+  regenerated from 0.11.2 that had been unchanged since May 2024, and a duplicated badge
+  block
+
 ## [0.11.2] - 2026-08-30
 
 ### Fixed
@@ -476,7 +493,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.2...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.3...HEAD
+[0.11.3]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.3
 [0.11.2]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.2
 [0.11.1]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.1
 [0.11.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.0
