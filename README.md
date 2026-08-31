@@ -32,14 +32,11 @@ and IPURL) are driven from your own config.
 
 ## Features
 
-- Query 67 providers concurrently: cloud and hosting ranges, CDNs, web crawlers, monitoring
-  probes, threat feeds and the Team Cymru bogon list
-- Score a host with `ipscout rate` — per-provider scores, reasons, and a block or allow
-  recommendation, optionally with AI assistance
+- Query 67 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
+- Score a host with `ipscout rate`: per-provider scores, reasons, and a block or allow recommendation, optionally AI-assisted
 - Output as a table, JSON or CSV, in a choice of colour styles
-- Cache provider data locally so repeated lookups are fast and offline, with per-provider
-  TTLs sized to how often each source actually publishes
-- Manage the cache with `ipscout cache` — list, get, delete, and `gc` to reclaim space
+- Cache provider data locally, with per-provider TTLs sized to how often each source publishes
+- Manage the cache with `ipscout cache`: list, get, delete, and `gc` to reclaim space
 - Inspect configuration with `ipscout config`
 
 ## Output
@@ -47,9 +44,10 @@ and IPURL) are driven from your own config.
 Results are displayed in a table by default, and can also be emitted as JSON or CSV with the
 `--output` flag.
 
-<img src="examples/table.png" alt="ipscout table output" width="700"/>
+![ipscout table output](examples/table.png)
 
 - [JSON output](examples/results.json)
+
 ### style
 Table styles include ascii (for basic terminals), cyan, red, yellow, green, blue, and can be specified in the `config.yaml` file or with the `--style` flag.
 Examples:
