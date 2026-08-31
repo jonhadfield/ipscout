@@ -212,32 +212,34 @@ func addProviderConfigMessage(sess *session.Session, provider string) {
 	sess.Messages.Mu.Unlock()
 }
 
+// Output priority defaults mirror the constants package so the CLI and TUI
+// order results identically; see constants.Default*OutputPriority.
 const (
-	defaultAbuseIPDBOutputPriority    = 50
-	defaultAlibabaOutputPriority      = 60
-	defaultAnnotatedOutputPriority    = 30
-	defaultAWSOutputPriority          = 200
-	defaultAzureOutputPriority        = 200
-	defaultAzureWAFOutputPriority     = 20
-	defaultBingbotOutputPriority      = 180
-	defaultCriminalIPOutputPriority   = 60
-	defaultDigitalOceanOutputPriority = 200
-	defaultGCPOutputPriority          = 200
-	defaultGoogleOutputPriority       = 200
-	defaultGooglebotOutputPriority    = 190
-	defaultGoogleSCOutputPriority     = 190
-	defaultHetznerOutputPriority      = 70
-	defaultiCloudPROutputPriority     = 100
-	defaultIPAPIOutputPriority        = 90
-	defaultIPQSOutputPriority         = 50
-	defaultIPURLOutputPriority        = 20
-	defaultLinodeOutputPriority       = 140
-	defaultPtrOutputPriority          = 120
-	defaultScalewayOutputPriority     = 140
-	defaultShodanOutputPriority       = 70
-	defaultVirusTotalOutputPriority   = 40
-	defaultVultrOutputPriority        = 140
-	defaultZscalerOutputPriority      = 40
+	defaultAbuseIPDBOutputPriority    = c.DefaultAbuseIPDBOutputPriority
+	defaultAlibabaOutputPriority      = c.DefaultAlibabaOutputPriority
+	defaultAnnotatedOutputPriority    = c.DefaultAnnotatedOutputPriority
+	defaultAWSOutputPriority          = c.DefaultAWSOutputPriority
+	defaultAzureOutputPriority        = c.DefaultAzureOutputPriority
+	defaultAzureWAFOutputPriority     = c.DefaultAzureWAFOutputPriority
+	defaultBingbotOutputPriority      = c.DefaultBingbotOutputPriority
+	defaultCriminalIPOutputPriority   = c.DefaultCriminalIPOutputPriority
+	defaultDigitalOceanOutputPriority = c.DefaultDigitalOceanOutputPriority
+	defaultGCPOutputPriority          = c.DefaultGCPOutputPriority
+	defaultGoogleOutputPriority       = c.DefaultGoogleOutputPriority
+	defaultGooglebotOutputPriority    = c.DefaultGooglebotOutputPriority
+	defaultGoogleSCOutputPriority     = c.DefaultGoogleSCOutputPriority
+	defaultHetznerOutputPriority      = c.DefaultHetznerOutputPriority
+	defaultiCloudPROutputPriority     = c.DefaultiCloudPROutputPriority
+	defaultIPAPIOutputPriority        = c.DefaultIPAPIOutputPriority
+	defaultIPQSOutputPriority         = c.DefaultIPQSOutputPriority
+	defaultIPURLOutputPriority        = c.DefaultIPURLOutputPriority
+	defaultLinodeOutputPriority       = c.DefaultLinodeOutputPriority
+	defaultPtrOutputPriority          = c.DefaultPtrOutputPriority
+	defaultScalewayOutputPriority     = c.DefaultScalewayOutputPriority
+	defaultShodanOutputPriority       = c.DefaultShodanOutputPriority
+	defaultVirusTotalOutputPriority   = c.DefaultVirusTotalOutputPriority
+	defaultVultrOutputPriority        = c.DefaultVultrOutputPriority
+	defaultZscalerOutputPriority      = c.DefaultZscalerOutputPriority
 )
 
 func initProviderConfig(sess *session.Session, v *viper.Viper) {
