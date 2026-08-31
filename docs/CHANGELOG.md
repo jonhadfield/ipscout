@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- the release smoke test asserts the exact number of provider tables the packaged binary
+  renders rather than merely more than zero. A build that had lost all but one provider
+  passed the old check, which is the failure the script exists to catch. The count is
+  `registry.All()` minus Azure WAF, the only provider that cannot be enabled without
+  configuration. Adding a provider now means bumping `EXPECTED_TABLES` in
+  `scripts/smoke.sh` alongside `expectedProviderCount`, or the release gate fails
+
 ## [0.11.5] - 2026-08-31
 
 ### Changed
