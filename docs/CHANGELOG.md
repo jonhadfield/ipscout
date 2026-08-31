@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.11.4] - 2026-08-31
+
+### Fixed
+
+- a CriminalIP honeypot match scored nothing. The shipped rating config spelled the key
+  `honeypotAttacked` while the code reads `honeypotAttackedScore`, so the value parsed as
+  zero and the score was never raised. "This address attacked a honeypot" is the strongest
+  signal CriminalIP reports, and it counted for less than being cloud-hosted
+
+  If you have your own rating config it has the same key, copied from the shipped one.
+  Rename it there too, or delete the file to fall back to the defaults
+
 ## [0.11.3] - 2026-08-31
 
 ### Changed
@@ -493,7 +505,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.3...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.4...HEAD
+[0.11.4]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.4
 [0.11.3]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.3
 [0.11.2]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.2
 [0.11.1]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.1
