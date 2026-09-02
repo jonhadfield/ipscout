@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-09-02
+
 ### Added
 
 - Grafana Synthetic Monitoring, Sentry Uptime, Site24x7, updown.io and Uptrends providers,
@@ -551,7 +553,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.11.5...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.12.0...HEAD
+[0.12.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.0
 [0.11.5]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.5
 [0.11.4]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.4
 [0.11.3]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.3
