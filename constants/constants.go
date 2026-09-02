@@ -73,6 +73,10 @@ const (
 	DefaultGoogleSCOutputPriority      = 66
 	DefaultGoogleUTFOutputPriority     = 68
 
+	// Vulnerability scanners: narrow ranges that name the source of a scan.
+	DefaultDetectifyOutputPriority = 70
+	DefaultTenableOutputPriority   = 70
+
 	// Monitoring and uptime probes.
 	DefaultUptimeRobotOutputPriority = 80
 	DefaultPingdomOutputPriority     = 80
@@ -81,6 +85,11 @@ const (
 	DefaultChecklyOutputPriority     = 80
 	DefaultDatadogOutputPriority     = 82
 	DefaultNewRelicOutputPriority    = 82
+	DefaultGrafanaOutputPriority     = 80
+	DefaultSentryOutputPriority      = 80
+	DefaultSite24x7OutputPriority    = 80
+	DefaultUpdownOutputPriority      = 80
+	DefaultUptrendsOutputPriority    = 80
 
 	// SaaS egress ranges.
 	DefaultGitHubOutputPriority    = 90

@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/jedib0t/go-pretty/v6 v6.8.3
 	github.com/jonhadfield/azwaf v0.5.0
-	github.com/jonhadfield/ip-fetcher v0.0.29
+	github.com/jonhadfield/ip-fetcher v0.0.34
 	github.com/miekg/dns v1.1.73
 	github.com/rivo/tview v0.42.0
 	github.com/sashabaranov/go-openai v1.42.0
@@ -89,7 +89,7 @@ require (
 	github.com/refraction-networking/utls v1.8.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
-	github.com/sirupsen/logrus v1.10.1 // indirect
+	github.com/sirupsen/logrus v1.10.2 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect

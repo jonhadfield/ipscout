@@ -30,6 +30,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/criminalip"
 	"github.com/jonhadfield/ipscout/providers/cymru"
 	"github.com/jonhadfield/ipscout/providers/datadog"
+	"github.com/jonhadfield/ipscout/providers/detectify"
 	"github.com/jonhadfield/ipscout/providers/digitalocean"
 	"github.com/jonhadfield/ipscout/providers/dshield"
 	"github.com/jonhadfield/ipscout/providers/duckduckbot"
@@ -43,6 +44,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/googlebot"
 	"github.com/jonhadfield/ipscout/providers/googlesc"
 	"github.com/jonhadfield/ipscout/providers/googleutf"
+	"github.com/jonhadfield/ipscout/providers/grafana"
 	"github.com/jonhadfield/ipscout/providers/greensnow"
 	"github.com/jonhadfield/ipscout/providers/hetzner"
 	"github.com/jonhadfield/ipscout/providers/ibmcloud"
@@ -64,12 +66,17 @@ import (
 	"github.com/jonhadfield/ipscout/providers/ptr"
 	"github.com/jonhadfield/ipscout/providers/render"
 	"github.com/jonhadfield/ipscout/providers/scaleway"
+	"github.com/jonhadfield/ipscout/providers/sentry"
 	"github.com/jonhadfield/ipscout/providers/shodan"
+	"github.com/jonhadfield/ipscout/providers/site24x7"
 	"github.com/jonhadfield/ipscout/providers/spamhaus"
 	"github.com/jonhadfield/ipscout/providers/statuscake"
 	"github.com/jonhadfield/ipscout/providers/stripe"
+	"github.com/jonhadfield/ipscout/providers/tenable"
 	"github.com/jonhadfield/ipscout/providers/tencent"
+	"github.com/jonhadfield/ipscout/providers/updown"
 	"github.com/jonhadfield/ipscout/providers/uptimerobot"
+	"github.com/jonhadfield/ipscout/providers/uptrends"
 	"github.com/jonhadfield/ipscout/providers/virustotal"
 	"github.com/jonhadfield/ipscout/providers/vultr"
 	"github.com/jonhadfield/ipscout/providers/zoom"
@@ -269,6 +276,13 @@ func All() []Entry {
 		{Name: greensnow.ProviderName, DisplayName: "GreenSnow", Enabled: func(s session.Session) *bool { return s.Providers.GreenSnow.Enabled }, APIKey: noKey, NewClient: greensnow.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: betterstack.ProviderName, DisplayName: "Better Stack", Enabled: func(s session.Session) *bool { return s.Providers.BetterStack.Enabled }, APIKey: noKey, NewClient: betterstack.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: checkly.ProviderName, DisplayName: "Checkly", Enabled: func(s session.Session) *bool { return s.Providers.Checkly.Enabled }, APIKey: noKey, NewClient: checkly.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: grafana.ProviderName, DisplayName: "Grafana", Enabled: func(s session.Session) *bool { return s.Providers.Grafana.Enabled }, APIKey: noKey, NewClient: grafana.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: sentry.ProviderName, DisplayName: "Sentry", Enabled: func(s session.Session) *bool { return s.Providers.Sentry.Enabled }, APIKey: noKey, NewClient: sentry.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: site24x7.ProviderName, DisplayName: "Site24x7", Enabled: func(s session.Session) *bool { return s.Providers.Site24x7.Enabled }, APIKey: noKey, NewClient: site24x7.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: updown.ProviderName, DisplayName: "updown.io", Enabled: func(s session.Session) *bool { return s.Providers.Updown.Enabled }, APIKey: noKey, NewClient: updown.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: uptrends.ProviderName, DisplayName: "Uptrends", Enabled: func(s session.Session) *bool { return s.Providers.Uptrends.Enabled }, APIKey: noKey, NewClient: uptrends.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: detectify.ProviderName, DisplayName: "Detectify", Enabled: func(s session.Session) *bool { return s.Providers.Detectify.Enabled }, APIKey: noKey, NewClient: detectify.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: tenable.ProviderName, DisplayName: "Tenable", Enabled: func(s session.Session) *bool { return s.Providers.Tenable.Enabled }, APIKey: noKey, NewClient: tenable.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: gcore.ProviderName, DisplayName: "Gcore", Enabled: func(s session.Session) *bool { return s.Providers.Gcore.Enabled }, APIKey: noKey, NewClient: gcore.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: newrelic.ProviderName, DisplayName: "New Relic", Enabled: func(s session.Session) *bool { return s.Providers.NewRelic.Enabled }, APIKey: noKey, NewClient: newrelic.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: pingdom.ProviderName, DisplayName: "Pingdom", Enabled: func(s session.Session) *bool { return s.Providers.Pingdom.Enabled }, APIKey: noKey, NewClient: pingdom.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

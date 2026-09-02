@@ -1,0 +1,7 @@
+{
+  "prefix": "192.0.2.1/32",
+  "region": "us-east-1",
+  "service": "TENABLE_IO",
+  "sensor_group": "cloud-scanner",
+  "create_date": "2026-09-01"
+}

@@ -781,6 +781,20 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.BetterStack.Enabled, &sess.Providers.BetterStack.OutputPriority, &sess.Providers.BetterStack.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "checkly", "Checkly", c.DefaultChecklyOutputPriority,
 		&sess.Providers.Checkly.Enabled, &sess.Providers.Checkly.OutputPriority, &sess.Providers.Checkly.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "grafana", "Grafana", c.DefaultGrafanaOutputPriority,
+		&sess.Providers.Grafana.Enabled, &sess.Providers.Grafana.OutputPriority, &sess.Providers.Grafana.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "sentry", "Sentry", c.DefaultSentryOutputPriority,
+		&sess.Providers.Sentry.Enabled, &sess.Providers.Sentry.OutputPriority, &sess.Providers.Sentry.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "site24x7", "Site24x7", c.DefaultSite24x7OutputPriority,
+		&sess.Providers.Site24x7.Enabled, &sess.Providers.Site24x7.OutputPriority, &sess.Providers.Site24x7.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "updown", "updown.io", c.DefaultUpdownOutputPriority,
+		&sess.Providers.Updown.Enabled, &sess.Providers.Updown.OutputPriority, &sess.Providers.Updown.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "uptrends", "Uptrends", c.DefaultUptrendsOutputPriority,
+		&sess.Providers.Uptrends.Enabled, &sess.Providers.Uptrends.OutputPriority, &sess.Providers.Uptrends.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "detectify", "Detectify", c.DefaultDetectifyOutputPriority,
+		&sess.Providers.Detectify.Enabled, &sess.Providers.Detectify.OutputPriority, &sess.Providers.Detectify.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "tenable", "Tenable", c.DefaultTenableOutputPriority,
+		&sess.Providers.Tenable.Enabled, &sess.Providers.Tenable.OutputPriority, &sess.Providers.Tenable.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "gcore", "Gcore", c.DefaultGcoreOutputPriority,
 		&sess.Providers.Gcore.Enabled, &sess.Providers.Gcore.OutputPriority, &sess.Providers.Gcore.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "newrelic", "New Relic", c.DefaultNewRelicOutputPriority,

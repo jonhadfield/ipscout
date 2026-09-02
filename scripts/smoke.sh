@@ -27,7 +27,7 @@ DIST="${1:-dist}"
 # the packaged binary still leaves the others rendering, so a "greater than
 # zero" check passes while most of the tool is broken - which is the class of
 # bug this script exists to catch.
-EXPECTED_TABLES=66
+EXPECTED_TABLES=73
 
 fail() {
     echo "smoke: FAIL: $*" >&2

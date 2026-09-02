@@ -32,7 +32,7 @@ and IPURL) are driven from your own config.
 
 ## Features
 
-- Query 67 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
+- Query 74 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
 - Score a host with `ipscout rate`: per-provider scores, reasons, and a block or allow recommendation, optionally AI-assisted
 - Output as a table, JSON or CSV, in a choice of colour styles
 - Cache provider data locally, with per-provider TTLs sized to how often each source publishes
@@ -88,6 +88,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Contabo](#Contabo)                                       | Hosting Provider |           -           |
 | [CriminalIP](#CriminalIP)                                 |  IP Reputation   | Registration required |
 | [Datadog](#Datadog)                                       |       SaaS       |           -           |
+| [Detectify](#Detectify)                                   | Vulnerability Scanner |     -     |
 | [DigitalOcean](#DigitalOcean)                             | Hosting Provider |           -           |
 | [DShield](#DShield)                                       |   Threat Feed    |           -           |
 | [DuckDuckBot](#DuckDuckBot)                               |   Web crawler    |           -           |
@@ -101,6 +102,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
 | [Google User-triggered Fetchers](#Google-User-triggered-Fetchers) | Web crawler |         -           |
 | [Googlebot](#Googlebot)                                   |   Web crawler    |           -           |
+| [Grafana](#Grafana)                                       |    Monitoring    |           -           |
 | [GreenSnow](#GreenSnow)                                   |   Threat Feed    |           -           |
 | [Hetzner](#Hetzner)                                       | Hosting Provider |           -           |
 | [IBM Cloud](#IBM-Cloud)                                   | Hosting Provider |           -           |
@@ -122,13 +124,18 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Render](#Render)                                         | Hosting Provider |           -           |
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
 | [Vultr](#Vultr)                                           | Hosting Provider |           -           |
+| [Sentry](#Sentry)                                         |    Monitoring    |           -           |
 | [Shodan](#Shodan)                                         |  IP Reputation   | Registration required |
+| [Site24x7](#Site24x7)                                     |    Monitoring    |           -           |
 | [Spamhaus DROP](#Spamhaus-DROP)                           |   Threat Feed    |           -           |
 | [StatusCake](#StatusCake)                                 |    Monitoring    |           -           |
 | [Stripe](#Stripe)                                         |       SaaS       |           -           |
 | [Team Cymru Bogons](#Team-Cymru-Bogons)                   |      Bogon       |           -           |
+| [Tenable](#Tenable)                                       | Vulnerability Scanner |     -     |
 | [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
+| [updown.io](#updownio)                                    |    Monitoring    |           -           |
 | [UptimeRobot](#UptimeRobot)                               |    Monitoring    |           -           |
+| [Uptrends](#Uptrends)                                     |    Monitoring    |           -           |
 | [VirusTotal](#VirusTotal)                                 |  IP Reputation   | Registration required |
 | [Zoom](#Zoom)                                             |       SaaS       |           -           |
 | [Zscaler](#Zscaler)                                       |    Security      |           -           |
@@ -514,6 +521,14 @@ A [free plan](https://www.criminalip.io/pricing) exists with a small number of f
 
 Set environment variable `CRIMINAL_IP_API_URL` with your API key.
 
+### Detectify
+
+[Detectify](https://detectify.com/) runs external attack surface scans, and publishes the
+addresses its scanners originate from at
+[docs.detectify.com](https://docs.detectify.com/network-setup/scanner-ip-addresses). A
+match means the host is a Detectify scanner rather than an unattributed source probing
+your estate.
+
 ### DigitalOcean
 
 [DigitalOcean](https://www.digitalocean.com/) is a hosting provider
@@ -540,6 +555,14 @@ services.
 [Googlebot](https://developers.google.com/search/docs/crawling-indexing/googlebot) is a web crawler
 and [publishes](https://developers.google.com/static/search/apis/ipranges/googlebot.json) network prefixes used by their
 bots.
+
+### Grafana
+
+[Grafana](https://grafana.com/) runs synthetic monitoring from a set of public probes, and
+publishes their ranges at
+[allowlists.grafana.com/synthetics](https://allowlists.grafana.com/synthetics). A match
+means the host is a Grafana probe rather than the origin of the traffic it appears to
+send. The document also names the probe location.
 
 ### GreenSnow
 
@@ -663,11 +686,27 @@ Custom nameservers can be specified in the `config.yaml` file with port defaulti
       - 8.8.4.4:53
 ```
 
+### Sentry
+
+[Sentry](https://sentry.io/) runs uptime checks from a published set of addresses, listed
+at
+[docs.sentry.io](https://docs.sentry.io/security-legal-pii/security/ip-ranges/). A match
+means the host is a Sentry uptime checker rather than the origin of the traffic it appears
+to send.
+
 ### Shodan
 
 Query the [Shodan](https://www.shodan.io/) API for information on an IP address, with open ports, and services.
 
 Set environment variable `SHODAN_API_KEY` with your API key.
+
+### Uptrends
+
+[Uptrends](https://www.uptrends.com/) monitors sites from a set of checkpoints, and
+publishes their addresses for allowlisting at
+[uptrends.com](https://www.uptrends.com/support/kb/account/ip-addresses-for-whitelisting).
+A match means the host is an Uptrends checkpoint rather than the origin of the traffic it
+appears to send.
 
 ### VirusTotal
 
@@ -860,6 +899,15 @@ rebuilt every four hours. IPScout caches it for four hours to match: bogon space
 as addresses are allocated, so a stale list reports newly assigned, legitimate ranges as
 unroutable. The generation time from the list header is shown with any match.
 
+### Tenable
+
+[Tenable](https://www.tenable.com/) runs cloud vulnerability scanners, and publishes their
+ranges at
+[docs.tenable.com](https://docs.tenable.com/vulnerability-management/Content/Settings/Sensors/CloudSensors.htm).
+A match means the host is a Tenable cloud sensor rather than an unattributed source
+scanning your estate. The document names the region, service and sensor group behind the
+range, and flags the separately published FedRAMP ranges.
+
 ### Tencent Cloud
 
 [Tencent Cloud](https://www.tencentcloud.com/) is a hosting provider.
@@ -911,6 +959,12 @@ compromised hosts is published at
 [rules.emergingthreats.net/blockrules/compromised-ips.txt](https://rules.emergingthreats.net/blockrules/compromised-ips.txt).
 IPScout downloads this list and checks whether the target IP appears in it.
 
+### Site24x7
+
+[Site24x7](https://www.site24x7.com/) monitors sites from locations worldwide and
+publishes the addresses each location checks from. A match means the host is a Site24x7
+monitoring location rather than the origin of the traffic it appears to send.
+
 ### Spamhaus DROP
 
 [Spamhaus DROP](https://www.spamhaus.org/blocklists/do-not-route-or-peer/)
@@ -920,6 +974,12 @@ by criminal operations. The lists are published at
 [spamhaus.org/drop/drop_v6.json](https://www.spamhaus.org/drop/drop_v6.json).
 IPScout downloads both lists and checks whether the target IP is within those
 netblocks, reporting the associated SBL identifier and RIR.
+
+### updown.io
+
+[updown.io](https://updown.io/) checks sites from a set of nodes whose addresses it
+publishes at [updown.io/api](https://updown.io/api). A match means the host is an
+updown.io node rather than the origin of the traffic it appears to send.
 
 ### UptimeRobot
 

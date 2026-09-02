@@ -210,6 +210,27 @@
     "checkly": {
       "defaultMatchScore": 1.0
     },
+    "grafana": {
+      "defaultMatchScore": 1.0
+    },
+    "sentry": {
+      "defaultMatchScore": 1.0
+    },
+    "site24x7": {
+      "defaultMatchScore": 1.0
+    },
+    "updown": {
+      "defaultMatchScore": 1.0
+    },
+    "uptrends": {
+      "defaultMatchScore": 1.0
+    },
+    "detectify": {
+      "defaultMatchScore": 2.0
+    },
+    "tenable": {
+      "defaultMatchScore": 2.0
+    },
     "gcore": {
       "defaultMatchScore": 5.0
     },
