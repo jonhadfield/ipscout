@@ -21,6 +21,15 @@ The Go CLI is split by responsibility to keep provider logic isolated from orche
 - `make mac-install` / `make linux-install` install the binary to /usr/local/bin.
 - Releasing is documented in README's "Releasing" section: write the changelog entry, push the
   annotated tag, then `make release`.
+- `make release` needs exactly one publish token in the environment, so run it as:
+
+  `env -u GITLAB_TOKEN GITHUB_TOKEN="$(gh auth token)" make release`
+
+  Both halves matter. The shell exports `GITLAB_TOKEN`, which goreleaser would otherwise
+  publish to, and it does not export `GITHUB_TOKEN` at all — `gh` keeps its token in the
+  keyring, not the environment — so `$(gh auth token)` supplies it. Dropping the
+  `GITHUB_TOKEN` half fails with `missing GITHUB_TOKEN, GITLAB_TOKEN and GITEA_TOKEN`;
+  leaving both tokens set fails with `multiple tokens found`.
 
 ## Architecture Overview
 
