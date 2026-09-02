@@ -157,6 +157,20 @@ providers:
     enabled: true
   checkly:
     enabled: true
+  grafana:
+    enabled: true
+  sentry:
+    enabled: true
+  site24x7:
+    enabled: true
+  updown:
+    enabled: true
+  uptrends:
+    enabled: true
+  detectify:
+    enabled: true
+  tenable:
+    enabled: true
   gcore:
     enabled: true
   newrelic:

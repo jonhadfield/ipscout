@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Added
+
+- Grafana Synthetic Monitoring, Sentry Uptime, Site24x7, updown.io and Uptrends providers,
+  reporting whether the host is a monitoring probe rather than a visitor or the origin of
+  the traffic it appears to send. Grafana and Site24x7 name the probe location, updown.io
+  the node's city and country
+- Detectify and Tenable providers, reporting whether the host is a vulnerability scanner
+  belonging to a named service rather than an unattributed source probing your estate.
+  Tenable names the region, service and sensor group behind the range, and flags a match
+  in its separately published FedRAMP ranges
+
+  Both sit above the monitoring providers in the output, and score 2.0 rather than the 1.0
+  a monitoring probe scores: a scan is activity directed at you, where a probe is not
+
 ### Changed
 
 - the release smoke test asserts the exact number of provider tables the packaged binary
