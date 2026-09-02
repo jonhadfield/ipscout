@@ -2,7 +2,7 @@ module github.com/jonhadfield/ipscout
 
 go 1.25.0
 
-toolchain go1.25.12
+toolchain go1.25.14
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor v1.4.0
