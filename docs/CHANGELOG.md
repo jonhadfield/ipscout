@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-09-04
+
+### Changed
+
+- built with Go 1.26.8, and ip-fetcher bumped to v0.0.35, which carries the
+  `golang.org/x/crypto` v0.56.0 fix for GO-2026-6355 and GO-2026-6354
+
+  Neither changes what ipscout does. The x/crypto advisories are reached through
+  ip-fetcher's publisher, which ipscout does not import, and 0.12.0's binaries were
+  already built on a patched toolchain, so this is dependency hygiene rather than a fix
+  for anything a 0.12.0 user is exposed to. ip-fetcher v0.0.34 and v0.0.35 have identical
+  provider source, so no lookup behaviour changes
+
 ## [0.12.0] - 2026-09-02
 
 ### Added
@@ -553,7 +566,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.12.0...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.12.1...HEAD
+[0.12.1]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.1
 [0.12.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.0
 [0.11.5]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.5
 [0.11.4]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.4
