@@ -6,11 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.12.2] - 2026-09-05
+
 ### Fixed
 
 - the install script did nothing on macOS. It tested `uname` against the lowercase `darwin`,
   where `uname` answers `Darwin`, so the branch that installs the binary never ran and the
   script exited reporting success. Only the Linux branch had ever worked
+
+- the install script unpacked the archive into whatever directory it was run from and removed
+  only the tarball afterwards, leaving the binary behind there. It works in a temporary
+  directory that is removed however it exits
 
 ### Added
 
@@ -581,7 +587,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.12.1...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.12.2...HEAD
+[0.12.2]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.2
 [0.12.1]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.1
 [0.12.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.0
 [0.11.5]: https://github.com/jonhadfield/ipscout/releases/tag/0.11.5
