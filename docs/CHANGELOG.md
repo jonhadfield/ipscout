@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.12.3] - 2026-09-05
+
+### Changed
+
+- releasing no longer needs `GITLAB_TOKEN` or `GITEA_TOKEN` unset by hand. goreleaser stops rather
+  than guess when it can see tokens for more than one forge, and cutting 0.12.2 failed on that
+  before building anything, so both of its invocations now run with the others unset for the
+  command
+
+- a scheduled job installs the Homebrew cask on macOS each week and checks that the binary runs.
+  The cask clears `com.apple.quarantine` in a `postflight` block, which Homebrew has deprecated and
+  goreleaser still generates; if that stanza stops running, gatekeeper kills the installed binary
+  with no output, no release fails, and the first report would come from somebody who installed it
+
+Nothing about ipscout itself changed in this release. The binaries are built from the same source
+as 0.12.2 and behave identically, so there is no reason to upgrade for its own sake.
+
 ## [0.12.2] - 2026-09-05
 
 ### Fixed
@@ -587,7 +604,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.12.2...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.12.3...HEAD
+[0.12.3]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.3
 [0.12.2]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.2
 [0.12.1]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.1
 [0.12.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.0
