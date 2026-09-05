@@ -1,0 +1,83 @@
+# Installs ipscout the way a macOS user does and checks the result runs.
+#
+# The cask clears com.apple.quarantine in a postflight block, which homebrew
+# has deprecated in favour of postflight_steps. Goreleaser generates the cask
+# and emits the old stanza, so this cannot be fixed here yet:
+# https://github.com/goreleaser/goreleaser/issues/6870
+#
+# If homebrew removes postflight, the strip stops running, gatekeeper kills the
+# installed binary, and it exits 137 printing nothing. No release would fail
+# and no test here would notice: the change is homebrew's, not ours. So this
+# asks on a schedule rather than on a push, and the question it asks is the one
+# a user would - does the thing I just installed run.
+name: cask install
+
+on:
+  schedule:
+    # monday morning, so a week's worth of homebrew releases is covered by the
+    # time anyone is installing
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/cask-install.yml
+
+permissions:
+  contents: read
+
+jobs:
+  install-from-tap:
+    runs-on: macos-latest
+    steps:
+      -
+        name: what homebrew is this
+        run: brew --version
+      -
+        name: tap
+        run: brew tap jonhadfield/ipscout
+      -
+        # homebrew 6 refuses a cask from an untrusted third-party tap. Older
+        # versions have no such command, and do not need one.
+        name: trust the tap
+        run: |
+          if brew help trust >/dev/null 2>&1; then
+            brew trust jonhadfield/ipscout
+          else
+            echo "this homebrew has no trust command, nothing to do"
+          fi
+      -
+        name: install
+        run: brew install --cask jonhadfield/ipscout/ipscout
+      -
+        # Reported rather than asserted. A runner that does not apply the
+        # attribute at all would make an assertion here pass for the wrong
+        # reason, and the answer is worth reading in the log either way.
+        name: what landed
+        run: |
+          brew list --cask --versions ipscout
+          binary="$(readlink -f "$(command -v ipscout)")"
+          echo "binary: $binary"
+          if quarantine="$(xattr -p com.apple.quarantine "$binary" 2>/dev/null)"; then
+            echo "quarantine attribute present: $quarantine"
+          else
+            echo "no quarantine attribute, which is the postflight strip having run"
+          fi
+      -
+        # The point of the whole file. Gatekeeper kills rather than refuses, so
+        # the symptom is signal 9 and an empty stdout.
+        name: the installed binary runs
+        run: |
+          set +e
+          output="$(ipscout --help 2>&1)"
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            echo "$output"
+            if [ "$status" -eq 137 ]; then
+              echo "::error::ipscout was killed (exit 137), which is gatekeeper refusing a quarantined binary. The cask's quarantine strip has stopped running: see https://github.com/goreleaser/goreleaser/issues/6870"
+            else
+              echo "::error::ipscout exited $status when asked for its help text"
+            fi
+            exit 1
+          fi
+          echo "ipscout ran"
