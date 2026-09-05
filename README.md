@@ -180,11 +180,15 @@ $ brew uninstall ipscout
 $ brew install --cask jonhadfield/ipscout/ipscout
 ```
 
-### Linux
+### Install script (Linux and macOS)
 Install latest release.
 ```shell
 curl -sL https://raw.githubusercontent.com/jonhadfield/ipscout/main/install | sh
 ```
+
+On macOS the Homebrew cask above is the better route, since it handles upgrades and clears the
+quarantine attribute for you. The script is there for Linux, and for a macOS machine without
+Homebrew.
 
 This works out the latest release, downloads the archive for the machine it is run on, checks it
 against `checksums.txt` published beside it, and installs to `/usr/local/bin`. The directory is
@@ -193,7 +197,7 @@ that does not match its checksum is refused, and nothing is installed.
 
 Three optional variables:
 
-| variable | |
+| variable | what it does |
 | --- | --- |
 | `IPSCOUT_VERSION` | a tag to install, e.g. `0.12.1`. Default: the latest release |
 | `IPSCOUT_INSTALL_DIR` | where to put the binary. Default: `/usr/local/bin` |
@@ -206,7 +210,7 @@ curl -sL https://raw.githubusercontent.com/jonhadfield/ipscout/main/install | IP
 The variable goes on the `sh` at the end of the pipe, not on the `curl` at the front, which would set
 it for the download instead of for the script.
 
-### other distributions
+### Other distributions
 
 Download the latest release from the [releases](https://github.com/jonhadfield/ipscout/releases) page.
 

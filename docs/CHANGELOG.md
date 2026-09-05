@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- the install script did nothing on macOS. It tested `uname` against the lowercase `darwin`,
+  where `uname` answers `Darwin`, so the branch that installs the binary never ran and the
+  script exited reporting success. Only the Linux branch had ever worked
+
+### Added
+
+- the install script verifies the archive against the `checksums.txt` published beside it, and
+  refuses to install a download that does not match. It also reads `IPSCOUT_VERSION` to pin a
+  release, `IPSCOUT_INSTALL_DIR` to install somewhere other than `/usr/local/bin`, and
+  `GITHUB_URL` for a mirror. It creates the install directory if it is missing, reaches for
+  `sudo` only when the directory cannot be written to otherwise, and says so when the directory
+  is not on your `PATH`
+
 ## [0.12.1] - 2026-09-04
 
 ### Changed
