@@ -63,6 +63,29 @@ jobs:
             echo "no quarantine attribute, which is the postflight strip having run"
           fi
       -
+        # Whether this check can fail at all. The attribute arrives on the
+        # downloaded archive and reaches the binary from there, so a runner
+        # that does not quarantine downloads would pass the step below however
+        # broken the cask was. Say so rather than let a green tick imply
+        # something it does not.
+        name: can this runner observe the failure
+        run: |
+          quarantined=""
+          for archive in "$(brew --cache)"/downloads/*ipscout*; do
+            [ -e "$archive" ] || continue
+            if value="$(xattr -p com.apple.quarantine "$archive" 2>/dev/null)"; then
+              echo "$(basename "$archive" | cut -c1-16)...: quarantined ($value)"
+              quarantined=yes
+            else
+              echo "$(basename "$archive" | cut -c1-16)...: not quarantined"
+            fi
+          done
+          if [ -z "$quarantined" ]; then
+            echo "::warning::nothing downloaded here carried com.apple.quarantine, so the step that follows would pass even if the cask's strip had stopped running. This check is watching for a failure it cannot currently see."
+          else
+            echo "the archive was quarantined, so the strip is doing real work and its absence would be caught"
+          fi
+      -
         # The point of the whole file. Gatekeeper kills rather than refuses, so
         # the symptom is signal 9 and an empty stdout.
         name: the installed binary runs
