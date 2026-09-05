@@ -12,8 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 - releasing no longer needs `GITLAB_TOKEN` or `GITEA_TOKEN` unset by hand. goreleaser stops rather
   than guess when it can see tokens for more than one forge, and cutting 0.12.2 failed on that
-  before building anything, so both of its invocations now run with the others unset for the
-  command
+  before it built anything. `make smoke` and `make release` now run goreleaser with those two
+  unset in its environment, leaving the shell they were run from alone
 
 - a scheduled job installs the Homebrew cask on macOS each week and checks that the binary runs.
   The cask clears `com.apple.quarantine` in a `postflight` block, which Homebrew has deprecated and
