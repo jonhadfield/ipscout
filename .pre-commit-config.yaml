@@ -8,6 +8,16 @@ repos:
 
   - repo: local
     hooks:
+      # shellcheck rather than a pinned remote hook, which packages itself as a
+      # docker image; this matches golangci-lint below in using the binary that
+      # is already installed. `install` has no extension, so `types: [shell]`
+      # rather than a filename pattern - pre-commit identifies it by shebang.
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        types: [shell]
+
       - id: golangci-lint
         name: golangci-lint
         entry: golangci-lint run --config .golangci.yml
