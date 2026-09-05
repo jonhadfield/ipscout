@@ -62,6 +62,7 @@ checksum_command() {
 # A shell expands an unquoted leading tilde in an assignment, so the documented
 # form arrives here already expanded. A quoted one does not, and would otherwise
 # be created as a directory named ~ in whatever directory this was run from.
+# shellcheck disable=SC2088 # matching a literal, unexpanded tilde is the point
 case "${install_dir}" in
     "~" | "~/"*)
         [ -n "${HOME:-}" ] ||
