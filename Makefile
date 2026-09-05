@@ -2,6 +2,12 @@ SOURCE_FILES?=$$(go list ./...)
 TEST_PATTERN?=.
 TEST_OPTIONS?=-race -v
 
+# goreleaser stops rather than guess when it can see tokens for more than one
+# forge, and a machine that pushes to gitlab or gitea for other work has them
+# in the environment. Only the github one is wanted here, so the others are
+# unset for the command rather than for the shell it was run from.
+GORELEASER=env -u GITLAB_TOKEN -u GITEA_TOKEN goreleaser
+
 setup:
 	go get -u github.com/go-critic/go-critic/...
 	go get -u github.com/alecthomas/gometalinter
@@ -94,7 +100,7 @@ scan-image: pull-image
 # Build the release archives without publishing, then exercise the packaged
 # binary the way a user runs it. See scripts/smoke.sh.
 smoke:
-	goreleaser release --snapshot --clean --skip=homebrew
+	$(GORELEASER) release --snapshot --clean --skip=homebrew
 	./scripts/smoke.sh
 
 # Runs before smoke so a missing changelog entry fails in a second rather
@@ -103,7 +109,7 @@ check-release-notes:
 	scripts/release-notes.sh > /dev/null
 
 release: check-release-notes smoke
-	notes="$$(mktemp -t ipscout-release-notes)" && scripts/release-notes.sh > "$$notes" && goreleaser --release-notes="$$notes" && rm -f "$$notes" && git push --follow-tags
+	notes="$$(mktemp -t ipscout-release-notes)" && scripts/release-notes.sh > "$$notes" && $(GORELEASER) --release-notes="$$notes" && rm -f "$$notes" && git push --follow-tags
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
