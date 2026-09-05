@@ -59,6 +59,17 @@ checksum_command() {
     return 0
 }
 
+# A shell expands an unquoted leading tilde in an assignment, so the documented
+# form arrives here already expanded. A quoted one does not, and would otherwise
+# be created as a directory named ~ in whatever directory this was run from.
+case "${install_dir}" in
+    "~" | "~/"*)
+        [ -n "${HOME:-}" ] ||
+            fail "IPSCOUT_INSTALL_DIR starts with ~ and HOME is not set"
+        install_dir="${HOME}${install_dir#\~}"
+        ;;
+esac
+
 os="$(get_os)"
 arch="$(get_arch)"
 
