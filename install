@@ -1,41 +1,135 @@
 #!/bin/sh
-set -e
+# Install ipscout from its github releases.
+#
+#   curl -sL https://raw.githubusercontent.com/jonhadfield/ipscout/main/install | sh
+#
+# Reads three optional variables:
+#
+#   IPSCOUT_VERSION      a tag to install, e.g. 0.12.1. Default: the latest release.
+#   IPSCOUT_INSTALL_DIR  where to put the binary. Default: /usr/local/bin.
+#   GITHUB_URL           for a mirror or an enterprise host.
+set -eu
 
 owner="jonhadfield"
 repo="ipscout"
-githubUrl=${githubUrl:-"https://github.com"}
-downloadFolder="${TMPDIR:-/tmp}"
-executable_folder="/usr/local/bin"
+github_url="${GITHUB_URL:-https://github.com}"
+install_dir="${IPSCOUT_INSTALL_DIR:-/usr/local/bin}"
+
+fail() {
+    echo "${repo} install: $1" >&2
+    exit 1
+}
+
+get_os() {
+    uname -s | tr '[:upper:]' '[:lower:]'
+}
 
 get_arch() {
-    case $(uname -m) in
-        "x86_64" | "amd64" ) echo "amd64" ;;
-        "i386" | "i486" | "i586") echo "386" ;;
-        "aarch64" | "arm64" | "arm") echo "arm64" ;;
-        *) echo "${NIL}" ;;
+    case "$(uname -m)" in
+        x86_64 | amd64) echo "amd64" ;;
+        aarch64 | arm64) echo "arm64" ;;
+        *) echo "" ;;
     esac
 }
 
-get_os(){
-     uname -s | awk '{print tolower($0)}'
+# resolve_version follows the redirect that /releases/latest answers with, which
+# names the tag. The api would do as well and is rate limited to 60 requests an
+# hour for anyone not sending a token, which an install script cannot assume.
+resolve_version() {
+    if [ -n "${IPSCOUT_VERSION:-}" ]; then
+        echo "${IPSCOUT_VERSION}"
+        return
+    fi
+    curl -fsSLI -o /dev/null -w '%{url_effective}' "${github_url}/${owner}/${repo}/releases/latest" |
+        sed 's#.*/tag/##'
 }
 
-file_name="${repo}_$(get_os)_$(get_arch).tar.gz"
-downloaded_file="${downloadFolder}/${file_name}"
-asset_uri="${githubUrl}/${owner}/${repo}/releases/latest/download/${file_name}"
+# checksum_command is settled before anything is downloaded, so that not having
+# one is reported as that rather than reaching the verification and being
+# mistaken there for a download that does not match. The two commands take the
+# same arguments and only one of them is usually present. Finding neither prints
+# nothing and returns zero, and the caller's check on the empty answer is what
+# reports it.
+checksum_command() {
+    if command -v sha256sum >/dev/null 2>&1; then
+        echo "sha256sum -c"
+    elif command -v shasum >/dev/null 2>&1; then
+        echo "shasum -a 256 -c"
+    fi
+    return 0
+}
 
-echo "[1/2] Download ${asset_uri} to ${downloadFolder}"
-rm -f "${downloaded_file}"
-curl --fail --location --output "${downloaded_file}" "${asset_uri}"
+os="$(get_os)"
+arch="$(get_arch)"
 
-echo "[2/3] Install ${repo} to ${executable_folder}"
-tar -xz -f "${downloaded_file}"
-[ "$(uname)" = "Linux" ] && sudo install -C ${repo} ${executable_folder}
-[ "$(uname)" = "darwin" ] && install -C ${repo} ${executable_folder}
+case "${os}" in
+    linux | darwin) ;;
+    *) fail "no build for ${os}; see ${github_url}/${owner}/${repo}/releases" ;;
+esac
+[ -n "${arch}" ] || fail "no build for $(uname -m); see ${github_url}/${owner}/${repo}/releases"
 
-echo "[3/3] Clean up"
-rm "${downloaded_file}"
+checksum="$(checksum_command)"
+[ -n "${checksum}" ] ||
+    fail "neither sha256sum nor shasum is available to check the download with"
 
-echo "${repo} was successfully installed to ${executable_folder}/${repo}"
+version="$(resolve_version)"
+[ -n "${version}" ] || fail "could not work out the latest version"
 
-exit 0
+archive="${repo}_${os}_${arch}.tar.gz"
+sums="checksums.txt"
+base="${github_url}/${owner}/${repo}/releases/download/${version}"
+
+work="$(mktemp -d)"
+# leaves nothing behind whether this succeeds or not, and nothing in the
+# directory it was run from either
+trap 'rm -rf "${work}"' EXIT INT TERM
+
+echo "[1/4] Download ${base}/${archive}"
+curl -fsSL -o "${work}/${archive}" "${base}/${archive}" ||
+    fail "could not download ${archive}"
+
+echo "[2/4] Verify against ${sums}"
+curl -fsSL -o "${work}/${sums}" "${base}/${sums}" || fail "could not download ${sums}"
+# the sums file names every archive of the release, and -c fails on a line it
+# has no file for, so pick out the line for the one that was downloaded. awk
+# compares the whole field, where a grep would read the dots in the name as a
+# pattern and could match a longer one
+awk -v want="${archive}" '$2 == want' "${work}/${sums}" > "${work}/wanted"
+[ -s "${work}/wanted" ] || fail "${sums} has no entry for ${archive}"
+# unquoted, because the command is two or four words
+# shellcheck disable=SC2086
+(cd "${work}" && ${checksum} wanted) ||
+    fail "${archive} does not match its published checksum"
+
+echo "[3/4] Install ${repo} to ${install_dir}"
+tar -xzf "${work}/${archive}" -C "${work}" "${repo}" || fail "could not extract ${repo}"
+
+# a directory that is not there is the ordinary case for something like
+# ~/.local/bin, and is not the same as one that cannot be written to
+if [ ! -d "${install_dir}" ]; then
+    echo "${install_dir} does not exist, creating it"
+    if ! mkdir -p "${install_dir}" 2>/dev/null; then
+        command -v sudo >/dev/null 2>&1 ||
+            fail "${install_dir} does not exist and sudo is not available to create it; set IPSCOUT_INSTALL_DIR to a directory you can create"
+        sudo mkdir -p "${install_dir}" || fail "could not create ${install_dir}"
+    fi
+fi
+
+if [ -w "${install_dir}" ]; then
+    install -m 0755 "${work}/${repo}" "${install_dir}/${repo}" ||
+        fail "could not write ${install_dir}/${repo}"
+elif command -v sudo >/dev/null 2>&1; then
+    echo "${install_dir} is not writable, using sudo"
+    sudo install -m 0755 "${work}/${repo}" "${install_dir}/${repo}" ||
+        fail "could not write ${install_dir}/${repo} with sudo"
+else
+    fail "${install_dir} is not writable and sudo is not available; set IPSCOUT_INSTALL_DIR to somewhere you can write"
+fi
+
+echo "[4/4] Done"
+echo "${repo} ${version} installed to ${install_dir}/${repo}"
+
+case ":${PATH}:" in
+    *":${install_dir}:"*) ;;
+    *) echo "note: ${install_dir} is not on your PATH" >&2 ;;
+esac

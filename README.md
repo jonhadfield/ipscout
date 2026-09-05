@@ -183,8 +183,28 @@ $ brew install --cask jonhadfield/ipscout/ipscout
 ### Linux
 Install latest release.
 ```shell
-curl -sL https://raw.githubusercontent.com/jonhadfield/ipscout/add_install_script/install | sh
+curl -sL https://raw.githubusercontent.com/jonhadfield/ipscout/main/install | sh
 ```
+
+This works out the latest release, downloads the archive for the machine it is run on, checks it
+against `checksums.txt` published beside it, and installs to `/usr/local/bin`. The directory is
+created if it is not there, and `sudo` is used only if it cannot be written to otherwise. A download
+that does not match its checksum is refused, and nothing is installed.
+
+Three optional variables:
+
+| variable | |
+| --- | --- |
+| `IPSCOUT_VERSION` | a tag to install, e.g. `0.12.1`. Default: the latest release |
+| `IPSCOUT_INSTALL_DIR` | where to put the binary. Default: `/usr/local/bin` |
+| `GITHUB_URL` | for a mirror or an enterprise host |
+
+```shell
+curl -sL https://raw.githubusercontent.com/jonhadfield/ipscout/main/install | IPSCOUT_INSTALL_DIR=~/.local/bin sh
+```
+
+The variable goes on the `sh` at the end of the pipe, not on the `curl` at the front, which would set
+it for the download instead of for the script.
 
 ### other distributions
 
