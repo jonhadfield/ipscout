@@ -4,13 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.12.2] - 2026-09-05
 
 ### Fixed
 
 - the install script did nothing on macOS. It tested `uname` against the lowercase `darwin`,
   where `uname` answers `Darwin`, so the branch that installs the binary never ran and the
   script exited reporting success. Only the Linux branch had ever worked
+
+- the install script unpacked the archive into whatever directory it was run from and removed
+  only the tarball afterwards, leaving the binary behind there. It works in a temporary
+  directory that is removed however it exits
 
 ### Added
 
