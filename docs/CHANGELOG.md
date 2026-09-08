@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- an expired azure login printed the whole azure error over the progress spinner: a paragraph of
+  trace ids, correlation ids and timestamps, ending in the `az login` command to run. The
+  expired-credential failures are now recognised and reported as one line after the results,
+  naming the tenant to re-authenticate against:
+
+  `azure waf: your azure credentials have expired, so its policies were not read. re-authenticate with: az login --tenant <id>`
+
+  The full error is still available with `--log-level DEBUG`, which is now also the only level at
+  which azwaf's own logging reaches the console. It logs a failed api call at ERROR, which is why
+  this appeared over the spinner however ipscout's own log level was set
+
 ## [0.12.3] - 2026-09-05
 
 ### Changed

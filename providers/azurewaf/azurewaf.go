@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/netip"
 	"os"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -47,11 +48,17 @@ type ProviderClient struct {
 func NewProviderClient(c session.Session) (providers.ProviderClient, error) {
 	c.Logger.Debug("creating azurewaf client")
 
-	// azwaf logs to its own isolated slog logger (silent by default);
-	// route it through the session logger so azure waf diagnostics
-	// honour ipscout's log level and destination
+	// azwaf logs to its own isolated slog logger (silent by default). Route it
+	// through the session logger only at debug, because azwaf reports a failed
+	// api call at ERROR, which a default run would print over the progress
+	// spinner. The failure is not lost: loadProviderData turns it into a line
+	// that prints after the results, alongside the other providers that failed.
 	if c.Logger != nil {
-		azwafLogging.SetLogger(c.Logger)
+		if strings.EqualFold(c.Config.Global.LogLevel, "debug") {
+			azwafLogging.SetLogger(c.Logger)
+		} else {
+			azwafLogging.SetLogger(slog.New(slog.DiscardHandler))
+		}
 	}
 
 	tc := &ProviderClient{
@@ -95,6 +102,37 @@ func unmarshalProviderData(rBody []byte) ([]*armfrontdoor.WebApplicationFirewall
 	return res, nil
 }
 
+// tenantRegexp picks the tenant out of the `az login` line azure appends to an
+// expired credential error, so the command we suggest names the same tenant.
+var tenantRegexp = regexp.MustCompile(`--tenant "?([0-9a-fA-F-]{36})"?`)
+
+// azureAuthHint reports whether err is azure refusing the cached credentials
+// rather than anything to do with the policy being asked for, and returns the
+// one line worth showing. Azure answers these with a paragraph carrying trace
+// and correlation ids, timestamps and the full az invocation; the part a user
+// acts on is that the login has expired and which tenant to renew it against.
+func azureAuthHint(err error) string {
+	msg := err.Error()
+
+	switch {
+	case strings.Contains(msg, "AADSTS50173"), // grant expired or revoked
+		strings.Contains(msg, "AADSTS700082"), // refresh token expired
+		strings.Contains(msg, "AADSTS50076"),  // mfa required
+		strings.Contains(msg, "AzureCLICredential: ERROR"),
+		strings.Contains(msg, "az login"):
+	default:
+		return ""
+	}
+
+	login := "az login"
+	if m := tenantRegexp.FindStringSubmatch(msg); m != nil {
+		login = fmt.Sprintf("az login --tenant %s", m[1])
+	}
+
+	return fmt.Sprintf("azure waf: your azure credentials have expired, so its policies were not read. "+
+		"re-authenticate with: %s", login)
+}
+
 func (c *ProviderClient) loadProviderData() error {
 	as, err := azwafSession.New()
 	if err != nil {
@@ -103,6 +141,15 @@ func (c *ProviderClient) loadProviderData() error {
 
 	policies, err := getPolicies(c.Session, as)
 	if err != nil {
+		// an expired login is the common case here and is worth saying plainly,
+		// because the azure error that describes it is a paragraph long and the
+		// generic fetch-failed line does not say what to do about it
+		if hint := azureAuthHint(err); hint != "" {
+			c.Messages.AddError(hint)
+
+			return fmt.Errorf("azure waf credentials expired: %w", providers.ErrFailedToFetchData)
+		}
+
 		return fmt.Errorf("error getting azure waf policies: %w", err)
 	}
 
