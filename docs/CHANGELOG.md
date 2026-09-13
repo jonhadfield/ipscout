@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-09-13
+
 ### Added
 
 - Feodo Tracker and Tor exit node providers. abuse.ch's Feodo Tracker lists live botnet
@@ -643,7 +645,8 @@ as 0.12.2 and behave identically, so there is no reason to upgrade for its own s
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.12.5...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.13.0...HEAD
+[0.13.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.13.0
 [0.12.5]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.5
 [0.12.4]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.4
 [0.12.3]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.3
