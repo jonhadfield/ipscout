@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- a provider that had already explained its own failure was named a second time in the
+  generic `failed to fetch ip ranges for ...` line, which ends `run with --log-level DEBUG
+  for details`. An expired azure login printed the cause and the `az login` command to fix
+  it, and then a line inviting you to go looking for details that were already on screen.
+  A provider that reports its own failure is now left out of the generic line
+
 ## [0.12.4] - 2026-09-13
 
 ### Fixed

@@ -102,7 +102,12 @@ func WrapProviderError(provider string, category ErrorCategory, msg string, err 
 }
 
 var (
-	ErrFailedToFetchData   = errors.New("failed to fetch data")
+	ErrFailedToFetchData = errors.New("failed to fetch data")
+	// ErrFailureReported marks a failure the provider has already explained,
+	// naming the cause and what to do about it. Such a provider is left out of
+	// the generic "failed to fetch ip ranges" line, which would otherwise point
+	// at debug output for an answer that is already on screen.
+	ErrFailureReported     = errors.New("failure already reported")
 	ErrNoDataFound         = errors.New("no data found")
 	ErrNoMatchFound        = errors.New("no match found")
 	ErrForbiddenByProvider = errors.New("forbidden by provider")

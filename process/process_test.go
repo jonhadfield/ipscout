@@ -2,6 +2,9 @@ package process
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
+	"log/slog"
 	"testing"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -65,4 +68,59 @@ func TestGenerateJSON(t *testing.T) {
 	jm, err = generateJSON(results)
 	require.Error(t, err)
 	require.Nil(t, jm)
+}
+
+// failingProvider fails to initialise with whatever error it is given, so the
+// two ways a failure can be reported can be told apart.
+type failingProvider struct {
+	stubProvider
+	err error
+}
+
+func (f failingProvider) Initialise() error { return f.err }
+
+func TestInitialiseProvidersFailureReporting(t *testing.T) {
+	tests := []struct {
+		name        string
+		err         error
+		wantMessage bool
+	}{
+		{
+			name:        "an unexplained failure is named in the generic line",
+			err:         errors.New("connection refused"),
+			wantMessage: true,
+		},
+		{
+			name: "a provider that already explained itself is not named again",
+			// what azurewaf returns once it has told the user their azure login
+			// expired and printed the az command to fix it
+			err:         fmt.Errorf("azure waf credentials expired: %w", providers.ErrFailureReported),
+			wantMessage: false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			sess := session.New()
+			sess.Logger = slog.New(slog.DiscardHandler)
+			runners := map[string]providers.ProviderClient{
+				"stub": failingProvider{stubProvider: stubProvider{enabled: true}, err: tc.err},
+			}
+
+			initialiseProviders(sess, runners, true)
+
+			sess.Messages.Mu.Lock()
+			errs := append([]string(nil), sess.Messages.Error...)
+			sess.Messages.Mu.Unlock()
+
+			if tc.wantMessage {
+				require.Len(t, errs, 1)
+				require.Contains(t, errs[0], "failed to fetch ip ranges for stub")
+
+				return
+			}
+
+			require.Empty(t, errs, "provider reported its own failure, so the generic line should be absent")
+		})
+	}
 }

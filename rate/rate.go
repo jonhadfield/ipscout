@@ -522,6 +522,12 @@ func initialiseProviders(sess *session.Session, runners map[string]providers.Pro
 			if gErr != nil {
 				sess.Logger.Debug("failed to initialise", "provider", name, "error", gErr.Error())
 
+				// a provider that has already said what went wrong, and what to do
+				// about it, is left out of the generic line rather than named twice
+				if errors.Is(gErr, providers.ErrFailureReported) {
+					return nil
+				}
+
 				failedMu.Lock()
 
 				failed = append(failed, name)
