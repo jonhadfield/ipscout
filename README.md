@@ -231,7 +231,7 @@ Tag first, then release:
 ```shell
 git tag -a 0.10.0 -m "new providers, cache ttl tuning and release checks."
 git push origin 0.10.0
-make release
+GITHUB_TOKEN="$(gh auth token)" make release
 ```
 
 Tags are annotated and unprefixed (`0.10.0`, not `v0.10.0`), with a short lowercase
@@ -264,15 +264,18 @@ after a full six platform build. `make check-release-notes` runs it on its own, 
 
 Publishing needs a GitHub token with `repo` scope, for both the release and the push to
 the `homebrew-ipscout` cask repository. `goreleaser` resolves its SCM token from the
-environment, so if you keep a `GITLAB_TOKEN` set for other work, clear it for the run so
-the GitHub one is used:
+environment, and the shell does not export one, so supply it for the run:
 
 ```shell
-env -u GITLAB_TOKEN GITHUB_TOKEN="$(gh auth token)" make release
+GITHUB_TOKEN="$(gh auth token)" make release
 ```
 
 `gh auth token` reuses the `gh` CLI login rather than needing a separate PAT. Set
 `GITHUB_TOKEN` yourself if you would rather not depend on `gh`.
+
+A `GITLAB_TOKEN` or `GITEA_TOKEN` kept for other work needs no attention: the Makefile
+runs `goreleaser` with both unset, because it refuses to guess when it can see tokens for
+more than one forge. Your own environment is left as it is.
 
 ### Updating the ip-fetcher dependency
 
