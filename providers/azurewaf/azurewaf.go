@@ -147,7 +147,7 @@ func (c *ProviderClient) loadProviderData() error {
 		if hint := azureAuthHint(err); hint != "" {
 			c.Messages.AddError(hint)
 
-			return fmt.Errorf("azure waf credentials expired: %w", providers.ErrFailedToFetchData)
+			return fmt.Errorf("azure waf credentials expired: %w", providers.ErrFailureReported)
 		}
 
 		return fmt.Errorf("error getting azure waf policies: %w", err)
