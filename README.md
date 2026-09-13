@@ -32,7 +32,7 @@ and IPURL) are driven from your own config.
 
 ## Features
 
-- Query 74 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
+- Query 78 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
 - Score a host with `ipscout rate`: per-provider scores, reasons, and a block or allow recommendation, optionally AI-assisted
 - Output as a table, JSON or CSV, in a choice of colour styles
 - Cache provider data locally, with per-provider TTLs sized to how often each source publishes
@@ -93,6 +93,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [DShield](#DShield)                                       |   Threat Feed    |           -           |
 | [DuckDuckBot](#DuckDuckBot)                               |   Web crawler    |           -           |
 | [Emerging Threats](#Emerging-Threats)                     |   Threat Feed    |           -           |
+| [Feodo Tracker](#Feodo-Tracker)                           |   Threat Feed    |           -           |
 | [Fastly](#Fastly)                                         |       CDN        |           -           |
 | [Fly.io](#Flyio)                                          | Hosting Provider |           -           |
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
@@ -114,7 +115,9 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Leaseweb](#Leaseweb)                                     | Hosting Provider |           -           |
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [M247](#M247)                                             | Hosting Provider |           -           |
+| [Microsoft 365](#Microsoft-365)                           |       SaaS       |           -           |
 | [New Relic](#New-Relic)                                   |    Monitoring    |           -           |
+| [Okta](#Okta)                                             |       SaaS       |           -           |
 | [OpenAI](#OpenAI)                                         |   Web crawler    |           -           |
 | [Oracle Cloud (OCI)](#Oracle-Cloud-OCI)                   | Hosting Provider |           -           |
 | [OVH](#OVH)                                               | Hosting Provider |           -           |
@@ -133,6 +136,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Team Cymru Bogons](#Team-Cymru-Bogons)                   |      Bogon       |           -           |
 | [Tenable](#Tenable)                                       | Vulnerability Scanner |     -     |
 | [Tencent Cloud](#Tencent-Cloud)                           | Hosting Provider |           -           |
+| [Tor Exit Node](#Tor-Exit-Node)                           |   Anonymiser     |           -           |
 | [updown.io](#updownio)                                    |    Monitoring    |           -           |
 | [UptimeRobot](#UptimeRobot)                               |    Monitoring    |           -           |
 | [Uptrends](#Uptrends)                                     |    Monitoring    |           -           |
@@ -662,11 +666,24 @@ that [publishes](https://geoip.linode.com/) network prefixes used by their servi
 [M247](https://www.m247.com/) is a global hosting and connectivity provider.
 IP ranges are retrieved from the BGPView API and checked for matches against the target host.
 
+### Microsoft 365
+
+[Microsoft 365](https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-ip-web-service)
+publishes the ranges its services run from. A match names the service area — Exchange
+Online, SharePoint, Skype or the common set — and Microsoft's own category for the range:
+`Optimize`, `Allow` or `Default`.
+
 ### New Relic
 
 [New Relic](https://newrelic.com/) publishes the addresses its synthetic monitors run
 from, grouped by location. A match means the host is a New Relic synthetics probe, and
 names the location it runs from, such as "Washington, DC, USA".
+
+### Okta
+
+[Okta](https://help.okta.com/en-us/content/topics/security/ip-address-allow-listing.htm)
+publishes the ranges its cells run from. A match names the cell, which is how Okta
+partitions its infrastructure.
 
 ### OpenAI
 
@@ -841,6 +858,13 @@ this list and checks whether the target IP is within those ranges.
 IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
 against the target host.
 
+### Feodo Tracker
+
+[Feodo Tracker](https://feodotracker.abuse.ch/) is abuse.ch's list of botnet command and
+control servers — Dridex, Emotet, TrickBot and QakBot among them. A match means the host is
+a live C2 server, which is the strongest single signal in the tool: it scores 10.0, level
+with the other threat feeds.
+
 ### Gcore
 
 [Gcore](https://gcore.com/) is a CDN and edge platform that publishes the addresses its
@@ -1001,6 +1025,14 @@ by criminal operations. The lists are published at
 [spamhaus.org/drop/drop_v6.json](https://www.spamhaus.org/drop/drop_v6.json).
 IPScout downloads both lists and checks whether the target IP is within those
 netblocks, reporting the associated SBL identifier and RIR.
+
+### Tor Exit Node
+
+[Tor](https://check.torproject.org/) publishes the addresses traffic leaves its network
+from. A match means the request reached you through Tor, so the address says nothing about
+who sent it. Not malicious in itself, and plenty of legitimate traffic uses it, but it is a
+deliberate anonymiser rather than an ordinary host: it scores 6.0, above the identified
+services and below the threat feeds.
 
 ### updown.io
 

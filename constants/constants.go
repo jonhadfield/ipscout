@@ -49,6 +49,10 @@ const (
 	DefaultDShieldOutputPriority         = 24
 	DefaultSpamhausOutputPriority        = 26
 	DefaultCymruOutputPriority           = 28
+	// Feodo names a botnet command and control server and Tor an anonymising
+	// exit, both statements about this exact address rather than who owns it.
+	DefaultFeodoOutputPriority = 22
+	DefaultTorOutputPriority   = 29
 
 	// Reputation and scanning intelligence describing this exact address.
 	DefaultAbuseIPDBOutputPriority  = 30
@@ -96,6 +100,8 @@ const (
 	DefaultStripeOutputPriority    = 90
 	DefaultAtlassianOutputPriority = 90
 	DefaultZoomOutputPriority      = 90
+	DefaultM365OutputPriority      = 90
+	DefaultOktaOutputPriority      = 90
 
 	// CDN and edge networks: the host fronts someone else's origin.
 	DefaultCloudflareOutputPriority = 140

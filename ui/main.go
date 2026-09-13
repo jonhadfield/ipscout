@@ -122,6 +122,10 @@ const (
 	providerGreenSnow       = "greensnow"
 	providerBetterStack     = "betterstack"
 	providerCheckly         = "checkly"
+	providerFeodo           = "feodo"
+	providerTor             = "tor"
+	providerM365            = "m365"
+	providerOkta            = "okta"
 	providerGrafana         = "grafana"
 	providerSentry          = "sentry"
 	providerSite24x7        = "site24x7"
@@ -182,6 +186,10 @@ var providerIcons = map[string]string{
 	providerGreenSnow:       emojiInvader,
 	providerBetterStack:     emojiCloud,
 	providerCheckly:         emojiCloud,
+	providerFeodo:           emojiInvader,
+	providerTor:             emojiInvader,
+	providerM365:            emojiCloud,
+	providerOkta:            emojiCloud,
 	providerGrafana:         emojiCloud,
 	providerSentry:          emojiCloud,
 	providerSite24x7:        emojiCloud,
@@ -425,6 +433,14 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 			newText = strings.Replace(currentText, " Better Stack", " ▶ Better Stack", 1)
 		case providerCheckly:
 			newText = strings.Replace(currentText, " Checkly", " ▶ Checkly", 1)
+		case providerFeodo:
+			newText = strings.Replace(currentText, " Feodo Tracker", " ▶ Feodo Tracker", 1)
+		case providerTor:
+			newText = strings.Replace(currentText, " Tor Exit Node", " ▶ Tor Exit Node", 1)
+		case providerM365:
+			newText = strings.Replace(currentText, " Microsoft 365", " ▶ Microsoft 365", 1)
+		case providerOkta:
+			newText = strings.Replace(currentText, " Okta", " ▶ Okta", 1)
 		case providerGrafana:
 			newText = strings.Replace(currentText, " Grafana", " ▶ Grafana", 1)
 		case providerSentry:
@@ -591,6 +607,10 @@ func OpenUI(logLevel string) error {
 		providerGreenSnow:       fetchGreenSnow,
 		providerBetterStack:     fetchBetterStack,
 		providerCheckly:         fetchCheckly,
+		providerFeodo:           fetchFeodo,
+		providerTor:             fetchTor,
+		providerM365:            fetchM365,
+		providerOkta:            fetchOkta,
 		providerGrafana:         fetchGrafana,
 		providerSentry:          fetchSentry,
 		providerSite24x7:        fetchSite24x7,
@@ -625,7 +645,7 @@ func OpenUI(logLevel string) error {
 	// credentials to return anything, so it is driven from the CLI only. Its
 	// icon, fetch and active-indicator entries are kept so it can be listed
 	// here without further wiring.
-	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerContabo, providerCriminalIP, providerDigitalOcean, providerFlyio, providerGCP, providerGoogle, providerGoogleSC, providerIBMCloud, providerICloudPR, providerLeaseweb, providerLinode, providerM247, providerOpenAI, providerOVH, providerRender, providerScaleway, providerTencent, providerVultr, providerZscaler, providerAkamai, providerAtlassian, providerBunny, providerCDN77, providerCloudflare, providerDatadog, providerFastly, providerGitHub, providerGoogleUTF, providerImperva, providerOCI, providerStripe, providerAhrefs, providerApplebot, providerDuckDuckBot, providerPerplexity, providerAnthropic, providerBlocklistDE, providerCymru, providerGreenSnow, providerBetterStack, providerCheckly, providerGcore, providerNewRelic, providerPingdom, providerStatusCake, providerZoom, providerCINSScore, providerDShield, providerEmergingThreats, providerSpamhaus, providerUptimeRobot, providerGrafana, providerSentry, providerSite24x7, providerUpdown, providerUptrends, providerDetectify, providerTenable}
+	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerContabo, providerCriminalIP, providerDigitalOcean, providerFlyio, providerGCP, providerGoogle, providerGoogleSC, providerIBMCloud, providerICloudPR, providerLeaseweb, providerLinode, providerM247, providerOpenAI, providerOVH, providerRender, providerScaleway, providerTencent, providerVultr, providerZscaler, providerAkamai, providerAtlassian, providerBunny, providerCDN77, providerCloudflare, providerDatadog, providerFastly, providerGitHub, providerGoogleUTF, providerImperva, providerOCI, providerStripe, providerAhrefs, providerApplebot, providerDuckDuckBot, providerPerplexity, providerAnthropic, providerBlocklistDE, providerCymru, providerGreenSnow, providerBetterStack, providerCheckly, providerGcore, providerNewRelic, providerPingdom, providerStatusCake, providerZoom, providerCINSScore, providerDShield, providerEmergingThreats, providerSpamhaus, providerUptimeRobot, providerFeodo, providerTor, providerM365, providerOkta, providerGrafana, providerSentry, providerSite24x7, providerUpdown, providerUptrends, providerDetectify, providerTenable}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()

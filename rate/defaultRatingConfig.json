@@ -210,6 +210,18 @@
     "checkly": {
       "defaultMatchScore": 1.0
     },
+    "feodo": {
+      "defaultMatchScore": 10.0
+    },
+    "tor": {
+      "defaultMatchScore": 6.0
+    },
+    "m365": {
+      "defaultMatchScore": 1.0
+    },
+    "okta": {
+      "defaultMatchScore": 1.0
+    },
     "grafana": {
       "defaultMatchScore": 1.0
     },

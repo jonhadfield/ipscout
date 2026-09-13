@@ -157,6 +157,14 @@ providers:
     enabled: true
   checkly:
     enabled: true
+  feodo:
+    enabled: true
+  tor:
+    enabled: true
+  m365:
+    enabled: true
+  okta:
+    enabled: true
   grafana:
     enabled: true
   sentry:
