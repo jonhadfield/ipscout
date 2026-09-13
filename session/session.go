@@ -491,6 +491,26 @@ type Providers struct {
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"checkly"`
+	Feodo struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"feodo"`
+	Tor struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"tor"`
+	M365 struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"m365"`
+	Okta struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"okta"`
 	Grafana struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`

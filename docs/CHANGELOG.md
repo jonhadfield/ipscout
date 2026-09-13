@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Added
+
+- Feodo Tracker and Tor exit node providers. abuse.ch's Feodo Tracker lists live botnet
+  command and control servers — Dridex, Emotet, TrickBot, QakBot — and a match is the
+  strongest single signal the tool reports, scoring 10.0 alongside the other threat feeds.
+  Tor names the addresses traffic leaves the network from, which is not malicious in itself
+  but means the address says nothing about who sent the request; it scores 6.0, above the
+  identified services and below the threat feeds. Both sit with the blocklists in the
+  output rather than with the ownership ranges, because both describe the exact address
+- Microsoft 365 and Okta providers, reporting SaaS infrastructure. Microsoft 365 names the
+  service area a range serves — Exchange Online, SharePoint, Skype or the common set — and
+  Microsoft's own category for it, `Optimize`, `Allow` or `Default`. Okta names the cell,
+  which is how it partitions its infrastructure
+
 ## [0.12.5] - 2026-09-13
 
 ### Fixed

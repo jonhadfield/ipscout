@@ -781,6 +781,14 @@ func initProviderConfig(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.BetterStack.Enabled, &sess.Providers.BetterStack.OutputPriority, &sess.Providers.BetterStack.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "checkly", "Checkly", c.DefaultChecklyOutputPriority,
 		&sess.Providers.Checkly.Enabled, &sess.Providers.Checkly.OutputPriority, &sess.Providers.Checkly.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "feodo", "Feodo Tracker", c.DefaultFeodoOutputPriority,
+		&sess.Providers.Feodo.Enabled, &sess.Providers.Feodo.OutputPriority, &sess.Providers.Feodo.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "tor", "Tor Exit Node", c.DefaultTorOutputPriority,
+		&sess.Providers.Tor.Enabled, &sess.Providers.Tor.OutputPriority, &sess.Providers.Tor.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "m365", "Microsoft 365", c.DefaultM365OutputPriority,
+		&sess.Providers.M365.Enabled, &sess.Providers.M365.OutputPriority, &sess.Providers.M365.DocumentCacheTTL)
+	initSimpleProviderConfig(sess, v, "okta", "Okta", c.DefaultOktaOutputPriority,
+		&sess.Providers.Okta.Enabled, &sess.Providers.Okta.OutputPriority, &sess.Providers.Okta.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "grafana", "Grafana", c.DefaultGrafanaOutputPriority,
 		&sess.Providers.Grafana.Enabled, &sess.Providers.Grafana.OutputPriority, &sess.Providers.Grafana.DocumentCacheTTL)
 	initSimpleProviderConfig(sess, v, "sentry", "Sentry", c.DefaultSentryOutputPriority,
