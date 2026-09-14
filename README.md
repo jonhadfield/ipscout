@@ -475,7 +475,7 @@ providers:
 ### Alibaba Cloud
 
 [Alibaba Cloud](https://www.alibabacloud.com/) is a hosting provider.
-IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### Annotated
 
@@ -606,7 +606,7 @@ changes constantly, so it is cached for an hour rather than the usual day.
 ### Hetzner
 
 [Hetzner](https://www.hetzner.com/) is a hosting provider.
-IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### iCloud Private Relay
 
@@ -664,7 +664,7 @@ that [publishes](https://geoip.linode.com/) network prefixes used by their servi
 ### M247
 
 [M247](https://www.m247.com/) is a global hosting and connectivity provider.
-IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### Microsoft 365
 
@@ -699,12 +699,12 @@ that [publishes](https://vps.ovh.net/ips.txt) network prefixes used by their ser
 ### Scaleway
 
 [Scaleway](https://www.scaleway.com/) is a European hosting provider.
-IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### Vultr
 
 [Vultr](https://www.vultr.com/) is a cloud hosting provider.
-IP ranges are retrieved from the BGPView API and checked for matches against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### Pingdom
 
@@ -828,8 +828,7 @@ these lists and checks whether the target IP is within those ranges.
 ### Contabo
 
 [Contabo](https://contabo.com/) is a hosting provider.
-IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
-against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### Datadog
 
@@ -855,8 +854,7 @@ this list and checks whether the target IP is within those ranges.
 ### Fly.io
 
 [Fly.io](https://fly.io/) is an application hosting provider.
-IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
-against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### Feodo Tracker
 
@@ -888,8 +886,7 @@ and checks whether the target IP is within those ranges.
 ### IBM Cloud
 
 [IBM Cloud](https://www.ibm.com/cloud) is a hosting provider.
-IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
-against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### Imperva
 
@@ -900,8 +897,7 @@ and checks whether the target IP is within those ranges.
 ### Leaseweb
 
 [Leaseweb](https://www.leaseweb.com/) is a hosting provider.
-IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
-against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### Oracle Cloud (OCI)
 
@@ -921,8 +917,7 @@ IPScout downloads this list and checks whether the target IP is within those ran
 ### Render
 
 [Render](https://render.com/) is an application hosting provider.
-IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
-against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### StatusCake
 
@@ -962,8 +957,7 @@ range, and flags the separately published FedRAMP ranges.
 ### Tencent Cloud
 
 [Tencent Cloud](https://www.tencentcloud.com/) is a hosting provider.
-IP ranges are retrieved from the RIPE stat / BGPView APIs and checked for matches
-against the target host.
+IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
 ### Anthropic
 

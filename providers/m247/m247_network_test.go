@@ -43,8 +43,8 @@ func mockHTTPClient(status int, body []byte) *retryablehttp.Client {
 }
 
 // newMockedClient wires a ProviderClient to a mocked HTTP client serving the
-// upstream BGPView fixture (the first source m247's Fetch queries), plus a
-// real temp cache, with UseTestData off.
+// upstream RIPE stat fixture (the only source ip-fetcher's shared bgpview
+// fetcher queries), plus a real temp cache, with UseTestData off.
 func newMockedClient(t *testing.T, host string, status int, body []byte) *ProviderClient {
 	t.Helper()
 
@@ -93,8 +93,8 @@ func TestInitialiseAndFindHostOverNetwork(t *testing.T) {
 func TestInitialiseNetworkFetchError(t *testing.T) {
 	t.Parallel()
 
-	// A non-200 response makes ip-fetcher's Fetch fail (both BGPView and any
-	// fallback source see the same error), surfacing from loadProviderData.
+	// A non-200 response makes ip-fetcher's Fetch fail, surfacing from
+	// loadProviderData.
 	c := newMockedClient(t, "5.102.113.10", http.StatusInternalServerError, []byte("boom"))
 
 	require.Error(t, c.Initialise())
