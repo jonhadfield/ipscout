@@ -1,9 +1,10 @@
 # Installs ipscout the way a macOS user does and checks the result runs.
 #
-# The cask clears com.apple.quarantine in a postflight block, which homebrew
-# has deprecated in favour of postflight_steps. Goreleaser generates the cask
-# and emits the old stanza, so this cannot be fixed here yet:
-# https://github.com/goreleaser/goreleaser/issues/6870
+# The cask clears com.apple.quarantine so gatekeeper does not kill the
+# installed binary. That used to be a postflight block, which homebrew has
+# deprecated. Goreleaser still emits the old stanza from hooks.post.install
+# (https://github.com/goreleaser/goreleaser/issues/6870), so the cask config
+# injects postflight_steps through custom_block instead.
 #
 # If homebrew removes postflight, the strip stops running, gatekeeper kills the
 # installed binary, and it exits 137 printing nothing. No release would fail
