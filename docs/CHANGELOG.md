@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- the providers whose ranges come from an ASN lookup — Alibaba, Contabo, Fly.io, Hetzner,
+  IBM Cloud, Leaseweb, M247, OVH, Render, Scaleway, Tencent and Vultr — failed when a single
+  RIPE stat lookup was slow, because one deadline covered the request and its retries, so a
+  slow response used it up before a retry could run. Each attempt now has its own deadline
+  and a slow lookup is tried up to three times. A failed lookup also no longer falls back to
+  api.bgpview.io, which has not resolved since mid-2026, so it fails sooner and its error no
+  longer names BGPView as a second source that was tried
+
 ## [0.13.0] - 2026-09-13
 
 ### Added

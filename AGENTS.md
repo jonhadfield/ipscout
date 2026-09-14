@@ -74,7 +74,7 @@ The codebase follows a modular architecture with clear separation of concerns:
 
 Many providers fetch their IP-range data through the `github.com/jonhadfield/ip-fetcher` library, which is injected the session's HTTP client (`<client>.Client = c.HTTPClient`).
 
-- **The released module is the source of truth, not a local checkout.** `go.mod` pins a `v`-prefixed release tag (e.g. `v0.0.16`), not a pseudo-version. A local `../ip-fetcher` checkout can differ in behaviour, and the released code can contradict its own naming: as of v0.0.29 the shared `bgpview` fetcher tries RIPE stat first and falls back to BGPView, while its `DefaultURL`/`FallbackURL` constants still name the older BGPView-first order. Read the call flow in the pinned module under `GOMODCACHE`, not the local repo and not the constant names.
+- **The released module is the source of truth, not a local checkout.** `go.mod` pins a `v`-prefixed release tag (e.g. `v0.0.16`), not a pseudo-version. A local `../ip-fetcher` checkout can differ in behaviour, and the released code can contradict its own naming: as of v0.0.37 the shared `bgpview` fetcher queries RIPE stat only (api.bgpview.io is gone), though the package, its `Response` type and ipscout's `bgpview-prefixes.json` fixtures are still named after BGPView. Read the call flow in the pinned module under `GOMODCACHE`, not the local repo and not the names.
 - **To pick up ip-fetcher changes:** cut a new `v`-prefixed release tag in the ip-fetcher repo, then `go get github.com/jonhadfield/ip-fetcher@vX.Y.Z` and `go mod tidy` here. Don't reintroduce pseudo-versions.
 - The `replace` directive in `go.mod` is for local dev only and must never be committed enabled.
 

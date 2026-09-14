@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/jedib0t/go-pretty/v6 v6.8.3
 	github.com/jonhadfield/azwaf v0.5.0
-	github.com/jonhadfield/ip-fetcher v0.0.36
+	github.com/jonhadfield/ip-fetcher v0.0.38
 	github.com/miekg/dns v1.1.73
 	github.com/rivo/tview v0.42.0
 	github.com/sashabaranov/go-openai v1.42.0
@@ -29,8 +29,8 @@ require (
 
 // ip-fetcher is pinned to a v-prefixed release tag above (not a pseudo-version).
 // That released module — NOT a local ../ip-fetcher checkout — is the source of
-// truth for upstream data formats (e.g. BGP-based providers fetch BGPView-first
-// in the released version). Uncomment the replace below only for local dev, and
+// truth for upstream data formats (e.g. BGP-based providers fetch from RIPE stat
+// only in the released version). Uncomment the replace below only for local dev, and
 // never commit it enabled. Cut a new ip-fetcher release tag and bump the version
 // above when picking up ip-fetcher changes.
 // replace github.com/jonhadfield/ip-fetcher => ../ip-fetcher
