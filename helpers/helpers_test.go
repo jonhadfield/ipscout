@@ -1,8 +1,10 @@
 package helpers
 
 import (
+	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
@@ -152,4 +154,19 @@ func TestSetProjectRootOverride(t *testing.T) {
 	root, err = FindProjectRoot()
 	require.NoError(t, err)
 	require.Equal(t, realRoot, root)
+}
+
+// TestGetHTTPClientHonoursProxyEnv guards HTTPS_PROXY support for every
+// provider, since they all share this client. It compares the Proxy func
+// itself: net/http reads the proxy variables once per process, so setting
+// HTTPS_PROXY inside a test cannot be relied on to take effect.
+func TestGetHTTPClientHonoursProxyEnv(t *testing.T) {
+	t.Parallel()
+
+	c := GetHTTPClient()
+
+	tr, ok := c.HTTPClient.Transport.(*http.Transport)
+	require.True(t, ok)
+	require.NotNil(t, tr.Proxy)
+	require.Equal(t, reflect.ValueOf(http.ProxyFromEnvironment).Pointer(), reflect.ValueOf(tr.Proxy).Pointer())
 }
