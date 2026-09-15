@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- a URL list the ipurl provider could not download — the firehol lists, or any configured
+  in `providers.ipurl.urls` — was reported only as
+  `error fetching ipurl data: url.GetPrefixURLMapFromURLResponses | no responses`, which
+  said the download failed but not why. The cause is now part of the error: a refused proxy
+  connection, a TLS or DNS failure, or the status a server answered with, such as a 403 from
+  a filtering proxy
+
 ## [0.13.3] - 2026-09-15
 
 ### Fixed
