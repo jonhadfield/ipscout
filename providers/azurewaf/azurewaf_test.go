@@ -21,6 +21,28 @@ const expiredGrantErr = `policy.GetRawPolicy | API call failed after 951.627042m
 	`az logout` + "\n" +
 	`az login --tenant "78ade5b2-2582-4cdd-b7c6-587ba2187324" --scope "https://management.core.windows.net//.default"`
 
+// The error azure returns when the login is valid but for a different tenant
+// from the subscription, as reported from a real run with the ids and resource
+// names replaced. The tenant to suggest is the second one: the first is the
+// issuer of the token that was refused.
+const wrongTenantErr = `error getting policy: policy.GetRawPolicy - GET https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000003/resourceGroups/example-rg/providers/Microsoft.Network/FrontDoorWebApplicationFirewallPolicies/examplepolicy` + "\n" +
+	`--------------------------------------------------------------------------------` + "\n" +
+	`RESPONSE 401: 401 Unauthorized` + "\n" +
+	`ERROR CODE: InvalidAuthenticationTokenTenant` + "\n" +
+	`--------------------------------------------------------------------------------` + "\n" +
+	`{` + "\n" +
+	`  "error": {` + "\n" +
+	`    "code": "InvalidAuthenticationTokenTenant",` + "\n" +
+	`    "message": "The access token is from the wrong issuer 'https://sts.windows.net/00000000-0000-0000-0000-000000000001/'. ` +
+	`It must match the tenant 'https://sts.windows.net/00000000-0000-0000-0000-000000000002/' associated with this subscription. ` +
+	`Please use the authority (URL) 'https://login.windows.net/00000000-0000-0000-0000-000000000002' to get the token. ` +
+	`Note, if the subscription is transferred to another tenant there is no impact to the services, but information about ` +
+	`new tenant could take time to propagate (up to an hour). If you just transferred your subscription and see this error ` +
+	`message, please try back later."` + "\n" +
+	`  }` + "\n" +
+	`}` + "\n" +
+	`--------------------------------------------------------------------------------`
+
 func TestAzureAuthHint(t *testing.T) {
 	t.Parallel()
 
@@ -40,6 +62,19 @@ func TestAzureAuthHint(t *testing.T) {
 			err:  errors.New("AzureCLICredential: ERROR: AADSTS700082: refresh token has expired"),
 			want: "azure waf: your azure credentials have expired, so its policies were not read. " +
 				"re-authenticate with: az login",
+		},
+		{
+			name: "a login for the wrong tenant names the subscription's tenant, not the token's",
+			err:  errors.New(wrongTenantErr),
+			want: "azure waf: your azure login is for a different tenant from the waf policy's subscription, " +
+				"so its policies were not read. log in to the right tenant with: " +
+				"az login --tenant 00000000-0000-0000-0000-000000000002",
+		},
+		{
+			name: "a wrong tenant error without the tenant falls back to a bare az login",
+			err:  errors.New("RESPONSE 401: 401 Unauthorized\nERROR CODE: InvalidAuthenticationTokenTenant"),
+			want: "azure waf: your azure login is for a different tenant from the waf policy's subscription, " +
+				"so its policies were not read. log in to the right tenant with: az login",
 		},
 		{
 			name: "an unrelated failure is left alone",

@@ -106,13 +106,30 @@ func unmarshalProviderData(rBody []byte) ([]*armfrontdoor.WebApplicationFirewall
 // expired credential error, so the command we suggest names the same tenant.
 var tenantRegexp = regexp.MustCompile(`--tenant "?([0-9a-fA-F-]{36})"?`)
 
+// wrongTenantRegexp picks out the tenant azure says the subscription belongs to
+// when the login is valid but for a different tenant. The error suggests no az
+// command, so this is the only place the right tenant is named.
+var wrongTenantRegexp = regexp.MustCompile(`must match the tenant 'https://sts\.windows\.net/([0-9a-fA-F-]{36})/?'`)
+
 // azureAuthHint reports whether err is azure refusing the cached credentials
 // rather than anything to do with the policy being asked for, and returns the
 // one line worth showing. Azure answers these with a paragraph carrying trace
 // and correlation ids, timestamps and the full az invocation; the part a user
-// acts on is that the login has expired and which tenant to renew it against.
+// acts on is what is wrong with the login and which tenant to log in to.
 func azureAuthHint(err error) string {
 	msg := err.Error()
+
+	// A login for the wrong tenant has not expired, so saying it had would send
+	// the user to renew a login that works. It needs its own message.
+	if strings.Contains(msg, "InvalidAuthenticationTokenTenant") {
+		login := "az login"
+		if m := wrongTenantRegexp.FindStringSubmatch(msg); m != nil {
+			login = fmt.Sprintf("az login --tenant %s", m[1])
+		}
+
+		return fmt.Sprintf("azure waf: your azure login is for a different tenant from the waf policy's subscription, "+
+			"so its policies were not read. log in to the right tenant with: %s", login)
+	}
 
 	switch {
 	case strings.Contains(msg, "AADSTS50173"), // grant expired or revoked
@@ -141,13 +158,14 @@ func (c *ProviderClient) loadProviderData() error {
 
 	policies, err := getPolicies(c.Session, as)
 	if err != nil {
-		// an expired login is the common case here and is worth saying plainly,
-		// because the azure error that describes it is a paragraph long and the
-		// generic fetch-failed line does not say what to do about it
+		// a refused login, expired or for the wrong tenant, is the common case
+		// here and is worth saying plainly, because the azure error that describes
+		// it is a paragraph long and the generic fetch-failed line does not say
+		// what to do about it
 		if hint := azureAuthHint(err); hint != "" {
 			c.Messages.AddError(hint)
 
-			return fmt.Errorf("azure waf credentials expired: %w", providers.ErrFailureReported)
+			return fmt.Errorf("azure waf login refused: %w", providers.ErrFailureReported)
 		}
 
 		return fmt.Errorf("error getting azure waf policies: %w", err)
