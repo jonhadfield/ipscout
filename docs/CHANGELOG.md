@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- an azure login for a different tenant from the waf policy's subscription was reported
+  only as `failed to fetch ip ranges for azurewaf (run with --log-level DEBUG for details)`,
+  and the debug output was a paragraph of azure json with the tenant to use buried in it.
+  It is now one line, like an expired login, naming the tenant the subscription belongs to:
+
+  `azure waf: your azure login is for a different tenant from the waf policy's subscription, so its policies were not read. log in to the right tenant with: az login --tenant <id>`
+
+  An expired login is still reported as expired; a login for the wrong tenant is not, since
+  renewing it would change nothing
+- every `brew install`, `upgrade` and `update` printed Homebrew 7's warning that the ipscout
+  cask calls the deprecated `postflight`. The cask now uses `postflight_steps`, which does
+  the same thing: clearing the quarantine attribute so gatekeeper does not stop the binary
+
 ## [0.13.1] - 2026-09-14
 
 ### Fixed
