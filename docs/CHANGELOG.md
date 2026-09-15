@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.13.3] - 2026-09-15
+
 ### Fixed
 
 - an azure login for a different tenant from the waf policy's subscription was reported
@@ -17,6 +19,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
   An expired login is still reported as expired; a login for the wrong tenant is not, since
   renewing it would change nothing
+
+## [0.13.2] - 2026-09-14
+
+### Fixed
+
 - every `brew install`, `upgrade` and `update` printed Homebrew 7's warning that the ipscout
   cask calls the deprecated `postflight`. The cask now uses `postflight_steps`, which does
   the same thing: clearing the quarantine attribute so gatekeeper does not stop the binary
@@ -672,7 +679,9 @@ as 0.12.2 and behave identically, so there is no reason to upgrade for its own s
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.13.1...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.13.3...HEAD
+[0.13.3]: https://github.com/jonhadfield/ipscout/releases/tag/0.13.3
+[0.13.2]: https://github.com/jonhadfield/ipscout/releases/tag/0.13.2
 [0.13.1]: https://github.com/jonhadfield/ipscout/releases/tag/0.13.1
 [0.13.0]: https://github.com/jonhadfield/ipscout/releases/tag/0.13.0
 [0.12.5]: https://github.com/jonhadfield/ipscout/releases/tag/0.12.5
