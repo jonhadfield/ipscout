@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/jonhadfield/ipscout/providers"
+	"github.com/jonhadfield/ipscout/runner"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/require"
@@ -35,8 +36,8 @@ func newRaterWithCompleter(t *testing.T, c ChatCompleter) *Rater {
 	}
 }
 
-func emptyResults() *findHostsResults {
-	return &findHostsResults{m: map[string][]byte{}}
+func emptyResults() *runner.HostResults {
+	return &runner.HostResults{Data: map[string][]byte{}}
 }
 
 func TestAIRateSuccess(t *testing.T) {

@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/sashabaranov/go-openai"
@@ -19,15 +18,11 @@ import (
 
 	"github.com/jedib0t/go-pretty/v6/table"
 
-	"github.com/briandowns/spinner"
-	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/jonhadfield/ipscout/cache"
-	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/providers"
-	"github.com/jonhadfield/ipscout/registry"
+	"github.com/jonhadfield/ipscout/runner"
 	"github.com/jonhadfield/ipscout/session"
-	"golang.org/x/sync/errgroup"
 )
 
 //go:embed defaultRatingConfig.json
@@ -37,52 +32,9 @@ const (
 	txtAllow            = "allow"
 	txtBlock            = "block"
 	spinnerStartupMS    = 50
-	spinnerIntervalMS   = 100
 	maxCompletionTokens = 1024
 	aiModel             = openai.GPT4oMini
 )
-
-func getEnabledProviderClients(sess session.Session) (map[string]providers.ProviderClient, error) {
-	runners := make(map[string]providers.ProviderClient)
-
-	for _, entry := range registry.All() {
-		if !entry.SupportsRating {
-			continue
-		}
-
-		entryEnabled := entry.Enabled(sess)
-		if entryEnabled == nil || !*entryEnabled {
-			continue
-		}
-
-		client, err := entry.NewClient(sess)
-		if err != nil {
-			return nil, fmt.Errorf("error creating %s client: %w", entry.Name, err)
-		}
-
-		if client != nil && (client.Enabled() || sess.UseTestData) {
-			runners[entry.Name] = client
-		}
-	}
-
-	return runners, nil
-}
-
-func getEnabledProviders(runners map[string]providers.ProviderClient) map[string]providers.ProviderClient {
-	res := make(map[string]providers.ProviderClient)
-
-	for k, r := range runners {
-		if r.Enabled() {
-			res[k] = r
-		}
-	}
-
-	if len(res) == 0 {
-		return nil
-	}
-
-	return res
-}
 
 // ChatCompleter is the subset of the OpenAI client used for AI rating. It lets
 // the completion backend be injected so the rating flow can be tested offline.
@@ -147,25 +99,24 @@ func (r *Rater) Run() error {
 	r.Session.Cache = db
 
 	defer func() {
-		if err = cache.Close(r.Session.Logger, db); err != nil {
-			fmt.Printf("error: %s", err.Error())
-			os.Exit(1)
+		if closeErr := cache.Close(r.Session.Logger, db); closeErr != nil {
+			r.Session.Logger.Error("failed to close cache", "error", closeErr)
 		}
 	}()
 
-	providerClients, err := getEnabledProviderClients(*r.Session)
+	providerClients, err := runner.GetEnabledProviderClients(*r.Session, runner.ClientOptions{RatingOnly: true})
 	if err != nil {
 		r.Session.Logger.Error("failed to generate provider clients", "error", err)
 
-		// close here as exit prevents defer from running
 		_ = cache.Close(r.Session.Logger, db)
 
 		return fmt.Errorf("failed to generate provider clients: %w", err)
 	}
 
-	enabledProviders := getEnabledProviders(providerClients)
+	enabledProviders := runner.GetEnabledProviders(providerClients)
 
-	initialiseProviders(r.Session, enabledProviders, r.Session.HideProgress)
+	runner.InitialiseProviders(r.Session, enabledProviders, r.Session.HideProgress)
+	time.Sleep(spinnerStartupMS * time.Millisecond)
 
 	if strings.EqualFold(r.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range r.Session.Stats.InitialiseDuration {
@@ -176,13 +127,15 @@ func (r *Rater) Run() error {
 	if r.Session.Config.Global.InitialiseCacheOnly {
 		_, _ = fmt.Fprintln(r.Session.Target, "cache initialisation complete")
 
-		outputMessages(r.Session)
+		runner.OutputMessages(r.Session)
 
 		return nil
 	}
 
 	// find hosts
-	results := findHosts(enabledProviders, r.Session.HideProgress)
+	results := runner.FindHosts(enabledProviders, r.Session.HideProgress)
+
+	time.Sleep(spinnerStartupMS * time.Millisecond)
 
 	// output timings when debug logging
 	if strings.EqualFold(r.Session.Config.Global.LogLevel, "debug") {
@@ -196,22 +149,22 @@ func (r *Rater) Run() error {
 	}
 
 	results.RLock()
-	matchingResults := len(results.m)
+	matchingResults := len(results.Data)
 	results.RUnlock()
 
 	r.Session.Logger.Info("host matching results", "providers queried", len(enabledProviders), "matching results", matchingResults)
 
 	if matchingResults == 0 {
-		r.Session.Logger.Warn("no results found", "host", r.Session.Host.String(), "providers checked", strings.Join(mapsKeys(enabledProviders), ", "))
+		r.Session.Logger.Warn("no results found", "host", r.Session.Host.String(), "providers checked", strings.Join(runner.MapsKeys(enabledProviders), ", "))
 
 		// there is no rating to print below, but a fetch failure is the most
 		// likely reason there is nothing to show, so still report it
-		outputMessages(r.Session)
+		runner.OutputMessages(r.Session)
 
 		return nil
 	}
 
-	defer outputMessages(r.Session)
+	defer runner.OutputMessages(r.Session)
 
 	if r.Session.Config.Rating.UseAI {
 		return aiRate(r, enabledProviders, results)
@@ -220,7 +173,7 @@ func (r *Rater) Run() error {
 	return staticRate(r, enabledProviders, results, ratingConfig)
 }
 
-func aiRate(r *Rater, enabledProviders map[string]providers.ProviderClient, results *findHostsResults) error {
+func aiRate(r *Rater, enabledProviders map[string]providers.ProviderClient, results *runner.HostResults) error {
 	// rate results
 	combinedThreatIndicators, err := extractThreatIndicators(r.Session, enabledProviders, results)
 	if err != nil {
@@ -282,13 +235,13 @@ func aiRate(r *Rater, enabledProviders map[string]providers.ProviderClient, resu
 	return nil
 }
 
-func extractThreatIndicators(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) ([]providers.ThreatIndicators, error) {
+func extractThreatIndicators(sess *session.Session, runners map[string]providers.ProviderClient, results *runner.HostResults) ([]providers.ThreatIndicators, error) {
 	sess.Logger.Debug("extracting threat indicators")
 
 	combinedThreatIndicators := make([]providers.ThreatIndicators, 0)
 
-	for k := range results.m {
-		tis, err := runners[k].ExtractThreatIndicators(results.m[k])
+	for k := range results.Data {
+		tis, err := runners[k].ExtractThreatIndicators(results.Data[k])
 		if err != nil {
 			return nil, fmt.Errorf("error rating %s: %w", k, err)
 		}
@@ -336,7 +289,7 @@ func (r *Rater) CreateThreatIndicatorsTable(ctis []providers.ThreatIndicators) (
 	return &tw, nil
 }
 
-func staticRate(r *Rater, enabledProviders map[string]providers.ProviderClient, results *findHostsResults, ratingConfig []byte) error {
+func staticRate(r *Rater, enabledProviders map[string]providers.ProviderClient, results *runner.HostResults, ratingConfig []byte) error {
 	rrs, err := staticRateFindHostsResults(r.Session, enabledProviders, results, ratingConfig)
 	if err != nil {
 		return fmt.Errorf("failed to rate results: %w", err)
@@ -375,7 +328,7 @@ type RatingOutput struct {
 	Reasons []string
 }
 
-func staticRateFindHostsResults(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults, ratingConfigJSON []byte) (RatingOutput, error) {
+func staticRateFindHostsResults(sess *session.Session, runners map[string]providers.ProviderClient, results *runner.HostResults, ratingConfigJSON []byte) (RatingOutput, error) {
 	sess.Logger.Debug("rating results")
 
 	runningTotal := 0.0
@@ -389,8 +342,8 @@ func staticRateFindHostsResults(sess *session.Session, runners map[string]provid
 		return RatingOutput{}, fmt.Errorf("error unmarshalling rating config: %w", err)
 	}
 
-	for k := range results.m {
-		rateResult, err := runners[k].RateHostData(results.m[k], ratingConfigJSON)
+	for k := range results.Data {
+		rateResult, err := runners[k].RateHostData(results.Data[k], ratingConfigJSON)
 		if err != nil {
 			return RatingOutput{}, fmt.Errorf("error rating %s: %w", k, err)
 		}
@@ -477,163 +430,6 @@ func (r *Rater) CreateResultsTable(info RatingOutput) (*table.Writer, error) {
 	tw.SetTitle("RATING: " + r.Session.Host.String())
 
 	return &tw, nil
-}
-
-func mapsKeys[K comparable, V any](m map[K]V) []K {
-	keys := make([]K, 0, len(m))
-
-	for key := range m {
-		keys = append(keys, key)
-	}
-
-	return keys
-}
-
-func initialiseProviders(sess *session.Session, runners map[string]providers.ProviderClient, hideProgress bool) {
-	var err error
-
-	var g errgroup.Group
-
-	// failures are collected rather than logged as they happen, so a slow
-	// download is not interrupted by output, and reported as one line after
-	// the results
-	var (
-		failedMu sync.Mutex
-		failed   []string
-	)
-
-	s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
-
-	if !hideProgress {
-		s.Start() // Start the spinner
-		// time.Sleep(4 * time.Second) // Run for some time to simulate work
-		s.Suffix = " initialising providers..."
-
-		defer func() {
-			stopSpinnerIfActive(s)
-		}()
-	}
-
-	for name, runner := range runners {
-		g.Go(func() error {
-			name := name
-
-			gErr := runner.Initialise()
-			if gErr != nil {
-				sess.Logger.Debug("failed to initialise", "provider", name, "error", gErr.Error())
-
-				// a provider that has already said what went wrong, and what to do
-				// about it, is left out of the generic line rather than named twice
-				if errors.Is(gErr, providers.ErrFailureReported) {
-					return nil
-				}
-
-				failedMu.Lock()
-
-				failed = append(failed, name)
-
-				failedMu.Unlock()
-			}
-
-			return nil
-		})
-	}
-
-	if err = g.Wait(); err != nil {
-		stopSpinnerIfActive(s)
-
-		return
-	}
-
-	reportFailedProviders(sess, failed)
-
-	// allow time to output spinner
-	time.Sleep(spinnerStartupMS * time.Millisecond)
-}
-
-// reportFailedProviders records a single message naming every provider whose
-// data could not be fetched. It is buffered on the session so it prints below
-// the results rather than over the progress spinner.
-func reportFailedProviders(sess *session.Session, failed []string) {
-	if len(failed) == 0 {
-		return
-	}
-
-	sort.Strings(failed)
-
-	sess.Messages.AddError(fmt.Sprintf(c.MsgFetchFailedFmt, strings.Join(failed, ", ")))
-}
-
-// outputMessages prints the messages buffered during the run, below the
-// results.
-func outputMessages(sess *session.Session) {
-	for _, msg := range sess.Messages.Error {
-		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgRed.Sprint("[ERROR]"), msg)
-	}
-
-	for _, msg := range sess.Messages.Warning {
-		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgYellow.Sprint("[WARN]"), msg)
-	}
-
-	for _, msg := range sess.Messages.Info {
-		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgGreen.Sprint("[INFO]"), msg)
-	}
-}
-
-func stopSpinnerIfActive(s *spinner.Spinner) {
-	if s != nil && s.Active() {
-		s.Stop()
-	}
-}
-
-type findHostsResults struct {
-	sync.RWMutex
-	m map[string][]byte
-}
-
-func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *findHostsResults {
-	var results findHostsResults
-
-	results.Lock()
-	results.m = make(map[string][]byte)
-	results.Unlock()
-
-	var w sync.WaitGroup
-
-	if !hideProgress {
-		s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
-		s.Start() // Start the spinner
-		s.Suffix = " searching providers..."
-
-		defer s.Stop()
-	}
-
-	for name, runner := range runners {
-		w.Add(1)
-
-		go func() {
-			defer w.Done()
-
-			result, err := runner.FindHost()
-			if err != nil {
-				runner.GetConfig().Logger.Debug(err.Error())
-
-				return
-			}
-
-			if result != nil {
-				results.Lock()
-				results.m[name] = result
-				results.Unlock()
-			}
-		}()
-	}
-
-	w.Wait()
-	// allow time to output spinner
-	time.Sleep(spinnerStartupMS * time.Millisecond)
-
-	return &results
 }
 
 func New(sess *session.Session) (Rater, error) {

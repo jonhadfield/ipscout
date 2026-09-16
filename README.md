@@ -69,6 +69,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [AhrefsBot](#AhrefsBot)                                   |   Web crawler    |           -           |
 | [Akamai](#Akamai)                                         |       CDN        |           -           |
 | [Alibaba Cloud](#Alibaba-Cloud)                           | Hosting Provider |           -           |
+| [Amazonbot](#Amazonbot)                                   |   Web crawler    |           -           |
 | [Annotated](#Annotated)                                   |  User Provided   |           -           |
 | [Anthropic](#Anthropic)                                   |   Web crawler    |           -           |
 | [Apple iCloud Private Relay](#Apple-iCloud-Private-Relay) |    Anonymiser    |           -           |
@@ -81,6 +82,8 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Bingbot](#Bingbot)                                       |   Web crawler    |           -           |
 | [Blocklist.de](#Blocklistde)                              |   Threat Feed    |           -           |
 | [Bunny CDN](#Bunny-CDN)                                   |       CDN        |           -           |
+| [CacheFly](#CacheFly)                                     |       CDN        |           -           |
+| [CCBot](#CCBot)                                           |   Web crawler    |           -           |
 | [CDN77](#CDN77)                                           |       CDN        |           -           |
 | [Checkly](#Checkly)                                       |    Monitoring    |           -           |
 | [CINS Army List](#CINS-Army-List)                         |   Threat Feed    |           -           |
@@ -99,6 +102,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [GCP](#Google-Cloud-Platform)                             | Hosting Provider |           -           |
 | [Gcore](#Gcore)                                           |       CDN        |           -           |
 | [GitHub](#GitHub)                                         |       SaaS       |           -           |
+| [GitLab](#GitLab)                                         |       SaaS       |           -           |
 | [Google](#Google)                                         | Hosting Provider |           -           |
 | [Google Special-case crawlers](#Google-Special-Crawlers)  |   Web crawler    |           -           |
 | [Google User-triggered Fetchers](#Google-User-triggered-Fetchers) | Web crawler |         -           |
@@ -106,8 +110,10 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Grafana](#Grafana)                                       |    Monitoring    |           -           |
 | [GreenSnow](#GreenSnow)                                   |   Threat Feed    |           -           |
 | [Hetzner](#Hetzner)                                       | Hosting Provider |           -           |
+| [Huawei Cloud](#Huawei-Cloud)                             | Hosting Provider |           -           |
 | [IBM Cloud](#IBM-Cloud)                                   | Hosting Provider |           -           |
 | [Imperva](#Imperva)                                       |       WAF        |           -           |
+| [Intercom](#Intercom)                                     |       SaaS       |           -           |
 | [IPAPI](#IPAPI)                                           |  IP Geolocation  |           -           |
 | [IPQualityScore](#IPQualityScore)                         |  IP Reputation   | Registration required |
 | [IPtoASN](#IPtoASN)                                       |     ASN Data     |           -           |
@@ -116,6 +122,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Linode](#Linode)                                         | Hosting Provider |           -           |
 | [M247](#M247)                                             | Hosting Provider |           -           |
 | [Microsoft 365](#Microsoft-365)                           |       SaaS       |           -           |
+| [Mullvad](#Mullvad)                                       |   Anonymiser     |           -           |
 | [New Relic](#New-Relic)                                   |    Monitoring    |           -           |
 | [Okta](#Okta)                                             |       SaaS       |           -           |
 | [OpenAI](#OpenAI)                                         |   Web crawler    |           -           |
@@ -125,6 +132,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Pingdom](#Pingdom)                                       |    Monitoring    |           -           |
 | [PTR](#PTR)                                               |       DNS        |           -           |
 | [Render](#Render)                                         | Hosting Provider |           -           |
+| [Salesforce](#Salesforce)                                 |       SaaS       |           -           |
 | [Scaleway](#Scaleway)                                     | Hosting Provider |           -           |
 | [Vultr](#Vultr)                                           | Hosting Provider |           -           |
 | [Sentry](#Sentry)                                         |    Monitoring    |           -           |
@@ -608,6 +616,12 @@ changes constantly, so it is cached for an hour rather than the usual day.
 [Hetzner](https://www.hetzner.com/) is a hosting provider.
 IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
 
+### Huawei Cloud
+
+[Huawei Cloud](https://www.huaweicloud.com/) is a hosting provider.
+IP ranges are retrieved from the RIPE stat API for Huawei's published ASNs and checked for
+matches against the target host.
+
 ### iCloud Private Relay
 
 [iCloud Private Relay](https://support.apple.com/en-us/102602) is an anonymising service provided by Apple. They publish
@@ -672,6 +686,12 @@ IP ranges are retrieved from the RIPE stat API and checked for matches against t
 publishes the ranges its services run from. A match names the service area — Exchange
 Online, SharePoint, Skype or the common set — and Microsoft's own category for the range:
 `Optimize`, `Allow` or `Default`.
+
+### Mullvad
+
+[Mullvad](https://mullvad.net/) is a VPN provider. IPScout downloads the full relay list
+from Mullvad's API and checks whether the target IP is an ingress address for any active
+relay.
 
 ### New Relic
 
@@ -799,6 +819,12 @@ the crawler at
 [search.developer.apple.com/applebot.json](https://search.developer.apple.com/applebot.json).
 IPScout downloads this list and checks whether the target IP is within those ranges.
 
+### Amazonbot
+
+[Amazonbot](https://developer.amazon.com/amazonbot) is Amazon's web crawler. IPScout
+downloads the Amazonbot, Amzn-SearchBot and Amzn-User prefix lists embedded in Amazon's
+developer documentation and reports which list(s) a matching address belongs to.
+
 ### Atlassian
 
 [Atlassian](https://www.atlassian.com/) publishes the IP ranges used by its
@@ -809,6 +835,19 @@ list and checks whether the target IP is within those ranges.
 
 [Bunny CDN](https://bunny.net/) is a content delivery network that publishes the
 IP ranges used by its edge servers. IPScout downloads this list and checks
+whether the target IP is within those ranges.
+
+### CacheFly
+
+[CacheFly](https://www.cachefly.com/) is a content delivery network that publishes its
+CDN edge prefixes at [cachefly.cachefly.net/ips/cdn.txt](https://cachefly.cachefly.net/ips/cdn.txt).
+IPScout downloads this list and checks whether the target IP is within those ranges.
+
+### CCBot
+
+[CCBot](https://commoncrawl.org/ccbot) is Common Crawl's web crawler. IPScout downloads
+the published prefix document from
+[index.commoncrawl.org/ccbot.json](https://index.commoncrawl.org/ccbot.json) and checks
 whether the target IP is within those ranges.
 
 ### CDN77
@@ -876,6 +915,12 @@ the origin server behind it.
 [meta API](https://api.github.com/meta). IPScout downloads this list and
 reports the services associated with any matching range.
 
+### GitLab
+
+[GitLab](https://about.gitlab.com/) publishes the IP ranges used by GitLab.com (web, API
+and webhooks) in its documentation. IPScout extracts those CIDRs and checks whether the
+target IP is within them.
+
 ### Google User-triggered Fetchers
 
 Google publishes the IP ranges used by its
@@ -893,6 +938,12 @@ IP ranges are retrieved from the RIPE stat API and checked for matches against t
 [Imperva](https://www.imperva.com/) (Incapsula) is a web application firewall and
 CDN that publishes the IP ranges used by its network. IPScout downloads this list
 and checks whether the target IP is within those ranges.
+
+### Intercom
+
+[Intercom](https://www.intercom.com/) publishes the IP ranges used by its US, EU and AU
+workspaces. IPScout merges those lists and reports the region and service associated with
+any matching range.
 
 ### Leaseweb
 
@@ -918,6 +969,12 @@ IPScout downloads this list and checks whether the target IP is within those ran
 
 [Render](https://render.com/) is an application hosting provider.
 IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
+
+### Salesforce
+
+[Salesforce](https://www.salesforce.com/) publishes Hyperforce public IP ranges at
+[ip-ranges.salesforce.com](https://ip-ranges.salesforce.com/ip-ranges.json). IPScout
+downloads this list and reports the region and provider associated with any matching range.
 
 ### StatusCake
 

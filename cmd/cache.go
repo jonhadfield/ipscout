@@ -2,12 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/jonhadfield/ipscout/process"
 
 	"github.com/jonhadfield/ipscout/manager"
-
+	"github.com/jonhadfield/ipscout/process"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +17,7 @@ func newCacheCommand() *cobra.Command {
 			if len(args) == 0 {
 				_ = cmd.Help()
 
-				os.Exit(0)
+				return nil
 			}
 
 			return nil
@@ -52,7 +49,7 @@ does a little of this on every run; gc does the rest in one go.`,
 		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			mgr, err := manager.NewClient(sess)
 			if err != nil {
-				os.Exit(1)
+				return fmt.Errorf("error creating cache manager: %w", err)
 			}
 
 			if err = mgr.GC(); err != nil {
@@ -76,7 +73,7 @@ func newCacheListCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			mgr, err := manager.NewClient(sess)
 			if err != nil {
-				os.Exit(1)
+				return fmt.Errorf("error creating cache manager: %w", err)
 			}
 
 			if err = mgr.List(); err != nil {
@@ -100,12 +97,16 @@ func newCacheInitialiseCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			processor, err := process.New(sess)
 			if err != nil {
-				os.Exit(1)
+				return fmt.Errorf("error creating processor: %w", err)
 			}
 
 			processor.Session.Config.Global.InitialiseCacheOnly = true
 
-			return processor.Run()
+			if err = processor.Run(); err != nil {
+				return fmt.Errorf("error initialising cache: %w", err)
+			}
+
+			return nil
 		},
 	}
 }
@@ -122,7 +123,7 @@ func newCacheDelCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			mgr, err := manager.NewClient(sess)
 			if err != nil {
-				os.Exit(1)
+				return fmt.Errorf("error creating cache manager: %w", err)
 			}
 
 			if err = mgr.Delete(args); err != nil {
@@ -148,7 +149,7 @@ func newCacheGetCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			mgr, err := manager.NewClient(sess)
 			if err != nil {
-				os.Exit(1)
+				return fmt.Errorf("error creating cache manager: %w", err)
 			}
 
 			if err = mgr.Get(args[0], raw); err != nil {

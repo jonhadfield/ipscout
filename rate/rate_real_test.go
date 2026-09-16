@@ -10,6 +10,7 @@ import (
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/providers"
+	"github.com/jonhadfield/ipscout/runner"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/stretchr/testify/require"
 )
@@ -188,17 +189,7 @@ func TestGetEnabledProviders(t *testing.T) {
 	t.Parallel()
 
 	// Empty input yields nil (no enabled providers).
-	require.Nil(t, getEnabledProviders(map[string]providers.ProviderClient{}))
-}
-
-func TestMapsKeys(t *testing.T) {
-	t.Parallel()
-
-	m := map[string]int{"a": 1, "b": 2, "c": 3}
-
-	keys := mapsKeys(m)
-	require.Len(t, keys, len(m))
-	require.ElementsMatch(t, []string{"a", "b", "c"}, keys)
+	require.Nil(t, runner.GetEnabledProviders(map[string]providers.ProviderClient{}))
 }
 
 func TestStaticRateFindHostsResultsBlock(t *testing.T) {
@@ -214,7 +205,7 @@ func TestStaticRateFindHostsResultsBlock(t *testing.T) {
 		}},
 	}
 
-	results := &findHostsResults{m: map[string][]byte{providerAbuseIPDB: []byte("{}")}}
+	results := &runner.HostResults{Data: map[string][]byte{providerAbuseIPDB: []byte("{}")}}
 
 	cfg, err := GetRatingConfig("")
 	require.NoError(t, err)
@@ -241,7 +232,7 @@ func TestStaticRateFindHostsResultsNoBlockOverride(t *testing.T) {
 		}},
 	}
 
-	results := &findHostsResults{m: map[string][]byte{"trusted": []byte("{}")}}
+	results := &runner.HostResults{Data: map[string][]byte{"trusted": []byte("{}")}}
 
 	cfg, err := GetRatingConfig("")
 	require.NoError(t, err)
@@ -261,7 +252,7 @@ func TestStaticRateFindHostsResultsNoDetection(t *testing.T) {
 		"clean": fakeProviderClient{rate: providers.RateResult{Detected: false}},
 	}
 
-	results := &findHostsResults{m: map[string][]byte{"clean": []byte("{}")}}
+	results := &runner.HostResults{Data: map[string][]byte{"clean": []byte("{}")}}
 
 	cfg, err := GetRatingConfig("")
 	require.NoError(t, err)
@@ -275,7 +266,7 @@ func TestStaticRateFindHostsResultsBadConfig(t *testing.T) {
 
 	sess := newTestSession(t)
 
-	_, err := staticRateFindHostsResults(sess, nil, &findHostsResults{m: nil}, []byte("not json"))
+	_, err := staticRateFindHostsResults(sess, nil, &runner.HostResults{Data: nil}, []byte("not json"))
 	require.Error(t, err)
 }
 
@@ -292,7 +283,7 @@ func TestExtractThreatIndicators(t *testing.T) {
 		"empty": fakeProviderClient{indicators: nil},
 	}
 
-	results := &findHostsResults{m: map[string][]byte{
+	results := &runner.HostResults{Data: map[string][]byte{
 		providerAbuseIPDB: []byte("{}"),
 		"empty":           []byte("{}"),
 	}}
@@ -302,11 +293,4 @@ func TestExtractThreatIndicators(t *testing.T) {
 	// Only the provider returning non-nil indicators is included.
 	require.Len(t, tis, 1)
 	require.Equal(t, providerAbuseIPDB, tis[0].Provider)
-}
-
-func TestStopSpinnerIfActiveNil(t *testing.T) {
-	t.Parallel()
-
-	// Should not panic with a nil spinner.
-	require.NotPanics(t, func() { stopSpinnerIfActive(nil) })
 }

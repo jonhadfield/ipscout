@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jonhadfield/ipscout/config"
+	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/registry"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/viper"
@@ -23,12 +25,12 @@ func TestInitProviderConfigCoversRegistry(t *testing.T) {
 		v.Set("providers."+strings.ToLower(e.Name)+".enabled", true)
 	}
 
-	initProviderConfig(s, v)
+	config.InitProviders(s, v)
 
 	for _, e := range registry.All() {
 		enabled := e.Enabled(*s)
 		if enabled == nil {
-			t.Errorf("provider %q enabled config not read by initProviderConfig", e.Name)
+			t.Errorf("provider %q enabled config not read by InitProviders", e.Name)
 
 			continue
 		}
@@ -48,7 +50,7 @@ func TestInitProviderConfigSetsDefaultPriorities(t *testing.T) {
 	s := session.New()
 	v := viper.New()
 
-	initProviderConfig(s, v)
+	config.InitProviders(s, v)
 
 	if s.Providers.Atlassian.OutputPriority == nil {
 		t.Fatal("atlassian output priority not set")
@@ -58,7 +60,7 @@ func TestInitProviderConfigSetsDefaultPriorities(t *testing.T) {
 		t.Fatal("alibaba output priority not set")
 	}
 
-	if got := *s.Providers.Alibaba.OutputPriority; got != defaultAlibabaOutputPriority {
-		t.Errorf("alibaba output priority = %d, want %d", got, defaultAlibabaOutputPriority)
+	if got := *s.Providers.Alibaba.OutputPriority; got != c.DefaultAlibabaOutputPriority {
+		t.Errorf("alibaba output priority = %d, want %d", got, c.DefaultAlibabaOutputPriority)
 	}
 }

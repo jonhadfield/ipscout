@@ -1,14 +1,12 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"net/netip"
-	"os"
 
 	"github.com/jonhadfield/ipscout/constants"
-
 	"github.com/jonhadfield/ipscout/providers"
-
 	"github.com/jonhadfield/ipscout/rate"
 	"github.com/spf13/cobra"
 )
@@ -33,21 +31,17 @@ func newRateCommand() *cobra.Command {
 			if len(args) == 0 {
 				_ = cmd.Help()
 
-				os.Exit(0)
+				return nil
 			}
 
 			var err error
 			if sess.Host, err = netip.ParseAddr(args[0]); err != nil {
-				fmt.Printf(constants.MsgInvalidHostFmt, err.Error())
-
-				os.Exit(1)
+				return fmt.Errorf(constants.MsgInvalidHostFmt, err.Error())
 			}
 
 			rater, err := rate.New(sess)
 			if err != nil {
-				fmt.Println(err.Error())
-
-				os.Exit(1)
+				return fmt.Errorf("error creating rater: %w", err)
 			}
 
 			if useAI {
@@ -60,16 +54,12 @@ func newRateCommand() *cobra.Command {
 
 			if rater.Session.Config.Rating.UseAI {
 				if rater.Session.Config.Rating.OpenAIAPIKey == "" {
-					fmt.Println("use AI specified but OpenAI api key not set")
-
-					os.Exit(1)
+					return errors.New("use AI specified but OpenAI api key not set")
 				}
 			}
 
 			if err = rater.Run(); err != nil {
-				fmt.Println(err.Error())
-
-				os.Exit(1)
+				return fmt.Errorf("error rating host: %w", err)
 			}
 
 			return nil
@@ -99,22 +89,20 @@ func newRateConfigCommand() *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			if showDefault {
-				fmt.Println(rate.DefaultRatingConfigJSON)
+				fmt.Fprintln(cmd.OutOrStdout(), rate.DefaultRatingConfigJSON)
 
-				os.Exit(0)
+				return nil
 			}
 
 			path := cmd.Flag("path").Value.String()
 			if path == "" {
 				rater, err := rate.New(sess)
 				if err != nil {
-					os.Exit(1)
+					return fmt.Errorf("error creating rater: %w", err)
 				}
 
 				if rater.Session.Config.Rating.ConfigPath == "" {
-					fmt.Println("rating configuration path not set")
-
-					os.Exit(1)
+					return errors.New("rating configuration path not set")
 				}
 
 				path = rater.Session.Config.Rating.ConfigPath
@@ -122,19 +110,15 @@ func newRateConfigCommand() *cobra.Command {
 
 			ratingConfig, err := providers.ReadRatingConfigFile(path)
 			if err != nil {
-				fmt.Println(err.Error())
-
-				os.Exit(1)
+				return fmt.Errorf("error reading rating config: %w", err)
 			}
 
 			_, err = providers.LoadRatingConfig(ratingConfig)
 			if err != nil {
-				fmt.Printf("%s", err)
-
-				os.Exit(1)
+				return fmt.Errorf("error loading rating config: %w", err)
 			}
 
-			fmt.Println(string(ratingConfig))
+			fmt.Fprintln(cmd.OutOrStdout(), string(ratingConfig))
 
 			return nil
 		},

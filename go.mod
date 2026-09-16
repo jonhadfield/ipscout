@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/jedib0t/go-pretty/v6 v6.8.3
 	github.com/jonhadfield/azwaf v0.5.0
-	github.com/jonhadfield/ip-fetcher v0.0.40
+	github.com/jonhadfield/ip-fetcher v0.0.41
 	github.com/miekg/dns v1.1.73
 	github.com/rivo/tview v0.42.0
 	github.com/sashabaranov/go-openai v1.42.0

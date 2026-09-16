@@ -64,12 +64,15 @@ const (
 	// Privacy relays and proxy egress: narrow, purpose-built ranges.
 	DefaultiCloudPROutputPriority = 50
 	DefaultZscalerOutputPriority  = 52
+	DefaultMullvadOutputPriority  = 54
 
 	// Named bots and crawlers: small ranges that identify a single agent.
 	DefaultGooglebotOutputPriority     = 60
 	DefaultBingbotOutputPriority       = 60
 	DefaultApplebotOutputPriority      = 60
 	DefaultDuckDuckBotOutputPriority   = 60
+	DefaultAmazonbotOutputPriority     = 60
+	DefaultCCBotOutputPriority         = 60
 	DefaultPerplexityBotOutputPriority = 62
 	DefaultOpenAIOutputPriority        = 62
 	DefaultAnthropicOutputPriority     = 62
@@ -96,12 +99,15 @@ const (
 	DefaultUptrendsOutputPriority    = 80
 
 	// SaaS egress ranges.
-	DefaultGitHubOutputPriority    = 90
-	DefaultStripeOutputPriority    = 90
-	DefaultAtlassianOutputPriority = 90
-	DefaultZoomOutputPriority      = 90
-	DefaultM365OutputPriority      = 90
-	DefaultOktaOutputPriority      = 90
+	DefaultGitHubOutputPriority     = 90
+	DefaultGitLabOutputPriority     = 90
+	DefaultStripeOutputPriority     = 90
+	DefaultAtlassianOutputPriority  = 90
+	DefaultZoomOutputPriority       = 90
+	DefaultM365OutputPriority       = 90
+	DefaultOktaOutputPriority       = 90
+	DefaultIntercomOutputPriority   = 90
+	DefaultSalesforceOutputPriority = 90
 
 	// CDN and edge networks: the host fronts someone else's origin.
 	DefaultCloudflareOutputPriority = 140
@@ -110,6 +116,7 @@ const (
 	DefaultGcoreOutputPriority      = 140
 	DefaultBunnyOutputPriority      = 140
 	DefaultCDN77OutputPriority      = 140
+	DefaultCacheFlyOutputPriority   = 140
 	DefaultImpervaOutputPriority    = 140
 
 	// Hosting and VPS providers: the range says little beyond "rented".
@@ -135,6 +142,7 @@ const (
 	DefaultIBMCloudOutputPriority = 182
 	DefaultTencentOutputPriority  = 182
 	DefaultAlibabaOutputPriority  = 182
+	DefaultHuaweiOutputPriority   = 182
 	DefaultGoogleOutputPriority   = 186
 
 	// Generic per-address metadata that makes no ownership or threat claim.

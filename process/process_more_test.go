@@ -12,6 +12,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/providers"
+	"github.com/jonhadfield/ipscout/runner"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/stretchr/testify/require"
 )
@@ -79,15 +80,6 @@ func newTestSession(t *testing.T) *session.Session {
 	return sess
 }
 
-func TestMapsKeys(t *testing.T) {
-	m := map[string]int{"a": 1, "b": 2, "c": 3}
-	keys := mapsKeys(m)
-	require.Len(t, keys, 3)
-	require.ElementsMatch(t, []string{"a", "b", "c"}, keys)
-
-	require.Empty(t, mapsKeys(map[string]int{}))
-}
-
 func TestFilterProvidersByName(t *testing.T) {
 	runners := map[string]providers.ProviderClient{
 		"AbuseIPDB": configurableStub{enabled: true},
@@ -116,13 +108,13 @@ func TestGetEnabledProvidersMixed(t *testing.T) {
 		"off": configurableStub{enabled: false},
 	}
 
-	res := getEnabledProviders(runners)
+	res := runner.GetEnabledProviders(runners)
 	require.Len(t, res, 2)
 	require.Contains(t, res, "on1")
 	require.Contains(t, res, "on2")
 	require.NotContains(t, res, "off")
 
-	require.Nil(t, getEnabledProviders(map[string]providers.ProviderClient{}))
+	require.Nil(t, runner.GetEnabledProviders(map[string]providers.ProviderClient{}))
 }
 
 func TestGetEnabledProviderClientsNoneEnabled(t *testing.T) {
@@ -130,14 +122,9 @@ func TestGetEnabledProviderClientsNoneEnabled(t *testing.T) {
 	// should report the "no providers enabled" error.
 	sess := session.New()
 
-	_, err := getEnabledProviderClients(*sess)
+	_, err := runner.GetEnabledProviderClients(*sess, runner.ClientOptions{RequireEnabled: true})
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "no providers enabled")
-}
-
-func TestStopSpinnerIfActiveNil(t *testing.T) {
-	// Must not panic with a nil spinner.
-	require.NotPanics(t, func() { stopSpinnerIfActive(nil) })
 }
 
 func TestFindHostsAggregates(t *testing.T) {
@@ -161,16 +148,16 @@ func TestFindHostsAggregates(t *testing.T) {
 		},
 	}
 
-	results := findHosts(runners, true)
+	results := runner.FindHosts(runners, true)
 	require.NotNil(t, results)
 
 	results.RLock()
 	defer results.RUnlock()
 
-	require.Len(t, results.m, 1)
-	require.Equal(t, []byte(`{"a":1}`), results.m["withData"])
-	require.NotContains(t, results.m, "noData")
-	require.NotContains(t, results.m, "errored")
+	require.Len(t, results.Data, 1)
+	require.Equal(t, []byte(`{"a":1}`), results.Data["withData"])
+	require.NotContains(t, results.Data, "noData")
+	require.NotContains(t, results.Data, "errored")
 }
 
 func TestInitialiseProvidersHandlesErrors(t *testing.T) {
@@ -183,7 +170,7 @@ func TestInitialiseProvidersHandlesErrors(t *testing.T) {
 	}
 
 	// hideProgress=true to avoid spinner output; must not panic.
-	require.NotPanics(t, func() { initialiseProviders(sess, runners, true) })
+	require.NotPanics(t, func() { runner.InitialiseProviders(sess, runners, true) })
 
 	// the failure is buffered as a single message rather than logged while
 	// the download is in progress
@@ -204,7 +191,7 @@ func TestInitialiseProvidersReportsAllFailuresOnOneLine(t *testing.T) {
 		"working": configurableStub{enabled: true},
 	}
 
-	initialiseProviders(sess, runners, true)
+	runner.InitialiseProviders(sess, runners, true)
 
 	require.Len(t, sess.Messages.Error, 1)
 	// sorted, so the line is stable between runs despite concurrent fetches
@@ -221,7 +208,7 @@ func TestInitialiseProvidersSilentWhenAllSucceed(t *testing.T) {
 		"two": configurableStub{enabled: true},
 	}
 
-	initialiseProviders(sess, runners, true)
+	runner.InitialiseProviders(sess, runners, true)
 
 	require.Empty(t, sess.Messages.Error)
 }
@@ -250,7 +237,7 @@ func TestGenerateTablesBuildsResults(t *testing.T) {
 		},
 	}
 
-	results := &findHostsResults{m: map[string][]byte{
+	results := &runner.HostResults{Data: map[string][]byte{
 		"hasTable": []byte(`{}`),
 		"nilTable": []byte(`{}`),
 		// noResultData intentionally absent → skipped
@@ -272,7 +259,7 @@ func TestGenerateTablesCreateError(t *testing.T) {
 		},
 	}
 
-	results := &findHostsResults{m: map[string][]byte{"errTable": []byte(`{}`)}}
+	results := &runner.HostResults{Data: map[string][]byte{"errTable": []byte(`{}`)}}
 
 	tables := generateTables(sess, runners, results)
 	require.Empty(t, tables)
@@ -282,7 +269,7 @@ func TestOutputUnsupportedFormat(t *testing.T) {
 	sess := newTestSession(t)
 	sess.Config.Global.Output = "xml"
 
-	results := &findHostsResults{m: map[string][]byte{}}
+	results := &runner.HostResults{Data: map[string][]byte{}}
 
 	err := output(sess, map[string]providers.ProviderClient{}, results)
 	require.Error(t, err)
@@ -293,7 +280,7 @@ func TestOutputJSON(t *testing.T) {
 	sess := newTestSession(t)
 	sess.Config.Global.Output = outputJSON
 
-	results := &findHostsResults{m: map[string][]byte{
+	results := &runner.HostResults{Data: map[string][]byte{
 		testProvider: []byte(`{"k":"v"}`),
 	}}
 
@@ -305,7 +292,7 @@ func TestOutputJSONMarshalErrorPropagates(t *testing.T) {
 	sess.Config.Global.Output = outputJSON
 
 	// nil data for a provider causes generateJSON to error.
-	results := &findHostsResults{m: map[string][]byte{"bad": nil}}
+	results := &runner.HostResults{Data: map[string][]byte{"bad": nil}}
 
 	err := output(sess, map[string]providers.ProviderClient{}, results)
 	require.Error(t, err)
@@ -324,7 +311,7 @@ func TestOutputTable(t *testing.T) {
 		testProvider: configurableStub{enabled: true, tbl: &tw, priority: &prio},
 	}
 
-	results := &findHostsResults{m: map[string][]byte{testProvider: []byte(`{}`)}}
+	results := &runner.HostResults{Data: map[string][]byte{testProvider: []byte(`{}`)}}
 
 	require.NoError(t, output(sess, runners, results))
 }
@@ -335,11 +322,11 @@ func TestOutputMessages(t *testing.T) {
 	sess.Messages.AddWarn("a warning")
 	sess.Messages.AddInfo("some info")
 
-	require.NotPanics(t, func() { outputMessages(sess) })
+	require.NotPanics(t, func() { runner.OutputMessages(sess) })
 }
 
 func TestGenerateJSONRoundTrip(t *testing.T) {
-	results := &findHostsResults{m: map[string][]byte{
+	results := &runner.HostResults{Data: map[string][]byte{
 		"one": []byte(`{"x":1}`),
 		"two": []byte(`{"y":2}`),
 	}}

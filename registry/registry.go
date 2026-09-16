@@ -11,6 +11,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/ahrefs"
 	"github.com/jonhadfield/ipscout/providers/akamai"
 	"github.com/jonhadfield/ipscout/providers/alibaba"
+	"github.com/jonhadfield/ipscout/providers/amazonbot"
 	"github.com/jonhadfield/ipscout/providers/annotated"
 	"github.com/jonhadfield/ipscout/providers/anthropic"
 	"github.com/jonhadfield/ipscout/providers/applebot"
@@ -22,6 +23,8 @@ import (
 	"github.com/jonhadfield/ipscout/providers/bingbot"
 	"github.com/jonhadfield/ipscout/providers/blocklistde"
 	"github.com/jonhadfield/ipscout/providers/bunny"
+	"github.com/jonhadfield/ipscout/providers/cachefly"
+	"github.com/jonhadfield/ipscout/providers/ccbot"
 	"github.com/jonhadfield/ipscout/providers/cdn77"
 	"github.com/jonhadfield/ipscout/providers/checkly"
 	"github.com/jonhadfield/ipscout/providers/cinsscore"
@@ -41,6 +44,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/gcore"
 	"github.com/jonhadfield/ipscout/providers/gcp"
 	"github.com/jonhadfield/ipscout/providers/github"
+	"github.com/jonhadfield/ipscout/providers/gitlab"
 	"github.com/jonhadfield/ipscout/providers/google"
 	"github.com/jonhadfield/ipscout/providers/googlebot"
 	"github.com/jonhadfield/ipscout/providers/googlesc"
@@ -48,9 +52,11 @@ import (
 	"github.com/jonhadfield/ipscout/providers/grafana"
 	"github.com/jonhadfield/ipscout/providers/greensnow"
 	"github.com/jonhadfield/ipscout/providers/hetzner"
+	"github.com/jonhadfield/ipscout/providers/huawei"
 	"github.com/jonhadfield/ipscout/providers/ibmcloud"
 	"github.com/jonhadfield/ipscout/providers/icloudpr"
 	"github.com/jonhadfield/ipscout/providers/imperva"
+	"github.com/jonhadfield/ipscout/providers/intercom"
 	"github.com/jonhadfield/ipscout/providers/ipapi"
 	"github.com/jonhadfield/ipscout/providers/ipqs"
 	"github.com/jonhadfield/ipscout/providers/iptoasn"
@@ -59,6 +65,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/linode"
 	"github.com/jonhadfield/ipscout/providers/m247"
 	"github.com/jonhadfield/ipscout/providers/m365"
+	"github.com/jonhadfield/ipscout/providers/mullvad"
 	"github.com/jonhadfield/ipscout/providers/newrelic"
 	"github.com/jonhadfield/ipscout/providers/oci"
 	"github.com/jonhadfield/ipscout/providers/okta"
@@ -68,6 +75,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/pingdom"
 	"github.com/jonhadfield/ipscout/providers/ptr"
 	"github.com/jonhadfield/ipscout/providers/render"
+	"github.com/jonhadfield/ipscout/providers/salesforce"
 	"github.com/jonhadfield/ipscout/providers/scaleway"
 	"github.com/jonhadfield/ipscout/providers/sentry"
 	"github.com/jonhadfield/ipscout/providers/shodan"
@@ -304,6 +312,14 @@ func All() []Entry {
 		{Name: emergingthreats.ProviderName, DisplayName: "Emerging Threats", Enabled: func(s session.Session) *bool { return s.Providers.EmergingThreats.Enabled }, APIKey: noKey, NewClient: emergingthreats.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: spamhaus.ProviderName, DisplayName: "Spamhaus DROP", Enabled: func(s session.Session) *bool { return s.Providers.Spamhaus.Enabled }, APIKey: noKey, NewClient: spamhaus.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: uptimerobot.ProviderName, DisplayName: "UptimeRobot", Enabled: func(s session.Session) *bool { return s.Providers.UptimeRobot.Enabled }, APIKey: noKey, NewClient: uptimerobot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: amazonbot.ProviderName, DisplayName: "Amazonbot", Enabled: func(s session.Session) *bool { return s.Providers.Amazonbot.Enabled }, APIKey: noKey, NewClient: amazonbot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: cachefly.ProviderName, DisplayName: "CacheFly", Enabled: func(s session.Session) *bool { return s.Providers.CacheFly.Enabled }, APIKey: noKey, NewClient: cachefly.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: ccbot.ProviderName, DisplayName: "CCBot", Enabled: func(s session.Session) *bool { return s.Providers.CCBot.Enabled }, APIKey: noKey, NewClient: ccbot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: gitlab.ProviderName, DisplayName: "GitLab", Enabled: func(s session.Session) *bool { return s.Providers.GitLab.Enabled }, APIKey: noKey, NewClient: gitlab.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: huawei.ProviderName, DisplayName: "Huawei Cloud", Enabled: func(s session.Session) *bool { return s.Providers.Huawei.Enabled }, APIKey: noKey, NewClient: huawei.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: intercom.ProviderName, DisplayName: "Intercom", Enabled: func(s session.Session) *bool { return s.Providers.Intercom.Enabled }, APIKey: noKey, NewClient: intercom.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: mullvad.ProviderName, DisplayName: "Mullvad", Enabled: func(s session.Session) *bool { return s.Providers.Mullvad.Enabled }, APIKey: noKey, NewClient: mullvad.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: salesforce.ProviderName, DisplayName: "Salesforce", Enabled: func(s session.Session) *bool { return s.Providers.Salesforce.Enabled }, APIKey: noKey, NewClient: salesforce.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 	}
 }
 
