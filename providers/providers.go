@@ -496,6 +496,9 @@ type RatingConfig struct {
 		Hetzner struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"hetzner"`
+		Huawei struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"huawei"`
 		ICloudPR struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"icloudpr"`
@@ -513,6 +516,9 @@ type RatingConfig struct {
 		M247 struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"m247"`
+		Mullvad struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"mullvad"`
 		OpenAI struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"openai"`
@@ -522,6 +528,9 @@ type RatingConfig struct {
 		Scaleway struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"scaleway"`
+		Salesforce struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"salesforce"`
 		Shodan struct {
 			OpenPortsScore                float64 `json:"openPortsScore,omitempty"`
 			HighThreatCountryMatchScore   float64 `json:"highThreatCountryMatchScore,omitempty"`
@@ -546,6 +555,12 @@ type RatingConfig struct {
 		Applebot struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"applebot"`
+		Amazonbot struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"amazonbot"`
+		CCBot struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"ccbot"`
 		DuckDuckBot struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"duckduckbot"`
@@ -564,6 +579,9 @@ type RatingConfig struct {
 		GitHub struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"github"`
+		GitLab struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"gitlab"`
 		GoogleUTF struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"googleutf"`
@@ -573,6 +591,9 @@ type RatingConfig struct {
 		Bunny struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"bunny"`
+		CacheFly struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"cachefly"`
 		CDN77 struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"cdn77"`
@@ -591,6 +612,9 @@ type RatingConfig struct {
 		Imperva struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"imperva"`
+		Intercom struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"intercom"`
 		Leaseweb struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"leaseweb"`

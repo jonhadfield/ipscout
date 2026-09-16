@@ -138,6 +138,14 @@ const (
 	providerPingdom         = "pingdom"
 	providerStatusCake      = "statuscake"
 	providerZoom            = "zoom"
+	providerAmazonbot       = "amazonbot"
+	providerCacheFly        = "cachefly"
+	providerCCBot           = "ccbot"
+	providerGitLab          = "gitlab"
+	providerHuawei          = "huawei"
+	providerIntercom        = "intercom"
+	providerMullvad         = "mullvad"
+	providerSalesforce      = "salesforce"
 )
 
 var providerIcons = map[string]string{
@@ -202,6 +210,14 @@ var providerIcons = map[string]string{
 	providerPingdom:         emojiCloud,
 	providerStatusCake:      emojiCloud,
 	providerZoom:            emojiLaptop,
+	providerAmazonbot:       emojiInvader,
+	providerCacheFly:        emojiCloud,
+	providerCCBot:           emojiInvader,
+	providerGitLab:          emojiLaptop,
+	providerHuawei:          emojiCloud,
+	providerIntercom:        emojiLaptop,
+	providerMullvad:         emojiGlobe,
+	providerSalesforce:      emojiLaptop,
 	providerCINSScore:       emojiInvader,
 	providerDShield:         emojiInvader,
 	providerEmergingThreats: emojiInvader,
@@ -465,6 +481,22 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 			newText = strings.Replace(currentText, " StatusCake", " ▶ StatusCake", 1)
 		case providerZoom:
 			newText = strings.Replace(currentText, " Zoom", " ▶ Zoom", 1)
+		case providerAmazonbot:
+			newText = strings.Replace(currentText, " Amazonbot", " ▶ Amazonbot", 1)
+		case providerCacheFly:
+			newText = strings.Replace(currentText, " CacheFly", " ▶ CacheFly", 1)
+		case providerCCBot:
+			newText = strings.Replace(currentText, " CCBot", " ▶ CCBot", 1)
+		case providerGitLab:
+			newText = strings.Replace(currentText, " GitLab", " ▶ GitLab", 1)
+		case providerHuawei:
+			newText = strings.Replace(currentText, " Huawei Cloud", " ▶ Huawei Cloud", 1)
+		case providerIntercom:
+			newText = strings.Replace(currentText, " Intercom", " ▶ Intercom", 1)
+		case providerMullvad:
+			newText = strings.Replace(currentText, " Mullvad", " ▶ Mullvad", 1)
+		case providerSalesforce:
+			newText = strings.Replace(currentText, " Salesforce", " ▶ Salesforce", 1)
 		case providerCINSScore:
 			newText = strings.Replace(currentText, " CINS Army List", " ▶ CINS Army List", 1)
 		case providerDShield:
@@ -623,6 +655,14 @@ func OpenUI(logLevel string) error {
 		providerPingdom:         fetchPingdom,
 		providerStatusCake:      fetchStatusCake,
 		providerZoom:            fetchZoom,
+		providerAmazonbot:       fetchAmazonbot,
+		providerCacheFly:        fetchCacheFly,
+		providerCCBot:           fetchCCBot,
+		providerGitLab:          fetchGitLab,
+		providerHuawei:          fetchHuawei,
+		providerIntercom:        fetchIntercom,
+		providerMullvad:         fetchMullvad,
+		providerSalesforce:      fetchSalesforce,
 		providerCINSScore:       fetchCINSScore,
 		providerDShield:         fetchDShield,
 		providerEmergingThreats: fetchEmergingThreats,
@@ -645,7 +685,7 @@ func OpenUI(logLevel string) error {
 	// credentials to return anything, so it is driven from the CLI only. Its
 	// icon, fetch and active-indicator entries are kept so it can be listed
 	// here without further wiring.
-	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerContabo, providerCriminalIP, providerDigitalOcean, providerFlyio, providerGCP, providerGoogle, providerGoogleSC, providerIBMCloud, providerICloudPR, providerLeaseweb, providerLinode, providerM247, providerOpenAI, providerOVH, providerRender, providerScaleway, providerTencent, providerVultr, providerZscaler, providerAkamai, providerAtlassian, providerBunny, providerCDN77, providerCloudflare, providerDatadog, providerFastly, providerGitHub, providerGoogleUTF, providerImperva, providerOCI, providerStripe, providerAhrefs, providerApplebot, providerDuckDuckBot, providerPerplexity, providerAnthropic, providerBlocklistDE, providerCymru, providerGreenSnow, providerBetterStack, providerCheckly, providerGcore, providerNewRelic, providerPingdom, providerStatusCake, providerZoom, providerCINSScore, providerDShield, providerEmergingThreats, providerSpamhaus, providerUptimeRobot, providerFeodo, providerTor, providerM365, providerOkta, providerGrafana, providerSentry, providerSite24x7, providerUpdown, providerUptrends, providerDetectify, providerTenable}
+	providers := []string{providerPTR, providerAnnotated, providerShodan, providerIPAPI, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerContabo, providerCriminalIP, providerDigitalOcean, providerFlyio, providerGCP, providerGoogle, providerGoogleSC, providerIBMCloud, providerICloudPR, providerLeaseweb, providerLinode, providerM247, providerOpenAI, providerOVH, providerRender, providerScaleway, providerTencent, providerVultr, providerZscaler, providerAkamai, providerAtlassian, providerBunny, providerCDN77, providerCloudflare, providerDatadog, providerFastly, providerGitHub, providerGoogleUTF, providerImperva, providerOCI, providerStripe, providerAhrefs, providerApplebot, providerDuckDuckBot, providerPerplexity, providerAnthropic, providerBlocklistDE, providerCymru, providerGreenSnow, providerBetterStack, providerCheckly, providerGcore, providerNewRelic, providerPingdom, providerStatusCake, providerZoom, providerCINSScore, providerDShield, providerEmergingThreats, providerSpamhaus, providerUptimeRobot, providerFeodo, providerTor, providerM365, providerOkta, providerGrafana, providerSentry, providerSite24x7, providerUpdown, providerUptrends, providerDetectify, providerTenable, providerAmazonbot, providerCacheFly, providerCCBot, providerGitLab, providerHuawei, providerIntercom, providerMullvad, providerSalesforce}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()

@@ -2,74 +2,22 @@ package process
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/jedib0t/go-pretty/v6/text"
-
 	"github.com/briandowns/spinner"
 	"github.com/jonhadfield/ipscout/cache"
-	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/present"
 	"github.com/jonhadfield/ipscout/providers"
-	"github.com/jonhadfield/ipscout/registry"
+	"github.com/jonhadfield/ipscout/runner"
 	"github.com/jonhadfield/ipscout/session"
-	"golang.org/x/sync/errgroup"
 )
 
 const spinnerIntervalMS = 100
-
-func getEnabledProviderClients(sess session.Session) (map[string]providers.ProviderClient, error) {
-	runners := make(map[string]providers.ProviderClient)
-
-	var enabled int
-
-	for _, entry := range registry.All() {
-		entryEnabled := entry.Enabled(sess)
-		if entryEnabled == nil || !*entryEnabled {
-			continue
-		}
-
-		enabled++
-
-		client, err := entry.NewClient(sess)
-		if err != nil {
-			return nil, fmt.Errorf("error creating %s client: %w", entry.Name, err)
-		}
-
-		if client != nil && (client.Enabled() || sess.UseTestData) {
-			runners[entry.Name] = client
-		}
-	}
-
-	if enabled == 0 {
-		return nil, errors.New("no providers enabled")
-	}
-
-	return runners, nil
-}
-
-func getEnabledProviders(runners map[string]providers.ProviderClient) map[string]providers.ProviderClient {
-	res := make(map[string]providers.ProviderClient)
-
-	for k, r := range runners {
-		if r.Enabled() {
-			res[k] = r
-		}
-	}
-
-	if len(res) == 0 {
-		return nil
-	}
-
-	return res
-}
 
 type Processor struct {
 	Session *session.Session
@@ -86,14 +34,14 @@ func (p *Processor) Run() error {
 	defer func() { _ = cache.Close(p.Session.Logger, db) }()
 
 	// get provider clients
-	providerClients, err := getEnabledProviderClients(*p.Session)
+	providerClients, err := runner.GetEnabledProviderClients(*p.Session, runner.ClientOptions{RequireEnabled: true})
 	if err != nil {
 		_ = cache.Close(p.Session.Logger, db)
 
 		return fmt.Errorf("failed to generate provider clients: %w", err)
 	}
 
-	enabledProviders := getEnabledProviders(providerClients)
+	enabledProviders := runner.GetEnabledProviders(providerClients)
 
 	// apply provider filter if specified
 	if len(p.Session.Config.Global.FilterProviders) > 0 {
@@ -104,7 +52,7 @@ func (p *Processor) Run() error {
 	}
 
 	// initialise providers
-	initialiseProviders(p.Session, enabledProviders, p.Session.HideProgress)
+	runner.InitialiseProviders(p.Session, enabledProviders, p.Session.HideProgress)
 
 	if strings.EqualFold(p.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range p.Session.Stats.InitialiseDuration {
@@ -115,13 +63,13 @@ func (p *Processor) Run() error {
 	if p.Session.Config.Global.InitialiseCacheOnly {
 		fmt.Fprintln(p.Session.Target, "cache initialisation complete")
 
-		outputMessages(p.Session)
+		runner.OutputMessages(p.Session)
 
 		return nil
 	}
 
 	// find hosts
-	results := findHosts(enabledProviders, p.Session.HideProgress)
+	results := runner.FindHosts(enabledProviders, p.Session.HideProgress)
 
 	if strings.EqualFold(p.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range p.Session.Stats.FindHostDuration {
@@ -134,17 +82,17 @@ func (p *Processor) Run() error {
 	}
 
 	results.RLock()
-	matchingResults := len(results.m)
+	matchingResults := len(results.Data)
 	results.RUnlock()
 
 	p.Session.Logger.Info("host matching results", "providers queried", len(enabledProviders), "matching results", matchingResults)
 
 	if matchingResults == 0 {
-		p.Session.Logger.Warn("no results found", "host", p.Session.Host.String(), "providers checked", strings.Join(mapsKeys(enabledProviders), ", "))
+		p.Session.Logger.Warn("no results found", "host", p.Session.Host.String(), "providers checked", strings.Join(runner.MapsKeys(enabledProviders), ", "))
 
 		// there is no results table to print below, but a fetch failure is
 		// the most likely reason there is nothing to show, so still report it
-		outputMessages(p.Session)
+		runner.OutputMessages(p.Session)
 
 		return nil
 	}
@@ -174,157 +122,12 @@ func filterProvidersByName(runners map[string]providers.ProviderClient, names []
 	return filtered
 }
 
-func mapsKeys[K comparable, V any](m map[K]V) []K {
-	keys := make([]K, 0, len(m))
-
-	for key := range m {
-		keys = append(keys, key)
-	}
-
-	return keys
-}
-
-func initialiseProviders(sess *session.Session, runners map[string]providers.ProviderClient, hideProgress bool) {
-	var err error
-
-	var g errgroup.Group
-
-	// failures are collected rather than logged as they happen, so a slow
-	// download is not interrupted by output, and reported as one line after
-	// the results
-	var (
-		failedMu sync.Mutex
-		failed   []string
-	)
-
-	s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
-
-	if !hideProgress {
-		s.Start() // Start the spinner
-		// time.Sleep(4 * time.Second) // Run for some time to simulate work
-		s.Suffix = " initialising providers..."
-
-		defer func() {
-			stopSpinnerIfActive(s)
-		}()
-	}
-
-	for name, runner := range runners {
-		if !runner.Enabled() {
-			continue
-		}
-
-		g.Go(func() error {
-			name := name
-
-			gErr := runner.Initialise()
-			if gErr != nil {
-				sess.Logger.Debug("failed to initialise", "provider", name, "error", gErr.Error())
-
-				// a provider that has already said what went wrong, and what to do
-				// about it, is left out of the generic line rather than named twice
-				if errors.Is(gErr, providers.ErrFailureReported) {
-					return nil
-				}
-
-				failedMu.Lock()
-
-				failed = append(failed, name)
-
-				failedMu.Unlock()
-			}
-
-			return nil
-		})
-	}
-
-	if err = g.Wait(); err != nil {
-		stopSpinnerIfActive(s)
-
-		return
-	}
-
-	reportFailedProviders(sess, failed)
-}
-
-// reportFailedProviders records a single message naming every provider whose
-// data could not be fetched. It is buffered on the session so it prints below
-// the results rather than over the progress spinner.
-func reportFailedProviders(sess *session.Session, failed []string) {
-	if len(failed) == 0 {
-		return
-	}
-
-	sort.Strings(failed)
-
-	sess.Messages.AddError(fmt.Sprintf(c.MsgFetchFailedFmt, strings.Join(failed, ", ")))
-}
-
-func stopSpinnerIfActive(s *spinner.Spinner) {
-	if s != nil && s.Active() {
-		s.Stop()
-	}
-}
-
-type findHostsResults struct {
-	sync.RWMutex
-	m map[string][]byte
-}
-
 type generateTablesResults struct {
 	sync.RWMutex
 	m []providers.TableWithPriority
 }
 
-func findHosts(runners map[string]providers.ProviderClient, hideProgress bool) *findHostsResults {
-	var results findHostsResults
-
-	results.Lock()
-	results.m = make(map[string][]byte)
-	results.Unlock()
-
-	var w sync.WaitGroup
-
-	if !hideProgress {
-		s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
-		s.Start() // Start the spinner
-		s.Suffix = " searching providers..."
-
-		defer s.Stop()
-	}
-
-	for name, runner := range runners {
-		w.Add(1)
-
-		go func() {
-			defer w.Done()
-
-			result, err := runner.FindHost()
-			if err != nil {
-				// a host not appearing in a provider's data is routine
-				if errors.Is(err, providers.ErrNoMatchFound) {
-					runner.GetConfig().Logger.Debug(err.Error())
-				} else {
-					runner.GetConfig().Logger.Info(err.Error())
-				}
-
-				return
-			}
-
-			if result != nil {
-				results.Lock()
-				results.m[name] = result
-				results.Unlock()
-			}
-		}()
-	}
-
-	w.Wait()
-
-	return &results
-}
-
-func output(sess *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) error {
+func output(sess *session.Session, runners map[string]providers.ProviderClient, results *runner.HostResults) error {
 	switch sess.Config.Global.Output {
 	case "table":
 		tables := generateTables(sess, runners, results)
@@ -337,7 +140,7 @@ func output(sess *session.Session, runners map[string]providers.ProviderClient, 
 
 		present.Tables(sess, tables)
 
-		outputMessages(sess)
+		runner.OutputMessages(sess)
 	case "json":
 		jo, err := generateJSON(results)
 		if err != nil {
@@ -348,7 +151,7 @@ func output(sess *session.Session, runners map[string]providers.ProviderClient, 
 			return fmt.Errorf("error outputting JSON: %w", err)
 		}
 
-		outputMessages(sess)
+		runner.OutputMessages(sess)
 	case "csv":
 		jo, err := generateJSON(results)
 		if err != nil {
@@ -359,7 +162,7 @@ func output(sess *session.Session, runners map[string]providers.ProviderClient, 
 			return fmt.Errorf("error outputting CSV: %w", err)
 		}
 
-		outputMessages(sess)
+		runner.OutputMessages(sess)
 	default:
 		return fmt.Errorf("unsupported output format: %s", sess.Config.Global.Output)
 	}
@@ -367,21 +170,7 @@ func output(sess *session.Session, runners map[string]providers.ProviderClient, 
 	return nil
 }
 
-func outputMessages(sess *session.Session) {
-	for _, msg := range sess.Messages.Error {
-		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgRed.Sprint("[ERROR]"), msg)
-	}
-
-	for _, msg := range sess.Messages.Warning {
-		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgYellow.Sprint("[WARN]"), msg)
-	}
-
-	for _, msg := range sess.Messages.Info {
-		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgGreen.Sprint("[INFO]"), msg)
-	}
-}
-
-func generateTables(conf *session.Session, runners map[string]providers.ProviderClient, results *findHostsResults) []providers.TableWithPriority {
+func generateTables(conf *session.Session, runners map[string]providers.ProviderClient, results *runner.HostResults) []providers.TableWithPriority {
 	var tables generateTablesResults
 
 	var w sync.WaitGroup
@@ -395,21 +184,21 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 		defer s.Stop()
 	}
 
-	for name, runner := range runners {
+	for name, runnerClient := range runners {
 		w.Add(1)
 
 		go func() {
 			defer w.Done()
 
 			results.RLock()
-			createTableData := results.m[name]
+			createTableData := results.Data[name]
 			results.RUnlock()
 
 			if createTableData == nil {
 				return
 			}
 
-			tbl, err := runner.CreateTable(createTableData)
+			tbl, err := runnerClient.CreateTable(createTableData)
 			if err != nil {
 				_, _ = fmt.Fprintln(os.Stderr, err)
 
@@ -420,7 +209,7 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 				tables.Lock()
 				tables.m = append(tables.m, providers.TableWithPriority{
 					Table:    tbl,
-					Priority: runner.Priority(),
+					Priority: runnerClient.Priority(),
 				})
 				tables.Unlock()
 			}
@@ -432,13 +221,13 @@ func generateTables(conf *session.Session, runners map[string]providers.Provider
 	return tables.m
 }
 
-func generateJSON(results *findHostsResults) (json.RawMessage, error) {
+func generateJSON(results *runner.HostResults) (json.RawMessage, error) {
 	data := make(map[string]json.RawMessage)
 
 	results.RLock()
 	defer results.RUnlock()
 
-	for name, b := range results.m {
+	for name, b := range results.Data {
 		if b == nil {
 			return nil, fmt.Errorf("no data found for %s", name)
 		}

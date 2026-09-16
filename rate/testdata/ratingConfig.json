@@ -145,6 +145,30 @@
     },
     "greensnow": {
       "defaultMatchScore": 10.0
+    },
+    "amazonbot": {
+      "defaultMatchScore": 1.0
+    },
+    "cachefly": {
+      "defaultMatchScore": 2.0
+    },
+    "ccbot": {
+      "defaultMatchScore": 1.0
+    },
+    "gitlab": {
+      "defaultMatchScore": 2.0
+    },
+    "huawei": {
+      "defaultMatchScore": 8.0
+    },
+    "intercom": {
+      "defaultMatchScore": 3.0
+    },
+    "mullvad": {
+      "defaultMatchScore": 6.0
+    },
+    "salesforce": {
+      "defaultMatchScore": 3.0
     }
   }
 }

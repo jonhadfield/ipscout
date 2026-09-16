@@ -87,7 +87,7 @@ Many providers fetch their IP-range data through the `github.com/jonhadfield/ip-
    process, rate and config. Set `DefaultEnabled: true` if the provider needs no configuration
    (no API key, paths, URLs or resource IDs) so it is enabled even when absent from user config
 4. Add a default output priority constant in `/constants/constants.go` and wire config reading into
-   `initProviderConfig` in BOTH `cmd/root.go` and `ui/root.go`
+   `config.InitProviders` in `/config/providers.go` (shared by CLI and TUI)
 5. Add the provider to `session/config.yaml` (a registry guard test fails if a `DefaultEnabled`
    provider is missing from the shipped default config)
 6. Add the TUI integration: a fetch/table file in `/ui/` plus the const, icon, fetch-map and

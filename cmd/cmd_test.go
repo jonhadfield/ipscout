@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jonhadfield/ipscout/config"
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/cobra"
@@ -42,15 +43,15 @@ func TestToPtr(t *testing.T) {
 	t.Parallel()
 
 	v := 42
-	p := ToPtr(v)
+	p := config.ToPtr(v)
 	require.NotNil(t, p)
 	assert.Equal(t, v, *p)
 
-	s := ToPtr("hello")
+	s := config.ToPtr("hello")
 	require.NotNil(t, s)
 	assert.Equal(t, "hello", *s)
 
-	b := ToPtr(true)
+	b := config.ToPtr(true)
 	require.NotNil(t, b)
 	assert.True(t, *b)
 }
@@ -218,7 +219,7 @@ func TestAddProviderConfigMessage(t *testing.T) {
 	t.Parallel()
 
 	s := session.New()
-	addProviderConfigMessage(s, "TestProvider")
+	config.AddProviderConfigMessage(s, "TestProvider")
 	require.Len(t, s.Messages.Info, 1)
 	assert.Contains(t, s.Messages.Info[0], "TestProvider")
 }
@@ -233,7 +234,7 @@ func TestSetProviderAPIKey(t *testing.T) {
 		v.Set("test_api_key", "secret")
 
 		apiKey := ""
-		enabled := ToPtr(true)
+		enabled := config.ToPtr(true)
 		setProviderAPIKey(v, "test_api_key", &apiKey, &enabled)
 		assert.Equal(t, "secret", apiKey)
 		require.NotNil(t, enabled)
@@ -246,7 +247,7 @@ func TestSetProviderAPIKey(t *testing.T) {
 		v := viper.New()
 
 		apiKey := ""
-		enabled := ToPtr(true)
+		enabled := config.ToPtr(true)
 		setProviderAPIKey(v, "absent_api_key", &apiKey, &enabled)
 		assert.Empty(t, apiKey)
 		require.NotNil(t, enabled)
@@ -292,7 +293,7 @@ func TestInitProviderConfig(t *testing.T) {
 	v.Set("providers.abuseipdb.output_priority", int(testOutputPriority))
 	v.Set("providers.shodan.result_cache_ttl", int(testCacheTTL))
 
-	initProviderConfig(s, v)
+	config.InitProviders(s, v)
 
 	require.NotNil(t, s.Providers.AbuseIPDB.Enabled)
 	assert.True(t, *s.Providers.AbuseIPDB.Enabled)
@@ -302,7 +303,7 @@ func TestInitProviderConfig(t *testing.T) {
 
 	// providers not set should fall back to default priority and emit info messages
 	require.NotNil(t, s.Providers.Alibaba.OutputPriority)
-	assert.Equal(t, int32(defaultAlibabaOutputPriority), *s.Providers.Alibaba.OutputPriority)
+	assert.Equal(t, int32(c.DefaultAlibabaOutputPriority), *s.Providers.Alibaba.OutputPriority)
 	assert.NotEmpty(t, s.Messages.Info)
 }
 
@@ -437,14 +438,26 @@ func TestConfigDefaultCommandOffline(t *testing.T) {
 func TestRateConfigCommandResolves(t *testing.T) {
 	t.Parallel()
 
-	// The `rate config` RunE calls os.Exit() on every branch, so it cannot be
-	// executed in-process. Verify the command resolves and its flags are wired.
 	rootCmd := newRootCommand()
 
 	cfgCmd, _, err := rootCmd.Find([]string{cmdRate, cmdConfig})
 	require.NoError(t, err)
 	assert.NotNil(t, cfgCmd.Flags().Lookup(cmdDefault))
 	assert.NotNil(t, cfgCmd.Flags().Lookup("path"))
+}
+
+func TestRateConfigDefaultOffline(t *testing.T) {
+	withSandboxHome(t)
+
+	rootCmd := newRootCommand()
+
+	var out bytes.Buffer
+	rootCmd.SetOut(&out)
+	rootCmd.SetErr(&out)
+	rootCmd.SetArgs([]string{cmdRate, cmdConfig, "--default"})
+
+	require.NoError(t, rootCmd.Execute())
+	assert.Contains(t, out.String(), "blockScoreThreshold")
 }
 
 func TestRootHelpOffline(t *testing.T) {

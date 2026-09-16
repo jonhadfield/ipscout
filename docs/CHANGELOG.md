@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-09-16
+
+### Added
+
+- eight providers from ip-fetcher v0.0.41: Amazonbot (with which of its three bot lists
+  matched), CacheFly, Common Crawl's CCBot, GitLab, Huawei Cloud, Intercom (region and
+  service), Mullvad VPN relays, and Salesforce Hyperforce (region and provider). All are
+  enabled by default and need no API key
+
 ### Fixed
 
 - a URL list the ipurl provider could not download — the firehol lists, or any configured

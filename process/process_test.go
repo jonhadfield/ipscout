@@ -9,6 +9,7 @@ import (
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jonhadfield/ipscout/providers"
+	"github.com/jonhadfield/ipscout/runner"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/stretchr/testify/require"
 )
@@ -43,16 +44,16 @@ func TestGetEnabledProviders(t *testing.T) {
 		"b": stubProvider{enabled: false},
 	}
 
-	res := getEnabledProviders(runners)
+	res := runner.GetEnabledProviders(runners)
 	require.Len(t, res, 1)
 	require.NotNil(t, res["a"])
 
-	res = getEnabledProviders(map[string]providers.ProviderClient{"b": stubProvider{enabled: false}})
+	res = runner.GetEnabledProviders(map[string]providers.ProviderClient{"b": stubProvider{enabled: false}})
 	require.Nil(t, res)
 }
 
 func TestGenerateJSON(t *testing.T) {
-	results := &findHostsResults{m: map[string][]byte{
+	results := &runner.HostResults{Data: map[string][]byte{
 		"prov1": []byte(`{"key":"value"}`),
 	}}
 
@@ -64,7 +65,7 @@ func TestGenerateJSON(t *testing.T) {
 	require.NoError(t, json.Unmarshal(jm, &out))
 	require.Equal(t, "value", out["prov1"]["key"])
 
-	results = &findHostsResults{m: map[string][]byte{"bad": nil}}
+	results = &runner.HostResults{Data: map[string][]byte{"bad": nil}}
 	jm, err = generateJSON(results)
 	require.Error(t, err)
 	require.Nil(t, jm)
@@ -107,7 +108,7 @@ func TestInitialiseProvidersFailureReporting(t *testing.T) {
 				"stub": failingProvider{stubProvider: stubProvider{enabled: true}, err: tc.err},
 			}
 
-			initialiseProviders(sess, runners, true)
+			runner.InitialiseProviders(sess, runners, true)
 
 			sess.Messages.Mu.Lock()
 			errs := append([]string(nil), sess.Messages.Error...)

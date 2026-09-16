@@ -1,4 +1,4 @@
-package cmd
+package config
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 )
 
 // TestAllRegistryProvidersWiredIntoConfig guards against the class of bug where
-// a provider is added to the registry but not wired into initProviderConfig, so
+// a provider is added to the registry but not wired into InitProviders, so
 // its Enabled flag is never read from config and process silently skips it.
 func TestAllRegistryProvidersWiredIntoConfig(t *testing.T) {
 	v := viper.New()
@@ -19,11 +19,11 @@ func TestAllRegistryProvidersWiredIntoConfig(t *testing.T) {
 	}
 
 	sess := session.New()
-	initProviderConfig(sess, v)
+	InitProviders(sess, v)
 
 	for _, e := range registry.All() {
 		enabled := e.Enabled(*sess)
-		require.NotNilf(t, enabled, "provider %q is in the registry but not wired into initProviderConfig", e.Name)
+		require.NotNilf(t, enabled, "provider %q is in the registry but not wired into InitProviders", e.Name)
 		require.Truef(t, *enabled, "provider %q enabled flag was not read from config", e.Name)
 	}
 }
@@ -34,7 +34,7 @@ func TestAllRegistryProvidersWiredIntoConfig(t *testing.T) {
 // resource IDs) stay unset so process skips them.
 func TestNoConfigProvidersEnabledByDefault(t *testing.T) {
 	sess := session.New()
-	initProviderConfig(sess, viper.New())
+	InitProviders(sess, viper.New())
 
 	for _, e := range registry.All() {
 		enabled := e.Enabled(*sess)
@@ -54,8 +54,28 @@ func TestExplicitDisableOverridesDefaultEnabled(t *testing.T) {
 	v.Set("providers.aws.enabled", false)
 
 	sess := session.New()
-	initProviderConfig(sess, v)
+	InitProviders(sess, v)
 
 	require.NotNil(t, sess.Providers.AWS.Enabled)
 	require.False(t, *sess.Providers.AWS.Enabled)
+}
+
+func TestGooglebotOutputPriorityKey(t *testing.T) {
+	v := viper.New()
+	v.Set("providers.googlebot.output_priority", int32(42))
+	v.Set("providers.googlesc.output_priority", int32(43))
+
+	sess := session.New()
+	InitProviders(sess, v)
+
+	require.NotNil(t, sess.Providers.Googlebot.OutputPriority)
+	require.Equal(t, int32(42), *sess.Providers.Googlebot.OutputPriority)
+	require.NotNil(t, sess.Providers.GoogleSC.OutputPriority)
+	require.Equal(t, int32(43), *sess.Providers.GoogleSC.OutputPriority)
+}
+
+func TestToPtr(t *testing.T) {
+	v := 7
+	p := ToPtr(v)
+	require.Equal(t, v, *p)
 }

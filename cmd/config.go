@@ -2,11 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/jonhadfield/ipscout/config"
 	"github.com/jonhadfield/ipscout/session"
-
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +16,7 @@ func newConfigCommand() *cobra.Command {
 			if len(args) == 0 {
 				_ = cmd.Help()
 
-				os.Exit(0)
+				return nil
 			}
 
 			return nil
@@ -42,7 +40,7 @@ func newShowConfigCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
 			client, err := config.NewClient(sess)
 			if err != nil {
-				os.Exit(1)
+				return fmt.Errorf("error creating config client: %w", err)
 			}
 
 			if err = client.Show(); err != nil {

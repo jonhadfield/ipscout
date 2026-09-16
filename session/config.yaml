@@ -189,3 +189,19 @@ providers:
     enabled: true
   zoom:
     enabled: true
+  amazonbot:
+    enabled: true
+  cachefly:
+    enabled: true
+  ccbot:
+    enabled: true
+  gitlab:
+    enabled: true
+  huawei:
+    enabled: true
+  intercom:
+    enabled: true
+  mullvad:
+    enabled: true
+  salesforce:
+    enabled: true
