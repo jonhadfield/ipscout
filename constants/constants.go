@@ -32,8 +32,11 @@ const (
 // Provider output priorities control the order results are rendered in, from
 // the lowest number at the top of the output to the highest at the bottom.
 // They are banded by how specifically a match identifies the host: a
-// hand-annotated prefix or a blocklist hit names this exact address, whereas a
-// hyperscaler range only says who owns a very large block of addresses.
+// hand-annotated prefix or a blocklist hit names this exact address, a SaaS or
+// crawler range names who operates it, and a hyperscaler range only says who
+// owns a very large block. Per-IP reputation and scanning APIs apply to almost
+// any address, so they sit below ownership identity and above PTR / geolocation
+// metadata that make no ownership or threat claim at all.
 const (
 	// Curated locally: entries you or your own infrastructure define.
 	DefaultAnnotatedOutputPriority = 10
@@ -53,13 +56,6 @@ const (
 	// exit, both statements about this exact address rather than who owns it.
 	DefaultFeodoOutputPriority = 22
 	DefaultTorOutputPriority   = 29
-
-	// Reputation and scanning intelligence describing this exact address.
-	DefaultAbuseIPDBOutputPriority  = 30
-	DefaultCriminalIPOutputPriority = 32
-	DefaultVirusTotalOutputPriority = 34
-	DefaultIPQSOutputPriority       = 36
-	DefaultShodanOutputPriority     = 38
 
 	// Privacy relays and proxy egress: narrow, purpose-built ranges.
 	DefaultiCloudPROutputPriority = 50
@@ -144,6 +140,14 @@ const (
 	DefaultAlibabaOutputPriority  = 182
 	DefaultHuaweiOutputPriority   = 182
 	DefaultGoogleOutputPriority   = 186
+
+	// Reputation and scanning intelligence: enrichment that applies to almost
+	// any address, so it sits below a match that names who operates the host.
+	DefaultAbuseIPDBOutputPriority  = 190
+	DefaultCriminalIPOutputPriority = 192
+	DefaultVirusTotalOutputPriority = 194
+	DefaultIPQSOutputPriority       = 196
+	DefaultShodanOutputPriority     = 198
 
 	// Generic per-address metadata that makes no ownership or threat claim.
 	DefaultIPAPIOutputPriority   = 200

@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-09-17
+
+### Changed
+
+- per-IP reputation and scanning results (AbuseIPDB, CriminalIP, VirusTotal, IPQS,
+  Shodan) now render below ownership identity — bots, SaaS, CDN, hosting and the
+  hyperscaler clouds — rather than above them. A GitLab or GCP match names who
+  operates the host; those APIs enrich almost any address, so they sat too high
+  when ranked only by "this exact IP". Exact blocklist hits stay near the top.
+  Any `providers.<name>.output_priority` set in your config still takes precedence
+
 ## [0.14.0] - 2026-09-16
 
 ### Added
