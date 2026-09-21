@@ -79,3 +79,25 @@ func TestToPtr(t *testing.T) {
 	p := ToPtr(v)
 	require.Equal(t, v, *p)
 }
+
+// TestProvidersAbsentFromConfigAddNoMessages guards that a provider missing
+// from the config, such as a keyed provider in an older config, is simply
+// disabled rather than reported on every run.
+func TestProvidersAbsentFromConfigAddNoMessages(t *testing.T) {
+	sess := session.New()
+	InitProviders(sess, viper.New())
+
+	require.Empty(t, sess.Messages.Info)
+	require.Empty(t, sess.Messages.Warning)
+	require.Empty(t, sess.Messages.Error)
+
+	for _, e := range registry.All() {
+		if e.DefaultEnabled {
+			continue
+		}
+
+		if enabled := e.Enabled(*sess); enabled != nil && *enabled {
+			t.Errorf("provider %s absent from config is enabled", e.Name)
+		}
+	}
+}

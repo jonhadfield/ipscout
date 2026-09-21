@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- a config without an entry for a provider that needs setup, such as one of the keyed
+  providers in a config written by an older release, printed "X provider not defined in
+  config" for each of them on every run. A provider missing from the config is simply
+  disabled, so these lines are gone
+
 ## [0.15.0] - 2026-09-21
 
 A new install with no API keys used to get one to three results for most addresses. This

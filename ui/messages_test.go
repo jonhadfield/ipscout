@@ -33,7 +33,7 @@ func TestStartupMessages(t *testing.T) {
 	t.Parallel()
 
 	m := &session.Messages{}
-	m.AddInfo("Annotated provider not defined in config")
+	m.AddInfo("an info message")
 	m.AddWarn("disabled AbuseIPDB in your config")
 	m.AddError("Shodan is enabled but has no API key: set SHODAN_API_KEY")
 
