@@ -177,6 +177,23 @@ func TestFindHostsReportsFailedLookups(t *testing.T) {
 	require.Equal(t, []string{"lookup failed for alsoBad, broken (run with --log-level DEBUG for details)"}, cfg.Messages.Error)
 }
 
+func TestFindHostsReportsRejectedAPIKeys(t *testing.T) {
+	cfg := &session.Session{Logger: discardLogger(), Messages: &session.Messages{}}
+
+	runners := map[string]providers.ProviderClient{
+		"shodan": configurableStub{enabled: true, config: cfg, findErr: fmt.Errorf("loading: shodan: %w", providers.ErrAPIKeyRejected)},
+		"broken": configurableStub{enabled: true, config: cfg, findErr: errors.New("status 500")},
+	}
+
+	runner.FindHosts(runners, true)
+
+	// a refused key names the key, and is not also counted as a failure
+	require.Equal(t, []string{
+		"Shodan rejected the API key: check SHODAN_API_KEY is set to a valid key",
+		"lookup failed for broken (run with --log-level DEBUG for details)",
+	}, cfg.Messages.Error)
+}
+
 func TestInitialiseProvidersHandlesErrors(t *testing.T) {
 	sess := newTestSession(t)
 

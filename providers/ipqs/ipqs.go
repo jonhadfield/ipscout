@@ -26,7 +26,10 @@ import (
 )
 
 const (
-	ProviderName                         = "ipqs"
+	ProviderName = "ipqs"
+	// invalidKeyMessage is part of the message IPQS gives for a bad key,
+	// lowercased: "Invalid or unauthorized key. Please check the API key..."
+	invalidKeyMessage                    = "invalid or unauthorized key"
 	ResultTTL                            = 1 * time.Hour
 	APIURL                               = "https://ipqualityscore.com/api/json/ip"
 	veryHighScoreThreshold               = 10
@@ -478,6 +481,11 @@ func loadResponse(c session.Session) (*HostSearchResult, error) {
 	}
 
 	if !apiResp.Success {
+		// IPQS answers a bad key with a 200 and this message
+		if strings.Contains(strings.ToLower(apiResp.Message), invalidKeyMessage) {
+			return nil, fmt.Errorf("%s: %w", ProviderName, providers.ErrAPIKeyRejected)
+		}
+
 		return nil, fmt.Errorf("IPQS response: %s", apiResp.Message)
 	}
 

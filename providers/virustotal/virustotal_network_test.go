@@ -117,3 +117,12 @@ func TestFindHostNetworkServerError(t *testing.T) {
 	require.Error(t, err)
 	require.NotErrorIs(t, err, providers.ErrNoMatchFound)
 }
+
+func TestFindHostNetworkUnauthorizedIsKeyRejected(t *testing.T) {
+	t.Parallel()
+
+	c := newMockedClient(t, http.StatusUnauthorized, []byte(`{"error": {"code": "WrongCredentialsError", "message": "Wrong API key"}}`))
+
+	_, err := c.FindHost()
+	require.ErrorIs(t, err, providers.ErrAPIKeyRejected)
+}

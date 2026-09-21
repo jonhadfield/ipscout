@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
 	"github.com/jonhadfield/ipscout/providers/ahrefs"
@@ -356,6 +357,28 @@ func DisableKeylessProvidersInConfig(configPath string, getenv func(string) stri
 	}
 
 	return disabled, nil
+}
+
+// Lookup returns the entry for the named provider.
+func Lookup(name string) (Entry, bool) {
+	for _, e := range All() {
+		if e.Name == name {
+			return e, true
+		}
+	}
+
+	return Entry{}, false
+}
+
+// APIKeyRejectedMessage describes a provider refusing its API key, naming
+// where the key is set when the provider is a known keyed one.
+func APIKeyRejectedMessage(name string) string {
+	e, ok := Lookup(name)
+	if !ok || e.KeyEnv == "" {
+		return fmt.Sprintf(constants.MsgAPIKeyRejectedFmt, name)
+	}
+
+	return fmt.Sprintf(constants.MsgAPIKeyRejectedEnvFmt, e.DisplayName, e.KeyEnv)
 }
 
 // EnabledWithoutKey returns the keyed providers that are enabled in sess but

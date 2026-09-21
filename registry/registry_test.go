@@ -516,3 +516,24 @@ func TestEnabledWithoutKeyAndUnconfigured(t *testing.T) {
 		t.Errorf("Unconfigured() returned %d providers, want %d", got, keyed-1)
 	}
 }
+
+func TestLookupAndAPIKeyRejectedMessage(t *testing.T) {
+	t.Parallel()
+
+	e, ok := Lookup(shodan.ProviderName)
+	if !ok || e.DisplayName != "Shodan" {
+		t.Fatalf("Lookup(shodan) = %v, %v", e, ok)
+	}
+
+	if _, ok = Lookup("nope"); ok {
+		t.Error("Lookup(nope) found an entry")
+	}
+
+	if got, want := APIKeyRejectedMessage(shodan.ProviderName), "Shodan rejected the API key: check SHODAN_API_KEY is set to a valid key"; got != want {
+		t.Errorf("APIKeyRejectedMessage(shodan) = %q, want %q", got, want)
+	}
+
+	if got, want := APIKeyRejectedMessage("nope"), "nope rejected the API key"; got != want {
+		t.Errorf("APIKeyRejectedMessage(nope) = %q, want %q", got, want)
+	}
+}

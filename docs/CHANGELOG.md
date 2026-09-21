@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- a provider refusing its API key was reported as a generic lookup failure. AbuseIPDB,
+  IPAPI, IPQualityScore, Shodan and VirusTotal now report "rejected the API key", naming the
+  environment variable to check. Shodan serves cached results for popular addresses without
+  checking the key, so a bad Shodan key only shows up on lookups of other addresses
+
 ## [0.15.1] - 2026-09-21
 
 ### Fixed

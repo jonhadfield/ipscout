@@ -19,6 +19,7 @@ const (
 	ErrMsgProviderNotConfigured         = "Provider not configured"
 	ErrMsgAuthenticationRequired        = "Authentication required"
 	ErrMsgServiceError                  = "Service error"
+	ErrMsgAPIKeyRejected                = "API key rejected"
 )
 
 // Common UI error variables for simplified user messages
@@ -36,6 +37,12 @@ func simplifyError(err error, provider, _ string) string {
 	}
 
 	errStr := err.Error()
+
+	// checked first: its message would otherwise match the generic
+	// authentication patterns below
+	if errors.Is(err, providers.ErrAPIKeyRejected) {
+		return ErrMsgAPIKeyRejected
+	}
 
 	// Check for common provider errors
 	if errors.Is(err, providers.ErrNoMatchFound) ||
