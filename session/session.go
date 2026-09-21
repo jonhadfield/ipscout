@@ -52,6 +52,8 @@ type Messages struct {
 	Info    []string
 	Warning []string
 	Error   []string
+	// Tip holds suggestions, such as adding API keys, shown after results
+	Tip []string
 }
 
 func (m *Messages) AddInfo(msg string) {
@@ -75,6 +77,14 @@ func (m *Messages) AddError(msg string) {
 	defer m.Mu.Unlock()
 
 	m.Error = append(m.Error, msg)
+}
+
+func (m *Messages) AddTip(msg string) {
+	m.Mu.Lock()
+
+	defer m.Mu.Unlock()
+
+	m.Tip = append(m.Tip, msg)
 }
 
 func New() *Session {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -741,6 +742,10 @@ func OpenUI(logLevel string) error {
 
 	var loadAllProviders func(string)
 
+	// showMessages replaces the lookup messages shown in the footer; it is
+	// defined once the footer exists and must be called on the UI goroutine
+	var showMessages func([]string)
+
 	providerList := tview.NewList()
 	providerList.SetBorder(false)
 	providerList.SetBackgroundColor(tcell.ColorBlack)
@@ -866,6 +871,11 @@ func OpenUI(logLevel string) error {
 			return
 		}
 
+		var (
+			failed   []string
+			withData int
+		)
+
 		// Load each provider sequentially to avoid cache lock contention
 		for _, providerName := range providers {
 			fn, ok := providerFuncs[providerName]
@@ -899,11 +909,25 @@ func OpenUI(logLevel string) error {
 
 			providerDataStatusMutex.Unlock()
 
+			if hasData {
+				withData++
+			}
+
+			if isFailedResult(result) {
+				failed = append(failed, providerName)
+			}
+
 			// Update the provider list after each provider loads
 			app.QueueUpdateDraw(func() {
 				updateProviderList(currentProvider)
 			})
 		}
+
+		msgs := lookupMessages(failed, tuiSignupTip(sess, withData))
+
+		app.QueueUpdateDraw(func() {
+			showMessages(msgs)
+		})
 
 		// After all providers are loaded, show the first one with data or PTR as fallback
 		app.QueueUpdateDraw(func() {
@@ -1081,6 +1105,8 @@ func OpenUI(logLevel string) error {
 				// Reset provider data status
 				providerDataStatus = make(map[string]*bool)
 
+				showMessages(nil)
+
 				updateProviderList("") // Clear arrow indicators
 
 				// Keep focus on input for user to try again
@@ -1094,6 +1120,9 @@ func OpenUI(logLevel string) error {
 
 			// Reset provider data status for new IP
 			providerDataStatus = make(map[string]*bool)
+
+			// clear the previous lookup's messages
+			showMessages(nil)
 
 			if len(providers) > 0 {
 				// Show animated loading spinner
@@ -1151,8 +1180,29 @@ func OpenUI(logLevel string) error {
 	footer.SetTextAlign(tview.AlignCenter)
 	footer.SetBackgroundColor(tcell.ColorBlack)
 	footer.SetTextColor(tcell.ColorDarkGray)
-	footer.SetText(FooterText)
+	footer.SetWordWrap(true)
 	grid.AddItem(footer, FooterRow, ProvidersCol, 1, GridColumns, 0, 0, false)
+
+	// config errors and warnings stay for the session; lookup messages are
+	// replaced by each lookup
+	startup := startupMessages(sess.Messages)
+
+	var footerMsgs []string
+
+	showMessages = func(lookup []string) {
+		footerMsgs = append(slices.Clone(startup), lookup...)
+		footer.SetText(footerContent(footerMsgs))
+	}
+
+	showMessages(nil)
+
+	// size the footer to its messages at the current screen width
+	app.SetBeforeDrawFunc(func(screen tcell.Screen) bool {
+		width, _ := screen.Size()
+		grid.SetRows(1, 1, 0, footerHeight(footerMsgs, width))
+
+		return false
+	})
 
 	pages := tview.NewPages()
 	pages.AddPage("main", grid, true, true)
@@ -1226,6 +1276,8 @@ func OpenUI(logLevel string) error {
 
 				// Reset provider data status
 				providerDataStatus = make(map[string]*bool)
+
+				showMessages(nil)
 
 				updateProviderList("") // Clear arrow indicators
 

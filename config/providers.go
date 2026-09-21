@@ -17,22 +17,22 @@ func ToPtr[T any](v T) *T {
 
 // UpdateConfigFile brings the user's config file at configPath up to date:
 // it adds providers introduced since the file was written and, once, disables
-// keyed providers that have no API key. Failures are reported as session
-// messages rather than stopping the run.
+// keyed providers that have no API key. Changes and failures are reported as
+// session warnings rather than stopping the run.
 func UpdateConfigFile(sess *session.Session, configPath string) {
 	if _, err := registry.EnsureDefaultProvidersInConfig(configPath); err != nil {
-		sess.Messages.AddInfo(fmt.Sprintf(c.MsgConfigUpdateFailedFmt, err))
+		sess.Messages.AddWarn(fmt.Sprintf(c.MsgConfigUpdateFailedFmt, err))
 	}
 
 	disabled, err := registry.DisableKeylessProvidersInConfig(configPath, os.Getenv)
 	if err != nil {
-		sess.Messages.AddInfo(fmt.Sprintf(c.MsgConfigUpdateFailedFmt, err))
+		sess.Messages.AddWarn(fmt.Sprintf(c.MsgConfigUpdateFailedFmt, err))
 
 		return
 	}
 
 	if len(disabled) > 0 {
-		sess.Messages.AddInfo(fmt.Sprintf(c.MsgKeylessDisabledFmt, strings.Join(disabled, ", ")))
+		sess.Messages.AddWarn(fmt.Sprintf(c.MsgKeylessDisabledFmt, strings.Join(disabled, ", ")))
 	}
 }
 

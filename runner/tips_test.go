@@ -1,6 +1,8 @@
-package process
+package runner
 
 import (
+	"io"
+	"log/slog"
 	"path/filepath"
 	"testing"
 
@@ -11,6 +13,10 @@ import (
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/stretchr/testify/require"
 )
+
+func discardLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(io.Discard, nil)) //nolint:sloglint
+}
 
 func tipSession(t *testing.T) *session.Session {
 	t.Helper()
@@ -26,23 +32,21 @@ func tipSession(t *testing.T) *session.Session {
 	return sess
 }
 
-func TestAddSignupTipShownOncePerInterval(t *testing.T) {
+func TestSignupTipShownOncePerInterval(t *testing.T) {
 	t.Parallel()
 
 	sess := tipSession(t)
 
-	addSignupTip(sess, sparseResultsThreshold)
-	require.Len(t, sess.Messages.Info, 1)
-	require.Contains(t, sess.Messages.Info[0], "IPQualityScore (IPQS_API_KEY, https://www.ipqualityscore.com/create-account)")
-	require.Contains(t, sess.Messages.Info[0], "AbuseIPDB (ABUSEIPDB_API_KEY")
-	require.Contains(t, sess.Messages.Info[0], "global.disable_tips")
+	tip := SignupTip(sess, sparseResultsThreshold)
+	require.Contains(t, tip, "IPQualityScore (IPQS_API_KEY, https://www.ipqualityscore.com/create-account)")
+	require.Contains(t, tip, "AbuseIPDB (ABUSEIPDB_API_KEY")
+	require.Contains(t, tip, "global.disable_tips")
 
 	// the cache records the tip, so a second sparse lookup stays quiet
-	addSignupTip(sess, 0)
-	require.Len(t, sess.Messages.Info, 1)
+	require.Empty(t, SignupTip(sess, 0))
 }
 
-func TestAddSignupTipSuppressed(t *testing.T) {
+func TestSignupTipSuppressed(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -51,7 +55,7 @@ func TestAddSignupTipSuppressed(t *testing.T) {
 		setup   func(*session.Session)
 	}{
 		{"enough results", sparseResultsThreshold + 1, func(*session.Session) {}},
-		{"json output", 0, func(s *session.Session) { s.Config.Global.Output = outputJSON }},
+		{"json output", 0, func(s *session.Session) { s.Config.Global.Output = "json" }},
 		{"tips disabled", 0, func(s *session.Session) { s.Config.Global.DisableTips = true }},
 		{"provider filter", 0, func(s *session.Session) { s.Config.Global.FilterProviders = []string{"aws"} }},
 		{"test data", 0, func(s *session.Session) { s.UseTestData = true }},
@@ -65,8 +69,7 @@ func TestAddSignupTipSuppressed(t *testing.T) {
 			sess := tipSession(t)
 			tt.setup(sess)
 
-			addSignupTip(sess, tt.results)
-			require.Empty(t, sess.Messages.Info)
+			require.Empty(t, SignupTip(sess, tt.results))
 		})
 	}
 }
