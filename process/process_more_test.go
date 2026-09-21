@@ -149,7 +149,7 @@ func TestFindHostsAggregates(t *testing.T) {
 		},
 	}
 
-	results := runner.FindHosts(runners, true)
+	results := runner.FindHosts(runners, true, nil)
 	require.NotNil(t, results)
 
 	results.RLock()
@@ -171,7 +171,7 @@ func TestFindHostsReportsFailedLookups(t *testing.T) {
 		"alsoBad": configurableStub{enabled: true, config: cfg, findErr: errors.New("timeout")},
 	}
 
-	runner.FindHosts(runners, true)
+	runner.FindHosts(runners, true, nil)
 
 	// routine misses are not failures; real failures share one sorted line
 	require.Equal(t, []string{"lookup failed for alsoBad, broken (run with --log-level DEBUG for details)"}, cfg.Messages.Error)
@@ -185,7 +185,7 @@ func TestFindHostsReportsRejectedAPIKeys(t *testing.T) {
 		"broken": configurableStub{enabled: true, config: cfg, findErr: errors.New("status 500")},
 	}
 
-	runner.FindHosts(runners, true)
+	runner.FindHosts(runners, true, nil)
 
 	// a refused key names the key, and is not also counted as a failure
 	require.Equal(t, []string{
@@ -231,6 +231,38 @@ func TestInitialiseProvidersReportsAllFailuresOnOneLine(t *testing.T) {
 	// sorted, so the line is stable between runs despite concurrent fetches
 	require.Contains(t, sess.Messages.Error[0], "alpha, mike, zulu")
 	require.NotContains(t, sess.Messages.Error[0], "working")
+}
+
+// A provider whose range fetch failed is still queried, as it may answer from
+// cache, but its failed lookup is not reported a second time.
+func TestFailedInitialiseReportedOnce(t *testing.T) {
+	sess := newTestSession(t)
+
+	runners := map[string]providers.ProviderClient{
+		"github": configurableStub{enabled: true, config: sess, initErr: errors.New("fetch failed"), findErr: errors.New("no prefixes")},
+		"selfish": configurableStub{
+			enabled: true, config: sess,
+			initErr: fmt.Errorf("explained: %w", providers.ErrFailureReported),
+			findErr: errors.New("no prefixes"),
+		},
+		"cached":  configurableStub{enabled: true, config: sess, initErr: errors.New("fetch failed"), findResult: []byte(`{"a":1}`)},
+		"lookups": configurableStub{enabled: true, config: sess, findErr: errors.New("status 500")},
+	}
+
+	initFailed := runner.InitialiseProviders(sess, runners, true)
+
+	// every failed provider is returned, including one that reported itself
+	require.Equal(t, []string{"cached", "github", "selfish"}, initFailed)
+
+	results := runner.FindHosts(runners, true, initFailed)
+
+	// the cached provider still answers
+	require.Contains(t, results.Data, "cached")
+
+	require.Equal(t, []string{
+		"failed to fetch ip ranges for cached, github (run with --log-level DEBUG for details)",
+		"lookup failed for lookups (run with --log-level DEBUG for details)",
+	}, sess.Messages.Error)
 }
 
 // Nothing is reported when every provider fetches successfully.

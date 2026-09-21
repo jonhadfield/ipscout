@@ -52,7 +52,7 @@ func (p *Processor) Run() error {
 	}
 
 	// initialise providers
-	runner.InitialiseProviders(p.Session, enabledProviders, p.Session.HideProgress)
+	initFailed := runner.InitialiseProviders(p.Session, enabledProviders, p.Session.HideProgress)
 
 	if strings.EqualFold(p.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range p.Session.Stats.InitialiseDuration {
@@ -69,7 +69,7 @@ func (p *Processor) Run() error {
 	}
 
 	// find hosts
-	results := runner.FindHosts(enabledProviders, p.Session.HideProgress)
+	results := runner.FindHosts(enabledProviders, p.Session.HideProgress, initFailed)
 
 	if strings.EqualFold(p.Session.Config.Global.LogLevel, "debug") {
 		for provider, dur := range p.Session.Stats.FindHostDuration {

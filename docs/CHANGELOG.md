@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- a provider whose IP ranges could not be fetched, such as GitHub when its API rate limits
+  you, was reported twice: "failed to fetch ip ranges for github", then "lookup failed for
+  github". It is now reported once. It is still looked up, as it may answer from cached
+  ranges
+
 ## [0.15.2] - 2026-09-21
 
 ### Fixed
