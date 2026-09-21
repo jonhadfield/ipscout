@@ -70,7 +70,8 @@ type Provider interface {
 }
 
 func (c *Client) Enabled() bool {
-	if c.UseTestData || (c.Providers.IPQS.Enabled != nil && *c.Providers.IPQS.Enabled) {
+	ipqs := c.Providers.IPQS
+	if c.UseTestData || (ipqs.APIKey != "" && ipqs.Enabled != nil && *ipqs.Enabled) {
 		return true
 	}
 

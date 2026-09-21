@@ -16,6 +16,20 @@ const (
 	// spinner.
 	MsgFetchFailedFmt = "failed to fetch ip ranges for %s (run with --log-level DEBUG for details)"
 
+	// MsgLookupFailedFmt reports, after the results, every provider whose
+	// lookup of the host failed for a reason other than the host not being
+	// in its data.
+	MsgLookupFailedFmt = "lookup failed for %s (run with --log-level DEBUG for details)"
+
+	// MsgMissingAPIKeyFmt reports a keyed provider enabled without a key.
+	MsgMissingAPIKeyFmt = "%s is enabled but has no API key: set %s, or set providers.%s.enabled to false" // #nosec G101 -- message text, not a credential
+
+	// MsgKeylessDisabledFmt reports the providers the one-time config
+	// migration disabled because they had no API key.
+	MsgKeylessDisabledFmt = "disabled %s in your config as no API key was found; to use one, set its API key and set enabled to true"
+
+	MsgConfigUpdateFailedFmt = "unable to update config: %s"
+
 	ErrUnmarshalFindResultFmt   = "error unmarshalling find result: %w"
 	ErrUnmarshalRatingConfigFmt = "error unmarshalling rating config: %w"
 )
@@ -148,9 +162,11 @@ const (
 	DefaultVirusTotalOutputPriority = 194
 	DefaultIPQSOutputPriority       = 196
 	DefaultShodanOutputPriority     = 198
+	DefaultInternetDBOutputPriority = 199
 
 	// Generic per-address metadata that makes no ownership or threat claim.
-	DefaultIPAPIOutputPriority   = 200
-	DefaultPtrOutputPriority     = 210
-	DefaultIPToASNOutputPriority = 220
+	DefaultIPAPIOutputPriority    = 200
+	DefaultIPAPIComOutputPriority = 205
+	DefaultPtrOutputPriority      = 210
+	DefaultIPToASNOutputPriority  = 220
 )

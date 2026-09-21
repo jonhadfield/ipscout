@@ -96,6 +96,10 @@
     "scaleway": {
       "defaultMatchScore": 8.0
     },
+    "internetdb": {
+      "openPortsScore": 5.0,
+      "vulnsScore": 7.0
+    },
     "shodan": {
       "openPortsScore": 5.0,
       "highThreatCountryMatchScore": 10.0,

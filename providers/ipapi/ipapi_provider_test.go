@@ -55,9 +55,13 @@ func TestEnabled(t *testing.T) {
 	// Disabled by default.
 	require.False(t, pc.Enabled())
 
-	// Enabled flag set -> enabled.
+	// Enabled flag set without an API key -> still disabled.
 	enabled := true
 	pc.Providers.IPAPI.Enabled = &enabled
+	require.False(t, pc.Enabled())
+
+	// Enabled flag set with an API key -> enabled.
+	pc.Providers.IPAPI.APIKey = "test-key"
 	require.True(t, pc.Enabled())
 
 	// Explicitly disabled.

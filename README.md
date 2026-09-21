@@ -114,7 +114,9 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [IBM Cloud](#IBM-Cloud)                                   | Hosting Provider |           -           |
 | [Imperva](#Imperva)                                       |       WAF        |           -           |
 | [Intercom](#Intercom)                                     |       SaaS       |           -           |
-| [IPAPI](#IPAPI)                                           |  IP Geolocation  |           -           |
+| [InternetDB](#InternetDB)                                 | Scan Data        |           -           |
+| [IPAPI](#IPAPI)                                           |  IP Geolocation  | Registration required |
+| [ip-api.com](#ip-apicom)                                  |  IP Geolocation  |           -           |
 | [IPQualityScore](#IPQualityScore)                         |  IP Reputation   | Registration required |
 | [IPtoASN](#IPtoASN)                                       |     ASN Data     |           -           |
 | [IPURL](#IPURL)                                           |  User Provided   |           -           |
@@ -335,6 +337,18 @@ providers:
 # list of providers with their configurations below...
 ```
 
+Providers that need no configuration are added to an existing config file, enabled, when a
+new release introduces them. A provider you have disabled is left disabled.
+
+Providers that need an API key (AbuseIPDB, Criminal IP, IPAPI, IPQualityScore, Shodan and
+VirusTotal) are disabled in the default config. To use one, set its API key and set
+`enabled: true`. A keyed provider that is enabled without a key is reported as an error.
+Config files written before `global.config_version` existed are updated once to disable
+keyed providers that have no key.
+
+When few providers return data for a host, IPScout suggests, at most once a day, API keys
+that would add more. Set `global.disable_tips: true` to turn this off.
+
 ## Rating
 
 `ipscout rate` combines the results from every provider that supports rating into a single
@@ -472,7 +486,7 @@ This provider queries the [AbuseIPDB](https://www.abuseipdb.com/) API for inform
 confidence score, and any reports filed for them.
 A [free plan](https://www.abuseipdb.com/pricing) exists for individuals, with a limit of 1000 requests per day.
 
-Environment variable `ABUSEIPDB_API_KEY` must be set with your API key.
+Environment variable `ABUSEIPDB_API_KEY` must be set with your API key, and `providers.abuseipdb.enabled` set to `true`.
 
 ```yaml
 providers:
@@ -627,17 +641,37 @@ matches against the target host.
 [iCloud Private Relay](https://support.apple.com/en-us/102602) is an anonymising service provided by Apple. They publish
 their network prefixes [here](https://mask-api.icloud.com/egress-ip-ranges.csv).
 
+### InternetDB
+
+Query Shodan's free [InternetDB](https://internetdb.shodan.io/) API for the open ports,
+hostnames, tags, software (CPEs) and known vulnerabilities recorded for an IP address. No API
+key is needed. Private and other non-public addresses are not looked up.
+
 ### IPAPI
 
 Query the [ipapi](https://ipapi.co/) API for geolocation data.
-The API is free for up 30,000 requests per day.
+ipapi.co rate limits keyless requests so heavily that they fail for most users, so this
+provider only runs with an API key. See [pricing](https://ipapi.co/pricing/).
+
+Set environment variable `IPAPI_API_KEY`, or `providers.ipapi.api_key` in the config, with
+your API key, and set `providers.ipapi.enabled` to `true`.
+
+### ip-api.com
+
+Query the [ip-api.com](https://ip-api.com/) API for geolocation, ISP and AS data, and whether
+the address is a proxy, VPN or Tor exit, a hosting provider or a mobile network. No API key is
+needed.
+
+The free tier is limited to 45 requests per minute, is for non-commercial use only, and is
+served over plain HTTP, so the addresses you look up are sent unencrypted. Set
+`providers.ipapicom.enabled` to `false` if any of these rule it out for you.
 
 ### IPQualityScore
 
 Query the [IPQualityScore](https://www.ipqualityscore.com/documentation/proxy-detection-api/overview) API for host reputation data.
 The API is free to registered users for 5,000 requests.
 
-Set environment variable `IPQS_API_KEY` with your API key.
+Set environment variable `IPQS_API_KEY` with your API key, and set `providers.ipqs.enabled` to `true`.
 
 ### IPtoASN
 
@@ -762,7 +796,7 @@ to send.
 
 Query the [Shodan](https://www.shodan.io/) API for information on an IP address, with open ports, and services.
 
-Set environment variable `SHODAN_API_KEY` with your API key.
+Set environment variable `SHODAN_API_KEY` with your API key, and set `providers.shodan.enabled` to `true`.
 
 ### Uptrends
 
@@ -776,7 +810,7 @@ appears to send.
 
 Query the [VirusTotal](https://www.virustotal.com) API for information from various providers on an IP address.
 
-Set environment variable `VIRUSTOTAL_API_KEY` with your API key.
+Set environment variable `VIRUSTOTAL_API_KEY` with your API key, and set `providers.virustotal.enabled` to `true`.
 
 ### Zoom
 

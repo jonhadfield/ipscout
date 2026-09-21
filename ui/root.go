@@ -10,7 +10,6 @@ import (
 	"github.com/jonhadfield/ipscout/config"
 	c "github.com/jonhadfield/ipscout/constants"
 	h "github.com/jonhadfield/ipscout/helpers"
-	"github.com/jonhadfield/ipscout/registry"
 
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/viper"
@@ -73,12 +72,9 @@ func initConfig(logLevel string) (*session.Session, error) {
 	}
 
 	// add any providers introduced since the user's config was written, so
-	// their config shows all no-config providers as enabled
-	if _, err := registry.EnsureDefaultProvidersInConfig(filepath.Join(configRoot, session.DefaultConfigFileName)); err != nil {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, fmt.Sprintf("unable to add new providers to config: %s", err))
-		sess.Messages.Mu.Unlock()
-	}
+	// their config shows all no-config providers as enabled, and disable
+	// keyed providers left enabled without a key
+	config.UpdateConfigFile(sess, filepath.Join(configRoot, session.DefaultConfigFileName))
 
 	v.AddConfigPath(configRoot)
 	v.SetConfigName("config")
@@ -98,6 +94,8 @@ func initConfig(logLevel string) (*session.Session, error) {
 	sess.Target = os.Stderr
 
 	initSessionConfig(sess, v)
+
+	config.ReportMissingAPIKeys(sess)
 
 	// initialise logging
 	if err := initLogging(logLevel); err != nil {
@@ -214,6 +212,7 @@ func setProviderAPIKey(v *viper.Viper, envKey string, apiKey *string, enabled **
 func readProviderAuthKeys(v *viper.Viper) {
 	// read provider auth keys from env if not set in session
 	setProviderAPIKey(v, "abuseipdb_api_key", &sess.Providers.AbuseIPDB.APIKey, &sess.Providers.AbuseIPDB.Enabled)
+	setProviderAPIKey(v, "ipapi_api_key", &sess.Providers.IPAPI.APIKey, &sess.Providers.IPAPI.Enabled)
 	setProviderAPIKey(v, "criminal_ip_api_key", &sess.Providers.CriminalIP.APIKey, &sess.Providers.CriminalIP.Enabled)
 	setProviderAPIKey(v, "ipqs_api_key", &sess.Providers.IPQS.APIKey, &sess.Providers.IPQS.Enabled)
 	setProviderAPIKey(v, "shodan_api_key", &sess.Providers.Shodan.APIKey, &sess.Providers.Shodan.Enabled)

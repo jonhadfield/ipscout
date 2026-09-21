@@ -531,6 +531,10 @@ type RatingConfig struct {
 		Salesforce struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"salesforce"`
+		InternetDB struct {
+			OpenPortsScore float64 `json:"openPortsScore,omitempty"`
+			VulnsScore     float64 `json:"vulnsScore,omitempty"`
+		} `json:"internetdb"`
 		Shodan struct {
 			OpenPortsScore                float64 `json:"openPortsScore,omitempty"`
 			HighThreatCountryMatchScore   float64 `json:"highThreatCountryMatchScore,omitempty"`

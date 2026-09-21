@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/jonhadfield/ipscout/providers"
@@ -57,7 +58,9 @@ import (
 	"github.com/jonhadfield/ipscout/providers/icloudpr"
 	"github.com/jonhadfield/ipscout/providers/imperva"
 	"github.com/jonhadfield/ipscout/providers/intercom"
+	"github.com/jonhadfield/ipscout/providers/internetdb"
 	"github.com/jonhadfield/ipscout/providers/ipapi"
+	"github.com/jonhadfield/ipscout/providers/ipapicom"
 	"github.com/jonhadfield/ipscout/providers/ipqs"
 	"github.com/jonhadfield/ipscout/providers/iptoasn"
 	"github.com/jonhadfield/ipscout/providers/ipurl"
@@ -115,6 +118,109 @@ type Entry struct {
 	// key, paths, URLs or resource IDs) and are therefore enabled by default
 	// when absent from the user's config file.
 	DefaultEnabled bool
+	// KeyEnv names the environment variable holding the provider's API key.
+	// It is empty for providers that need no key.
+	KeyEnv string
+	// SignupURL is where a user can get an API key for a keyed provider.
+	SignupURL string
+}
+
+// configFile is a user config file parsed as a YAML node tree, so it can be
+// rewritten with comments and ordering preserved.
+type configFile struct {
+	path string
+	perm os.FileMode
+	doc  yaml.Node
+	// root is the top-level mapping, or nil when the file has none
+	root *yaml.Node
+}
+
+func readConfigFile(configPath string) (*configFile, error) {
+	info, err := os.Stat(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to stat config file: %w", err)
+	}
+
+	data, err := os.ReadFile(configPath) // #nosec G304 -- path is the app's own config file
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	cf := &configFile{path: configPath, perm: info.Mode().Perm()}
+
+	if err = yaml.Unmarshal(data, &cf.doc); err != nil {
+		return nil, fmt.Errorf("failed to parse config file: %w", err)
+	}
+
+	if cf.doc.Kind == yaml.DocumentNode && len(cf.doc.Content) > 0 && cf.doc.Content[0].Kind == yaml.MappingNode {
+		cf.root = cf.doc.Content[0]
+	}
+
+	return cf, nil
+}
+
+// section returns the mapping held under key in the top-level mapping,
+// creating it, or replacing an empty (null) value, as needed.
+func (cf *configFile) section(key string) *yaml.Node {
+	var node *yaml.Node
+
+	for i := 0; i < len(cf.root.Content)-1; i += 2 {
+		if cf.root.Content[i].Value == key {
+			node = cf.root.Content[i+1]
+
+			break
+		}
+	}
+
+	if node == nil {
+		node = &yaml.Node{Kind: yaml.MappingNode}
+		cf.root.Content = append(cf.root.Content,
+			&yaml.Node{Kind: yaml.ScalarNode, Value: key},
+			node)
+	}
+
+	// an empty section parses as a null scalar
+	if node.Kind != yaml.MappingNode {
+		node.Kind = yaml.MappingNode
+		node.Tag = ""
+		node.Value = ""
+		node.Content = nil
+	}
+
+	return node
+}
+
+func (cf *configFile) write() error {
+	var buf bytes.Buffer
+
+	enc := yaml.NewEncoder(&buf)
+	enc.SetIndent(yamlIndent)
+
+	if err := enc.Encode(&cf.doc); err != nil {
+		return fmt.Errorf("failed to encode config file: %w", err)
+	}
+
+	if err := enc.Close(); err != nil {
+		return fmt.Errorf("failed to encode config file: %w", err)
+	}
+
+	if err := os.WriteFile(cf.path, buf.Bytes(), cf.perm); err != nil {
+		return fmt.Errorf("failed to write config file: %w", err)
+	}
+
+	return nil
+}
+
+// mappingValue returns the value node for key in mapping m, matching keys
+// case-insensitively, or nil if absent.
+func mappingValue(m *yaml.Node, key string) *yaml.Node {
+	for i := 0; i < len(m.Content)-1; i += 2 {
+		if strings.EqualFold(m.Content[i].Value, key) {
+			return m.Content[i+1]
+		}
+	}
+
+	return nil
 }
 
 // EnsureDefaultProvidersInConfig adds an enabled=true entry to the config file
@@ -123,51 +229,16 @@ type Entry struct {
 // enabled. Comments and ordering of existing entries are preserved. It returns
 // true if the file was updated.
 func EnsureDefaultProvidersInConfig(configPath string) (bool, error) {
-	info, err := os.Stat(configPath)
+	cf, err := readConfigFile(configPath)
 	if err != nil {
-		return false, fmt.Errorf("failed to stat config file: %w", err)
+		return false, err
 	}
 
-	data, err := os.ReadFile(configPath) // #nosec G304 -- path is the app's own config file
-	if err != nil {
-		return false, fmt.Errorf("failed to read config file: %w", err)
-	}
-
-	var doc yaml.Node
-	if err = yaml.Unmarshal(data, &doc); err != nil {
-		return false, fmt.Errorf("failed to parse config file: %w", err)
-	}
-
-	if doc.Kind != yaml.DocumentNode || len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {
+	if cf.root == nil {
 		return false, nil
 	}
 
-	root := doc.Content[0]
-
-	var providersNode *yaml.Node
-
-	for i := 0; i < len(root.Content)-1; i += 2 {
-		if root.Content[i].Value == "providers" {
-			providersNode = root.Content[i+1]
-
-			break
-		}
-	}
-
-	if providersNode == nil {
-		providersNode = &yaml.Node{Kind: yaml.MappingNode}
-		root.Content = append(root.Content,
-			&yaml.Node{Kind: yaml.ScalarNode, Value: "providers"},
-			providersNode)
-	}
-
-	// an empty providers section parses as a null scalar
-	if providersNode.Kind != yaml.MappingNode {
-		providersNode.Kind = yaml.MappingNode
-		providersNode.Tag = ""
-		providersNode.Value = ""
-		providersNode.Content = nil
-	}
+	providersNode := cf.section("providers")
 
 	existing := make(map[string]bool)
 	for i := 0; i < len(providersNode.Content)-1; i += 2 {
@@ -198,24 +269,129 @@ func EnsureDefaultProvidersInConfig(configPath string) (bool, error) {
 		return false, nil
 	}
 
-	var buf bytes.Buffer
-
-	enc := yaml.NewEncoder(&buf)
-	enc.SetIndent(yamlIndent)
-
-	if err = enc.Encode(&doc); err != nil {
-		return false, fmt.Errorf("failed to encode config file: %w", err)
-	}
-
-	if err = enc.Close(); err != nil {
-		return false, fmt.Errorf("failed to encode config file: %w", err)
-	}
-
-	if err = os.WriteFile(configPath, buf.Bytes(), info.Mode().Perm()); err != nil {
-		return false, fmt.Errorf("failed to write config file: %w", err)
+	if err = cf.write(); err != nil {
+		return false, err
 	}
 
 	return true, nil
+}
+
+// ConfigVersion is the config file schema version this build writes to
+// global.config_version. Version 1 marks a config whose keyed providers have
+// been checked for missing API keys.
+const ConfigVersion = 1
+
+// DisableKeylessProvidersInConfig is a one-time migration for config files
+// written before global.config_version existed. It sets enabled=false on
+// every provider that needs an API key but has none, in either the config
+// file or the environment (read via getenv), then records config_version so
+// later runs leave the user's settings alone: a keyed provider the user
+// enables afterwards without a key is reported as an error instead. It
+// returns the display names of the providers it disabled.
+func DisableKeylessProvidersInConfig(configPath string, getenv func(string) string) ([]string, error) {
+	cf, err := readConfigFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if cf.root == nil {
+		return nil, nil
+	}
+
+	global := cf.section("global")
+
+	if v := mappingValue(global, "config_version"); v != nil {
+		var version int
+		if v.Decode(&version) == nil && version >= ConfigVersion {
+			return nil, nil
+		}
+	}
+
+	providersNode := cf.section("providers")
+
+	var disabled []string
+
+	for _, e := range All() {
+		if e.KeyEnv == "" || getenv(e.KeyEnv) != "" {
+			continue
+		}
+
+		prov := mappingValue(providersNode, e.Name)
+		if prov == nil || prov.Kind != yaml.MappingNode {
+			continue
+		}
+
+		if key := mappingValue(prov, "api_key"); key != nil && key.Value != "" {
+			continue
+		}
+
+		enabledNode := mappingValue(prov, "enabled")
+		if enabledNode == nil {
+			continue
+		}
+
+		var enabled bool
+		if enabledNode.Decode(&enabled) != nil || !enabled {
+			continue
+		}
+
+		enabledNode.Value = "false"
+		enabledNode.Tag = ""
+		enabledNode.Style = 0
+
+		disabled = append(disabled, e.DisplayName)
+	}
+
+	if v := mappingValue(global, "config_version"); v != nil {
+		v.Value = strconv.Itoa(ConfigVersion)
+		v.Tag = ""
+	} else {
+		global.Content = append(global.Content,
+			&yaml.Node{Kind: yaml.ScalarNode, Value: "config_version"},
+			&yaml.Node{Kind: yaml.ScalarNode, Value: strconv.Itoa(ConfigVersion)})
+	}
+
+	if err = cf.write(); err != nil {
+		return nil, err
+	}
+
+	return disabled, nil
+}
+
+// EnabledWithoutKey returns the keyed providers that are enabled in sess but
+// have no API key, and so cannot run.
+func EnabledWithoutKey(sess session.Session) []Entry {
+	var missing []Entry
+
+	for _, e := range All() {
+		if e.KeyEnv == "" {
+			continue
+		}
+
+		if enabled := e.Enabled(sess); enabled != nil && *enabled && e.APIKey(sess) == "" {
+			missing = append(missing, e)
+		}
+	}
+
+	return missing
+}
+
+// Unconfigured returns the keyed providers that cannot run in sess, either
+// because they are disabled or because they have no API key, in All() order.
+func Unconfigured(sess session.Session) []Entry {
+	var unconfigured []Entry
+
+	for _, e := range All() {
+		if e.KeyEnv == "" {
+			continue
+		}
+
+		if enabled := e.Enabled(sess); enabled == nil || !*enabled || e.APIKey(sess) == "" {
+			unconfigured = append(unconfigured, e)
+		}
+	}
+
+	return unconfigured
 }
 
 // SetEnabledDefaults registers an enabled=true default for every provider that
@@ -234,22 +410,24 @@ func SetEnabledDefaults(v *viper.Viper) {
 // This is the single source of truth — process and rate both call this.
 func All() []Entry {
 	return []Entry{
-		{Name: abuseipdb.ProviderName, DisplayName: "AbuseIPDB", Enabled: func(s session.Session) *bool { return s.Providers.AbuseIPDB.Enabled }, APIKey: func(s session.Session) string { return s.Providers.AbuseIPDB.APIKey }, NewClient: abuseipdb.NewClient, SupportsRating: true},
+		{Name: abuseipdb.ProviderName, DisplayName: "AbuseIPDB", Enabled: func(s session.Session) *bool { return s.Providers.AbuseIPDB.Enabled }, APIKey: func(s session.Session) string { return s.Providers.AbuseIPDB.APIKey }, NewClient: abuseipdb.NewClient, SupportsRating: true, KeyEnv: "ABUSEIPDB_API_KEY", SignupURL: "https://www.abuseipdb.com/register"},
 		{Name: alibaba.ProviderName, DisplayName: "Alibaba", Enabled: func(s session.Session) *bool { return s.Providers.Alibaba.Enabled }, APIKey: noKey, NewClient: alibaba.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: annotated.ProviderName, DisplayName: "Annotated", Enabled: func(s session.Session) *bool { return s.Providers.Annotated.Enabled }, APIKey: noKey, NewClient: annotated.NewProviderClient, SupportsRating: true},
 		{Name: aws.ProviderName, DisplayName: "AWS", Enabled: func(s session.Session) *bool { return s.Providers.AWS.Enabled }, APIKey: noKey, NewClient: aws.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: azure.ProviderName, DisplayName: "Azure", Enabled: func(s session.Session) *bool { return s.Providers.Azure.Enabled }, APIKey: noKey, NewClient: azure.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: azurewaf.ProviderName, DisplayName: "Azure WAF", Enabled: func(s session.Session) *bool { return s.Providers.AzureWAF.Enabled }, APIKey: noKey, NewClient: azurewaf.NewProviderClient, SupportsRating: false},
 		{Name: bingbot.ProviderName, DisplayName: "Bingbot", Enabled: func(s session.Session) *bool { return s.Providers.Bingbot.Enabled }, APIKey: noKey, NewClient: bingbot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
-		{Name: criminalip.ProviderName, DisplayName: "CriminalIP", Enabled: func(s session.Session) *bool { return s.Providers.CriminalIP.Enabled }, APIKey: func(s session.Session) string { return s.Providers.CriminalIP.APIKey }, NewClient: criminalip.NewProviderClient, SupportsRating: true},
+		{Name: criminalip.ProviderName, DisplayName: "CriminalIP", Enabled: func(s session.Session) *bool { return s.Providers.CriminalIP.Enabled }, APIKey: func(s session.Session) string { return s.Providers.CriminalIP.APIKey }, NewClient: criminalip.NewProviderClient, SupportsRating: true, KeyEnv: "CRIMINAL_IP_API_KEY", SignupURL: "https://www.criminalip.io/"},
 		{Name: digitalocean.ProviderName, DisplayName: "DigitalOcean", Enabled: func(s session.Session) *bool { return s.Providers.DigitalOcean.Enabled }, APIKey: noKey, NewClient: digitalocean.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: gcp.ProviderName, DisplayName: "GCP", Enabled: func(s session.Session) *bool { return s.Providers.GCP.Enabled }, APIKey: noKey, NewClient: gcp.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: google.ProviderName, DisplayName: "Google", Enabled: func(s session.Session) *bool { return s.Providers.Google.Enabled }, APIKey: noKey, NewClient: google.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: googlebot.ProviderName, DisplayName: "Googlebot", Enabled: func(s session.Session) *bool { return s.Providers.Googlebot.Enabled }, APIKey: noKey, NewClient: googlebot.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: googlesc.ProviderName, DisplayName: "Google Special-case Crawlers", Enabled: func(s session.Session) *bool { return s.Providers.GoogleSC.Enabled }, APIKey: noKey, NewClient: googlesc.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: hetzner.ProviderName, DisplayName: "Hetzner", Enabled: func(s session.Session) *bool { return s.Providers.Hetzner.Enabled }, APIKey: noKey, NewClient: hetzner.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
-		{Name: ipapi.ProviderName, DisplayName: "IPAPI", Enabled: func(s session.Session) *bool { return s.Providers.IPAPI.Enabled }, APIKey: noKey, NewClient: ipapi.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
-		{Name: ipqs.ProviderName, DisplayName: "IPQualityScore", Enabled: func(s session.Session) *bool { return s.Providers.IPQS.Enabled }, APIKey: func(s session.Session) string { return s.Providers.IPQS.APIKey }, NewClient: ipqs.NewProviderClient, SupportsRating: true},
+		{Name: ipapi.ProviderName, DisplayName: "IPAPI", Enabled: func(s session.Session) *bool { return s.Providers.IPAPI.Enabled }, APIKey: func(s session.Session) string { return s.Providers.IPAPI.APIKey }, NewClient: ipapi.NewProviderClient, SupportsRating: true, KeyEnv: "IPAPI_API_KEY", SignupURL: "https://ipapi.co/pricing/"},
+		{Name: ipapicom.ProviderName, DisplayName: "ip-api.com", Enabled: func(s session.Session) *bool { return s.Providers.IPAPICom.Enabled }, APIKey: noKey, NewClient: ipapicom.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: internetdb.ProviderName, DisplayName: "InternetDB", Enabled: func(s session.Session) *bool { return s.Providers.InternetDB.Enabled }, APIKey: noKey, NewClient: internetdb.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: ipqs.ProviderName, DisplayName: "IPQualityScore", Enabled: func(s session.Session) *bool { return s.Providers.IPQS.Enabled }, APIKey: func(s session.Session) string { return s.Providers.IPQS.APIKey }, NewClient: ipqs.NewProviderClient, SupportsRating: true, KeyEnv: "IPQS_API_KEY", SignupURL: "https://www.ipqualityscore.com/create-account"},
 		{Name: iptoasn.ProviderName, DisplayName: "IPtoASN", Enabled: func(s session.Session) *bool { return s.Providers.IPToASN.Enabled }, APIKey: noKey, NewClient: iptoasn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ipurl.ProviderName, DisplayName: "IPURL", Enabled: func(s session.Session) *bool { return s.Providers.IPURL.Enabled }, APIKey: noKey, NewClient: ipurl.NewProviderClient, SupportsRating: true},
 		{Name: icloudpr.ProviderName, DisplayName: "iCloud Private Relay", Enabled: func(s session.Session) *bool { return s.Providers.ICloudPR.Enabled }, APIKey: noKey, NewClient: icloudpr.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
@@ -259,8 +437,8 @@ func All() []Entry {
 		{Name: ovh.ProviderName, DisplayName: "OVH", Enabled: func(s session.Session) *bool { return s.Providers.OVH.Enabled }, APIKey: noKey, NewClient: ovh.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: scaleway.ProviderName, DisplayName: "Scaleway", Enabled: func(s session.Session) *bool { return s.Providers.Scaleway.Enabled }, APIKey: noKey, NewClient: scaleway.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ptr.ProviderName, DisplayName: "PTR", Enabled: func(s session.Session) *bool { return s.Providers.PTR.Enabled }, APIKey: noKey, NewClient: ptr.NewProviderClient, SupportsRating: false, DefaultEnabled: true},
-		{Name: shodan.ProviderName, DisplayName: "Shodan", Enabled: func(s session.Session) *bool { return s.Providers.Shodan.Enabled }, APIKey: func(s session.Session) string { return s.Providers.Shodan.APIKey }, NewClient: shodan.NewProviderClient, SupportsRating: true},
-		{Name: virustotal.ProviderName, DisplayName: "VirusTotal", Enabled: func(s session.Session) *bool { return s.Providers.VirusTotal.Enabled }, APIKey: func(s session.Session) string { return s.Providers.VirusTotal.APIKey }, NewClient: virustotal.NewProviderClient, SupportsRating: true},
+		{Name: shodan.ProviderName, DisplayName: "Shodan", Enabled: func(s session.Session) *bool { return s.Providers.Shodan.Enabled }, APIKey: func(s session.Session) string { return s.Providers.Shodan.APIKey }, NewClient: shodan.NewProviderClient, SupportsRating: true, KeyEnv: "SHODAN_API_KEY", SignupURL: "https://account.shodan.io/register"},
+		{Name: virustotal.ProviderName, DisplayName: "VirusTotal", Enabled: func(s session.Session) *bool { return s.Providers.VirusTotal.Enabled }, APIKey: func(s session.Session) string { return s.Providers.VirusTotal.APIKey }, NewClient: virustotal.NewProviderClient, SupportsRating: true, KeyEnv: "VIRUSTOTAL_API_KEY", SignupURL: "https://www.virustotal.com/gui/join-us"},
 		{Name: vultr.ProviderName, DisplayName: "Vultr", Enabled: func(s session.Session) *bool { return s.Providers.Vultr.Enabled }, APIKey: noKey, NewClient: vultr.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: zscaler.ProviderName, DisplayName: "Zscaler", Enabled: func(s session.Session) *bool { return s.Providers.Zscaler.Enabled }, APIKey: noKey, NewClient: zscaler.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ahrefs.ProviderName, DisplayName: "AhrefsBot", Enabled: func(s session.Session) *bool { return s.Providers.Ahrefs.Enabled }, APIKey: noKey, NewClient: ahrefs.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

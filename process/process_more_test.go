@@ -3,6 +3,7 @@ package process
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -158,6 +159,22 @@ func TestFindHostsAggregates(t *testing.T) {
 	require.Equal(t, []byte(`{"a":1}`), results.Data["withData"])
 	require.NotContains(t, results.Data, "noData")
 	require.NotContains(t, results.Data, "errored")
+}
+
+func TestFindHostsReportsFailedLookups(t *testing.T) {
+	cfg := &session.Session{Logger: discardLogger(), Messages: &session.Messages{}}
+
+	runners := map[string]providers.ProviderClient{
+		"noMatch": configurableStub{enabled: true, config: cfg, findErr: fmt.Errorf("x: %w", providers.ErrNoMatchFound)},
+		"noData":  configurableStub{enabled: true, config: cfg, findErr: providers.ErrNoDataFound},
+		"broken":  configurableStub{enabled: true, config: cfg, findErr: errors.New("status 403")},
+		"alsoBad": configurableStub{enabled: true, config: cfg, findErr: errors.New("timeout")},
+	}
+
+	runner.FindHosts(runners, true)
+
+	// routine misses are not failures; real failures share one sorted line
+	require.Equal(t, []string{"lookup failed for alsoBad, broken (run with --log-level DEBUG for details)"}, cfg.Messages.Error)
 }
 
 func TestInitialiseProvidersHandlesErrors(t *testing.T) {

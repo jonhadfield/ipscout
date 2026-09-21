@@ -3,8 +3,11 @@ package ipapi
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
+	"net/http"
 	"net/netip"
+	"net/url"
 	"os"
 	"slices"
 	"strings"
@@ -55,8 +58,11 @@ type Provider interface {
 	CreateTable([]byte) (*table.Writer, error)
 }
 
+// Enabled requires an API key: ipapi.co rate limits keyless requests so
+// heavily that they fail for most users.
 func (c *Client) Enabled() bool {
-	if c.UseTestData || (c.Providers.IPAPI.Enabled != nil && *c.Providers.IPAPI.Enabled) {
+	ipa := c.Providers.IPAPI
+	if c.UseTestData || (ipa.APIKey != "" && ipa.Enabled != nil && *ipa.Enabled) {
 		return true
 	}
 
@@ -227,10 +233,23 @@ type ipapiResp struct {
 	Hostname           string  `json:"hostname"`
 }
 
+// ipapiErrorResp is the body ipapi.co returns in place of a result, e.g. when
+// rate limited or given an invalid key.
+type ipapiErrorResp struct {
+	Error   bool   `json:"error"`
+	Reason  string `json:"reason"`
+	Message string `json:"message"`
+}
+
 func loadResponse(c session.Session) (*HostSearchResult, error) {
 	res := &HostSearchResult{}
 
-	req, err := retryablehttp.NewRequest("GET", fmt.Sprintf("%s/%s/json", apiDomain, c.Host.String()), nil)
+	reqURL := fmt.Sprintf("%s/%s/json/", apiDomain, c.Host.String())
+	if c.Providers.IPAPI.APIKey != "" {
+		reqURL += "?key=" + url.QueryEscape(c.Providers.IPAPI.APIKey)
+	}
+
+	req, err := retryablehttp.NewRequest("GET", reqURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating ipapi request: %w", err)
 	}
@@ -239,14 +258,36 @@ func loadResponse(c session.Session) (*HostSearchResult, error) {
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
+		// the key travels in the query string, which retryablehttp includes
+		// in its errors
+		if key := c.Providers.IPAPI.APIKey; key != "" {
+			return nil, fmt.Errorf("error sending ipapi request: %s", strings.ReplaceAll(err.Error(), url.QueryEscape(key), "REDACTED"))
+		}
+
 		return nil, fmt.Errorf("error sending ipapi request: %w", err)
 	}
 
 	defer resp.Body.Close()
 
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading ipapi response: %w", err)
+	}
+
+	// ipapi.co reports failures such as rate limiting as a JSON error body,
+	// which would otherwise decode into an empty result and render nothing
+	var errResp ipapiErrorResp
+	if json.Unmarshal(body, &errResp) == nil && errResp.Error {
+		return nil, fmt.Errorf("ipapi returned error (status %d): %s: %s", resp.StatusCode, errResp.Reason, errResp.Message)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("ipapi returned unexpected status: %d", resp.StatusCode)
+	}
+
 	var apiResp ipapiResp
 
-	if err = json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
+	if err = json.Unmarshal(body, &apiResp); err != nil {
 		return nil, fmt.Errorf("error decoding ipapi response: %w", err)
 	}
 
