@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.15.3] - 2026-09-21
+
 ### Fixed
 
 - a provider whose IP ranges could not be fetched, such as GitHub when its API rate limits
@@ -780,7 +782,8 @@ as 0.12.2 and behave identically, so there is no reason to upgrade for its own s
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.15.2...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.15.3...HEAD
+[0.15.3]: https://github.com/jonhadfield/ipscout/compare/0.15.2...0.15.3
 [0.15.2]: https://github.com/jonhadfield/ipscout/compare/0.15.1...0.15.2
 [0.15.1]: https://github.com/jonhadfield/ipscout/compare/0.15.0...0.15.1
 [0.15.0]: https://github.com/jonhadfield/ipscout/compare/0.14.1...0.15.0
