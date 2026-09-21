@@ -6,27 +6,52 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-09-21
+
+A new install with no API keys used to get one to three results for most addresses. This
+release adds two providers that need no key and answer for almost any address, fixes
+IPAPI, and makes it clear when a provider that needs a key is not set up.
+
+### Upgrading
+
+- providers that need an API key (AbuseIPDB, Criminal IP, IPAPI, IPQualityScore, Shodan
+  and VirusTotal) are now disabled in the default config. The first run of this release
+  also updates your existing config, once, to disable any of them that has no key in the
+  environment or in `api_key`, and says which it disabled. If you export a key in only some
+  shells, run the upgrade from one that has it, or set `enabled: true` again afterwards.
+  The change is recorded in a new `global.config_version` setting so it is never repeated
+- a provider that needs a key and is enabled without one is now reported as an error
+  instead of being skipped silently. To use one, set its key and set `enabled: true`
+- IPAPI no longer runs without an API key. ipapi.co now rejects keyless requests for most
+  users, so the IPAPI table had quietly stopped appearing. Location data now comes from the
+  new ip-api.com provider unless you have an ipapi.co key
+
 ### Added
 
-- InternetDB provider: open ports, hostnames, tags, software and known vulnerabilities from
-  Shodan's free InternetDB, with no API key.
-- ip-api.com provider: keyless geolocation, ISP and AS data, with proxy, hosting and mobile
-  flags. Its free tier is plain HTTP and non-commercial only.
-- A once-a-day tip after a lookup few providers had data for, suggesting API keys for
-  unconfigured keyed providers. `global.disable_tips: true` turns it off.
-- Lookup failures are reported after the results instead of only being logged.
-- The TUI shows config errors and warnings, failed lookups and the API key tip in its
-  footer. Previously it showed no messages at all.
+- ip-api.com provider: location, ISP and AS for any public address, and whether it is a
+  proxy, VPN or Tor exit, a hosting provider or a mobile network. No API key is needed.
+  Its free tier is limited to 45 requests a minute, is for non-commercial use only, and is
+  served over plain HTTP, so the addresses you look up are sent unencrypted. Set
+  `providers.ipapicom.enabled` to `false` if any of that rules it out
+- InternetDB provider: the open ports, hostnames, tags, software and known vulnerabilities
+  Shodan's free InternetDB holds for an address, with no API key. Private and other
+  non-public addresses are not looked up
+- when few providers have data on a host, a tip suggests API keys that would add more,
+  with where to sign up. It appears at most once a day, never with `--output json`, and
+  `global.disable_tips: true` turns it off
+- a provider lookup that fails, such as a rate limited or unreachable API, is now reported
+  after the results. Previously it was only logged, so the provider just seemed to have no
+  data
+- the TUI now shows config errors and warnings, failed lookups and the API key tip in its
+  footer. It previously showed no messages at all
 
-### Changed
+### Fixed
 
-- IPAPI now requires an API key, and sends it: ipapi.co rejects keyless requests for most
-  users, and the configured key was never passed on. Its rate limit and error responses are
-  now reported as failures instead of rendering nothing.
-- IPQualityScore only runs with an API key.
-- Keyed providers are disabled in the default config, and a keyed provider enabled without a
-  key is reported as an error. Existing configs are updated once, recorded in
-  `global.config_version`, to disable keyed providers that have no key.
+- IPAPI never sent the API key set in `providers.ipapi.api_key` or `IPAPI_API_KEY`, so
+  setting one made no difference. It now sends it, and keeps it out of error messages
+- an error response from ipapi.co, such as its rate limit, rendered nothing instead of
+  being reported
+- IPQualityScore ran without an API key when enabled in the config, and failed
 
 ## [0.14.1] - 2026-09-17
 
@@ -730,7 +755,8 @@ as 0.12.2 and behave identically, so there is no reason to upgrade for its own s
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.13.3...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.15.0...HEAD
+[0.15.0]: https://github.com/jonhadfield/ipscout/compare/0.14.1...0.15.0
 [0.13.3]: https://github.com/jonhadfield/ipscout/releases/tag/0.13.3
 [0.13.2]: https://github.com/jonhadfield/ipscout/releases/tag/0.13.2
 [0.13.1]: https://github.com/jonhadfield/ipscout/releases/tag/0.13.1
