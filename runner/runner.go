@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -83,8 +84,10 @@ func GetEnabledProviders(runners map[string]providers.ProviderClient) map[string
 	return res
 }
 
-// InitialiseProviders runs Initialise concurrently for every enabled runner.
-func InitialiseProviders(sess *session.Session, runners map[string]providers.ProviderClient, hideProgress bool) {
+// InitialiseProviders runs Initialise concurrently for every enabled runner,
+// reporting failures as a session message. It returns every runner whose
+// Initialise failed, so FindHosts can avoid reporting them a second time.
+func InitialiseProviders(sess *session.Session, runners map[string]providers.ProviderClient, hideProgress bool) []string {
 	var g errgroup.Group
 
 	// failures are collected rather than logged as they happen, so a slow
@@ -93,6 +96,9 @@ func InitialiseProviders(sess *session.Session, runners map[string]providers.Pro
 	var (
 		failedMu sync.Mutex
 		failed   []string
+		// every runner that failed, including those that reported it
+		// themselves
+		initFailed []string
 	)
 
 	s := spinner.New(spinner.CharSets[11], spinnerIntervalMS*time.Millisecond, spinner.WithWriter(os.Stderr))
@@ -114,16 +120,16 @@ func InitialiseProviders(sess *session.Session, runners map[string]providers.Pro
 			if gErr != nil {
 				sess.Logger.Debug("failed to initialise", "provider", name, "error", gErr.Error())
 
+				failedMu.Lock()
+				defer failedMu.Unlock()
+
+				initFailed = append(initFailed, name)
+
 				// a provider that has already said what went wrong, and what to do
 				// about it, is left out of the generic line rather than named twice
-				if errors.Is(gErr, providers.ErrFailureReported) {
-					return nil
+				if !errors.Is(gErr, providers.ErrFailureReported) {
+					failed = append(failed, name)
 				}
-
-				failedMu.Lock()
-
-				failed = append(failed, name)
-				failedMu.Unlock()
 			}
 
 			return nil
@@ -133,10 +139,14 @@ func InitialiseProviders(sess *session.Session, runners map[string]providers.Pro
 	if err := g.Wait(); err != nil {
 		stopSpinnerIfActive(s)
 
-		return
+		return initFailed
 	}
 
 	reportFailedProviders(sess, failed)
+
+	sort.Strings(initFailed)
+
+	return initFailed
 }
 
 func reportFailedProviders(sess *session.Session, failed []string) {
@@ -161,8 +171,11 @@ type HostResults struct {
 	Data map[string][]byte
 }
 
-// FindHosts queries every runner for the session host concurrently.
-func FindHosts(runners map[string]providers.ProviderClient, hideProgress bool) *HostResults {
+// FindHosts queries every runner for the session host concurrently. Runners
+// named in initFailed are still queried, as they may answer from cached data,
+// but a lookup failure is not reported for them: their failed initialisation
+// already was.
+func FindHosts(runners map[string]providers.ProviderClient, hideProgress bool, initFailed []string) *HostResults {
 	results := &HostResults{}
 
 	results.Lock()
@@ -180,7 +193,7 @@ func FindHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	}
 
 	var (
-		errs     lookupErrors
+		errs     = lookupErrors{reported: initFailed}
 		messages *session.Messages
 	)
 
@@ -222,6 +235,8 @@ type lookupErrors struct {
 	mu       sync.Mutex
 	failed   []string
 	rejected []string
+	// reported names providers whose failure was already reported
+	reported []string
 }
 
 // record logs a provider's FindHost error and, unless it is routine, notes
@@ -244,6 +259,10 @@ func (l *lookupErrors) record(logger *slog.Logger, name string, err error) {
 	if errors.Is(err, providers.ErrAPIKeyRejected) {
 		l.rejected = append(l.rejected, name)
 
+		return
+	}
+
+	if slices.Contains(l.reported, name) {
 		return
 	}
 

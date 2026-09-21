@@ -115,7 +115,8 @@ func (r *Rater) Run() error {
 
 	enabledProviders := runner.GetEnabledProviders(providerClients)
 
-	runner.InitialiseProviders(r.Session, enabledProviders, r.Session.HideProgress)
+	initFailed := runner.InitialiseProviders(r.Session, enabledProviders, r.Session.HideProgress)
+
 	time.Sleep(spinnerStartupMS * time.Millisecond)
 
 	if strings.EqualFold(r.Session.Config.Global.LogLevel, "debug") {
@@ -133,7 +134,7 @@ func (r *Rater) Run() error {
 	}
 
 	// find hosts
-	results := runner.FindHosts(enabledProviders, r.Session.HideProgress)
+	results := runner.FindHosts(enabledProviders, r.Session.HideProgress, initFailed)
 
 	time.Sleep(spinnerStartupMS * time.Millisecond)
 
