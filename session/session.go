@@ -121,6 +121,9 @@ type GlobalConfig struct {
 	Style               string   `mapstructure:"style"`
 	InitialiseCacheOnly bool
 	FilterProviders     []string `mapstructure:"filter-providers"`
+	// DisableTips hides tips, such as suggesting API keys after a lookup
+	// that few providers returned data for.
+	DisableTips bool `mapstructure:"disable_tips"`
 }
 
 type Session struct {
@@ -247,6 +250,16 @@ type Providers struct {
 		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
 		OutputPriority *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"ipapi"`
+	IPAPICom struct {
+		Enabled        *bool  `mapstructure:"enabled"`
+		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
+		OutputPriority *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"ipapicom"`
+	InternetDB struct {
+		Enabled        *bool  `mapstructure:"enabled"`
+		ResultCacheTTL int64  `mapstructure:"result_cache_ttl"`
+		OutputPriority *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"internetdb"`
 	IPToASN struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`

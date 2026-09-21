@@ -40,7 +40,7 @@ func TestAmazonbotUnmarshalResponse(t *testing.T) {
 	res, err := unmarshalResponse(data)
 	require.NoError(t, err)
 	require.Equal(t, netip.MustParsePrefix("192.0.2.0/24"), res.Prefix)
-	require.Equal(t, []string{"amazonbot"}, res.Lists)
+	require.Equal(t, []string{ProviderName}, res.Lists)
 	require.False(t, res.CreationTime.IsZero())
 	require.JSONEq(t, string(data), string(res.Raw))
 }
@@ -68,7 +68,7 @@ func TestAmazonbotLoadResultsFile(t *testing.T) {
 	res, err := providers.LoadResultsFile[HostSearchResult]("testdata/amazonbot_192_0_2_1_report.json")
 	require.NoError(t, err)
 	require.Equal(t, netip.MustParsePrefix("192.0.2.0/24"), res.Prefix)
-	require.Equal(t, []string{"amazonbot"}, res.Lists)
+	require.Equal(t, []string{ProviderName}, res.Lists)
 }
 
 func TestAmazonbotExtractThreatIndicators(t *testing.T) {
@@ -77,7 +77,7 @@ func TestAmazonbotExtractThreatIndicators(t *testing.T) {
 	pc := &ProviderClient{}
 	testData := HostSearchResult{
 		Prefix: netip.MustParsePrefix("192.0.2.0/24"),
-		Lists:  []string{"amazonbot"},
+		Lists:  []string{ProviderName},
 	}
 	data, err := json.Marshal(testData)
 	require.NoError(t, err)
@@ -94,7 +94,7 @@ func TestAmazonbotRateHostData(t *testing.T) {
 	pc := &ProviderClient{}
 	testData := HostSearchResult{
 		Prefix: netip.MustParsePrefix("192.0.2.0/24"),
-		Lists:  []string{"amazonbot"},
+		Lists:  []string{ProviderName},
 	}
 	data, err := json.Marshal(testData)
 	require.NoError(t, err)
@@ -157,7 +157,7 @@ func TestAmazonbotInitialiseAndFindHostFromCache(t *testing.T) {
 	var parsed HostSearchResult
 	require.NoError(t, json.Unmarshal(res, &parsed))
 	require.Equal(t, netip.MustParsePrefix("192.0.2.0/24"), parsed.Prefix)
-	require.Equal(t, []string{"amazonbot"}, parsed.Lists)
+	require.Equal(t, []string{ProviderName}, parsed.Lists)
 	require.False(t, parsed.CreationTime.IsZero())
 
 	tbl, err := c.CreateTable(res)
@@ -191,5 +191,5 @@ func TestAmazonbotFindHostUsesTestData(t *testing.T) {
 	var parsed HostSearchResult
 	require.NoError(t, json.Unmarshal(res, &parsed))
 	require.Equal(t, netip.MustParsePrefix("192.0.2.0/24"), parsed.Prefix)
-	require.Equal(t, []string{"amazonbot"}, parsed.Lists)
+	require.Equal(t, []string{ProviderName}, parsed.Lists)
 }

@@ -178,19 +178,34 @@ func FindHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 		defer s.Stop()
 	}
 
+	var (
+		failed   []string
+		failedMu sync.Mutex
+		messages *session.Messages
+	)
+
 	for name, runner := range runners {
 		w.Add(1)
+
+		// every runner shares the session's messages
+		messages = runner.GetConfig().Messages
 
 		go func() {
 			defer w.Done()
 
 			result, err := runner.FindHost()
 			if err != nil {
-				// a host not appearing in a provider's data is routine
-				if errors.Is(err, providers.ErrNoMatchFound) {
+				// a host not appearing in a provider's data, or the provider
+				// having nothing to report on it, is routine
+				if errors.Is(err, providers.ErrNoMatchFound) || errors.Is(err, providers.ErrNoDataFound) {
 					runner.GetConfig().Logger.Debug(err.Error())
 				} else {
 					runner.GetConfig().Logger.Info(err.Error())
+
+					failedMu.Lock()
+
+					failed = append(failed, name)
+					failedMu.Unlock()
 				}
 
 				return
@@ -205,6 +220,12 @@ func FindHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	}
 
 	w.Wait()
+
+	if len(failed) > 0 && messages != nil {
+		sort.Strings(failed)
+
+		messages.AddError(fmt.Sprintf(c.MsgLookupFailedFmt, strings.Join(failed, ", ")))
+	}
 
 	return results
 }

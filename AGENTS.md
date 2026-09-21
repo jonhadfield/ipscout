@@ -101,9 +101,13 @@ Many providers fetch their IP-range data through the `github.com/jonhadfield/ip-
 
 API keys are managed through environment variables or configuration file:
 
-- Environment variables (no prefix): `ABUSEIPDB_API_KEY`, `CRIMINAL_IP_API_KEY`, `IPQS_API_KEY`,
-  `SHODAN_API_KEY`, `VIRUSTOTAL_API_KEY` — read via `readProviderAuthKeys`; a keyed provider with
-  no key is force-disabled
+- Environment variables (no prefix): `ABUSEIPDB_API_KEY`, `CRIMINAL_IP_API_KEY`, `IPAPI_API_KEY`,
+  `IPQS_API_KEY`, `SHODAN_API_KEY`, `VIRUSTOTAL_API_KEY` — read via `readProviderAuthKeys`. Each
+  keyed provider's `Enabled()` must also require a non-empty key, because `InitProviders` runs
+  after `readProviderAuthKeys` and re-applies `enabled` from config
+- Keyed providers set `KeyEnv` and `SignupURL` in their `registry.All()` entry. `KeyEnv` drives the
+  enabled-without-key error, the one-time `config_version` migration that disables them, and the
+  API key tip shown after sparse lookups
 - Config file: `providers.<name>.api_key` is only read for ipapi, ipqs and shodan; the other keyed
   providers take keys from the environment variables above
 

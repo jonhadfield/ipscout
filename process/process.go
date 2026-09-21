@@ -87,6 +87,8 @@ func (p *Processor) Run() error {
 
 	p.Session.Logger.Info("host matching results", "providers queried", len(enabledProviders), "matching results", matchingResults)
 
+	addSignupTip(p.Session, matchingResults)
+
 	if matchingResults == 0 {
 		p.Session.Logger.Warn("no results found", "host", p.Session.Host.String(), "providers checked", strings.Join(runner.MapsKeys(enabledProviders), ", "))
 

@@ -17,14 +17,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testAPIKey = "test-key"
+
 // mockTransport returns a canned response for any request, so the real
 // loadResponse network path can run offline against testdata.
 type mockTransport struct {
 	status int
 	body   []byte
+	// query receives the request's raw query, when set
+	query *string
 }
 
 func (m mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if m.query != nil {
+		*m.query = req.URL.RawQuery
+	}
+
 	return &http.Response{
 		StatusCode: m.status,
 		Body:       io.NopCloser(bytes.NewReader(m.body)),
@@ -66,6 +74,7 @@ func newMockedClient(t *testing.T, status int, body []byte) *Client {
 
 	enabled := true
 	sess.Providers.IPAPI.Enabled = &enabled
+	sess.Providers.IPAPI.APIKey = testAPIKey
 
 	pc, err := NewProviderClient(sess)
 	require.NoError(t, err)
@@ -118,4 +127,60 @@ func TestFindHostNetworkRequestError(t *testing.T) {
 	_, err := c.FindHost()
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "error sending ipapi request")
+}
+
+func TestFindHostNetworkSendsAPIKey(t *testing.T) {
+	t.Parallel()
+
+	body, err := os.ReadFile("testdata/ipapi_8_8_4_4_report.json")
+	require.NoError(t, err)
+
+	c := newMockedClient(t, http.StatusOK, body)
+
+	var query string
+
+	c.HTTPClient.HTTPClient.Transport = mockTransport{status: http.StatusOK, body: body, query: &query}
+
+	_, err = c.FindHost()
+	require.NoError(t, err)
+	require.Equal(t, "key="+testAPIKey, query)
+}
+
+func TestFindHostNetworkErrorBody(t *testing.T) {
+	t.Parallel()
+
+	// ipapi.co reports failures as a JSON error body, which must surface as
+	// an error rather than decode into an empty result
+	body := []byte(`{"reason": "RateLimited", "message": "Please sign up for a paid plan", "error": true}`)
+
+	c := newMockedClient(t, http.StatusOK, body)
+
+	_, err := c.FindHost()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "RateLimited")
+}
+
+func TestFindHostNetworkRateLimitedRedactsKey(t *testing.T) {
+	t.Parallel()
+
+	// retryablehttp gives up on a 429 with an error naming the request URL,
+	// which carries the key
+	c := newMockedClient(t, http.StatusTooManyRequests, []byte(`{"error": true}`))
+
+	_, err := c.FindHost()
+	require.Error(t, err)
+	require.NotContains(t, err.Error(), testAPIKey)
+	require.Contains(t, err.Error(), "REDACTED")
+}
+
+func TestFindHostNetworkUnexpectedStatus(t *testing.T) {
+	t.Parallel()
+
+	// a non-200, non-retryable status without an error body, e.g. an HTML
+	// block page
+	c := newMockedClient(t, http.StatusForbidden, []byte("<html>blocked</html>"))
+
+	_, err := c.FindHost()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "unexpected status: 403")
 }

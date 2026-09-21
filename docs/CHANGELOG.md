@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Added
+
+- InternetDB provider: open ports, hostnames, tags, software and known vulnerabilities from
+  Shodan's free InternetDB, with no API key.
+- ip-api.com provider: keyless geolocation, ISP and AS data, with proxy, hosting and mobile
+  flags. Its free tier is plain HTTP and non-commercial only.
+- A once-a-day tip after a lookup few providers had data for, suggesting API keys for
+  unconfigured keyed providers. `global.disable_tips: true` turns it off.
+- Lookup failures are reported after the results instead of only being logged.
+
+### Changed
+
+- IPAPI now requires an API key, and sends it: ipapi.co rejects keyless requests for most
+  users, and the configured key was never passed on. Its rate limit and error responses are
+  now reported as failures instead of rendering nothing.
+- IPQualityScore only runs with an API key.
+- Keyed providers are disabled in the default config, and a keyed provider enabled without a
+  key is reported as an error. Existing configs are updated once, recorded in
+  `global.config_version`, to disable keyed providers that have no key.
+
 ## [0.14.1] - 2026-09-17
 
 ### Changed

@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/registry"
@@ -11,6 +13,40 @@ import (
 
 func ToPtr[T any](v T) *T {
 	return &v
+}
+
+// UpdateConfigFile brings the user's config file at configPath up to date:
+// it adds providers introduced since the file was written and, once, disables
+// keyed providers that have no API key. Failures are reported as session
+// messages rather than stopping the run.
+func UpdateConfigFile(sess *session.Session, configPath string) {
+	if _, err := registry.EnsureDefaultProvidersInConfig(configPath); err != nil {
+		sess.Messages.AddInfo(fmt.Sprintf(c.MsgConfigUpdateFailedFmt, err))
+	}
+
+	disabled, err := registry.DisableKeylessProvidersInConfig(configPath, os.Getenv)
+	if err != nil {
+		sess.Messages.AddInfo(fmt.Sprintf(c.MsgConfigUpdateFailedFmt, err))
+
+		return
+	}
+
+	if len(disabled) > 0 {
+		sess.Messages.AddInfo(fmt.Sprintf(c.MsgKeylessDisabledFmt, strings.Join(disabled, ", ")))
+	}
+}
+
+// ReportMissingAPIKeys adds an error message for every keyed provider that is
+// enabled without an API key. Call it once provider config and keys from the
+// environment have both been read.
+func ReportMissingAPIKeys(sess *session.Session) {
+	if sess.UseTestData {
+		return
+	}
+
+	for _, e := range registry.EnabledWithoutKey(*sess) {
+		sess.Messages.AddError(fmt.Sprintf(c.MsgMissingAPIKeyFmt, e.DisplayName, e.KeyEnv, strings.ToLower(e.Name)))
+	}
 }
 
 func AddProviderConfigMessage(sess *session.Session, provider string) {
@@ -55,7 +91,10 @@ func InitProviders(sess *session.Session, v *viper.Viper) {
 	registry.SetEnabledDefaults(v)
 
 	// IP API
-	sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
+	if v.IsSet("providers.ipapi.api_key") {
+		sess.Providers.IPAPI.APIKey = v.GetString("providers.ipapi.api_key")
+	}
+
 	sess.Providers.IPAPI.ResultCacheTTL = v.GetInt64("providers.ipapi.result_cache_ttl")
 
 	// Abuse IPDB
@@ -455,6 +494,36 @@ func InitProviders(sess *session.Session, v *viper.Viper) {
 	} else {
 		sess.Providers.IPAPI.OutputPriority = ToPtr(int32(defaultIPAPIOutputPriority))
 	}
+
+	// ip-api.com
+	if v.IsSet("providers.ipapicom.enabled") {
+		sess.Providers.IPAPICom.Enabled = ToPtr(v.GetBool("providers.ipapicom.enabled"))
+	} else {
+		AddProviderConfigMessage(sess, "ip-api.com")
+	}
+
+	if v.IsSet("providers.ipapicom.output_priority") {
+		sess.Providers.IPAPICom.OutputPriority = ToPtr(v.GetInt32("providers.ipapicom.output_priority"))
+	} else {
+		sess.Providers.IPAPICom.OutputPriority = ToPtr(int32(c.DefaultIPAPIComOutputPriority))
+	}
+
+	sess.Providers.IPAPICom.ResultCacheTTL = v.GetInt64("providers.ipapicom.result_cache_ttl")
+
+	// InternetDB
+	if v.IsSet("providers.internetdb.enabled") {
+		sess.Providers.InternetDB.Enabled = ToPtr(v.GetBool("providers.internetdb.enabled"))
+	} else {
+		AddProviderConfigMessage(sess, "InternetDB")
+	}
+
+	if v.IsSet("providers.internetdb.output_priority") {
+		sess.Providers.InternetDB.OutputPriority = ToPtr(v.GetInt32("providers.internetdb.output_priority"))
+	} else {
+		sess.Providers.InternetDB.OutputPriority = ToPtr(int32(c.DefaultInternetDBOutputPriority))
+	}
+
+	sess.Providers.InternetDB.ResultCacheTTL = v.GetInt64("providers.internetdb.result_cache_ttl")
 
 	// IPtoASN
 	if v.IsSet("providers.iptoasn.enabled") {

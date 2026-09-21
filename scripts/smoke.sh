@@ -19,15 +19,17 @@ set -euo pipefail
 DIST="${1:-dist}"
 
 # Provider tables a default config renders. This is registry.All() minus the
-# providers that cannot be enabled without configuration: Azure WAF is the
-# only one, as it needs Azure resource IDs, so this is expectedProviderCount
-# in registry/registry_test.go minus one.
+# providers the default config leaves disabled because they cannot run without
+# configuration: Azure WAF, which needs Azure resource IDs, and the six that
+# need an API key (AbuseIPDB, Criminal IP, IPAPI, IPQualityScore, Shodan and
+# VirusTotal). So this is expectedProviderCount in registry/registry_test.go
+# minus seven.
 #
 # Asserting the exact number is the point. A provider that stops resolving in
 # the packaged binary still leaves the others rendering, so a "greater than
 # zero" check passes while most of the tool is broken - which is the class of
 # bug this script exists to catch.
-EXPECTED_TABLES=85
+EXPECTED_TABLES=81
 
 fail() {
     echo "smoke: FAIL: $*" >&2

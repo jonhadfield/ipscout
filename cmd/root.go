@@ -15,7 +15,6 @@ import (
 
 	c "github.com/jonhadfield/ipscout/constants"
 	"github.com/jonhadfield/ipscout/process"
-	"github.com/jonhadfield/ipscout/registry"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -230,6 +229,7 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) error {
 
 	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
 	sess.Config.Global.MaxValueChars = v.GetInt32("global.max_value_chars")
+	sess.Config.Global.DisableTips = v.GetBool("global.disable_tips")
 
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 	sess.Config.Global.MaxReports = v.GetInt("global.max_reports")
@@ -278,12 +278,9 @@ func initConfig(cmd *cobra.Command) error {
 	}
 
 	// add any providers introduced since the user's config was written, so
-	// their config shows all no-config providers as enabled
-	if _, err := registry.EnsureDefaultProvidersInConfig(filepath.Join(configRoot, session.DefaultConfigFileName)); err != nil {
-		sess.Messages.Mu.Lock()
-		sess.Messages.Info = append(sess.Messages.Info, fmt.Sprintf("unable to add new providers to config: %s", err))
-		sess.Messages.Mu.Unlock()
-	}
+	// their config shows all no-config providers as enabled, and disable
+	// keyed providers left enabled without a key
+	config.UpdateConfigFile(sess, filepath.Join(configRoot, session.DefaultConfigFileName))
 
 	v.AddConfigPath(configRoot)
 	v.SetConfigName("config")
@@ -328,6 +325,8 @@ func initConfig(cmd *cobra.Command) error {
 			return err
 		}
 	}
+
+	config.ReportMissingAPIKeys(sess)
 
 	ports, _ := cmd.Flags().GetStringSlice("ports")
 	if len(ports) == 1 && ports[0] == "[]" {
@@ -433,6 +432,7 @@ func setProviderAPIKey(v *viper.Viper, envKey string, apiKey *string, enabled **
 func readProviderAuthKeys(v *viper.Viper) {
 	// read provider auth keys from env if not set in session
 	setProviderAPIKey(v, "abuseipdb_api_key", &sess.Providers.AbuseIPDB.APIKey, &sess.Providers.AbuseIPDB.Enabled)
+	setProviderAPIKey(v, "ipapi_api_key", &sess.Providers.IPAPI.APIKey, &sess.Providers.IPAPI.Enabled)
 	setProviderAPIKey(v, "criminal_ip_api_key", &sess.Providers.CriminalIP.APIKey, &sess.Providers.CriminalIP.Enabled)
 	setProviderAPIKey(v, "ipqs_api_key", &sess.Providers.IPQS.APIKey, &sess.Providers.IPQS.Enabled)
 	setProviderAPIKey(v, "shodan_api_key", &sess.Providers.Shodan.APIKey, &sess.Providers.Shodan.Enabled)

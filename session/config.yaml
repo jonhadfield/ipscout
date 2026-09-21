@@ -6,6 +6,10 @@ global:
   max_reports: 5
   output: table
   style: cyan
+  # set to true to stop tips, such as suggesting API keys, after lookups
+  disable_tips: false
+  # config_version records which one-time config updates have been applied
+  config_version: 1
   # ports: [80]
 
 rating:
@@ -14,8 +18,10 @@ rating:
   openai_api_key: <your-openai-api-key>
 
 providers:
+  # abuseipdb, criminalip, ipapi, ipqs, shodan and virustotal need an API key:
+  # set it in the environment (e.g. SHODAN_API_KEY) and set enabled to true
   abuseipdb:
-    enabled: true
+    enabled: false
   alibaba:
     enabled: true
   annotated:
@@ -33,7 +39,7 @@ providers:
   bingbot:
     enabled: true
   criminalip:
-    enabled: true
+    enabled: false
   digitalocean:
     enabled: true
   gcp:
@@ -49,9 +55,13 @@ providers:
   icloudpr:
     enabled: true
   ipapi:
+    enabled: false
+  ipapicom:
+    enabled: true
+  internetdb:
     enabled: true
   ipqs:
-    enabled: true
+    enabled: false
   iptoasn:
     enabled: true
   ipurl:
@@ -78,9 +88,9 @@ providers:
   scaleway:
     enabled: true
   shodan:
-    enabled: true
+    enabled: false
   virustotal:
-    enabled: true
+    enabled: false
     show_providers: true
     show_unrated: true
     show_harmless: true
