@@ -101,6 +101,10 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (*Ho
 		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("%s: %w", ProviderName, providers.ErrAPIKeyRejected)
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil,
 			fmt.Errorf("shodan api request failed: %s", resp.Status)

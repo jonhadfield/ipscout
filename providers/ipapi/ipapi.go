@@ -30,6 +30,8 @@ const (
 	ProviderName = "ipapi"
 	ResultTTL    = 1 * time.Hour
 	apiDomain    = "https://ipapi.co"
+	// invalidKeyReason is the error reason ipapi.co gives for a bad key
+	invalidKeyReason = "Invalid Key"
 )
 
 type Client struct {
@@ -278,6 +280,10 @@ func loadResponse(c session.Session) (*HostSearchResult, error) {
 	// which would otherwise decode into an empty result and render nothing
 	var errResp ipapiErrorResp
 	if json.Unmarshal(body, &errResp) == nil && errResp.Error {
+		if strings.EqualFold(errResp.Reason, invalidKeyReason) {
+			return nil, fmt.Errorf("%s: %w", ProviderName, providers.ErrAPIKeyRejected)
+		}
+
 		return nil, fmt.Errorf("ipapi returned error (status %d): %s: %s", resp.StatusCode, errResp.Reason, errResp.Message)
 	}
 

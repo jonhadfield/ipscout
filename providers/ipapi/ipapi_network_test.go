@@ -13,6 +13,7 @@ import (
 
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jonhadfield/ipscout/cache"
+	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/stretchr/testify/require"
 )
@@ -183,4 +184,16 @@ func TestFindHostNetworkUnexpectedStatus(t *testing.T) {
 	_, err := c.FindHost()
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "unexpected status: 403")
+}
+
+func TestFindHostNetworkInvalidKeyIsKeyRejected(t *testing.T) {
+	t.Parallel()
+
+	// the body ipapi.co returns, with a 403, for a bad key
+	body := []byte(`{"error": true, "reason": "Invalid Key", "message": "Invalid key. SignUp @ https://ipapi.co/pricing/ "}`)
+
+	c := newMockedClient(t, http.StatusForbidden, body)
+
+	_, err := c.FindHost()
+	require.ErrorIs(t, err, providers.ErrAPIKeyRejected)
 }

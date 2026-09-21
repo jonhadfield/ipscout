@@ -238,6 +238,10 @@ func loadAPIResponse(ctx context.Context, c session.Session, apiKey string) (res
 		return nil, fmt.Errorf("%s match failed: %w", ProviderName, providers.ErrNoMatchFound)
 	}
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("%s: %w", ProviderName, providers.ErrAPIKeyRejected)
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("virustotal api request failed: %s", resp.Status)
 	}

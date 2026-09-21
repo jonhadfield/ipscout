@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/jonhadfield/ipscout/cache"
+	"github.com/jonhadfield/ipscout/registry"
 	"github.com/jonhadfield/ipscout/runner"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/rivo/tview"
@@ -39,6 +40,10 @@ func isFailedResult(result providerResult) bool {
 	return result.table == nil && slices.Contains(failureTexts, result.text)
 }
 
+func isKeyRejectedResult(result providerResult) bool {
+	return result.table == nil && result.text == ErrMsgAPIKeyRejected
+}
+
 func errorLine(msg string) string {
 	return "[red]ERROR[white] " + tview.Escape(msg) + "[-]"
 }
@@ -64,10 +69,17 @@ func startupMessages(m *session.Messages) []string {
 	return lines
 }
 
-// lookupMessages formats the messages for one lookup: the providers whose
-// lookup failed, and a tip if one is due.
-func lookupMessages(failed []string, tip string) []string {
+// lookupMessages formats the messages for one lookup: the providers that
+// refused their API key, those whose lookup failed, and a tip if one is due.
+func lookupMessages(rejected, failed []string, tip string) []string {
 	var lines []string
+
+	rejected = slices.Clone(rejected)
+	slices.Sort(rejected)
+
+	for _, name := range rejected {
+		lines = append(lines, errorLine(registry.APIKeyRejectedMessage(name)))
+	}
 
 	if len(failed) > 0 {
 		failed = slices.Clone(failed)

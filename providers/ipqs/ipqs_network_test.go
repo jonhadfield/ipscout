@@ -13,6 +13,7 @@ import (
 
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/jonhadfield/ipscout/cache"
+	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/stretchr/testify/require"
 )
@@ -101,13 +102,26 @@ func TestFindHostNetworkUnsuccessfulResponse(t *testing.T) {
 	t.Parallel()
 
 	// IPQS signals failure via success=false in the JSON body, not the status code.
-	body := []byte(`{"success":false,"message":"Invalid or unauthorized key."}`)
+	body := []byte(`{"success":false,"message":"You have exceeded your request quota."}`)
 
 	c := newMockedClient(t, body)
 
 	_, err := c.FindHost()
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "Invalid or unauthorized key.")
+	require.NotErrorIs(t, err, providers.ErrAPIKeyRejected)
+	require.Contains(t, err.Error(), "exceeded your request quota")
+}
+
+func TestFindHostNetworkInvalidKeyIsKeyRejected(t *testing.T) {
+	t.Parallel()
+
+	// the body IPQS returns, with a 200, for a bad key
+	body := []byte(`{"success":false,"message":"Invalid or unauthorized key. Please check the API key and try again.","request_id":"x","api_version":2}`)
+
+	c := newMockedClient(t, body)
+
+	_, err := c.FindHost()
+	require.ErrorIs(t, err, providers.ErrAPIKeyRejected)
 }
 
 func TestFindHostNetworkEmptyBody(t *testing.T) {

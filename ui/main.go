@@ -263,7 +263,8 @@ func isNoDataResult(result providerResult) bool {
 			text == ErrMsgProviderNotConfigured ||
 			text == ErrMsgAuthenticationRequired ||
 			text == ErrMsgServiceTemporarilyUnavailable ||
-			text == ErrMsgInvalidIPAddress {
+			text == ErrMsgInvalidIPAddress ||
+			text == ErrMsgAPIKeyRejected {
 			return true
 		}
 
@@ -873,6 +874,7 @@ func OpenUI(logLevel string) error {
 
 		var (
 			failed   []string
+			rejected []string
 			withData int
 		)
 
@@ -913,7 +915,10 @@ func OpenUI(logLevel string) error {
 				withData++
 			}
 
-			if isFailedResult(result) {
+			switch {
+			case isKeyRejectedResult(result):
+				rejected = append(rejected, providerName)
+			case isFailedResult(result):
 				failed = append(failed, providerName)
 			}
 
@@ -923,7 +928,7 @@ func OpenUI(logLevel string) error {
 			})
 		}
 
-		msgs := lookupMessages(failed, tuiSignupTip(sess, withData))
+		msgs := lookupMessages(rejected, failed, tuiSignupTip(sess, withData))
 
 		app.QueueUpdateDraw(func() {
 			showMessages(msgs)

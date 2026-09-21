@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
 	"github.com/rivo/tview"
 	"github.com/stretchr/testify/require"
@@ -49,9 +51,9 @@ func TestStartupMessages(t *testing.T) {
 func TestLookupMessages(t *testing.T) {
 	t.Parallel()
 
-	require.Empty(t, lookupMessages(nil, ""))
+	require.Empty(t, lookupMessages(nil, nil, ""))
 
-	lines := lookupMessages([]string{"ptr", "internetdb"}, "API keys unlock more [see config]")
+	lines := lookupMessages(nil, []string{"ptr", "internetdb"}, "API keys unlock more [see config]")
 	require.Len(t, lines, 2)
 	require.Contains(t, lines[0], "lookup failed for internetdb, ptr (see app.log for details)")
 	require.True(t, strings.HasPrefix(lines[1], "[lightcyan]TIP"))
@@ -86,4 +88,21 @@ func TestFooterContentAndHeight(t *testing.T) {
 	}
 
 	require.Equal(t, maxMessageLines+1, footerHeight(many, 100))
+}
+
+func TestRejectedAPIKeyMessages(t *testing.T) {
+	t.Parallel()
+
+	err := fmt.Errorf("failed to find hosts: %w", fmt.Errorf("shodan: %w", providers.ErrAPIKeyRejected))
+	result := providerResult{text: simplifyError(err, "shodan", testIPExample)}
+
+	require.Equal(t, ErrMsgAPIKeyRejected, result.text)
+	require.True(t, isKeyRejectedResult(result))
+	require.False(t, isFailedResult(result))
+	require.True(t, isNoDataResult(result))
+
+	lines := lookupMessages([]string{"shodan"}, []string{"ptr"}, "")
+	require.Len(t, lines, 2)
+	require.Contains(t, lines[0], "Shodan rejected the API key: check SHODAN_API_KEY")
+	require.Contains(t, lines[1], "lookup failed for ptr")
 }

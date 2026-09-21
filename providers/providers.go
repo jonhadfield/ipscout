@@ -111,8 +111,12 @@ var (
 	ErrNoDataFound         = errors.New("no data found")
 	ErrNoMatchFound        = errors.New("no match found")
 	ErrForbiddenByProvider = errors.New("forbidden by provider")
-	CacheProviderPrefix    = "provider_"
-	CacheKeySHALen         = 15
+	// ErrAPIKeyRejected is returned when a provider refuses the configured
+	// API key, e.g. with a 401, so it can be reported as a key problem rather
+	// than a generic lookup failure.
+	ErrAPIKeyRejected   = errors.New("api key rejected")
+	CacheProviderPrefix = "provider_"
+	CacheKeySHALen      = 15
 )
 
 func AgeToHours(age string) (int64, error) {

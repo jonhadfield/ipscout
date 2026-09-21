@@ -4,6 +4,7 @@ package runner
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"sort"
 	"strings"
@@ -179,8 +180,7 @@ func FindHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 	}
 
 	var (
-		failed   []string
-		failedMu sync.Mutex
+		errs     lookupErrors
 		messages *session.Messages
 	)
 
@@ -195,18 +195,7 @@ func FindHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 
 			result, err := runner.FindHost()
 			if err != nil {
-				// a host not appearing in a provider's data, or the provider
-				// having nothing to report on it, is routine
-				if errors.Is(err, providers.ErrNoMatchFound) || errors.Is(err, providers.ErrNoDataFound) {
-					runner.GetConfig().Logger.Debug(err.Error())
-				} else {
-					runner.GetConfig().Logger.Info(err.Error())
-
-					failedMu.Lock()
-
-					failed = append(failed, name)
-					failedMu.Unlock()
-				}
+				errs.record(runner.GetConfig().Logger, name, err)
 
 				return
 			}
@@ -221,13 +210,63 @@ func FindHosts(runners map[string]providers.ProviderClient, hideProgress bool) *
 
 	w.Wait()
 
-	if len(failed) > 0 && messages != nil {
-		sort.Strings(failed)
-
-		messages.AddError(fmt.Sprintf(c.MsgLookupFailedFmt, strings.Join(failed, ", ")))
+	if messages != nil {
+		errs.report(messages)
 	}
 
 	return results
+}
+
+// lookupErrors collects the providers whose lookups went wrong, by kind.
+type lookupErrors struct {
+	mu       sync.Mutex
+	failed   []string
+	rejected []string
+}
+
+// record logs a provider's FindHost error and, unless it is routine, notes
+// the provider for reporting.
+func (l *lookupErrors) record(logger *slog.Logger, name string, err error) {
+	// a host not appearing in a provider's data, or the provider having
+	// nothing to report on it, is routine
+	if errors.Is(err, providers.ErrNoMatchFound) || errors.Is(err, providers.ErrNoDataFound) {
+		logger.Debug(err.Error())
+
+		return
+	}
+
+	logger.Info(err.Error())
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	// a refused key is reported as such, not as a failure
+	if errors.Is(err, providers.ErrAPIKeyRejected) {
+		l.rejected = append(l.rejected, name)
+
+		return
+	}
+
+	l.failed = append(l.failed, name)
+}
+
+// report adds an error for each provider that refused its key, and one line
+// naming every provider whose lookup failed.
+func (l *lookupErrors) report(messages *session.Messages) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	sort.Strings(l.rejected)
+
+	for _, name := range l.rejected {
+		messages.AddError(registry.APIKeyRejectedMessage(name))
+	}
+
+	if len(l.failed) > 0 {
+		sort.Strings(l.failed)
+
+		messages.AddError(fmt.Sprintf(c.MsgLookupFailedFmt, strings.Join(l.failed, ", ")))
+	}
 }
 
 // OutputMessages prints buffered session messages below results.

@@ -19,6 +19,11 @@ const (
 	// in its data.
 	MsgLookupFailedFmt = "lookup failed for %s (run with --log-level DEBUG for details)"
 
+	// MsgAPIKeyRejectedEnvFmt reports a provider refusing its API key, with
+	// the environment variable the key is read from.
+	MsgAPIKeyRejectedEnvFmt = "%s rejected the API key: check %s is set to a valid key" // #nosec G101 -- message text, not a credential
+	MsgAPIKeyRejectedFmt    = "%s rejected the API key"                                 // #nosec G101 -- message text, not a credential
+
 	// MsgMissingAPIKeyFmt reports a keyed provider enabled without a key.
 	MsgMissingAPIKeyFmt = "%s is enabled but has no API key: set %s, or set providers.%s.enabled to false" // #nosec G101 -- message text, not a credential
 
