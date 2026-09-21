@@ -1,4 +1,4 @@
-package process
+package runner
 
 import (
 	"fmt"
@@ -39,24 +39,25 @@ var signupTipOrder = []string{
 	criminalip.ProviderName,
 }
 
-// addSignupTip adds an info message suggesting API keys for keyed providers
-// that are not set up, when few providers returned data for the host. It shows
-// at most once per signupTipInterval, never for JSON output or when tips are
-// disabled, and needs the cache to track when it was last shown.
-func addSignupTip(sess *session.Session, matchingResults int) {
+// SignupTip returns a tip suggesting API keys for keyed providers that are not
+// set up, when few providers returned data for the host, or "" when no tip is
+// due. A tip is due at most once per signupTipInterval, never for JSON output,
+// filtered lookups or test data, nor when tips are disabled, and needs the
+// cache to record when one was last given.
+func SignupTip(sess *session.Session, matchingResults int) string {
 	if matchingResults > sparseResultsThreshold || sess.UseTestData || sess.Cache == nil ||
 		sess.Config.Global.DisableTips || len(sess.Config.Global.FilterProviders) > 0 ||
 		strings.EqualFold(sess.Config.Global.Output, "json") {
-		return
+		return ""
 	}
 
 	tips := signupTips(registry.Unconfigured(*sess))
 	if len(tips) == 0 {
-		return
+		return ""
 	}
 
 	if item, err := cache.Read(sess.Logger, sess.Cache, signupTipCacheKey); err == nil && item != nil {
-		return
+		return ""
 	}
 
 	if err := cache.UpsertWithTTL(sess.Logger, sess.Cache, cache.Item{
@@ -67,11 +68,11 @@ func addSignupTip(sess *session.Session, matchingResults int) {
 	}, signupTipInterval); err != nil {
 		sess.Logger.Debug("failed to record signup tip", "error", err)
 
-		return
+		return ""
 	}
 
-	sess.Messages.AddInfo(fmt.Sprintf("tip: few providers had data on this host. API keys unlock more, and most providers offer a free tier: %s. "+
-		"Set the key and enable the provider in your config, or set global.disable_tips to true to hide this tip.", strings.Join(tips, "; ")))
+	return fmt.Sprintf("few providers had data on this host. API keys unlock more, and most providers offer a free tier: %s. "+
+		"Set the key and enable the provider in your config, or set global.disable_tips to true to hide this tip.", strings.Join(tips, "; "))
 }
 
 // signupTips describes the first signupTipsShown of the unconfigured keyed

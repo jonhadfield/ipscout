@@ -347,7 +347,8 @@ Config files written before `global.config_version` existed are updated once to 
 keyed providers that have no key.
 
 When few providers return data for a host, IPScout suggests, at most once a day, API keys
-that would add more. Set `global.disable_tips: true` to turn this off.
+that would add more. Set `global.disable_tips: true` to turn this off. The TUI shows these
+tips, errors and warnings in its footer.
 
 ## Rating
 

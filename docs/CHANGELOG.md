@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - A once-a-day tip after a lookup few providers had data for, suggesting API keys for
   unconfigured keyed providers. `global.disable_tips: true` turns it off.
 - Lookup failures are reported after the results instead of only being logged.
+- The TUI shows config errors and warnings, failed lookups and the API key tip in its
+  footer. Previously it showed no messages at all.
 
 ### Changed
 

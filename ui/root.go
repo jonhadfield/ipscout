@@ -26,6 +26,7 @@ func initSessionConfig(sess *session.Session, v *viper.Viper) {
 
 	sess.Config.Global.Ports = v.GetStringSlice("global.ports")
 	sess.Config.Global.MaxValueChars = v.GetInt32("global.max_value_chars")
+	sess.Config.Global.DisableTips = v.GetBool("global.disable_tips")
 
 	sess.Config.Global.MaxAge = v.GetString("global.max_age")
 	sess.Config.Global.MaxReports = v.GetInt("global.max_reports")

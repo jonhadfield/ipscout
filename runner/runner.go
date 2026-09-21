@@ -243,6 +243,10 @@ func OutputMessages(sess *session.Session) {
 	for _, msg := range sess.Messages.Info {
 		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgGreen.Sprint("[INFO]"), msg)
 	}
+
+	for _, msg := range sess.Messages.Tip {
+		_, _ = fmt.Fprintf(os.Stderr, "%s %s\n", text.FgCyan.Sprint("[TIP]"), msg)
+	}
 }
 
 // MapsKeys returns the keys of m.
