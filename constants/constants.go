@@ -6,8 +6,6 @@ const (
 	AppName   = "ipscout"
 	AppNameSC = "IPScout"
 
-	ProviderNotDefinedFmt = "%s provider not defined in config"
-
 	MsgInvalidHostFmt = "invalid host: %s"
 
 	// MsgFetchFailedFmt reports, on a single line after the results, every

@@ -215,15 +215,6 @@ func TestCollectHostsFromFileFlag(t *testing.T) {
 	assert.Equal(t, []string{"2.2.2.2", "3.3.3.3"}, hosts)
 }
 
-func TestAddProviderConfigMessage(t *testing.T) {
-	t.Parallel()
-
-	s := session.New()
-	config.AddProviderConfigMessage(s, "TestProvider")
-	require.Len(t, s.Messages.Info, 1)
-	assert.Contains(t, s.Messages.Info[0], "TestProvider")
-}
-
 func TestSetProviderAPIKey(t *testing.T) {
 	t.Parallel()
 
@@ -301,10 +292,10 @@ func TestInitProviderConfig(t *testing.T) {
 	assert.Equal(t, testOutputPriority, *s.Providers.AbuseIPDB.OutputPriority)
 	assert.Equal(t, testCacheTTL, s.Providers.Shodan.ResultCacheTTL)
 
-	// providers not set should fall back to default priority and emit info messages
+	// providers not set fall back to the default priority, without a message
 	require.NotNil(t, s.Providers.Alibaba.OutputPriority)
 	assert.Equal(t, int32(c.DefaultAlibabaOutputPriority), *s.Providers.Alibaba.OutputPriority)
-	assert.NotEmpty(t, s.Messages.Info)
+	assert.Empty(t, s.Messages.Info)
 }
 
 func TestInitSessionConfig(t *testing.T) {
