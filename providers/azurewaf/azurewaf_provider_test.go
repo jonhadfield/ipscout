@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/frontdoor/armfrontdoor/v2"
 	"github.com/jonhadfield/ipscout/cache"
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/session"
