@@ -9,7 +9,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/briandowns/spinner v1.23.2
 	github.com/dgraph-io/badger/v4 v4.9.6
-	github.com/dustin/go-humanize v1.0.1
+	github.com/dustin/go-humanize v1.1.0
 	github.com/fatih/color v1.19.0
 	github.com/gdamore/tcell/v2 v2.13.10
 	github.com/hashicorp/go-retryablehttp v0.7.8
