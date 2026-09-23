@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.16.1] - 2026-09-23
+
 ### Added
 
 - container images published to `ghcr.io/jonhadfield/ipscout` on each release tag, for
@@ -807,7 +809,8 @@ as 0.12.2 and behave identically, so there is no reason to upgrade for its own s
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.16.0...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.16.1...HEAD
+[0.16.1]: https://github.com/jonhadfield/ipscout/compare/0.16.0...0.16.1
 [0.16.0]: https://github.com/jonhadfield/ipscout/compare/0.15.3...0.16.0
 [0.15.3]: https://github.com/jonhadfield/ipscout/compare/0.15.2...0.15.3
 [0.15.2]: https://github.com/jonhadfield/ipscout/compare/0.15.1...0.15.2
