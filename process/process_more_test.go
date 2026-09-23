@@ -22,6 +22,7 @@ const (
 	testPriority = int32(50)
 	outputJSON   = "json"
 	testProvider = "prov"
+	testBroken   = "broken"
 )
 
 func discardLogger() *slog.Logger {
@@ -165,10 +166,10 @@ func TestFindHostsReportsFailedLookups(t *testing.T) {
 	cfg := &session.Session{Logger: discardLogger(), Messages: &session.Messages{}}
 
 	runners := map[string]providers.ProviderClient{
-		"noMatch": configurableStub{enabled: true, config: cfg, findErr: fmt.Errorf("x: %w", providers.ErrNoMatchFound)},
-		"noData":  configurableStub{enabled: true, config: cfg, findErr: providers.ErrNoDataFound},
-		"broken":  configurableStub{enabled: true, config: cfg, findErr: errors.New("status 403")},
-		"alsoBad": configurableStub{enabled: true, config: cfg, findErr: errors.New("timeout")},
+		"noMatch":  configurableStub{enabled: true, config: cfg, findErr: fmt.Errorf("x: %w", providers.ErrNoMatchFound)},
+		"noData":   configurableStub{enabled: true, config: cfg, findErr: providers.ErrNoDataFound},
+		testBroken: configurableStub{enabled: true, config: cfg, findErr: errors.New("status 403")},
+		"alsoBad":  configurableStub{enabled: true, config: cfg, findErr: errors.New("timeout")},
 	}
 
 	runner.FindHosts(runners, true, nil)
@@ -177,12 +178,27 @@ func TestFindHostsReportsFailedLookups(t *testing.T) {
 	require.Equal(t, []string{"lookup failed for alsoBad, broken (run with --log-level DEBUG for details)"}, cfg.Messages.Error)
 }
 
+// A provider that has already explained its failure is not named again in the
+// generic lookup failure line.
+func TestFindHostsSkipsAlreadyReportedFailures(t *testing.T) {
+	cfg := &session.Session{Logger: discardLogger(), Messages: &session.Messages{}}
+
+	runners := map[string]providers.ProviderClient{
+		"criminalip": configurableStub{enabled: true, config: cfg, findErr: fmt.Errorf("quota exceeded: %w", providers.ErrFailureReported)},
+		testBroken:   configurableStub{enabled: true, config: cfg, findErr: errors.New("status 500")},
+	}
+
+	runner.FindHosts(runners, true, nil)
+
+	require.Equal(t, []string{"lookup failed for broken (run with --log-level DEBUG for details)"}, cfg.Messages.Error)
+}
+
 func TestFindHostsReportsRejectedAPIKeys(t *testing.T) {
 	cfg := &session.Session{Logger: discardLogger(), Messages: &session.Messages{}}
 
 	runners := map[string]providers.ProviderClient{
-		"shodan": configurableStub{enabled: true, config: cfg, findErr: fmt.Errorf("loading: shodan: %w", providers.ErrAPIKeyRejected)},
-		"broken": configurableStub{enabled: true, config: cfg, findErr: errors.New("status 500")},
+		"shodan":   configurableStub{enabled: true, config: cfg, findErr: fmt.Errorf("loading: shodan: %w", providers.ErrAPIKeyRejected)},
+		testBroken: configurableStub{enabled: true, config: cfg, findErr: errors.New("status 500")},
 	}
 
 	runner.FindHosts(runners, true, nil)

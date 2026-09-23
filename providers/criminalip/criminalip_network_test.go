@@ -128,3 +128,33 @@ func TestFindHostNetworkForbidden(t *testing.T) {
 	_, err := c.FindHost()
 	require.ErrorIs(t, err, providers.ErrForbiddenByProvider)
 }
+
+// An exceeded quota is explained once: the provider reports the reason and
+// marks it reported, so the runner does not add its generic failure line.
+func TestFindHostQuotaExceededReportedOnce(t *testing.T) {
+	t.Parallel()
+
+	body := []byte(`{"status":403,"message":"Exceeded your API request limit"}`)
+
+	c := newMockedClient(t, http.StatusOK, body)
+
+	_, err := c.FindHost()
+	require.ErrorIs(t, err, providers.ErrForbiddenByProvider)
+	require.ErrorIs(t, err, providers.ErrFailureReported)
+
+	require.Len(t, c.Messages.Error, 1)
+	require.Contains(t, c.Messages.Error[0], "Exceeded your API request limit")
+}
+
+// A host criminal ip holds no data on is routine: no message, and no
+// "already reported" marking, so nothing is printed at all.
+func TestFindHostNotFoundIsSilent(t *testing.T) {
+	t.Parallel()
+
+	c := newMockedClient(t, http.StatusNotFound, nil)
+
+	_, err := c.FindHost()
+	require.ErrorIs(t, err, providers.ErrNoMatchFound)
+	require.NotErrorIs(t, err, providers.ErrFailureReported)
+	require.Empty(t, c.Messages.Error)
+}
