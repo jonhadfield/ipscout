@@ -192,8 +192,8 @@ github.com/jonhadfield/azwaf v0.13.0 h1:Bl3qEATUedH2kc3PeEKm3KMWmHcXqq4M2Kiw3PLM
 github.com/jonhadfield/azwaf v0.13.0/go.mod h1:UiIRJPptOaXJZHJXCnaRcm2KL9BKsZ7jeqTwLvgNSv8=
 github.com/jonhadfield/findexec v0.0.0-20190902195615-78db24cd4e77 h1:U1mtIepXhvIq0cLDLO6z1hZYS80lDXzmsZJwMgzwaf8=
 github.com/jonhadfield/findexec v0.0.0-20190902195615-78db24cd4e77/go.mod h1:9Q9pFtVLzvgKEi8++fNhmSR7HpD9+9+dPy/SECsNB6k=
-github.com/jonhadfield/ip-fetcher v0.0.41 h1:Qa/E4fzoJ6VyUnL4/xFxMoJDnB4y91A8PZ8C7zGTMQ4=
-github.com/jonhadfield/ip-fetcher v0.0.41/go.mod h1:thmk2a7XWYlhI6RJGGXv0uzAjG036eT/qr8gJ3p0Km0=
+github.com/jonhadfield/ip-fetcher v0.0.42 h1:YZJxXalKO/wZBUQeq31AyLt0/Tw53M1/l9lyB5V8qfE=
+github.com/jonhadfield/ip-fetcher v0.0.42/go.mod h1:Kbx6wxFegt9LgP3NvLDMRzgDMD4YbA9l1F9ZSTckWOk=
 github.com/joshdk/go-junit v1.0.0 h1:S86cUKIdwBHWwA6xCmFlf3RTLfVXYQfvanM5Uh+K6GE=
 github.com/joshdk/go-junit v1.0.0/go.mod h1:TiiV0PqkaNfFXjEiyjWM3XXrhVyCa1K4Zfga6W52ung=
 github.com/json-iterator/go v1.1.6/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
