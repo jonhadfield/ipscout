@@ -40,9 +40,20 @@ jobs:
       -
         name: Build metadata
         id: meta
+        # context values reach the script as environment variables: expanding
+        # them into the script itself would let a crafted input run as code
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
         # tags here are unprefixed semver (0.16.0, not v0.16.0)
         run: |
-          tag="${{ github.event.inputs.tag || github.ref_name }}"
+          tag="${INPUT_TAG:-$REF_NAME}"
+          # unprefixed semver only: anything else is a mistake, and an image
+          # tag may hold only these characters anyway
+          if ! printf '%s' "$tag" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([.+-][0-9A-Za-z.+-]+)?$'; then
+            echo "refusing to build unexpected tag: $tag"
+            exit 1
+          fi
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
           echo "date=$(date -u '+%Y/%m/%d:%H:%M:%S')" >> "$GITHUB_OUTPUT"
@@ -69,11 +80,13 @@ jobs:
           cache-to: type=gha,mode=max
       -
         name: Check the published image runs
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.tag }}
+          TAG: ${{ steps.meta.outputs.tag }}
         run: |
-          image="ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.tag }}"
-          got="$(docker run --rm "$image" Version)"
+          got="$(docker run --rm "$IMAGE" Version)"
           echo "$got"
           case "$got" in
-            *"${{ steps.meta.outputs.tag }}"*) ;;
-            *) echo "image does not report tag ${{ steps.meta.outputs.tag }}"; exit 1 ;;
+            *"$TAG"*) ;;
+            *) echo "image does not report tag $TAG"; exit 1 ;;
           esac
