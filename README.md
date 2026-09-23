@@ -228,9 +228,31 @@ it for the download instead of for the script.
 
 Download the latest release from the [releases](https://github.com/jonhadfield/ipscout/releases) page.
 
+### Docker
+
+Images are published to the GitHub Container Registry for each release, for
+`linux/amd64` and `linux/arm64`:
+
+```shell
+docker run --rm ghcr.io/jonhadfield/ipscout:latest 1.1.1.1
+```
+
+A tag pins a version: `ghcr.io/jonhadfield/ipscout:0.16.0`.
+
+The image runs as a non-root user and holds only the binary, so it has no
+config or cache of its own. Mount yours to use it, and to keep the provider
+cache between runs:
+
+```shell
+docker run --rm -v "$HOME/.config/ipscout:/home/nonroot/.config/ipscout" ghcr.io/jonhadfield/ipscout:latest 1.1.1.1
+```
+
+API keys are read from the environment, so pass them with `-e`, for example
+`-e SHODAN_API_KEY`.
+
 ### Build from source
 
-Go 1.24 or later is required to compile ipscout. Clone the repository and run:
+Go 1.27 or later is required to compile ipscout. Clone the repository and run:
 
 ```shell
 go build ./...

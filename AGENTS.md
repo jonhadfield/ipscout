@@ -10,7 +10,10 @@ The Go CLI is split by responsibility to keep provider logic isolated from orche
 
 - `go run . <host>` runs the CLI against a target host using your local config.
 - `make build` emits a static binary at `.local_dist/ipscout`; `make build-all` cross-compiles for
-  release. `make build-docker` builds the Docker image.
+  release. `make build-docker` builds the Docker image locally; publishing is separate —
+  `.github/workflows/publish-image.yml` builds it for linux/amd64 and linux/arm64 and pushes
+  to `ghcr.io/jonhadfield/ipscout` on every semver tag push, so it fires from the tag that
+  `make release` pushes.
 - `go test ./...` runs fast unit tests. `make test` aggregates coverage into `coverage.txt` and hits
   live provider APIs, so ensure credentials are configured first.
 - `make fmt` applies `goimports` and `gofumpt`; `make lint` wraps `golangci-lint` (68+ linters);
