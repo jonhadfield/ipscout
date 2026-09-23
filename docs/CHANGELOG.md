@@ -11,6 +11,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - bump azwaf to 0.13.0, which moves to v2 of Azure's armfrontdoor SDK. The Azure WAF
   provider is unaffected in use; it needs Azure resource IDs and is disabled by default
 
+### Fixed
+
+- Criminal IP reporting an exceeded quota, or any other refusal, printed two errors: its own
+  explanation and then a generic "lookup failed for criminalip". Only the explanation is
+  shown now. A host Criminal IP holds no data on printed an error too, and is now silent,
+  as it is for every other provider
+
 ## [0.15.3] - 2026-09-21
 
 ### Fixed

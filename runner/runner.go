@@ -250,6 +250,14 @@ func (l *lookupErrors) record(logger *slog.Logger, name string, err error) {
 		return
 	}
 
+	// a provider that has already said what went wrong, and what to do about
+	// it, is left out of the generic line rather than named twice
+	if errors.Is(err, providers.ErrFailureReported) {
+		logger.Debug(err.Error())
+
+		return
+	}
+
 	logger.Info(err.Error())
 
 	l.mu.Lock()

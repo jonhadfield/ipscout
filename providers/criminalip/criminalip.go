@@ -3,6 +3,7 @@ package criminalip
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -284,9 +285,17 @@ func fetchData(client session.Session) (*HostSearchResult, error) {
 
 	result, err := loadAPIResponse(context.Background(), &client, client.Providers.CriminalIP.APIKey)
 	if err != nil {
+		// the host simply not being in criminal ip's data is routine, and
+		// says nothing worth reporting
+		if errors.Is(err, providers.ErrNoMatchFound) || errors.Is(err, providers.ErrNoDataFound) {
+			return nil, err
+		}
+
+		// the message names the cause, e.g. an exceeded quota, so marking it
+		// reported keeps the generic lookup failure line from repeating it
 		client.Messages.AddError(err.Error())
 
-		return nil, err
+		return nil, fmt.Errorf("%w: %w", err, providers.ErrFailureReported)
 	}
 
 	resultTTL := ResultTTL
