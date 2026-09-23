@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Added
+
+- container images published to `ghcr.io/jonhadfield/ipscout` on each release tag, for
+  `linux/amd64` and `linux/arm64`, tagged with the version and `latest`
+
+### Fixed
+
+- the Dockerfile asked for Go 1.24, which is older than the version ipscout now needs, so
+  building the image failed. It also built for amd64 only
+
 ## [0.16.0] - 2026-09-23
 
 ### Changed
