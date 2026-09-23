@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- bump azwaf to 0.13.0, which moves to v2 of Azure's armfrontdoor SDK. The Azure WAF
+  provider is unaffected in use; it needs Azure resource IDs and is disabled by default
+
 ## [0.15.3] - 2026-09-21
 
 ### Fixed
