@@ -21,7 +21,7 @@ providers:
 Providers that query a per-host API cache the result instead, set with `result_cache_ttl`,
 also in minutes.
 
-### Reclaiming cache space
+## Reclaiming cache space
 
 Expiring an entry removes the key but not the data behind it: the cache's underlying store
 only frees that space when it rewrites its value log files. Closing the cache does a couple
@@ -325,8 +325,8 @@ A match means the host is a Pingdom probe rather than a visitor.
 The PTR provider does a reverse lookup for the target IP.
 See:
 
-- https://en.wikipedia.org/wiki/Reverse_DNS_lookup
-- https://www.cloudflare.com/en-gb/learning/dns/dns-records/dns-ptr-record/
+- <https://en.wikipedia.org/wiki/Reverse_DNS_lookup>
+- <https://www.cloudflare.com/en-gb/learning/dns/dns-records/dns-ptr-record/>
 
 Custom nameservers can be specified in the `config.yaml` file with port defaulting to 53 if not specified.
 
