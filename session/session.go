@@ -8,6 +8,7 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -77,6 +78,28 @@ func (m *Messages) AddError(msg string) {
 	defer m.Mu.Unlock()
 
 	m.Error = append(m.Error, msg)
+}
+
+// ErrorCount returns how many errors have been recorded, for a caller that
+// wants the ones added after a point in time.
+func (m *Messages) ErrorCount() int {
+	m.Mu.Lock()
+	defer m.Mu.Unlock()
+
+	return len(m.Error)
+}
+
+// ErrorsSince returns the errors recorded after the first n, so a caller can
+// show what one piece of work reported.
+func (m *Messages) ErrorsSince(n int) []string {
+	m.Mu.Lock()
+	defer m.Mu.Unlock()
+
+	if n >= len(m.Error) {
+		return nil
+	}
+
+	return slices.Clone(m.Error[n:])
 }
 
 func (m *Messages) AddTip(msg string) {

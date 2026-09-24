@@ -179,3 +179,27 @@ func TestExpandHome(t *testing.T) {
 		})
 	}
 }
+
+func TestMessagesErrorsSince(t *testing.T) {
+	t.Parallel()
+
+	m := &Messages{}
+	m.AddError("before")
+
+	n := m.ErrorCount()
+	require.Equal(t, 1, n)
+
+	m.AddError("during one")
+	m.AddError("during two")
+
+	require.Equal(t, []string{"during one", "during two"}, m.ErrorsSince(n))
+	require.Nil(t, m.ErrorsSince(m.ErrorCount()))
+	require.Len(t, m.ErrorsSince(0), 3)
+
+	// the copy returned must not alias the session's own slice
+	got := m.ErrorsSince(n)
+
+	got[0] = "mutated"
+
+	require.Equal(t, "during one", m.ErrorsSince(n)[0])
+}

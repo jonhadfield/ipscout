@@ -264,7 +264,8 @@ func isNoDataResult(result providerResult) bool {
 			text == ErrMsgAuthenticationRequired ||
 			text == ErrMsgServiceTemporarilyUnavailable ||
 			text == ErrMsgInvalidIPAddress ||
-			text == ErrMsgAPIKeyRejected {
+			text == ErrMsgAPIKeyRejected ||
+			text == ErrMsgFailureReported {
 			return true
 		}
 
@@ -878,6 +879,10 @@ func OpenUI(logLevel string) error {
 			withData int
 		)
 
+		// providers that explain a failure themselves, such as criminal ip
+		// naming an exceeded quota, add it to the session's messages
+		errorsBefore := sess.Messages.ErrorCount()
+
 		// Load each provider sequentially to avoid cache lock contention
 		for _, providerName := range providers {
 			fn, ok := providerFuncs[providerName]
@@ -928,7 +933,7 @@ func OpenUI(logLevel string) error {
 			})
 		}
 
-		msgs := lookupMessages(rejected, failed, tuiSignupTip(sess, withData))
+		msgs := lookupMessages(sess.Messages.ErrorsSince(errorsBefore), rejected, failed, tuiSignupTip(sess, withData))
 
 		app.QueueUpdateDraw(func() {
 			showMessages(msgs)
