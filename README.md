@@ -237,7 +237,7 @@ Images are published to the GitHub Container Registry for each release, for
 docker run --rm ghcr.io/jonhadfield/ipscout:latest 1.1.1.1
 ```
 
-A tag pins a version: `ghcr.io/jonhadfield/ipscout:0.16.0`.
+A tag pins a version: `ghcr.io/jonhadfield/ipscout:0.16.1`.
 
 The image runs as a non-root user and holds only the binary, so it has no
 config or cache of its own. Mount yours to use it, and to keep the provider
@@ -247,8 +247,15 @@ cache between runs:
 docker run --rm -v "$HOME/.config/ipscout:/home/nonroot/.config/ipscout" ghcr.io/jonhadfield/ipscout:latest 1.1.1.1
 ```
 
-API keys are read from the environment, so pass them with `-e`, for example
-`-e SHODAN_API_KEY`.
+API keys are read from the environment, so pass them with `-e`:
+
+```shell
+docker run --rm -e SHODAN_API_KEY -v "$HOME/.config/ipscout:/home/nonroot/.config/ipscout" ghcr.io/jonhadfield/ipscout:latest 1.1.1.1
+```
+
+The mount covers the cache as well, as ipscout keeps it in
+`.config/ipscout/cache`, so repeated lookups reuse provider data instead of
+downloading it again.
 
 ### Build from source
 
@@ -328,6 +335,12 @@ The commented `replace` directive in `go.mod` is for local development only and 
 $ ipscout <host>
 ```
 `<host>` can be an IP address or a fully qualified domain name.
+
+The same commands work in a container, see [Docker](#docker):
+
+```shell
+$ docker run --rm ghcr.io/jonhadfield/ipscout:latest <host>
+```
 
 Additional commands are available:
 
