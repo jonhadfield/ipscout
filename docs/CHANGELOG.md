@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- README: the provider counts were wrong and disagreed with each other, saying 67 sources in
+  one place and 78 in another against 88 today, and five keyed providers against six. The
+  duplicated iCloud Private Relay section is merged, the per-provider reference is now headed
+  "Provider Details" rather than a second "Providers", the retired Go Report Card badge is
+  gone, and the screenshots are regenerated from the current release, with the red style
+  example pointing at its own image
+- maintainer instructions for releasing and for updating ip-fetcher move from README to
+  AGENTS.md
+
 ## [0.16.2] - 2026-09-24
 
 No change to the tool itself: this release only carries documentation, which is already
