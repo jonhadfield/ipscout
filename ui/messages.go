@@ -69,10 +69,15 @@ func startupMessages(m *session.Messages) []string {
 	return lines
 }
 
-// lookupMessages formats the messages for one lookup: the providers that
-// refused their API key, those whose lookup failed, and a tip if one is due.
-func lookupMessages(rejected, failed []string, tip string) []string {
+// lookupMessages formats the messages for one lookup: what the providers
+// reported themselves, those that refused their API key, those whose lookup
+// failed, and a tip if one is due.
+func lookupMessages(reported, rejected, failed []string, tip string) []string {
 	var lines []string
+
+	for _, msg := range reported {
+		lines = append(lines, errorLine(msg))
+	}
 
 	rejected = slices.Clone(rejected)
 	slices.Sort(rejected)

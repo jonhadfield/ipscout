@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- the TUI hid what a provider said about its own failure. Criminal IP naming an exceeded
+  quota, for example, reached the CLI but showed in the TUI as a generic "lookup failed",
+  with the reason only in app.log. The provider's own message now appears in the footer,
+  and the generic line is not added on top of it
+
 ## [0.16.3] - 2026-09-24
 
 No change to the tool itself: this release only carries documentation, which is already

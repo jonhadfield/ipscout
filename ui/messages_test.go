@@ -51,9 +51,9 @@ func TestStartupMessages(t *testing.T) {
 func TestLookupMessages(t *testing.T) {
 	t.Parallel()
 
-	require.Empty(t, lookupMessages(nil, nil, ""))
+	require.Empty(t, lookupMessages(nil, nil, nil, ""))
 
-	lines := lookupMessages(nil, []string{"ptr", "internetdb"}, "API keys unlock more [see config]")
+	lines := lookupMessages(nil, nil, []string{"ptr", "internetdb"}, "API keys unlock more [see config]")
 	require.Len(t, lines, 2)
 	require.Contains(t, lines[0], "lookup failed for internetdb, ptr (see app.log for details)")
 	require.True(t, strings.HasPrefix(lines[1], "[lightcyan]TIP"))
@@ -101,8 +101,25 @@ func TestRejectedAPIKeyMessages(t *testing.T) {
 	require.False(t, isFailedResult(result))
 	require.True(t, isNoDataResult(result))
 
-	lines := lookupMessages([]string{"shodan"}, []string{"ptr"}, "")
+	lines := lookupMessages(nil, []string{"shodan"}, []string{"ptr"}, "")
 	require.Len(t, lines, 2)
 	require.Contains(t, lines[0], "Shodan rejected the API key: check SHODAN_API_KEY")
 	require.Contains(t, lines[1], "lookup failed for ptr")
+}
+
+// A provider that explains its own failure has that message shown, rather
+// than a generic "lookup failed" line naming it.
+func TestProviderReportedMessages(t *testing.T) {
+	t.Parallel()
+
+	err := fmt.Errorf("failed to find hosts: %w", fmt.Errorf("criminal ip api error: Exceeded your API request limit: %w", providers.ErrFailureReported))
+	result := providerResult{text: simplifyError(err, "criminalip", testIPExample)}
+
+	require.Equal(t, ErrMsgFailureReported, result.text)
+	require.False(t, isFailedResult(result))
+	require.True(t, isNoDataResult(result))
+
+	lines := lookupMessages([]string{"criminal ip api error: Exceeded your API request limit"}, nil, nil, "")
+	require.Len(t, lines, 1)
+	require.Contains(t, lines[0], "Exceeded your API request limit")
 }

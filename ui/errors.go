@@ -20,6 +20,9 @@ const (
 	ErrMsgAuthenticationRequired        = "Authentication required"
 	ErrMsgServiceError                  = "Service error"
 	ErrMsgAPIKeyRejected                = "API key rejected"
+	// ErrMsgFailureReported marks a failure the provider explained itself,
+	// whose message is shown in the footer instead of a generic line
+	ErrMsgFailureReported = "See the message above"
 )
 
 // Common UI error variables for simplified user messages
@@ -42,6 +45,12 @@ func simplifyError(err error, provider, _ string) string {
 	// authentication patterns below
 	if errors.Is(err, providers.ErrAPIKeyRejected) {
 		return ErrMsgAPIKeyRejected
+	}
+
+	// the provider has already said what went wrong, e.g. criminal ip naming
+	// an exceeded quota, and that message reaches the footer on its own
+	if errors.Is(err, providers.ErrFailureReported) {
+		return ErrMsgFailureReported
 	}
 
 	// Check for common provider errors
