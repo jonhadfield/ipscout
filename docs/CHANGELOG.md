@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.16.3] - 2026-09-24
+
+No change to the tool itself: this release only carries documentation, which is already
+live on GitHub, so there is no reason to upgrade for its own sake.
+
 ### Changed
 
 - README: the provider counts were wrong and disagreed with each other, saying 67 sources in
@@ -831,7 +836,8 @@ as 0.12.2 and behave identically, so there is no reason to upgrade for its own s
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.16.2...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.16.3...HEAD
+[0.16.3]: https://github.com/jonhadfield/ipscout/compare/0.16.2...0.16.3
 [0.16.2]: https://github.com/jonhadfield/ipscout/compare/0.16.1...0.16.2
 [0.16.1]: https://github.com/jonhadfield/ipscout/compare/0.16.0...0.16.1
 [0.16.0]: https://github.com/jonhadfield/ipscout/compare/0.15.3...0.16.0
