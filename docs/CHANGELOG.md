@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.16.2] - 2026-09-24
+
+No change to the tool itself: this release only carries documentation, which is already
+live on GitHub, so there is no reason to upgrade for its own sake.
+
+### Changed
+
+- README: the Usage section now shows the equivalent `docker run` command and links to the
+  Docker section, which covers pinning a version, mounting your config and cache, and
+  passing API keys
+
 ## [0.16.1] - 2026-09-23
 
 ### Added
@@ -809,7 +820,8 @@ as 0.12.2 and behave identically, so there is no reason to upgrade for its own s
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.16.1...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.16.2...HEAD
+[0.16.2]: https://github.com/jonhadfield/ipscout/compare/0.16.1...0.16.2
 [0.16.1]: https://github.com/jonhadfield/ipscout/compare/0.16.0...0.16.1
 [0.16.0]: https://github.com/jonhadfield/ipscout/compare/0.15.3...0.16.0
 [0.15.3]: https://github.com/jonhadfield/ipscout/compare/0.15.2...0.15.3
