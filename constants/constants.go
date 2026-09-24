@@ -74,6 +74,19 @@ const (
 	DefaultFeodoOutputPriority = 22
 	DefaultTorOutputPriority   = 29
 
+	// Providers added with ip-fetcher v0.0.43.
+	DefaultAirVPNOutputPriority        = 54
+	DefaultIVPNOutputPriority          = 54
+	DefaultSurfsharkOutputPriority     = 54
+	DefaultQuicCloudOutputPriority     = 140
+	DefaultStopForumSpamOutputPriority = 20
+	DefaultBinaryDefenseOutputPriority = 20
+	DefaultTelegramOutputPriority      = 90
+	DefaultIPsumOutputPriority         = 20
+	DefaultX4BNetOutputPriority        = 20
+	DefaultCircleCIOutputPriority      = 90
+	DefaultThreatFoxOutputPriority     = 22
+
 	// Privacy relays and proxy egress: narrow, purpose-built ranges.
 	DefaultiCloudPROutputPriority = 50
 	DefaultZscalerOutputPriority  = 52

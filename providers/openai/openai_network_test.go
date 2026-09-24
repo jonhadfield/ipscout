@@ -83,10 +83,14 @@ func loadListFixtures(t *testing.T) map[string][]byte {
 	chatgptUser, err := os.ReadFile("testdata/chatgpt-user.json")
 	require.NoError(t, err)
 
+	adsbot, err := os.ReadFile("testdata/adsbot.json")
+	require.NoError(t, err)
+
 	return map[string][]byte{
 		"gptbot.json":       gptbot,
 		"searchbot.json":    searchbot,
 		"chatgpt-user.json": chatgptUser,
+		"adsbot.json":       adsbot,
 	}
 }
 

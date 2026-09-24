@@ -368,6 +368,7 @@ func InitProviders(sess *session.Session, v *viper.Viper) {
 	sess.Providers.OpenAI.GPTBotURL = v.GetString("providers.openai.gptbot_url")
 	sess.Providers.OpenAI.SearchBotURL = v.GetString("providers.openai.searchbot_url")
 	sess.Providers.OpenAI.ChatGPTUserURL = v.GetString("providers.openai.chatgpt_user_url")
+	sess.Providers.OpenAI.AdsBotURL = v.GetString("providers.openai.adsbot_url")
 
 	// OVH
 	if v.IsSet("providers.ovh.enabled") {
@@ -633,6 +634,39 @@ func InitProviders(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Huawei.Enabled, &sess.Providers.Huawei.OutputPriority, &sess.Providers.Huawei.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "intercom", c.DefaultIntercomOutputPriority,
 		&sess.Providers.Intercom.Enabled, &sess.Providers.Intercom.OutputPriority, &sess.Providers.Intercom.DocumentCacheTTL)
+	initSimpleProviderConfig(v, "airvpn", c.DefaultAirVPNOutputPriority,
+		&sess.Providers.AirVPN.Enabled, &sess.Providers.AirVPN.OutputPriority, &sess.Providers.AirVPN.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "ivpn", c.DefaultIVPNOutputPriority,
+		&sess.Providers.IVPN.Enabled, &sess.Providers.IVPN.OutputPriority, &sess.Providers.IVPN.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "surfshark", c.DefaultSurfsharkOutputPriority,
+		&sess.Providers.Surfshark.Enabled, &sess.Providers.Surfshark.OutputPriority, &sess.Providers.Surfshark.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "quiccloud", c.DefaultQuicCloudOutputPriority,
+		&sess.Providers.QuicCloud.Enabled, &sess.Providers.QuicCloud.OutputPriority, &sess.Providers.QuicCloud.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "stopforumspam", c.DefaultStopForumSpamOutputPriority,
+		&sess.Providers.StopForumSpam.Enabled, &sess.Providers.StopForumSpam.OutputPriority, &sess.Providers.StopForumSpam.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "binarydefense", c.DefaultBinaryDefenseOutputPriority,
+		&sess.Providers.BinaryDefense.Enabled, &sess.Providers.BinaryDefense.OutputPriority, &sess.Providers.BinaryDefense.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "telegram", c.DefaultTelegramOutputPriority,
+		&sess.Providers.Telegram.Enabled, &sess.Providers.Telegram.OutputPriority, &sess.Providers.Telegram.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "ipsum", c.DefaultIPsumOutputPriority,
+		&sess.Providers.IPsum.Enabled, &sess.Providers.IPsum.OutputPriority, &sess.Providers.IPsum.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "x4bnet", c.DefaultX4BNetOutputPriority,
+		&sess.Providers.X4BNet.Enabled, &sess.Providers.X4BNet.OutputPriority, &sess.Providers.X4BNet.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "circleci", c.DefaultCircleCIOutputPriority,
+		&sess.Providers.CircleCI.Enabled, &sess.Providers.CircleCI.OutputPriority, &sess.Providers.CircleCI.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "threatfox", c.DefaultThreatFoxOutputPriority,
+		&sess.Providers.ThreatFox.Enabled, &sess.Providers.ThreatFox.OutputPriority, &sess.Providers.ThreatFox.DocumentCacheTTL)
+
 	initSimpleProviderConfig(v, "mullvad", c.DefaultMullvadOutputPriority,
 		&sess.Providers.Mullvad.Enabled, &sess.Providers.Mullvad.OutputPriority, &sess.Providers.Mullvad.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "salesforce", c.DefaultSalesforceOutputPriority,
