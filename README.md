@@ -51,7 +51,9 @@ Checking whether a crawler is really Googlebot, using four providers that need n
 
 ### style
 Table styles include ascii (for basic terminals), cyan, red, yellow, green, blue, and can be specified in the `config.yaml` file or with the `--style` flag.
+
 Examples:
+
 - [red](examples/table-red.png)
 - [ascii](examples/ascii.txt)
 
