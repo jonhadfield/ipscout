@@ -4,8 +4,15 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      
+
   - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # the Dockerfile's builder and runtime images, which ship in the released
+  # container image
+  - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
