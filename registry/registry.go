@@ -11,17 +11,20 @@ import (
 	"github.com/jonhadfield/ipscout/providers"
 	"github.com/jonhadfield/ipscout/providers/abuseipdb"
 	"github.com/jonhadfield/ipscout/providers/ahrefs"
+	"github.com/jonhadfield/ipscout/providers/airvpn"
 	"github.com/jonhadfield/ipscout/providers/akamai"
 	"github.com/jonhadfield/ipscout/providers/alibaba"
 	"github.com/jonhadfield/ipscout/providers/amazonbot"
 	"github.com/jonhadfield/ipscout/providers/annotated"
 	"github.com/jonhadfield/ipscout/providers/anthropic"
 	"github.com/jonhadfield/ipscout/providers/applebot"
+	"github.com/jonhadfield/ipscout/providers/asndrop"
 	"github.com/jonhadfield/ipscout/providers/atlassian"
 	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/providers/azure"
 	"github.com/jonhadfield/ipscout/providers/azurewaf"
 	"github.com/jonhadfield/ipscout/providers/betterstack"
+	"github.com/jonhadfield/ipscout/providers/binarydefense"
 	"github.com/jonhadfield/ipscout/providers/bingbot"
 	"github.com/jonhadfield/ipscout/providers/blocklistde"
 	"github.com/jonhadfield/ipscout/providers/bunny"
@@ -30,6 +33,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/cdn77"
 	"github.com/jonhadfield/ipscout/providers/checkly"
 	"github.com/jonhadfield/ipscout/providers/cinsscore"
+	"github.com/jonhadfield/ipscout/providers/circleci"
 	"github.com/jonhadfield/ipscout/providers/cloudflare"
 	"github.com/jonhadfield/ipscout/providers/contabo"
 	"github.com/jonhadfield/ipscout/providers/criminalip"
@@ -63,8 +67,10 @@ import (
 	"github.com/jonhadfield/ipscout/providers/ipapi"
 	"github.com/jonhadfield/ipscout/providers/ipapicom"
 	"github.com/jonhadfield/ipscout/providers/ipqs"
+	"github.com/jonhadfield/ipscout/providers/ipsum"
 	"github.com/jonhadfield/ipscout/providers/iptoasn"
 	"github.com/jonhadfield/ipscout/providers/ipurl"
+	"github.com/jonhadfield/ipscout/providers/ivpn"
 	"github.com/jonhadfield/ipscout/providers/leaseweb"
 	"github.com/jonhadfield/ipscout/providers/linode"
 	"github.com/jonhadfield/ipscout/providers/m247"
@@ -78,6 +84,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/perplexitybot"
 	"github.com/jonhadfield/ipscout/providers/pingdom"
 	"github.com/jonhadfield/ipscout/providers/ptr"
+	"github.com/jonhadfield/ipscout/providers/quiccloud"
 	"github.com/jonhadfield/ipscout/providers/render"
 	"github.com/jonhadfield/ipscout/providers/salesforce"
 	"github.com/jonhadfield/ipscout/providers/scaleway"
@@ -86,15 +93,20 @@ import (
 	"github.com/jonhadfield/ipscout/providers/site24x7"
 	"github.com/jonhadfield/ipscout/providers/spamhaus"
 	"github.com/jonhadfield/ipscout/providers/statuscake"
+	"github.com/jonhadfield/ipscout/providers/stopforumspam"
 	"github.com/jonhadfield/ipscout/providers/stripe"
+	"github.com/jonhadfield/ipscout/providers/surfshark"
+	"github.com/jonhadfield/ipscout/providers/telegram"
 	"github.com/jonhadfield/ipscout/providers/tenable"
 	"github.com/jonhadfield/ipscout/providers/tencent"
+	"github.com/jonhadfield/ipscout/providers/threatfox"
 	"github.com/jonhadfield/ipscout/providers/tor"
 	"github.com/jonhadfield/ipscout/providers/updown"
 	"github.com/jonhadfield/ipscout/providers/uptimerobot"
 	"github.com/jonhadfield/ipscout/providers/uptrends"
 	"github.com/jonhadfield/ipscout/providers/virustotal"
 	"github.com/jonhadfield/ipscout/providers/vultr"
+	"github.com/jonhadfield/ipscout/providers/x4bnet"
 	"github.com/jonhadfield/ipscout/providers/zoom"
 	"github.com/jonhadfield/ipscout/providers/zscaler"
 	"github.com/jonhadfield/ipscout/session"
@@ -520,6 +532,18 @@ func All() []Entry {
 		{Name: huawei.ProviderName, DisplayName: "Huawei Cloud", Enabled: func(s session.Session) *bool { return s.Providers.Huawei.Enabled }, APIKey: noKey, NewClient: huawei.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: intercom.ProviderName, DisplayName: "Intercom", Enabled: func(s session.Session) *bool { return s.Providers.Intercom.Enabled }, APIKey: noKey, NewClient: intercom.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: mullvad.ProviderName, DisplayName: "Mullvad", Enabled: func(s session.Session) *bool { return s.Providers.Mullvad.Enabled }, APIKey: noKey, NewClient: mullvad.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: airvpn.ProviderName, DisplayName: "AirVPN", Enabled: func(s session.Session) *bool { return s.Providers.AirVPN.Enabled }, APIKey: noKey, NewClient: airvpn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: asndrop.ProviderName, DisplayName: "ASN-DROP", Enabled: func(s session.Session) *bool { return s.Providers.ASNDrop.Enabled }, APIKey: noKey, NewClient: asndrop.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: ivpn.ProviderName, DisplayName: "IVPN", Enabled: func(s session.Session) *bool { return s.Providers.IVPN.Enabled }, APIKey: noKey, NewClient: ivpn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: surfshark.ProviderName, DisplayName: "Surfshark", Enabled: func(s session.Session) *bool { return s.Providers.Surfshark.Enabled }, APIKey: noKey, NewClient: surfshark.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: quiccloud.ProviderName, DisplayName: "QUIC.cloud", Enabled: func(s session.Session) *bool { return s.Providers.QuicCloud.Enabled }, APIKey: noKey, NewClient: quiccloud.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: stopforumspam.ProviderName, DisplayName: "StopForumSpam", Enabled: func(s session.Session) *bool { return s.Providers.StopForumSpam.Enabled }, APIKey: noKey, NewClient: stopforumspam.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: binarydefense.ProviderName, DisplayName: "Binary Defense", Enabled: func(s session.Session) *bool { return s.Providers.BinaryDefense.Enabled }, APIKey: noKey, NewClient: binarydefense.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: telegram.ProviderName, DisplayName: "Telegram", Enabled: func(s session.Session) *bool { return s.Providers.Telegram.Enabled }, APIKey: noKey, NewClient: telegram.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: ipsum.ProviderName, DisplayName: "IPsum", Enabled: func(s session.Session) *bool { return s.Providers.IPsum.Enabled }, APIKey: noKey, NewClient: ipsum.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: x4bnet.ProviderName, DisplayName: "X4BNet", Enabled: func(s session.Session) *bool { return s.Providers.X4BNet.Enabled }, APIKey: noKey, NewClient: x4bnet.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: circleci.ProviderName, DisplayName: "CircleCI", Enabled: func(s session.Session) *bool { return s.Providers.CircleCI.Enabled }, APIKey: noKey, NewClient: circleci.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: threatfox.ProviderName, DisplayName: "ThreatFox", Enabled: func(s session.Session) *bool { return s.Providers.ThreatFox.Enabled }, APIKey: noKey, NewClient: threatfox.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: salesforce.ProviderName, DisplayName: "Salesforce", Enabled: func(s session.Session) *bool { return s.Providers.Salesforce.Enabled }, APIKey: noKey, NewClient: salesforce.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 	}
 }

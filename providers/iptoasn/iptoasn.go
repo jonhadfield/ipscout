@@ -267,6 +267,34 @@ func (c *Client) FindHost() ([]byte, error) {
 // are `first_ip<tab>last_ip<tab>as_number<tab>country_code<tab>description`,
 // sorted ascending within each address family (IPv4 ranges before IPv6), so
 // scanning stops as soon as the host's position is passed.
+// ASNForHost returns the AS number announcing sess.Host, taken from the same
+// ip2asn data this provider caches and fetching it first if the cache is
+// empty. It is exported for providers that match on ASN rather than on
+// prefix, so they share this download rather than adding another.
+func ASNForHost(sess session.Session) (uint32, error) {
+	c := &Client{Session: sess}
+
+	if err := c.Initialise(); err != nil {
+		return 0, fmt.Errorf("preparing iptoasn data: %w", err)
+	}
+
+	data, err := c.loadProviderDataFromCache()
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := matchHost(data, sess.Host)
+	if err != nil {
+		return 0, err
+	}
+
+	if !res.Announced {
+		return 0, fmt.Errorf("%s is not announced by any AS: %w", sess.Host, providers.ErrNoMatchFound)
+	}
+
+	return res.ASNumber, nil
+}
+
 func matchHost(gzData []byte, host netip.Addr) (*iptoasnResp, error) {
 	gz, err := gzip.NewReader(bytes.NewReader(gzData))
 	if err != nil {

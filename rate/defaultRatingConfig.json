@@ -285,6 +285,42 @@
     },
     "salesforce": {
       "defaultMatchScore": 3.0
+    },
+    "airvpn": {
+      "defaultMatchScore": 5.0
+    },
+    "ivpn": {
+      "defaultMatchScore": 5.0
+    },
+    "surfshark": {
+      "defaultMatchScore": 5.0
+    },
+    "quiccloud": {
+      "defaultMatchScore": 3.0
+    },
+    "stopforumspam": {
+      "defaultMatchScore": 8.0
+    },
+    "binarydefense": {
+      "defaultMatchScore": 8.0
+    },
+    "telegram": {
+      "defaultMatchScore": 3.0
+    },
+    "ipsum": {
+      "defaultMatchScore": 8.0
+    },
+    "x4bnet": {
+      "defaultMatchScore": 8.0
+    },
+    "circleci": {
+      "defaultMatchScore": 3.0
+    },
+    "threatfox": {
+      "defaultMatchScore": 9.0
+    },
+    "asndrop": {
+      "defaultMatchScore": 9.0
     }
   }
 }

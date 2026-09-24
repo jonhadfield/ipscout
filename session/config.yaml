@@ -213,5 +213,29 @@ providers:
     enabled: true
   mullvad:
     enabled: true
+  asndrop:
+    enabled: true
+  airvpn:
+    enabled: true
+  ivpn:
+    enabled: true
+  surfshark:
+    enabled: true
+  quiccloud:
+    enabled: true
+  stopforumspam:
+    enabled: true
+  binarydefense:
+    enabled: true
+  telegram:
+    enabled: true
+  ipsum:
+    enabled: true
+  x4bnet:
+    enabled: true
+  circleci:
+    enabled: true
+  threatfox:
+    enabled: true
   salesforce:
     enabled: true

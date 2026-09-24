@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Added
+
+- twelve providers from ip-fetcher v0.0.43, all enabled by default and needing no API key:
+  AirVPN, IVPN and Surfshark VPN exits; the Binary Defense ban list, IPsum's level 3 list,
+  StopForumSpam, X4BNet and abuse.ch's ThreatFox threat feeds; CircleCI's job runners,
+  Telegram's infrastructure and the QUIC.cloud CDN; and Spamhaus ASN-DROP, which names whole
+  networks, so it matches on the AS announcing the host rather than on a prefix
+- OpenAI's AdsBot range list, which ip-fetcher v0.0.43 added to the three it already fetched
+
 ### Changed
 
 - the per-provider reference moves from README to [docs/providers.md](providers.md), leaving

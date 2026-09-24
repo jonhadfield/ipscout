@@ -166,6 +166,11 @@ func (c *ProviderClient) loadProviderData() error {
 		c.Logger.Debug("overriding openai chatgpt-user source", "url", openaiClient.ChatGPTUserURL)
 	}
 
+	if c.Providers.OpenAI.AdsBotURL != "" {
+		openaiClient.AdsBotURL = c.Providers.OpenAI.AdsBotURL
+		c.Logger.Debug("overriding openai adsbot source", "url", openaiClient.AdsBotURL)
+	}
+
 	doc, err := openaiClient.Fetch()
 	if err != nil {
 		return fmt.Errorf("error fetching openai data: %w", err)
@@ -333,6 +338,7 @@ func (c *ProviderClient) FindHost() ([]byte, error) {
 		{openai.GPTBotName, doc.GPTBot},
 		{openai.SearchBotName, doc.SearchBot},
 		{openai.ChatGPTUserName, doc.ChatGPTUser},
+		{openai.AdsBotName, doc.AdsBot},
 	} {
 		if match := matchList(c.Host, list.name, list.list); match != nil {
 			c.Logger.Debug("returning openai host match data", "bot", list.name)
