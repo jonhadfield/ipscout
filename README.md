@@ -68,6 +68,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 |:----------------------------------------------------------|:----------------:|:---------------------:|
 | [AbuseIPDB](docs/providers.md#abuseipdb)                                   |  IP Reputation   | Registration required |
 | [AhrefsBot](docs/providers.md#ahrefsbot)                                   |   Web crawler    |           -           |
+| [AirVPN](docs/providers.md#airvpn) | Anonymiser | - |
 | [Akamai](docs/providers.md#akamai)                                         |       CDN        |           -           |
 | [Alibaba Cloud](docs/providers.md#alibaba-cloud)                           | Hosting Provider |           -           |
 | [Amazonbot](docs/providers.md#amazonbot)                                   |   Web crawler    |           -           |
@@ -75,11 +76,13 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Anthropic](docs/providers.md#anthropic)                                   |   Web crawler    |           -           |
 | [Apple iCloud Private Relay](docs/providers.md#apple-icloud-private-relay) |    Anonymiser    |           -           |
 | [Applebot](docs/providers.md#applebot)                                     |   Web crawler    |           -           |
+| [ASN-DROP](docs/providers.md#asn-drop) | Threat Feed | - |
 | [Atlassian](docs/providers.md#atlassian)                                   |       SaaS       |           -           |
 | [AWS](docs/providers.md#amazon-web-services)                               | Hosting Provider |           -           |
 | [Azure](docs/providers.md#azure)                                           | Hosting Provider |           -           |
 | [Azure WAF](docs/providers.md#azure-waf)                                   |       WAF        | Azure access required |
 | [Better Stack](docs/providers.md#better-stack)                             |    Monitoring    |           -           |
+| [Binary Defense](docs/providers.md#binary-defense) | Threat Feed | - |
 | [Bingbot](docs/providers.md#bingbot)                                       |   Web crawler    |           -           |
 | [Blocklist.de](docs/providers.md#blocklistde)                              |   Threat Feed    |           -           |
 | [Bunny CDN](docs/providers.md#bunny-cdn)                                   |       CDN        |           -           |
@@ -88,6 +91,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [CDN77](docs/providers.md#cdn77)                                           |       CDN        |           -           |
 | [Checkly](docs/providers.md#checkly)                                       |    Monitoring    |           -           |
 | [CINS Army List](docs/providers.md#cins-army-list)                         |   Threat Feed    |           -           |
+| [CircleCI](docs/providers.md#circleci) | SaaS | - |
 | [Cloudflare](docs/providers.md#cloudflare)                                 |       CDN        |           -           |
 | [Contabo](docs/providers.md#contabo)                                       | Hosting Provider |           -           |
 | [CriminalIP](docs/providers.md#criminalip)                                 |  IP Reputation   | Registration required |
@@ -97,11 +101,11 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [DShield](docs/providers.md#dshield)                                       |   Threat Feed    |           -           |
 | [DuckDuckBot](docs/providers.md#duckduckbot)                               |   Web crawler    |           -           |
 | [Emerging Threats](docs/providers.md#emerging-threats)                     |   Threat Feed    |           -           |
-| [Feodo Tracker](docs/providers.md#feodo-tracker)                           |   Threat Feed    |           -           |
 | [Fastly](docs/providers.md#fastly)                                         |       CDN        |           -           |
+| [Feodo Tracker](docs/providers.md#feodo-tracker)                           |   Threat Feed    |           -           |
 | [Fly.io](docs/providers.md#flyio)                                          | Hosting Provider |           -           |
-| [GCP](docs/providers.md#google-cloud-platform)                             | Hosting Provider |           -           |
 | [Gcore](docs/providers.md#gcore)                                           |       CDN        |           -           |
+| [GCP](docs/providers.md#google-cloud-platform)                             | Hosting Provider |           -           |
 | [GitHub](docs/providers.md#github)                                         |       SaaS       |           -           |
 | [GitLab](docs/providers.md#gitlab)                                         |       SaaS       |           -           |
 | [Google](docs/providers.md#google)                                         | Hosting Provider |           -           |
@@ -116,11 +120,13 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Imperva](docs/providers.md#imperva)                                       |       WAF        |           -           |
 | [Intercom](docs/providers.md#intercom)                                     |       SaaS       |           -           |
 | [InternetDB](docs/providers.md#internetdb)                                 | Scan Data        |           -           |
-| [IPAPI](docs/providers.md#ipapi)                                           |  IP Geolocation  | Registration required |
 | [ip-api.com](docs/providers.md#ip-apicom)                                  |  IP Geolocation  |           -           |
+| [IPAPI](docs/providers.md#ipapi)                                           |  IP Geolocation  | Registration required |
 | [IPQualityScore](docs/providers.md#ipqualityscore)                         |  IP Reputation   | Registration required |
+| [IPsum](docs/providers.md#ipsum) | Threat Feed | - |
 | [IPtoASN](docs/providers.md#iptoasn)                                       |     ASN Data     |           -           |
 | [IPURL](docs/providers.md#ipurl)                                           |  User Provided   |           -           |
+| [IVPN](docs/providers.md#ivpn) | Anonymiser | - |
 | [Leaseweb](docs/providers.md#leaseweb)                                     | Hosting Provider |           -           |
 | [Linode](docs/providers.md#linode)                                         | Hosting Provider |           -           |
 | [M247](docs/providers.md#m247)                                             | Hosting Provider |           -           |
@@ -134,24 +140,30 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [PerplexityBot](docs/providers.md#perplexitybot)                           |   Web crawler    |           -           |
 | [Pingdom](docs/providers.md#pingdom)                                       |    Monitoring    |           -           |
 | [PTR](docs/providers.md#ptr)                                               |       DNS        |           -           |
+| [QUIC.cloud](docs/providers.md#quiccloud) | CDN | - |
 | [Render](docs/providers.md#render)                                         | Hosting Provider |           -           |
 | [Salesforce](docs/providers.md#salesforce)                                 |       SaaS       |           -           |
 | [Scaleway](docs/providers.md#scaleway)                                     | Hosting Provider |           -           |
-| [Vultr](docs/providers.md#vultr)                                           | Hosting Provider |           -           |
 | [Sentry](docs/providers.md#sentry)                                         |    Monitoring    |           -           |
 | [Shodan](docs/providers.md#shodan)                                         |  IP Reputation   | Registration required |
 | [Site24x7](docs/providers.md#site24x7)                                     |    Monitoring    |           -           |
 | [Spamhaus DROP](docs/providers.md#spamhaus-drop)                           |   Threat Feed    |           -           |
 | [StatusCake](docs/providers.md#statuscake)                                 |    Monitoring    |           -           |
+| [StopForumSpam](docs/providers.md#stopforumspam) | Threat Feed | - |
 | [Stripe](docs/providers.md#stripe)                                         |       SaaS       |           -           |
+| [Surfshark](docs/providers.md#surfshark) | Anonymiser | - |
 | [Team Cymru Bogons](docs/providers.md#team-cymru-bogons)                   |      Bogon       |           -           |
+| [Telegram](docs/providers.md#telegram) | SaaS | - |
 | [Tenable](docs/providers.md#tenable)                                       | Vulnerability Scanner |     -     |
 | [Tencent Cloud](docs/providers.md#tencent-cloud)                           | Hosting Provider |           -           |
+| [ThreatFox](docs/providers.md#threatfox) | Threat Feed | - |
 | [Tor Exit Node](docs/providers.md#tor-exit-node)                           |   Anonymiser     |           -           |
 | [updown.io](docs/providers.md#updownio)                                    |    Monitoring    |           -           |
 | [UptimeRobot](docs/providers.md#uptimerobot)                               |    Monitoring    |           -           |
 | [Uptrends](docs/providers.md#uptrends)                                     |    Monitoring    |           -           |
 | [VirusTotal](docs/providers.md#virustotal)                                 |  IP Reputation   | Registration required |
+| [Vultr](docs/providers.md#vultr)                                           | Hosting Provider |           -           |
+| [X4BNet](docs/providers.md#x4bnet) | Threat Feed | - |
 | [Zoom](docs/providers.md#zoom)                                             |       SaaS       |           -           |
 | [Zscaler](docs/providers.md#zscaler)                                       |    Security      |           -           |
 

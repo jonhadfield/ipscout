@@ -53,6 +53,10 @@ providers:
     enabled: false
 ```
 
+## AirVPN
+
+[AirVPN](https://airvpn.org/) publishes the addresses of its VPN servers. A match means the traffic left an AirVPN exit rather than the subscriber's own connection.
+
 ## Alibaba Cloud
 
 [Alibaba Cloud](https://www.alibabacloud.com/) is a hosting provider.
@@ -101,6 +105,10 @@ egress [prefixes](https://mask-api.icloud.com/egress-ip-ranges.csv).
 that [publishes](https://docs.aws.amazon.com/vpc/latest/userguide/aws-ip-ranges.html#aws-ip-download) network prefixes
 used by their services.
 
+## ASN-DROP
+
+[Spamhaus ASN-DROP](https://www.spamhaus.org/blocklists/do-not-route-or-peer/) names whole networks whose operators Spamhaus considers wholly malicious. Unlike every other provider it matches on the AS announcing the host rather than on a prefix, using the ip2asn data the [IPtoASN](#iptoasn) provider caches, so nothing extra is downloaded.
+
 ## Azure
 
 [Azure](https://azure.microsoft.com/) is a hosting provider
@@ -121,10 +129,18 @@ addresses its checks originate from at
 the host is a Better Stack probe rather than the origin of the traffic it appears to
 send.
 
+## Binary Defense
+
+[Binary Defense](https://www.binarydefense.com/) publishes a ban list of addresses seen attacking their sensors.
+
 ## Bingbot
 
 [Bingbot](https://www.bing.com/webmasters/help/help-center-661b2d18) is the web crawler for the Bing search engine.
 Bing [publishes](https://www.bing.com/toolbox/bingbot.json) network prefixes used by their crawlers.
+
+## CircleCI
+
+[CircleCI](https://circleci.com/) publishes the ranges its hosted job runners use, so a match names a CI build rather than a person.
 
 ## CriminalIP
 
@@ -228,6 +244,10 @@ The API is free to registered users for 5,000 requests.
 
 Set environment variable `IPQS_API_KEY` with your API key, and set `providers.ipqs.enabled` to `true`.
 
+## IPsum
+
+[IPsum](https://github.com/stamparm/ipsum) aggregates public blocklists. IPScout uses its level 3 list, addresses appearing on at least three of them, so a match is corroborated rather than a single report.
+
 ## IPtoASN
 
 [iptoasn.com](https://iptoasn.com/) publishes a free, hourly-updated IP address to ASN mapping.
@@ -258,6 +278,10 @@ Prefixes
    |----- https://iplists.firehol.org/files/firehol_level2.netset
    |----- https://iplists.firehol.org/files/blocklist_de.ipset
 ```
+
+## IVPN
+
+[IVPN](https://www.ivpn.net/) publishes the addresses of its VPN servers. A match means the traffic left an IVPN exit.
 
 ## Linode
 
@@ -305,10 +329,30 @@ and [ChatGPT-User](https://openai.com/chatgpt-user.json). A match shows which of
 [OVH](https://www.ovhcloud.com/) is a hosting provider
 that [publishes](https://vps.ovh.net/ips.txt) network prefixes used by their services.
 
+## QUIC.cloud
+
+[QUIC.cloud](https://quic.cloud/) is a CDN for WordPress and LiteSpeed sites, so a match means the host fronts someone else's origin.
+
 ## Scaleway
 
 [Scaleway](https://www.scaleway.com/) is a European hosting provider.
 IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
+
+## StopForumSpam
+
+[StopForumSpam](https://www.stopforumspam.com/) lists addresses seen submitting forum and comment spam.
+
+## Surfshark
+
+[Surfshark](https://surfshark.com/) publishes its VPN server list by connection name, which ip-fetcher resolves to addresses. A match means the traffic left a Surfshark exit.
+
+## Telegram
+
+[Telegram](https://core.telegram.org/resources/cidr.txt) publishes the ranges its infrastructure uses.
+
+## ThreatFox
+
+[ThreatFox](https://threatfox.abuse.ch/), from abuse.ch, names addresses hosting malware command and control.
 
 ## Vultr
 
@@ -366,6 +410,10 @@ appears to send.
 Query the [VirusTotal](https://www.virustotal.com) API for information from various providers on an IP address.
 
 Set environment variable `VIRUSTOTAL_API_KEY` with your API key, and set `providers.virustotal.enabled` to `true`.
+
+## X4BNet
+
+[X4BNet](https://github.com/X4BNet/lists_vpn) lists VPN, datacentre and bot addresses: a statement about how an address is used rather than who owns it.
 
 ## Zoom
 
