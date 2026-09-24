@@ -1,19 +1,18 @@
 # IPScout
 
 IPScout is a command-line tool for security analysts to enrich IP addresses with their origin and threat ratings.
-It queries **67 sources** concurrently — cloud and hosting ranges, CDNs, web crawlers, monitoring probes,
+It queries **88 sources** concurrently — cloud and hosting ranges, CDNs, web crawlers, monitoring probes,
 threat feeds and bogon lists — and reports what each one knows about the host.
 
-**59 of the 67 need no configuration at all.** Only five ask for an API key (AbuseIPDB, CriminalIP,
-IPQualityScore, Shodan and VirusTotal), and each offers a free tier; three more (Annotated, Azure WAF
-and IPURL) are driven from your own config.
+**79 of the 88 need no configuration at all.** Six ask for an API key (AbuseIPDB, CriminalIP, IPAPI,
+IPQualityScore, Shodan and VirusTotal); three more (Annotated, Azure WAF and IPURL) are driven from
+your own config.
 
 <img src="docs/logo.png" alt="logo" width="200"/>
 
 ---
 
 [![Tests on Linux, MacOS and Windows](https://github.com/jonhadfield/ipscout/workflows/Test/badge.svg)](https://github.com/jonhadfield/ipscout/actions?query=workflow%3ATest)
-[![Go Report Card](https://goreportcard.com/badge/github.com/jonhadfield/ipscout)](https://goreportcard.com/report/github.com/jonhadfield/ipscout)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/df6b2974f0844444af617a1c0b0e2cfb)](https://app.codacy.com/gh/jonhadfield/ipscout/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![GoDoc](https://godoc.org/github.com/jonhadfield/ipscout?status.svg)](https://godoc.org/github.com/jonhadfield/ipscout)
 
@@ -26,13 +25,13 @@ and IPURL) are driven from your own config.
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [Rating](#rating)
-- [Provider Details](#providers-1)
+- [Provider Details](#provider-details)
 - [Changelog](#changelog)
 - [License](#license)
 
 ## Features
 
-- Query 78 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
+- Query 88 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
 - Score a host with `ipscout rate`: per-provider scores, reasons, and a block or allow recommendation, optionally AI-assisted
 - Output as a table, JSON or CSV, in a choice of colour styles
 - Cache provider data locally, with per-provider TTLs sized to how often each source publishes
@@ -52,8 +51,10 @@ Checking whether a crawler is really Googlebot, using four providers that need n
 
 ### style
 Table styles include ascii (for basic terminals), cyan, red, yellow, green, blue, and can be specified in the `config.yaml` file or with the `--style` flag.
+
 Examples:
-- [red](examples/table.png)
+
+- [red](examples/table-red.png)
 - [ascii](examples/ascii.txt)
 
 ## Providers
@@ -267,67 +268,8 @@ go build ./...
 
 This will create an `ipscout` binary in the current directory.
 
-### Releasing
-
-Tag first, then release:
-
-```shell
-git tag -a 0.10.0 -m "new providers, cache ttl tuning and release checks."
-git push origin 0.10.0
-GITHUB_TOKEN="$(gh auth token)" make release
-```
-
-Tags are annotated and unprefixed (`0.10.0`, not `v0.10.0`), with a short lowercase
-message summarising the release.
-
-Push the tag before running `make release`, not after. `goreleaser` publishes the release
-for the tag at `HEAD`, and if that tag is not already on the remote GitHub creates it from
-the release itself — as a lightweight tag, so the annotated object and its message stay on
-your machine and the remote records only the commit. The `git push --follow-tags` at the
-end of the target then has nothing left to send and reports `Everything up-to-date`, which
-reads like success. Pushing first is what makes the annotated tag the one that lands.
-
-`make release` builds and publishes the release. It depends on `make smoke`, which builds
-the release archives without publishing and then runs the packaged binary from a temporary
-directory with a throwaway `HOME`, so there is no `go.mod` above it and no existing config
-or cache. That catches problems the unit tests cannot see, because they run inside the
-repository. A failing smoke check aborts the release before anything is published.
-
-`make smoke` can be run on its own at any time; it needs no network access.
-
-The release notes published on GitHub are the changelog section for the tag, extracted by
-`scripts/release-notes.sh`, rather than goreleaser's generated list of commit subjects and
-SHAs. So the entry has to be in `docs/CHANGELOG.md` under a `## [X.Y.Z]` heading before you
-release: the target fails rather than publishing empty notes, which are awkward to correct
-once people have seen them.
-
-That check runs first, ahead of `smoke`, so a missing entry fails in a second rather than
-after a full six platform build. `make check-release-notes` runs it on its own, and
-`scripts/release-notes.sh 0.10.0` prints what would be published.
-
-Publishing needs a GitHub token with `repo` scope, for both the release and the push to
-the `homebrew-ipscout` cask repository. `goreleaser` resolves its SCM token from the
-environment, and the shell does not export one, so supply it for the run:
-
-```shell
-GITHUB_TOKEN="$(gh auth token)" make release
-```
-
-`gh auth token` reuses the `gh` CLI login rather than needing a separate PAT. Set
-`GITHUB_TOKEN` yourself if you would rather not depend on `gh`.
-
-A `GITLAB_TOKEN` or `GITEA_TOKEN` kept for other work needs no attention: the Makefile
-runs `goreleaser` with both unset, because it refuses to guess when it can see tokens for
-more than one forge. Your own environment is left as it is.
-
-### Updating the ip-fetcher dependency
-
-Most providers source their IP-range data via [`ip-fetcher`](https://github.com/jonhadfield/ip-fetcher). It is pinned in `go.mod` to a `v`-prefixed release tag — that released module, not a local checkout, is the source of truth for upstream data formats. To pick up changes:
-
-1. Cut a new `v`-prefixed release tag in the ip-fetcher repo (e.g. `v0.0.17`).
-2. In this repo: `go get github.com/jonhadfield/ip-fetcher@vX.Y.Z && go mod tidy`.
-
-The commented `replace` directive in `go.mod` is for local development only and must never be committed enabled.
+Releasing ipscout and keeping the ip-fetcher dependency current are documented for
+maintainers in [AGENTS.md](AGENTS.md).
 
 ## Usage
 
@@ -478,7 +420,7 @@ $ ipscout rate --ai 1.10.16.1
 This requires an OpenAI API key, set with `--openai-api-key` or `rating.openai_api_key` in
 `config.yaml`.
 
-## Providers
+## Provider Details
 
 Providers are configured in the `config.yaml` file.
 A number of providers are enabled by default, but can be disabled by setting `enabled: false`.
@@ -568,7 +510,8 @@ providers:
 
 ### Apple iCloud Private Relay
 
-IP anonymisation service from [Apple](https://support.apple.com/en-us/102602).
+IP anonymisation service from [Apple](https://support.apple.com/en-us/102602), who publish their
+egress [prefixes](https://mask-api.icloud.com/egress-ip-ranges.csv).
 > iCloud Private Relay — part of an iCloud+ subscription — helps protect your privacy when you browse the web in Safari.
 
 ### Amazon Web Services
@@ -671,11 +614,6 @@ IP ranges are retrieved from the RIPE stat API and checked for matches against t
 [Huawei Cloud](https://www.huaweicloud.com/) is a hosting provider.
 IP ranges are retrieved from the RIPE stat API for Huawei's published ASNs and checked for
 matches against the target host.
-
-### iCloud Private Relay
-
-[iCloud Private Relay](https://support.apple.com/en-us/102602) is an anonymising service provided by Apple. They publish
-their network prefixes [here](https://mask-api.icloud.com/egress-ip-ranges.csv).
 
 ### InternetDB
 

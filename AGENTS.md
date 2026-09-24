@@ -22,7 +22,7 @@ The Go CLI is split by responsibility to keep provider logic isolated from orche
   a temp directory with a throwaway HOME. `make release` depends on it, so a failing smoke check
   aborts the release before anything is published.
 - `make mac-install` / `make linux-install` install the binary to /usr/local/bin.
-- Releasing is documented in README's "Releasing" section: write the changelog entry, push the
+- Releasing is documented in the "Releasing" section below: write the changelog entry, push the
   annotated tag, then `make release`.
 - `make release` needs a GitHub token in the environment, so run it as:
 
@@ -138,3 +138,65 @@ Commits mirror the current history: short imperative subjects such as `add vultr
 ## Security & Configuration Tips
 
 Provider credentials live in `~/.config/ipscout/config.yaml`; never commit real keys or populated cache files. Sanitize artifacts before attaching them to issues. Use `make clean` to drop local build outputs, and inspect `app.log` for sensitive data before sharing logs.
+
+## Releasing
+
+Tag first, then release:
+
+```shell
+git tag -a 0.10.0 -m "new providers, cache ttl tuning and release checks."
+git push origin 0.10.0
+GITHUB_TOKEN="$(gh auth token)" make release
+```
+
+Tags are annotated and unprefixed (`0.10.0`, not `v0.10.0`), with a short lowercase
+message summarising the release.
+
+Push the tag before running `make release`, not after. `goreleaser` publishes the release
+for the tag at `HEAD`, and if that tag is not already on the remote GitHub creates it from
+the release itself — as a lightweight tag, so the annotated object and its message stay on
+your machine and the remote records only the commit. The `git push --follow-tags` at the
+end of the target then has nothing left to send and reports `Everything up-to-date`, which
+reads like success. Pushing first is what makes the annotated tag the one that lands.
+
+`make release` builds and publishes the release. It depends on `make smoke`, which builds
+the release archives without publishing and then runs the packaged binary from a temporary
+directory with a throwaway `HOME`, so there is no `go.mod` above it and no existing config
+or cache. That catches problems the unit tests cannot see, because they run inside the
+repository. A failing smoke check aborts the release before anything is published.
+
+`make smoke` can be run on its own at any time; it needs no network access.
+
+The release notes published on GitHub are the changelog section for the tag, extracted by
+`scripts/release-notes.sh`, rather than goreleaser's generated list of commit subjects and
+SHAs. So the entry has to be in `docs/CHANGELOG.md` under a `## [X.Y.Z]` heading before you
+release: the target fails rather than publishing empty notes, which are awkward to correct
+once people have seen them.
+
+That check runs first, ahead of `smoke`, so a missing entry fails in a second rather than
+after a full six platform build. `make check-release-notes` runs it on its own, and
+`scripts/release-notes.sh 0.10.0` prints what would be published.
+
+Publishing needs a GitHub token with `repo` scope, for both the release and the push to
+the `homebrew-ipscout` cask repository. `goreleaser` resolves its SCM token from the
+environment, and the shell does not export one, so supply it for the run:
+
+```shell
+GITHUB_TOKEN="$(gh auth token)" make release
+```
+
+`gh auth token` reuses the `gh` CLI login rather than needing a separate PAT. Set
+`GITHUB_TOKEN` yourself if you would rather not depend on `gh`.
+
+A `GITLAB_TOKEN` or `GITEA_TOKEN` kept for other work needs no attention: the Makefile
+runs `goreleaser` with both unset, because it refuses to guess when it can see tokens for
+more than one forge. Your own environment is left as it is.
+
+## Updating the ip-fetcher dependency
+
+Most providers source their IP-range data via [`ip-fetcher`](https://github.com/jonhadfield/ip-fetcher). It is pinned in `go.mod` to a `v`-prefixed release tag — that released module, not a local checkout, is the source of truth for upstream data formats. To pick up changes:
+
+1. Cut a new `v`-prefixed release tag in the ip-fetcher repo (e.g. `v0.0.17`).
+2. In this repo: `go get github.com/jonhadfield/ip-fetcher@vX.Y.Z && go mod tidy`.
+
+The commented `replace` directive in `go.mod` is for local development only and must never be committed enabled.
