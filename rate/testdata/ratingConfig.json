@@ -206,6 +206,9 @@
     },
     "threatfox": {
       "defaultMatchScore": 9.0
+    },
+    "asndrop": {
+      "defaultMatchScore": 9.0
     }
   }
 }

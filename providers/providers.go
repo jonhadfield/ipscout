@@ -520,6 +520,9 @@ type RatingConfig struct {
 		M247 struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"m247"`
+		ASNDrop struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"asndrop"`
 		AirVPN struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"airvpn"`

@@ -18,6 +18,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/annotated"
 	"github.com/jonhadfield/ipscout/providers/anthropic"
 	"github.com/jonhadfield/ipscout/providers/applebot"
+	"github.com/jonhadfield/ipscout/providers/asndrop"
 	"github.com/jonhadfield/ipscout/providers/atlassian"
 	"github.com/jonhadfield/ipscout/providers/aws"
 	"github.com/jonhadfield/ipscout/providers/azure"
@@ -532,6 +533,7 @@ func All() []Entry {
 		{Name: intercom.ProviderName, DisplayName: "Intercom", Enabled: func(s session.Session) *bool { return s.Providers.Intercom.Enabled }, APIKey: noKey, NewClient: intercom.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: mullvad.ProviderName, DisplayName: "Mullvad", Enabled: func(s session.Session) *bool { return s.Providers.Mullvad.Enabled }, APIKey: noKey, NewClient: mullvad.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: airvpn.ProviderName, DisplayName: "AirVPN", Enabled: func(s session.Session) *bool { return s.Providers.AirVPN.Enabled }, APIKey: noKey, NewClient: airvpn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: asndrop.ProviderName, DisplayName: "ASN-DROP", Enabled: func(s session.Session) *bool { return s.Providers.ASNDrop.Enabled }, APIKey: noKey, NewClient: asndrop.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ivpn.ProviderName, DisplayName: "IVPN", Enabled: func(s session.Session) *bool { return s.Providers.IVPN.Enabled }, APIKey: noKey, NewClient: ivpn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: surfshark.ProviderName, DisplayName: "Surfshark", Enabled: func(s session.Session) *bool { return s.Providers.Surfshark.Enabled }, APIKey: noKey, NewClient: surfshark.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: quiccloud.ProviderName, DisplayName: "QUIC.cloud", Enabled: func(s session.Session) *bool { return s.Providers.QuicCloud.Enabled }, APIKey: noKey, NewClient: quiccloud.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

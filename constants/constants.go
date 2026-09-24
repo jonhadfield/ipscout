@@ -75,6 +75,7 @@ const (
 	DefaultTorOutputPriority   = 29
 
 	// Providers added with ip-fetcher v0.0.43.
+	DefaultASNDropOutputPriority       = 30
 	DefaultAirVPNOutputPriority        = 54
 	DefaultIVPNOutputPriority          = 54
 	DefaultSurfsharkOutputPriority     = 54

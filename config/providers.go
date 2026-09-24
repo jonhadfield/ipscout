@@ -634,6 +634,9 @@ func InitProviders(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Huawei.Enabled, &sess.Providers.Huawei.OutputPriority, &sess.Providers.Huawei.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "intercom", c.DefaultIntercomOutputPriority,
 		&sess.Providers.Intercom.Enabled, &sess.Providers.Intercom.OutputPriority, &sess.Providers.Intercom.DocumentCacheTTL)
+	initSimpleProviderConfig(v, "asndrop", c.DefaultASNDropOutputPriority,
+		&sess.Providers.ASNDrop.Enabled, &sess.Providers.ASNDrop.OutputPriority, &sess.Providers.ASNDrop.DocumentCacheTTL)
+
 	initSimpleProviderConfig(v, "airvpn", c.DefaultAirVPNOutputPriority,
 		&sess.Providers.AirVPN.Enabled, &sess.Providers.AirVPN.OutputPriority, &sess.Providers.AirVPN.DocumentCacheTTL)
 

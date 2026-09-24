@@ -16,7 +16,7 @@ import (
 
 // expectedProviderCount is the number of provider entries currently registered
 // in All(). Update this constant if providers are added or removed.
-const expectedProviderCount = 99
+const expectedProviderCount = 100
 
 func TestAllReturnsEntries(t *testing.T) {
 	t.Parallel()

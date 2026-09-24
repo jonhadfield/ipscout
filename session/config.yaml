@@ -213,6 +213,8 @@ providers:
     enabled: true
   mullvad:
     enabled: true
+  asndrop:
+    enabled: true
   airvpn:
     enabled: true
   ivpn:
