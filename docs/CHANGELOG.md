@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- the per-provider reference moves from README to [docs/providers.md](providers.md), leaving
+  a README of 434 lines rather than 1113. The summary table stays, with its links pointing at
+  the new file
+- `examples/ascii.txt` regenerated: it showed v0.0.17 output from 2024
+
 ### Fixed
 
 - the TUI hid what a provider said about its own failure. Criminal IP naming an exceeded
