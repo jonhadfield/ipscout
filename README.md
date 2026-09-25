@@ -1,10 +1,10 @@
 # IPScout
 
 IPScout is a command-line tool for security analysts to enrich IP addresses with their origin and threat ratings.
-It queries **88 sources** concurrently — cloud and hosting ranges, CDNs, web crawlers, monitoring probes,
+It queries **100 sources** concurrently — cloud and hosting ranges, CDNs, web crawlers, monitoring probes,
 threat feeds and bogon lists — and reports what each one knows about the host.
 
-**79 of the 88 need no configuration at all.** Six ask for an API key (AbuseIPDB, CriminalIP, IPAPI,
+**91 of the 100 need no configuration at all.** Six ask for an API key (AbuseIPDB, CriminalIP, IPAPI,
 IPQualityScore, Shodan and VirusTotal); three more (Annotated, Azure WAF and IPURL) are driven from
 your own config.
 
@@ -31,7 +31,7 @@ your own config.
 
 ## Features
 
-- Query 88 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
+- Query 100 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
 - Score a host with `ipscout rate`: per-provider scores, reasons, and a block or allow recommendation, optionally AI-assisted
 - Output as a table, JSON or CSV, in a choice of colour styles
 - Cache provider data locally, with per-provider TTLs sized to how often each source publishes
