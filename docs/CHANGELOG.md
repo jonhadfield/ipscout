@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-09-26
+
 ### Added
 
 - three providers from ip-fetcher v0.0.44, enabled by default and needing no API key:
@@ -871,7 +873,8 @@ as 0.12.2 and behave identically, so there is no reason to upgrade for its own s
 ### Added
 - initial release
 
-[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.17.0...HEAD
+[Unreleased]: https://github.com/jonhadfield/ipscout/compare/0.18.0...HEAD
+[0.18.0]: https://github.com/jonhadfield/ipscout/compare/0.17.0...0.18.0
 [0.17.0]: https://github.com/jonhadfield/ipscout/compare/0.16.3...0.17.0
 [0.16.3]: https://github.com/jonhadfield/ipscout/compare/0.16.2...0.16.3
 [0.16.2]: https://github.com/jonhadfield/ipscout/compare/0.16.1...0.16.2
