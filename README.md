@@ -1,10 +1,10 @@
 # IPScout
 
 IPScout is a command-line tool for security analysts to enrich IP addresses with their origin and threat ratings.
-It queries **100 sources** concurrently — cloud and hosting ranges, CDNs, web crawlers, monitoring probes,
+It queries **103 sources** concurrently — cloud and hosting ranges, CDNs, web crawlers, monitoring probes,
 threat feeds and bogon lists — and reports what each one knows about the host.
 
-**91 of the 100 need no configuration at all.** Six ask for an API key (AbuseIPDB, CriminalIP, IPAPI,
+**94 of the 103 need no configuration at all.** Six ask for an API key (AbuseIPDB, CriminalIP, IPAPI,
 IPQualityScore, Shodan and VirusTotal); three more (Annotated, Azure WAF and IPURL) are driven from
 your own config.
 
@@ -31,7 +31,7 @@ your own config.
 
 ## Features
 
-- Query 100 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
+- Query 103 providers concurrently: cloud and hosting ranges, CDNs, crawlers, monitoring probes, threat feeds and bogons
 - Score a host with `ipscout rate`: per-provider scores, reasons, and a block or allow recommendation, optionally AI-assisted
 - Output as a table, JSON or CSV, in a choice of colour styles
 - Cache provider data locally, with per-provider TTLs sized to how often each source publishes
@@ -114,6 +114,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Googlebot](docs/providers.md#googlebot)                                   |   Web crawler    |           -           |
 | [Grafana](docs/providers.md#grafana)                                       |    Monitoring    |           -           |
 | [GreenSnow](docs/providers.md#greensnow)                                   |   Threat Feed    |           -           |
+| [HetrixTools](docs/providers.md#hetrixtools) | Monitoring | - |
 | [Hetzner](docs/providers.md#hetzner)                                       | Hosting Provider |           -           |
 | [Huawei Cloud](docs/providers.md#huawei-cloud)                             | Hosting Provider |           -           |
 | [IBM Cloud](docs/providers.md#ibm-cloud)                                   | Hosting Provider |           -           |
@@ -133,6 +134,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Microsoft 365](docs/providers.md#microsoft-365)                           |       SaaS       |           -           |
 | [Mullvad](docs/providers.md#mullvad)                                       |   Anonymiser     |           -           |
 | [New Relic](docs/providers.md#new-relic)                                   |    Monitoring    |           -           |
+| [NodePing](docs/providers.md#nodeping) | Monitoring | - |
 | [Okta](docs/providers.md#okta)                                             |       SaaS       |           -           |
 | [OpenAI](docs/providers.md#openai)                                         |   Web crawler    |           -           |
 | [Oracle Cloud (OCI)](docs/providers.md#oracle-cloud-oci)                   | Hosting Provider |           -           |
@@ -140,6 +142,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [PerplexityBot](docs/providers.md#perplexitybot)                           |   Web crawler    |           -           |
 | [Pingdom](docs/providers.md#pingdom)                                       |    Monitoring    |           -           |
 | [PTR](docs/providers.md#ptr)                                               |       DNS        |           -           |
+| [Qualys](docs/providers.md#qualys) | Vulnerability Scanner | - |
 | [QUIC.cloud](docs/providers.md#quiccloud) | CDN | - |
 | [Render](docs/providers.md#render)                                         | Hosting Provider |           -           |
 | [Salesforce](docs/providers.md#salesforce)                                 |       SaaS       |           -           |

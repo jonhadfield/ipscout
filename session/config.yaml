@@ -213,6 +213,12 @@ providers:
     enabled: true
   mullvad:
     enabled: true
+  hetrixtools:
+    enabled: true
+  nodeping:
+    enabled: true
+  qualys:
+    enabled: true
   asndrop:
     enabled: true
   airvpn:

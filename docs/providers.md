@@ -201,6 +201,10 @@ brute force attempts against SSH, mail and web services, and publishes them at
 IPScout downloads this list and checks whether the target IP appears in it. The list
 changes constantly, so it is cached for an hour rather than the usual day.
 
+## HetrixTools
+
+[HetrixTools](https://hetrixtools.com/) monitors sites and servers from a set of checkpoints and publishes their addresses, so a match means the host is a monitoring probe rather than the origin of the traffic.
+
 ## Hetzner
 
 [Hetzner](https://www.hetzner.com/) is a hosting provider.
@@ -312,6 +316,10 @@ relay.
 from, grouped by location. A match means the host is a New Relic synthetics probe, and
 names the location it runs from, such as "Washington, DC, USA".
 
+## NodePing
+
+[NodePing](https://nodeping.com/) publishes the addresses its uptime checks come from.
+
 ## Okta
 
 [Okta](https://help.okta.com/en-us/content/topics/security/ip-address-allow-listing.htm)
@@ -328,6 +336,10 @@ and [ChatGPT-User](https://openai.com/chatgpt-user.json). A match shows which of
 
 [OVH](https://www.ovhcloud.com/) is a hosting provider
 that [publishes](https://vps.ovh.net/ips.txt) network prefixes used by their services.
+
+## Qualys
+
+[Qualys](https://www.qualys.com/) runs external vulnerability scans; its scanners announce from AS27385, whose prefixes ip-fetcher resolves. A match names the source of a scan.
 
 ## QUIC.cloud
 

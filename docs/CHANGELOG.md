@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Added
+
+- three providers from ip-fetcher v0.0.44, enabled by default and needing no API key:
+  HetrixTools and NodePing uptime probes, and Qualys external vulnerability scanners, whose
+  prefixes come from their AS27385 announcements
+
 ### Changed
 
 - README examples regenerated from 0.17.0; they showed 0.16.2 output

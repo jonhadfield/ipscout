@@ -556,6 +556,15 @@ type RatingConfig struct {
 		ThreatFox struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"threatfox"`
+		HetrixTools struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"hetrixtools"`
+		NodePing struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"nodeping"`
+		Qualys struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"qualys"`
 		Mullvad struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"mullvad"`
