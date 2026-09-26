@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+### Changed
+
+- README examples regenerated from 0.17.0; they showed 0.16.2 output
+
 ## [0.17.0] - 2026-09-25
 
 ### Added
