@@ -321,6 +321,15 @@
     },
     "asndrop": {
       "defaultMatchScore": 9.0
+    },
+    "hetrixtools": {
+      "defaultMatchScore": 1.0
+    },
+    "nodeping": {
+      "defaultMatchScore": 1.0
+    },
+    "qualys": {
+      "defaultMatchScore": 2.0
     }
   }
 }

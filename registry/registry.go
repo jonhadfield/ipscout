@@ -57,6 +57,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/googleutf"
 	"github.com/jonhadfield/ipscout/providers/grafana"
 	"github.com/jonhadfield/ipscout/providers/greensnow"
+	"github.com/jonhadfield/ipscout/providers/hetrixtools"
 	"github.com/jonhadfield/ipscout/providers/hetzner"
 	"github.com/jonhadfield/ipscout/providers/huawei"
 	"github.com/jonhadfield/ipscout/providers/ibmcloud"
@@ -77,6 +78,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/m365"
 	"github.com/jonhadfield/ipscout/providers/mullvad"
 	"github.com/jonhadfield/ipscout/providers/newrelic"
+	"github.com/jonhadfield/ipscout/providers/nodeping"
 	"github.com/jonhadfield/ipscout/providers/oci"
 	"github.com/jonhadfield/ipscout/providers/okta"
 	"github.com/jonhadfield/ipscout/providers/openai"
@@ -84,6 +86,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/perplexitybot"
 	"github.com/jonhadfield/ipscout/providers/pingdom"
 	"github.com/jonhadfield/ipscout/providers/ptr"
+	"github.com/jonhadfield/ipscout/providers/qualys"
 	"github.com/jonhadfield/ipscout/providers/quiccloud"
 	"github.com/jonhadfield/ipscout/providers/render"
 	"github.com/jonhadfield/ipscout/providers/salesforce"
@@ -532,6 +535,9 @@ func All() []Entry {
 		{Name: huawei.ProviderName, DisplayName: "Huawei Cloud", Enabled: func(s session.Session) *bool { return s.Providers.Huawei.Enabled }, APIKey: noKey, NewClient: huawei.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: intercom.ProviderName, DisplayName: "Intercom", Enabled: func(s session.Session) *bool { return s.Providers.Intercom.Enabled }, APIKey: noKey, NewClient: intercom.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: mullvad.ProviderName, DisplayName: "Mullvad", Enabled: func(s session.Session) *bool { return s.Providers.Mullvad.Enabled }, APIKey: noKey, NewClient: mullvad.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: hetrixtools.ProviderName, DisplayName: "HetrixTools", Enabled: func(s session.Session) *bool { return s.Providers.HetrixTools.Enabled }, APIKey: noKey, NewClient: hetrixtools.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: nodeping.ProviderName, DisplayName: "NodePing", Enabled: func(s session.Session) *bool { return s.Providers.NodePing.Enabled }, APIKey: noKey, NewClient: nodeping.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: qualys.ProviderName, DisplayName: "Qualys", Enabled: func(s session.Session) *bool { return s.Providers.Qualys.Enabled }, APIKey: noKey, NewClient: qualys.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: airvpn.ProviderName, DisplayName: "AirVPN", Enabled: func(s session.Session) *bool { return s.Providers.AirVPN.Enabled }, APIKey: noKey, NewClient: airvpn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: asndrop.ProviderName, DisplayName: "ASN-DROP", Enabled: func(s session.Session) *bool { return s.Providers.ASNDrop.Enabled }, APIKey: noKey, NewClient: asndrop.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ivpn.ProviderName, DisplayName: "IVPN", Enabled: func(s session.Session) *bool { return s.Providers.IVPN.Enabled }, APIKey: noKey, NewClient: ivpn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

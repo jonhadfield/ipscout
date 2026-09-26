@@ -634,6 +634,15 @@ func InitProviders(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Huawei.Enabled, &sess.Providers.Huawei.OutputPriority, &sess.Providers.Huawei.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "intercom", c.DefaultIntercomOutputPriority,
 		&sess.Providers.Intercom.Enabled, &sess.Providers.Intercom.OutputPriority, &sess.Providers.Intercom.DocumentCacheTTL)
+	initSimpleProviderConfig(v, "hetrixtools", c.DefaultHetrixToolsOutputPriority,
+		&sess.Providers.HetrixTools.Enabled, &sess.Providers.HetrixTools.OutputPriority, &sess.Providers.HetrixTools.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "nodeping", c.DefaultNodePingOutputPriority,
+		&sess.Providers.NodePing.Enabled, &sess.Providers.NodePing.OutputPriority, &sess.Providers.NodePing.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "qualys", c.DefaultQualysOutputPriority,
+		&sess.Providers.Qualys.Enabled, &sess.Providers.Qualys.OutputPriority, &sess.Providers.Qualys.DocumentCacheTTL)
+
 	initSimpleProviderConfig(v, "asndrop", c.DefaultASNDropOutputPriority,
 		&sess.Providers.ASNDrop.Enabled, &sess.Providers.ASNDrop.OutputPriority, &sess.Providers.ASNDrop.DocumentCacheTTL)
 
