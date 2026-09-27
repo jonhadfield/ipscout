@@ -65,6 +65,8 @@ import (
 	"github.com/jonhadfield/ipscout/providers/imperva"
 	"github.com/jonhadfield/ipscout/providers/intercom"
 	"github.com/jonhadfield/ipscout/providers/internetdb"
+	"github.com/jonhadfield/ipscout/providers/intruder"
+	"github.com/jonhadfield/ipscout/providers/invicti"
 	"github.com/jonhadfield/ipscout/providers/ipapi"
 	"github.com/jonhadfield/ipscout/providers/ipapicom"
 	"github.com/jonhadfield/ipscout/providers/ipqs"
@@ -80,6 +82,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/newrelic"
 	"github.com/jonhadfield/ipscout/providers/nodeping"
 	"github.com/jonhadfield/ipscout/providers/oci"
+	"github.com/jonhadfield/ipscout/providers/ohdear"
 	"github.com/jonhadfield/ipscout/providers/okta"
 	"github.com/jonhadfield/ipscout/providers/openai"
 	"github.com/jonhadfield/ipscout/providers/ovh"
@@ -88,6 +91,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/ptr"
 	"github.com/jonhadfield/ipscout/providers/qualys"
 	"github.com/jonhadfield/ipscout/providers/quiccloud"
+	"github.com/jonhadfield/ipscout/providers/rapid7"
 	"github.com/jonhadfield/ipscout/providers/render"
 	"github.com/jonhadfield/ipscout/providers/salesforce"
 	"github.com/jonhadfield/ipscout/providers/scaleway"
@@ -110,6 +114,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/virustotal"
 	"github.com/jonhadfield/ipscout/providers/vultr"
 	"github.com/jonhadfield/ipscout/providers/x4bnet"
+	"github.com/jonhadfield/ipscout/providers/xpanse"
 	"github.com/jonhadfield/ipscout/providers/zoom"
 	"github.com/jonhadfield/ipscout/providers/zscaler"
 	"github.com/jonhadfield/ipscout/session"
@@ -538,6 +543,11 @@ func All() []Entry {
 		{Name: hetrixtools.ProviderName, DisplayName: "HetrixTools", Enabled: func(s session.Session) *bool { return s.Providers.HetrixTools.Enabled }, APIKey: noKey, NewClient: hetrixtools.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: nodeping.ProviderName, DisplayName: "NodePing", Enabled: func(s session.Session) *bool { return s.Providers.NodePing.Enabled }, APIKey: noKey, NewClient: nodeping.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: qualys.ProviderName, DisplayName: "Qualys", Enabled: func(s session.Session) *bool { return s.Providers.Qualys.Enabled }, APIKey: noKey, NewClient: qualys.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: ohdear.ProviderName, DisplayName: "Oh Dear", Enabled: func(s session.Session) *bool { return s.Providers.OhDear.Enabled }, APIKey: noKey, NewClient: ohdear.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: rapid7.ProviderName, DisplayName: "Rapid7", Enabled: func(s session.Session) *bool { return s.Providers.Rapid7.Enabled }, APIKey: noKey, NewClient: rapid7.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: intruder.ProviderName, DisplayName: "Intruder", Enabled: func(s session.Session) *bool { return s.Providers.Intruder.Enabled }, APIKey: noKey, NewClient: intruder.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: invicti.ProviderName, DisplayName: "Invicti", Enabled: func(s session.Session) *bool { return s.Providers.Invicti.Enabled }, APIKey: noKey, NewClient: invicti.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: xpanse.ProviderName, DisplayName: "Cortex Xpanse", Enabled: func(s session.Session) *bool { return s.Providers.Xpanse.Enabled }, APIKey: noKey, NewClient: xpanse.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: airvpn.ProviderName, DisplayName: "AirVPN", Enabled: func(s session.Session) *bool { return s.Providers.AirVPN.Enabled }, APIKey: noKey, NewClient: airvpn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: asndrop.ProviderName, DisplayName: "ASN-DROP", Enabled: func(s session.Session) *bool { return s.Providers.ASNDrop.Enabled }, APIKey: noKey, NewClient: asndrop.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ivpn.ProviderName, DisplayName: "IVPN", Enabled: func(s session.Session) *bool { return s.Providers.IVPN.Enabled }, APIKey: noKey, NewClient: ivpn.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

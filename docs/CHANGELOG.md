@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-09-27
+
+### Added
+
+- five providers from ip-fetcher v0.0.46, enabled by default and needing no API key:
+  Oh Dear uptime probes, and Rapid7 InsightAppSec, Intruder, Invicti and Cortex Xpanse
+  vulnerability scanners
+
 ## [0.18.0] - 2026-09-26
 
 ### Added

@@ -74,6 +74,13 @@ const (
 	DefaultFeodoOutputPriority = 22
 	DefaultTorOutputPriority   = 29
 
+	// Providers added with ip-fetcher v0.0.46.
+	DefaultOhDearOutputPriority   = 80
+	DefaultRapid7OutputPriority   = 70
+	DefaultIntruderOutputPriority = 70
+	DefaultInvictiOutputPriority  = 70
+	DefaultXpanseOutputPriority   = 70
+
 	// Providers added with ip-fetcher v0.0.44.
 	DefaultHetrixToolsOutputPriority = 80
 	DefaultNodePingOutputPriority    = 80

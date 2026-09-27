@@ -218,6 +218,21 @@
     },
     "qualys": {
       "defaultMatchScore": 2.0
+    },
+    "ohdear": {
+      "defaultMatchScore": 1.0
+    },
+    "rapid7": {
+      "defaultMatchScore": 2.0
+    },
+    "intruder": {
+      "defaultMatchScore": 2.0
+    },
+    "invicti": {
+      "defaultMatchScore": 2.0
+    },
+    "xpanse": {
+      "defaultMatchScore": 2.0
     }
   }
 }

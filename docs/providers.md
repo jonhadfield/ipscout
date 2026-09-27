@@ -222,6 +222,14 @@ Query Shodan's free [InternetDB](https://internetdb.shodan.io/) API for the open
 hostnames, tags, software (CPEs) and known vulnerabilities recorded for an IP address. No API
 key is needed. Private and other non-public addresses are not looked up.
 
+## Intruder
+
+[Intruder](https://www.intruder.io/) publishes the ranges its vulnerability scanners use, so a match names the source of a scan.
+
+## Invicti
+
+[Invicti](https://www.invicti.com/) (Acunetix) publishes US and EU trustlist addresses for its cloud scanners. A match names the source of a scan.
+
 ## IPAPI
 
 Query the [ipapi](https://ipapi.co/) API for geolocation data.
@@ -320,6 +328,10 @@ names the location it runs from, such as "Washington, DC, USA".
 
 [NodePing](https://nodeping.com/) publishes the addresses its uptime checks come from.
 
+## Oh Dear
+
+[Oh Dear](https://ohdear.app/) publishes the IPv4 and IPv6 addresses its uptime checks come from, so a match means the host is a monitoring probe rather than the origin of the traffic.
+
 ## Okta
 
 [Okta](https://help.okta.com/en-us/content/topics/security/ip-address-allow-listing.htm)
@@ -344,6 +356,10 @@ that [publishes](https://vps.ovh.net/ips.txt) network prefixes used by their ser
 ## QUIC.cloud
 
 [QUIC.cloud](https://quic.cloud/) is a CDN for WordPress and LiteSpeed sites, so a match means the host fronts someone else's origin.
+
+## Rapid7
+
+[Rapid7 InsightAppSec](https://docs.rapid7.com/insightappsec/allowlist-cloud-engine-ips/) cloud engines announce from published addresses by region. A match names the source of an application security scan.
 
 ## Scaleway
 
@@ -517,6 +533,10 @@ these lists and checks whether the target IP is within those ranges.
 
 [Contabo](https://contabo.com/) is a hosting provider.
 IP ranges are retrieved from the RIPE stat API and checked for matches against the target host.
+
+## Cortex Xpanse
+
+[Cortex Xpanse](https://cortex-docs.paloaltonetworks.com/cortex-xpanse/reference/scanning-activity) publishes the prefixes used for internet-wide scanning. A match names the source of that activity.
 
 ## Datadog
 
