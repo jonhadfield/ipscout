@@ -643,6 +643,21 @@ func InitProviders(sess *session.Session, v *viper.Viper) {
 	initSimpleProviderConfig(v, "qualys", c.DefaultQualysOutputPriority,
 		&sess.Providers.Qualys.Enabled, &sess.Providers.Qualys.OutputPriority, &sess.Providers.Qualys.DocumentCacheTTL)
 
+	initSimpleProviderConfig(v, "ohdear", c.DefaultOhDearOutputPriority,
+		&sess.Providers.OhDear.Enabled, &sess.Providers.OhDear.OutputPriority, &sess.Providers.OhDear.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "rapid7", c.DefaultRapid7OutputPriority,
+		&sess.Providers.Rapid7.Enabled, &sess.Providers.Rapid7.OutputPriority, &sess.Providers.Rapid7.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "intruder", c.DefaultIntruderOutputPriority,
+		&sess.Providers.Intruder.Enabled, &sess.Providers.Intruder.OutputPriority, &sess.Providers.Intruder.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "invicti", c.DefaultInvictiOutputPriority,
+		&sess.Providers.Invicti.Enabled, &sess.Providers.Invicti.OutputPriority, &sess.Providers.Invicti.DocumentCacheTTL)
+
+	initSimpleProviderConfig(v, "xpanse", c.DefaultXpanseOutputPriority,
+		&sess.Providers.Xpanse.Enabled, &sess.Providers.Xpanse.OutputPriority, &sess.Providers.Xpanse.DocumentCacheTTL)
+
 	initSimpleProviderConfig(v, "asndrop", c.DefaultASNDropOutputPriority,
 		&sess.Providers.ASNDrop.Enabled, &sess.Providers.ASNDrop.OutputPriority, &sess.Providers.ASNDrop.DocumentCacheTTL)
 

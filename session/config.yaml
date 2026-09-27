@@ -219,6 +219,16 @@ providers:
     enabled: true
   qualys:
     enabled: true
+  ohdear:
+    enabled: true
+  rapid7:
+    enabled: true
+  intruder:
+    enabled: true
+  invicti:
+    enabled: true
+  xpanse:
+    enabled: true
   asndrop:
     enabled: true
   airvpn:

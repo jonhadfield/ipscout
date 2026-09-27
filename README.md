@@ -94,6 +94,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [CircleCI](docs/providers.md#circleci) | SaaS | - |
 | [Cloudflare](docs/providers.md#cloudflare)                                 |       CDN        |           -           |
 | [Contabo](docs/providers.md#contabo)                                       | Hosting Provider |           -           |
+| [Cortex Xpanse](docs/providers.md#cortex-xpanse) | Vulnerability Scanner | - |
 | [CriminalIP](docs/providers.md#criminalip)                                 |  IP Reputation   | Registration required |
 | [Datadog](docs/providers.md#datadog)                                       |       SaaS       |           -           |
 | [Detectify](docs/providers.md#detectify)                                   | Vulnerability Scanner |     -     |
@@ -121,6 +122,8 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Imperva](docs/providers.md#imperva)                                       |       WAF        |           -           |
 | [Intercom](docs/providers.md#intercom)                                     |       SaaS       |           -           |
 | [InternetDB](docs/providers.md#internetdb)                                 | Scan Data        |           -           |
+| [Intruder](docs/providers.md#intruder) | Vulnerability Scanner | - |
+| [Invicti](docs/providers.md#invicti) | Vulnerability Scanner | - |
 | [ip-api.com](docs/providers.md#ip-apicom)                                  |  IP Geolocation  |           -           |
 | [IPAPI](docs/providers.md#ipapi)                                           |  IP Geolocation  | Registration required |
 | [IPQualityScore](docs/providers.md#ipqualityscore)                         |  IP Reputation   | Registration required |
@@ -135,6 +138,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [Mullvad](docs/providers.md#mullvad)                                       |   Anonymiser     |           -           |
 | [New Relic](docs/providers.md#new-relic)                                   |    Monitoring    |           -           |
 | [NodePing](docs/providers.md#nodeping) | Monitoring | - |
+| [Oh Dear](docs/providers.md#oh-dear) | Monitoring | - |
 | [Okta](docs/providers.md#okta)                                             |       SaaS       |           -           |
 | [OpenAI](docs/providers.md#openai)                                         |   Web crawler    |           -           |
 | [Oracle Cloud (OCI)](docs/providers.md#oracle-cloud-oci)                   | Hosting Provider |           -           |
@@ -144,6 +148,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [PTR](docs/providers.md#ptr)                                               |       DNS        |           -           |
 | [Qualys](docs/providers.md#qualys) | Vulnerability Scanner | - |
 | [QUIC.cloud](docs/providers.md#quiccloud) | CDN | - |
+| [Rapid7](docs/providers.md#rapid7) | Vulnerability Scanner | - |
 | [Render](docs/providers.md#render)                                         | Hosting Provider |           -           |
 | [Salesforce](docs/providers.md#salesforce)                                 |       SaaS       |           -           |
 | [Scaleway](docs/providers.md#scaleway)                                     | Hosting Provider |           -           |
