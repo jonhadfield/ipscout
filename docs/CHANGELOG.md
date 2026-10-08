@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-10-08
+
+### Changed
+
+- bump dependencies, including `golang.org/x/crypto` to v0.57.0 and ip-fetcher to v0.0.50
+
 ## [0.19.0] - 2026-09-27
 
 ### Added
