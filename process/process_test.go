@@ -65,7 +65,7 @@ func TestGenerateJSON(t *testing.T) {
 	require.NoError(t, json.Unmarshal(jm, &out))
 	require.Equal(t, "value", out["prov1"]["key"])
 
-	results = &runner.HostResults{Data: map[string][]byte{"bad": nil}}
+	results = &runner.HostResults{Data: map[string][]byte{badProvider: nil}}
 	jm, err = generateJSON(results)
 	require.Error(t, err)
 	require.Nil(t, jm)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"testing"
@@ -21,8 +22,11 @@ import (
 const (
 	testPriority = int32(50)
 	outputJSON   = "json"
+	outputTable  = "table"
+	outputCSV    = "csv"
 	testProvider = "prov"
 	testBroken   = "broken"
+	badProvider  = "bad"
 )
 
 func discardLogger() *slog.Logger {
@@ -374,7 +378,7 @@ func TestOutputJSONMarshalErrorPropagates(t *testing.T) {
 	sess.Config.Global.Output = outputJSON
 
 	// nil data for a provider causes generateJSON to error.
-	results := &runner.HostResults{Data: map[string][]byte{"bad": nil}}
+	results := &runner.HostResults{Data: map[string][]byte{badProvider: nil}}
 
 	err := output(sess, map[string]providers.ProviderClient{}, results)
 	require.Error(t, err)
@@ -382,7 +386,7 @@ func TestOutputJSONMarshalErrorPropagates(t *testing.T) {
 
 func TestOutputTable(t *testing.T) {
 	sess := newTestSession(t)
-	sess.Config.Global.Output = "table"
+	sess.Config.Global.Output = outputTable
 
 	tw := table.NewWriter()
 	tw.AppendRow(table.Row{"data"})
@@ -422,4 +426,138 @@ func TestGenerateJSONRoundTrip(t *testing.T) {
 	require.Len(t, out, 2)
 	require.JSONEq(t, `{"x":1}`, string(out["one"]))
 	require.JSONEq(t, `{"y":2}`, string(out["two"]))
+}
+
+// newRunSession builds a session for Processor.Run: HomeDir only (Run opens
+// the cache itself), PTR enabled, UseTestData on, progress hidden.
+func newRunSession(t *testing.T) *session.Session {
+	t.Helper()
+
+	home := t.TempDir()
+	target, err := os.CreateTemp(t.TempDir(), "out")
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = target.Close() })
+
+	sess := &session.Session{
+		Logger:       discardLogger(),
+		Stats:        session.CreateStats(),
+		Target:       target,
+		Messages:     &session.Messages{},
+		HideProgress: true,
+		UseTestData:  true,
+		Host:         netip.MustParseAddr("8.8.8.8"),
+	}
+	sess.Config.Global.HomeDir = home
+	sess.Config.Global.Output = outputJSON
+	sess.Config.Global.LogLevel = "info"
+	sess.Providers.PTR.Enabled = new(true)
+
+	return sess
+}
+
+func TestProcessorRunJSONWithTestData(t *testing.T) {
+	sess := newRunSession(t)
+
+	p, err := New(sess)
+	require.NoError(t, err)
+	require.NoError(t, p.Run())
+}
+
+func TestProcessorRunTableWithTestData(t *testing.T) {
+	sess := newRunSession(t)
+	sess.Config.Global.Output = outputTable
+	sess.Config.Global.Style = "ascii"
+	sess.Config.Global.LogLevel = "debug"
+
+	p, err := New(sess)
+	require.NoError(t, err)
+	require.NoError(t, p.Run())
+}
+
+func TestProcessorRunCacheOnly(t *testing.T) {
+	sess := newRunSession(t)
+	sess.Config.Global.InitialiseCacheOnly = true
+
+	p, err := New(sess)
+	require.NoError(t, err)
+	require.NoError(t, p.Run())
+
+	_, err = sess.Target.Seek(0, io.SeekStart)
+	require.NoError(t, err)
+	body, err := io.ReadAll(sess.Target)
+	require.NoError(t, err)
+	require.Contains(t, string(body), "cache initialisation complete")
+}
+
+func TestProcessorRunFilterNoMatch(t *testing.T) {
+	sess := newRunSession(t)
+	sess.Config.Global.FilterProviders = []string{"nonexistent-provider"}
+
+	p, err := New(sess)
+	require.NoError(t, err)
+
+	err = p.Run()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "no matching providers found for filter")
+}
+
+func TestProcessorRunNoProvidersEnabled(t *testing.T) {
+	sess := newRunSession(t)
+	sess.Providers.PTR.Enabled = new(false)
+
+	p, err := New(sess)
+	require.NoError(t, err)
+
+	err = p.Run()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "no providers enabled")
+}
+
+func TestProcessorRunFilterKeepsMatching(t *testing.T) {
+	sess := newRunSession(t)
+	sess.Config.Global.FilterProviders = []string{"ptr"}
+
+	p, err := New(sess)
+	require.NoError(t, err)
+	require.NoError(t, p.Run())
+}
+
+func TestOutputCSV(t *testing.T) {
+	sess := newTestSession(t)
+	sess.Config.Global.Output = outputCSV
+
+	results := &runner.HostResults{Data: map[string][]byte{
+		testProvider: []byte(`{"k":"v"}`),
+	}}
+
+	require.NoError(t, output(sess, map[string]providers.ProviderClient{}, results))
+}
+
+func TestOutputCSVMarshalErrorPropagates(t *testing.T) {
+	sess := newTestSession(t)
+	sess.Config.Global.Output = outputCSV
+
+	results := &runner.HostResults{Data: map[string][]byte{badProvider: nil}}
+
+	err := output(sess, map[string]providers.ProviderClient{}, results)
+	require.Error(t, err)
+}
+
+func TestOutputTableDebugTiming(t *testing.T) {
+	sess := newTestSession(t)
+	sess.Config.Global.Output = outputTable
+	sess.Config.Global.LogLevel = "debug"
+	sess.Stats.CreateTableDuration["prov"] = 0
+
+	tw := table.NewWriter()
+	tw.AppendRow(table.Row{"data"})
+
+	prio := testPriority
+
+	runners := map[string]providers.ProviderClient{
+		testProvider: configurableStub{enabled: true, tbl: &tw, priority: &prio},
+	}
+	results := &runner.HostResults{Data: map[string][]byte{testProvider: []byte(`{}`)}}
+
+	require.NoError(t, output(sess, runners, results))
 }

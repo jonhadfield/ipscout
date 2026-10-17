@@ -9,10 +9,9 @@ TEST_OPTIONS?=-race -v
 GORELEASER=env -u GITLAB_TOKEN -u GITEA_TOKEN goreleaser
 
 setup:
-	go get -u github.com/go-critic/go-critic/...
-	go get -u github.com/alecthomas/gometalinter
-	go get -u golang.org/x/tools/cmd/cover
-	gometalinter --install
+	go install golang.org/x/tools/cmd/goimports@latest
+	go install mvdan.cc/gofumpt@latest
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 
 clean:
 	rm -rf ./dist

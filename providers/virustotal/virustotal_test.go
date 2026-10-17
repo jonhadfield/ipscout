@@ -296,3 +296,19 @@ func TestAnalysisResultData_ShouldOutput(t *testing.T) {
 		})
 	}
 }
+
+func TestAnalysisResultDataAccessors(t *testing.T) {
+	ard := AnalysisResultData{
+		Method:     testMethodBlacklist,
+		EngineName: testEngineAcronis,
+		Category:   analysisResultMalicious,
+		Result:     "malware detected",
+	}
+
+	require.Equal(t, testMethodBlacklist, ard.GetMethod())
+	require.Equal(t, testEngineAcronis, ard.GetEngineName())
+	require.Equal(t, analysisResultMalicious, ard.GetCategory())
+	require.Equal(t, "malware detected", ard.GetResult())
+	require.True(t, ard.ResultHasAny([]string{"malware", "phishing"}))
+	require.False(t, ard.ResultHasAny([]string{"clean"}))
+}
