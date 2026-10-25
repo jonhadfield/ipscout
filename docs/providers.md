@@ -3,8 +3,11 @@
 Every provider IPScout can query, what it holds, and how to configure it. See the
 [README](../README.md) for installation, usage and the provider summary table.
 
-Providers are configured in the `config.yaml` file.
-A number of providers are enabled by default, but can be disabled by setting `enabled: false`.
+Providers are configured in `$HOME/.config/ipscout/config.yaml`. Most are enabled by
+default and need no clause; set `enabled: false` to turn one off. The ones that need
+something from you — an API key, annotation files, prefix-list URLs, or Azure WAF
+policy IDs — are documented below with the YAML to add. The minimum is `enabled: true`
+plus whatever else that provider asks for.
 
 Providers that fetch a list of IP ranges cache it, and refetch once the cache expires. The
 defaults are chosen per provider from how often the source actually publishes, so a list
@@ -45,12 +48,12 @@ This provider queries the [AbuseIPDB](https://www.abuseipdb.com/) API for inform
 confidence score, and any reports filed for them.
 A [free plan](https://www.abuseipdb.com/pricing) exists for individuals, with a limit of 1000 requests per day.
 
-Environment variable `ABUSEIPDB_API_KEY` must be set with your API key, and `providers.abuseipdb.enabled` set to `true`.
+Set environment variable `ABUSEIPDB_API_KEY` with your API key.
 
 ```yaml
 providers:
   abuseipdb:
-    enabled: false
+    enabled: true
 ```
 
 ## AirVPN
@@ -64,7 +67,7 @@ IP ranges are retrieved from the RIPE stat API and checked for matches against t
 
 ## Annotated
 
-The Annotated provider parses one or more user provided files containing prefixes and accomanying annotations.
+The Annotated provider parses one or more user provided files containing prefixes and accompanying annotations.
 
 ```yaml
 ---
@@ -119,7 +122,18 @@ services.
 
 [Azure WAF](https://azure.microsoft.com/en-gb/products/web-application-firewall/) is a Web Application Firewall used to secure services hosted on Azure.
 This currently supports Azure Global WAF, used to secure Azure Front Door, and will show custom rules and prefixes matching the provided host.
-Authentication will be read from the environment.
+
+The provider is disabled until you turn it on and name the Front Door WAF policies to
+read. Authenticate with `az login` (or any other credential the Azure SDK finds in the
+environment) for a tenant that can read those policies.
+
+```yaml
+providers:
+  azurewaf:
+    enabled: true
+    resource_ids:
+      - /subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Network/frontdoorWebApplicationFirewallPolicies/<policy-name>
+```
 
 ## Better Stack
 
@@ -148,7 +162,13 @@ Query the [CriminalIP](https://www.criminalip.io/) API for information on an IP 
 any abuse reports filed for them.
 A [free plan](https://www.criminalip.io/pricing) exists with a small number of free credits.
 
-Set environment variable `CRIMINAL_IP_API_URL` with your API key.
+Set environment variable `CRIMINAL_IP_API_KEY` with your API key.
+
+```yaml
+providers:
+  criminalip:
+    enabled: true
+```
 
 ## Detectify
 
@@ -236,8 +256,14 @@ Query the [ipapi](https://ipapi.co/) API for geolocation data.
 ipapi.co rate limits keyless requests so heavily that they fail for most users, so this
 provider only runs with an API key. See [pricing](https://ipapi.co/pricing/).
 
-Set environment variable `IPAPI_API_KEY`, or `providers.ipapi.api_key` in the config, with
-your API key, and set `providers.ipapi.enabled` to `true`.
+Set environment variable `IPAPI_API_KEY`, or `api_key` in the provider's config, with
+your API key.
+
+```yaml
+providers:
+  ipapi:
+    enabled: true
+```
 
 ## ip-api.com
 
@@ -246,15 +272,28 @@ the address is a proxy, VPN or Tor exit, a hosting provider or a mobile network.
 needed.
 
 The free tier is limited to 45 requests per minute, is for non-commercial use only, and is
-served over plain HTTP, so the addresses you look up are sent unencrypted. Set
-`providers.ipapicom.enabled` to `false` if any of these rule it out for you.
+served over plain HTTP, so the addresses you look up are sent unencrypted. Disable it if
+any of these rule it out for you:
+
+```yaml
+providers:
+  ipapicom:
+    enabled: false
+```
 
 ## IPQualityScore
 
 Query the [IPQualityScore](https://www.ipqualityscore.com/documentation/proxy-detection-api/overview) API for host reputation data.
 The API is free to registered users for 5,000 requests.
 
-Set environment variable `IPQS_API_KEY` with your API key, and set `providers.ipqs.enabled` to `true`.
+Set environment variable `IPQS_API_KEY`, or `api_key` in the provider's config, with
+your API key.
+
+```yaml
+providers:
+  ipqs:
+    enabled: true
+```
 
 ## IPsum
 
@@ -274,6 +313,7 @@ Documents are expected to contain a list of prefixes in CIDR format, one per lin
 Example configuration:
 
 ```yaml
+providers:
   ipurl:
     enabled: true
     urls:
@@ -403,6 +443,7 @@ See:
 Custom nameservers can be specified in the `config.yaml` file with port defaulting to 53 if not specified.
 
 ```yaml
+providers:
   ptr:
     enabled: true
     nameservers:
@@ -423,7 +464,14 @@ to send.
 
 Query the [Shodan](https://www.shodan.io/) API for information on an IP address, with open ports, and services.
 
-Set environment variable `SHODAN_API_KEY` with your API key, and set `providers.shodan.enabled` to `true`.
+Set environment variable `SHODAN_API_KEY`, or `api_key` in the provider's config, with
+your API key.
+
+```yaml
+providers:
+  shodan:
+    enabled: true
+```
 
 ## Uptrends
 
@@ -437,7 +485,20 @@ appears to send.
 
 Query the [VirusTotal](https://www.virustotal.com) API for information from various providers on an IP address.
 
-Set environment variable `VIRUSTOTAL_API_KEY` with your API key, and set `providers.virustotal.enabled` to `true`.
+Set environment variable `VIRUSTOTAL_API_KEY` with your API key.
+
+```yaml
+providers:
+  virustotal:
+    enabled: true
+    show_providers: true
+    show_unrated: true
+    show_harmless: true
+    show_clean: true
+```
+
+`show_providers` includes the per-engine results. The other three flags choose which
+non-malicious categories to list; malicious and suspicious findings always show.
 
 ## X4BNet
 
@@ -456,6 +517,7 @@ The default source URL is `https://api.config.zscaler.com/zscaler.net/cenr/json`
 can be overridden in the configuration file.
 
 ```yaml
+providers:
   zscaler:
     enabled: true
     url: https://api.config.zscaler.com/zscaler.net/cenr/json

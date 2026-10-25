@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ### Changed
 
+- provider docs now include the config clause for every source that needs one: Azure WAF
+  (`resource_ids` and an Azure login), the six keyed providers (`enabled: true` plus the
+  API key), and CriminalIP's documented key name (`CRIMINAL_IP_API_KEY`)
 - bump Go to 1.27.2, `golang.org/x/sync` to v0.24.0, and `golang.org/x/net` to v0.61.0 to clear govulncheck findings
 - README examples regenerated from 0.19.1; they showed 0.17.0 output
 - replace obsolete `Makefile` `setup` target (`gometalinter`) with golangci-lint, goimports and gofumpt

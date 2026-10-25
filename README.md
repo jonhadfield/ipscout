@@ -343,6 +343,10 @@ VirusTotal) are disabled in the default config. To use one, set its API key and 
 Config files written before `global.config_version` existed are updated once to disable
 keyed providers that have no key.
 
+Three more need a clause of their own: [Annotated](docs/providers.md#annotated) (`paths`),
+[Azure WAF](docs/providers.md#azure-waf) (`resource_ids`, plus an Azure login) and
+[IPURL](docs/providers.md#ipurl) (`urls`). Each is documented with the YAML to add.
+
 When few providers return data for a host, IPScout suggests, at most once a day, API keys
 that would add more. Set `global.disable_tips: true` to turn this off. The TUI shows these
 tips, errors and warnings in its footer.
