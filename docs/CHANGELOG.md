@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.19.2] - 2026-10-25
+
 ### Changed
 
 - provider docs now include the config clause for every source that needs one: Azure WAF
