@@ -118,9 +118,12 @@ const (
 	DefaultAhrefsOutputPriority        = 64
 	DefaultGoogleSCOutputPriority      = 66
 	DefaultGoogleUTFOutputPriority     = 68
+	DefaultGoogleUTAOutputPriority     = 68
+	DefaultGoogleUTFGOutputPriority    = 68
 
 	// Vulnerability scanners: narrow ranges that name the source of a scan.
 	DefaultDetectifyOutputPriority = 70
+	DefaultOneTrustOutputPriority  = 70
 	DefaultTenableOutputPriority   = 70
 
 	// Monitoring and uptime probes.

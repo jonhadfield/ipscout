@@ -108,6 +108,12 @@
     "googleutf": {
       "defaultMatchScore": 1.0
     },
+    "googleuta": {
+      "defaultMatchScore": 1.0
+    },
+    "googleutfg": {
+      "defaultMatchScore": 1.0
+    },
     "oci": {
       "defaultMatchScore": 8.0
     },

@@ -653,6 +653,12 @@ type RatingConfig struct {
 		GoogleUTF struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"googleutf"`
+		GoogleUTA struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"googleuta"`
+		GoogleUTFG struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"googleutfg"`
 		OCI struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"oci"`
@@ -758,6 +764,9 @@ type RatingConfig struct {
 		Detectify struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"detectify"`
+		OneTrust struct {
+			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
+		} `json:"onetrust"`
 		Tenable struct {
 			DefaultMatchScore float64 `json:"defaultMatchScore,omitempty"`
 		} `json:"tenable"`

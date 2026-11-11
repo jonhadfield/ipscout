@@ -67,6 +67,8 @@ func TestDefaultConfigNewIPFetcherProviderScores(t *testing.T) {
 	require.Equal(t, float64(2), rc.Fastly.DefaultMatchScore)
 	require.Equal(t, float64(2), rc.GitHub.DefaultMatchScore)
 	require.Equal(t, float64(1), rc.GoogleUTF.DefaultMatchScore)
+	require.Equal(t, float64(1), rc.GoogleUTA.DefaultMatchScore)
+	require.Equal(t, float64(1), rc.GoogleUTFG.DefaultMatchScore)
 	require.Equal(t, float64(8), rc.OCI.DefaultMatchScore)
 	require.Equal(t, float64(1), rc.Ahrefs.DefaultMatchScore)
 	require.Equal(t, float64(1), rc.Applebot.DefaultMatchScore)

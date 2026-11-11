@@ -562,6 +562,10 @@ func InitProviders(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.GitHub.Enabled, &sess.Providers.GitHub.OutputPriority, &sess.Providers.GitHub.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "googleutf", c.DefaultGoogleUTFOutputPriority,
 		&sess.Providers.GoogleUTF.Enabled, &sess.Providers.GoogleUTF.OutputPriority, &sess.Providers.GoogleUTF.DocumentCacheTTL)
+	initSimpleProviderConfig(v, "googleuta", c.DefaultGoogleUTAOutputPriority,
+		&sess.Providers.GoogleUTA.Enabled, &sess.Providers.GoogleUTA.OutputPriority, &sess.Providers.GoogleUTA.DocumentCacheTTL)
+	initSimpleProviderConfig(v, "googleutfg", c.DefaultGoogleUTFGOutputPriority,
+		&sess.Providers.GoogleUTFG.Enabled, &sess.Providers.GoogleUTFG.OutputPriority, &sess.Providers.GoogleUTFG.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "ibmcloud", c.DefaultIBMCloudOutputPriority,
 		&sess.Providers.IBMCloud.Enabled, &sess.Providers.IBMCloud.OutputPriority, &sess.Providers.IBMCloud.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "imperva", c.DefaultImpervaOutputPriority,
@@ -610,6 +614,8 @@ func InitProviders(sess *session.Session, v *viper.Viper) {
 		&sess.Providers.Uptrends.Enabled, &sess.Providers.Uptrends.OutputPriority, &sess.Providers.Uptrends.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "detectify", c.DefaultDetectifyOutputPriority,
 		&sess.Providers.Detectify.Enabled, &sess.Providers.Detectify.OutputPriority, &sess.Providers.Detectify.DocumentCacheTTL)
+	initSimpleProviderConfig(v, "onetrust", c.DefaultOneTrustOutputPriority,
+		&sess.Providers.OneTrust.Enabled, &sess.Providers.OneTrust.OutputPriority, &sess.Providers.OneTrust.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "tenable", c.DefaultTenableOutputPriority,
 		&sess.Providers.Tenable.Enabled, &sess.Providers.Tenable.OutputPriority, &sess.Providers.Tenable.DocumentCacheTTL)
 	initSimpleProviderConfig(v, "gcore", c.DefaultGcoreOutputPriority,

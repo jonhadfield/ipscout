@@ -97,6 +97,8 @@ const (
 	providerFastly          = "fastly"
 	providerGitHub          = "github"
 	providerGoogleUTF       = "googleutf"
+	providerGoogleUTA       = "googleuta"
+	providerGoogleUTFG      = "googleutfg"
 	providerOCI             = "oci"
 	providerAhrefs          = "ahrefs"
 	providerApplebot        = "applebot"
@@ -135,6 +137,7 @@ const (
 	providerUpdown          = "updown"
 	providerUptrends        = "uptrends"
 	providerDetectify       = "detectify"
+	providerOneTrust        = "onetrust"
 	providerTenable         = "tenable"
 	providerGcore           = "gcore"
 	providerNewRelic        = "newrelic"
@@ -208,6 +211,8 @@ var providerIcons = map[string]string{
 	providerFastly:          emojiCloud,
 	providerGitHub:          emojiLaptop,
 	providerGoogleUTF:       emojiInvader,
+	providerGoogleUTA:       emojiInvader,
+	providerGoogleUTFG:      emojiInvader,
 	providerOCI:             emojiCloud,
 	providerAhrefs:          emojiInvader,
 	providerApplebot:        emojiInvader,
@@ -229,6 +234,7 @@ var providerIcons = map[string]string{
 	providerUpdown:          emojiCloud,
 	providerUptrends:        emojiCloud,
 	providerDetectify:       emojiInvader,
+	providerOneTrust:        emojiInvader,
 	providerTenable:         emojiInvader,
 	providerGcore:           emojiCloud,
 	providerNewRelic:        emojiCloud,
@@ -478,6 +484,10 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 			newText = strings.Replace(currentText, " GitHub", " ▶ GitHub", 1)
 		case providerGoogleUTF:
 			newText = strings.Replace(currentText, " Google User-triggered Fetchers", " ▶ Google User-triggered Fetchers", 1)
+		case providerGoogleUTA:
+			newText = strings.Replace(currentText, " Google User-triggered Agents", " ▶ Google User-triggered Agents", 1)
+		case providerGoogleUTFG:
+			newText = strings.Replace(currentText, " Google User-triggered Fetchers (Google)", " ▶ Google User-triggered Fetchers (Google)", 1)
 		case providerOCI:
 			newText = strings.Replace(currentText, " Oracle Cloud (OCI)", " ▶ Oracle Cloud (OCI)", 1)
 		case providerAhrefs:
@@ -520,6 +530,8 @@ func addActiveIndicatorToTable(table *tview.Table, providerName string) {
 			newText = strings.Replace(currentText, " Uptrends", " ▶ Uptrends", 1)
 		case providerDetectify:
 			newText = strings.Replace(currentText, " Detectify", " ▶ Detectify", 1)
+		case providerOneTrust:
+			newText = strings.Replace(currentText, " OneTrust", " ▶ OneTrust", 1)
 		case providerTenable:
 			newText = strings.Replace(currentText, " Tenable", " ▶ Tenable", 1)
 		case providerGcore:
@@ -721,6 +733,8 @@ func OpenUI(logLevel string) error {
 		providerFastly:          fetchFastly,
 		providerGitHub:          fetchGitHub,
 		providerGoogleUTF:       fetchGoogleUTF,
+		providerGoogleUTA:       fetchGoogleUTA,
+		providerGoogleUTFG:      fetchGoogleUTFG,
 		providerOCI:             fetchOCI,
 		providerAhrefs:          fetchAhrefs,
 		providerApplebot:        fetchApplebot,
@@ -742,6 +756,7 @@ func OpenUI(logLevel string) error {
 		providerUpdown:          fetchUpdown,
 		providerUptrends:        fetchUptrends,
 		providerDetectify:       fetchDetectify,
+		providerOneTrust:        fetchOneTrust,
 		providerTenable:         fetchTenable,
 		providerGcore:           fetchGcore,
 		providerNewRelic:        fetchNewRelic,
@@ -798,7 +813,7 @@ func OpenUI(logLevel string) error {
 	// credentials to return anything, so it is driven from the CLI only. Its
 	// icon, fetch and active-indicator entries are kept so it can be listed
 	// here without further wiring.
-	providers := []string{providerPTR, providerAnnotated, providerShodan, providerInternetDB, providerIPAPI, providerIPAPICom, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerContabo, providerCriminalIP, providerDigitalOcean, providerFlyio, providerGCP, providerGoogle, providerGoogleSC, providerIBMCloud, providerICloudPR, providerLeaseweb, providerLinode, providerM247, providerOpenAI, providerOVH, providerRender, providerScaleway, providerTencent, providerVultr, providerZscaler, providerAkamai, providerAtlassian, providerBunny, providerCDN77, providerCloudflare, providerDatadog, providerFastly, providerGitHub, providerGoogleUTF, providerImperva, providerOCI, providerStripe, providerAhrefs, providerApplebot, providerDuckDuckBot, providerPerplexity, providerAnthropic, providerBlocklistDE, providerCymru, providerGreenSnow, providerBetterStack, providerCheckly, providerGcore, providerNewRelic, providerPingdom, providerStatusCake, providerZoom, providerCINSScore, providerDShield, providerEmergingThreats, providerSpamhaus, providerUptimeRobot, providerFeodo, providerTor, providerM365, providerOkta, providerGrafana, providerSentry, providerSite24x7, providerUpdown, providerUptrends, providerDetectify, providerTenable, providerAmazonbot, providerCacheFly, providerCCBot, providerGitLab, providerHuawei, providerIntercom, providerMullvad, providerHetrixTools, providerNodePing, providerQualys, providerOhDear, providerRapid7, providerIntruder, providerInvicti, providerXpanse, providerSalesforce, providerASNDrop, providerAirVPN, providerIVPN, providerSurfshark, providerQuicCloud, providerStopForumSpam, providerBinaryDefense, providerTelegram, providerIPsum, providerX4BNet, providerCircleCI, providerThreatFox}
+	providers := []string{providerPTR, providerAnnotated, providerShodan, providerInternetDB, providerIPAPI, providerIPAPICom, providerIPToASN, providerIPURL, providerGooglebot, providerHetzner, providerIPQS, providerAbuseIPDB, providerAlibaba, providerVirusTotal, providerAWS, providerAzure, providerBingbot, providerContabo, providerCriminalIP, providerDigitalOcean, providerFlyio, providerGCP, providerGoogle, providerGoogleSC, providerIBMCloud, providerICloudPR, providerLeaseweb, providerLinode, providerM247, providerOpenAI, providerOVH, providerRender, providerScaleway, providerTencent, providerVultr, providerZscaler, providerAkamai, providerAtlassian, providerBunny, providerCDN77, providerCloudflare, providerDatadog, providerFastly, providerGitHub, providerGoogleUTF, providerGoogleUTA, providerGoogleUTFG, providerImperva, providerOCI, providerStripe, providerAhrefs, providerApplebot, providerDuckDuckBot, providerPerplexity, providerAnthropic, providerBlocklistDE, providerCymru, providerGreenSnow, providerBetterStack, providerCheckly, providerGcore, providerNewRelic, providerPingdom, providerStatusCake, providerZoom, providerCINSScore, providerDShield, providerEmergingThreats, providerSpamhaus, providerUptimeRobot, providerFeodo, providerTor, providerM365, providerOkta, providerGrafana, providerSentry, providerSite24x7, providerUpdown, providerUptrends, providerDetectify, providerOneTrust, providerTenable, providerAmazonbot, providerCacheFly, providerCCBot, providerGitLab, providerHuawei, providerIntercom, providerMullvad, providerHetrixTools, providerNodePing, providerQualys, providerOhDear, providerRapid7, providerIntruder, providerInvicti, providerXpanse, providerSalesforce, providerASNDrop, providerAirVPN, providerIVPN, providerSurfshark, providerQuicCloud, providerStopForumSpam, providerBinaryDefense, providerTelegram, providerIPsum, providerX4BNet, providerCircleCI, providerThreatFox}
 
 	providerInfo := make(map[string]providerResult)
 	input := tview.NewInputField()

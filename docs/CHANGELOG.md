@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-11-11
+
+### Added
+
+- three providers from ip-fetcher v0.0.51, enabled by default and needing no API key:
+  Google User-triggered Agents, Google User-triggered Fetchers (Google), and OneTrust
+  web scanners
+
+### Changed
+
+- bump ip-fetcher to v0.0.51
+
 ## [0.19.2] - 2026-10-25
 
 ### Changed

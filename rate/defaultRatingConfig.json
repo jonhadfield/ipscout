@@ -166,6 +166,12 @@
     "googleutf": {
       "defaultMatchScore": 1.0
     },
+    "googleuta": {
+      "defaultMatchScore": 1.0
+    },
+    "googleutfg": {
+      "defaultMatchScore": 1.0
+    },
     "oci": {
       "defaultMatchScore": 8.0
     },
@@ -242,6 +248,9 @@
       "defaultMatchScore": 1.0
     },
     "detectify": {
+      "defaultMatchScore": 2.0
+    },
+    "onetrust": {
       "defaultMatchScore": 2.0
     },
     "tenable": {

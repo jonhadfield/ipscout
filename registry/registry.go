@@ -54,7 +54,9 @@ import (
 	"github.com/jonhadfield/ipscout/providers/google"
 	"github.com/jonhadfield/ipscout/providers/googlebot"
 	"github.com/jonhadfield/ipscout/providers/googlesc"
+	"github.com/jonhadfield/ipscout/providers/googleuta"
 	"github.com/jonhadfield/ipscout/providers/googleutf"
+	"github.com/jonhadfield/ipscout/providers/googleutfg"
 	"github.com/jonhadfield/ipscout/providers/grafana"
 	"github.com/jonhadfield/ipscout/providers/greensnow"
 	"github.com/jonhadfield/ipscout/providers/hetrixtools"
@@ -84,6 +86,7 @@ import (
 	"github.com/jonhadfield/ipscout/providers/oci"
 	"github.com/jonhadfield/ipscout/providers/ohdear"
 	"github.com/jonhadfield/ipscout/providers/okta"
+	"github.com/jonhadfield/ipscout/providers/onetrust"
 	"github.com/jonhadfield/ipscout/providers/openai"
 	"github.com/jonhadfield/ipscout/providers/ovh"
 	"github.com/jonhadfield/ipscout/providers/perplexitybot"
@@ -498,6 +501,8 @@ func All() []Entry {
 		{Name: flyio.ProviderName, DisplayName: "Fly.io", Enabled: func(s session.Session) *bool { return s.Providers.Flyio.Enabled }, APIKey: noKey, NewClient: flyio.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: github.ProviderName, DisplayName: "GitHub", Enabled: func(s session.Session) *bool { return s.Providers.GitHub.Enabled }, APIKey: noKey, NewClient: github.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: googleutf.ProviderName, DisplayName: "Google User-triggered Fetchers", Enabled: func(s session.Session) *bool { return s.Providers.GoogleUTF.Enabled }, APIKey: noKey, NewClient: googleutf.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: googleuta.ProviderName, DisplayName: "Google User-triggered Agents", Enabled: func(s session.Session) *bool { return s.Providers.GoogleUTA.Enabled }, APIKey: noKey, NewClient: googleuta.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: googleutfg.ProviderName, DisplayName: "Google User-triggered Fetchers (Google)", Enabled: func(s session.Session) *bool { return s.Providers.GoogleUTFG.Enabled }, APIKey: noKey, NewClient: googleutfg.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: ibmcloud.ProviderName, DisplayName: "IBM Cloud", Enabled: func(s session.Session) *bool { return s.Providers.IBMCloud.Enabled }, APIKey: noKey, NewClient: ibmcloud.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: imperva.ProviderName, DisplayName: "Imperva", Enabled: func(s session.Session) *bool { return s.Providers.Imperva.Enabled }, APIKey: noKey, NewClient: imperva.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: leaseweb.ProviderName, DisplayName: "Leaseweb", Enabled: func(s session.Session) *bool { return s.Providers.Leaseweb.Enabled }, APIKey: noKey, NewClient: leaseweb.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
@@ -519,6 +524,7 @@ func All() []Entry {
 		{Name: updown.ProviderName, DisplayName: "updown.io", Enabled: func(s session.Session) *bool { return s.Providers.Updown.Enabled }, APIKey: noKey, NewClient: updown.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: uptrends.ProviderName, DisplayName: "Uptrends", Enabled: func(s session.Session) *bool { return s.Providers.Uptrends.Enabled }, APIKey: noKey, NewClient: uptrends.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: detectify.ProviderName, DisplayName: "Detectify", Enabled: func(s session.Session) *bool { return s.Providers.Detectify.Enabled }, APIKey: noKey, NewClient: detectify.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
+		{Name: onetrust.ProviderName, DisplayName: "OneTrust", Enabled: func(s session.Session) *bool { return s.Providers.OneTrust.Enabled }, APIKey: noKey, NewClient: onetrust.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: tenable.ProviderName, DisplayName: "Tenable", Enabled: func(s session.Session) *bool { return s.Providers.Tenable.Enabled }, APIKey: noKey, NewClient: tenable.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: gcore.ProviderName, DisplayName: "Gcore", Enabled: func(s session.Session) *bool { return s.Providers.Gcore.Enabled }, APIKey: noKey, NewClient: gcore.NewProviderClient, SupportsRating: true, DefaultEnabled: true},
 		{Name: newrelic.ProviderName, DisplayName: "New Relic", Enabled: func(s session.Session) *bool { return s.Providers.NewRelic.Enabled }, APIKey: noKey, NewClient: newrelic.NewProviderClient, SupportsRating: true, DefaultEnabled: true},

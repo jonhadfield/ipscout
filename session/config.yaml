@@ -143,6 +143,10 @@ providers:
     enabled: true
   googleutf:
     enabled: true
+  googleuta:
+    enabled: true
+  googleutfg:
+    enabled: true
   oci:
     enabled: true
   anthropic:
@@ -186,6 +190,8 @@ providers:
   uptrends:
     enabled: true
   detectify:
+    enabled: true
+  onetrust:
     enabled: true
   tenable:
     enabled: true

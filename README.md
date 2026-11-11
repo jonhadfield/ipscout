@@ -111,7 +111,9 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [GitLab](docs/providers.md#gitlab)                                         |       SaaS       |           -           |
 | [Google](docs/providers.md#google)                                         | Hosting Provider |           -           |
 | [Google Special-case crawlers](docs/providers.md#google-special-crawlers)  |   Web crawler    |           -           |
+| [Google User-triggered Agents](docs/providers.md#google-user-triggered-agents) | Web crawler |         -           |
 | [Google User-triggered Fetchers](docs/providers.md#google-user-triggered-fetchers) | Web crawler |         -           |
+| [Google User-triggered Fetchers (Google)](docs/providers.md#google-user-triggered-fetchers-google) | Web crawler | - |
 | [Googlebot](docs/providers.md#googlebot)                                   |   Web crawler    |           -           |
 | [Grafana](docs/providers.md#grafana)                                       |    Monitoring    |           -           |
 | [GreenSnow](docs/providers.md#greensnow)                                   |   Threat Feed    |           -           |
@@ -140,6 +142,7 @@ Provider data and search results can be cached to reduce API calls and improve p
 | [NodePing](docs/providers.md#nodeping) | Monitoring | - |
 | [Oh Dear](docs/providers.md#oh-dear) | Monitoring | - |
 | [Okta](docs/providers.md#okta)                                             |       SaaS       |           -           |
+| [OneTrust](docs/providers.md#onetrust)                                     | Vulnerability Scanner |     -     |
 | [OpenAI](docs/providers.md#openai)                                         |   Web crawler    |           -           |
 | [Oracle Cloud (OCI)](docs/providers.md#oracle-cloud-oci)                   | Hosting Provider |           -           |
 | [OVH](docs/providers.md#ovh)                                               | Hosting Provider |           -           |

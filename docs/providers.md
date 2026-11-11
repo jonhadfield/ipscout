@@ -178,6 +178,13 @@ addresses its scanners originate from at
 match means the host is a Detectify scanner rather than an unattributed source probing
 your estate.
 
+## OneTrust
+
+[OneTrust](https://www.onetrust.com/) publishes the egress addresses used by its
+[web scanner](https://my.onetrust.com/s/article/UUID-21f6bff2-1b12-8c67-e8b0-d852e36f37af).
+A match means the host is a OneTrust scanner rather than an unattributed source probing
+your estate.
+
 ## DigitalOcean
 
 [DigitalOcean](https://www.digitalocean.com/) is a hosting provider
@@ -652,12 +659,26 @@ reports the services associated with any matching range.
 and webhooks) in its documentation. IPScout extracts those CIDRs and checks whether the
 target IP is within them.
 
+## Google User-triggered Agents
+
+Google publishes the IP ranges used by its
+[user-triggered agents](https://developers.google.com/static/crawling/ipranges/user-triggered-agents.json),
+agents that act on behalf of a user request. IPScout downloads this list and
+checks whether the target IP is within those ranges.
+
 ## Google User-triggered Fetchers
 
 Google publishes the IP ranges used by its
 [user-triggered fetchers](https://developers.google.com/static/crawling/ipranges/user-triggered-fetchers.json),
 tools that fetch pages on behalf of a user request. IPScout downloads this list
 and checks whether the target IP is within those ranges.
+
+## Google User-triggered Fetchers (Google)
+
+Google also publishes the IP ranges used by its Google-owned
+[user-triggered fetchers](https://developers.google.com/static/crawling/ipranges/user-triggered-fetchers-google.json).
+IPScout downloads this list and checks whether the target IP is within those
+ranges.
 
 ## IBM Cloud
 

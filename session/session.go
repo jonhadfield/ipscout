@@ -573,6 +573,16 @@ type Providers struct {
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"googleutf"`
+	GoogleUTA struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"googleuta"`
+	GoogleUTFG struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"googleutfg"`
 	OCI struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
@@ -748,6 +758,11 @@ type Providers struct {
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
 		OutputPriority   *int32 `mapstructure:"output_priority"`
 	} `mapstructure:"detectify"`
+	OneTrust struct {
+		Enabled          *bool  `mapstructure:"enabled"`
+		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
+		OutputPriority   *int32 `mapstructure:"output_priority"`
+	} `mapstructure:"onetrust"`
 	Tenable struct {
 		Enabled          *bool  `mapstructure:"enabled"`
 		DocumentCacheTTL int64  `mapstructure:"document_cache_ttl"`
